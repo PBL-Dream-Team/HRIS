@@ -1,0 +1,265 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id String @db.Uuid @id @unique @default(cuid())
+
+  email String @db.VarChar(100) @unique
+  password String 
+  phone String @db.VarChar(100)
+  is_admin Boolean @default(false)
+
+  first_name String @db.VarChar(100)
+  last_name String @db.VarChar(100)
+  gender String @db.Char(1)  // L & P ?? M & F
+  address String? @db.Text
+
+  //Oauth
+  google_id String? @db.VarChar(100) @unique
+  access_token String? @db.Text @unique
+  refresh_token String? @db.Text @unique
+  
+  created_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
+  updated_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
+  deleted_at DateTime? @db.Timestamptz() 
+  is_deleted Boolean @db.Boolean @default(false)
+
+  accounts Employee[]
+  workspaces Workspace[]
+  subscriptions Subscription[]
+  payment_history Payment[]
+
+  @@map("User")
+}
+
+model Employee {
+  id String @db.Uuid @id @unique @default(cuid())
+
+  user_id String @db.Uuid
+  user User @relation(fields: [user_id],references: [id])
+
+  workspace_id String @db.Uuid
+  workspace Workspace @relation(fields: [workspace_id], references: [id])
+
+  ck_time_id String @db.Uuid
+  ck_time CheckClocksSettingTime @relation(fields: [ck_time_id], references: [id])
+
+  joined_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
+
+  //Gk yakin kalo perlu, tpi sementara dimasukin
+  is_hr Boolean @db.Boolean
+
+  created_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
+  updated_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
+  deleted_at DateTime? @db.Timestamptz() 
+  is_deleted Boolean @db.Boolean @default(false)
+
+  salaries Salary[]
+  letters Letter[]
+  attendance CheckClocks[]
+
+  @@map("Employee")
+}
+
+model Salary {
+  id String @db.Uuid @id @unique @default(cuid())
+
+  employee_id String @db.Uuid
+  employee Employee @relation(fields: [employee_id],references: [id])
+
+  
+  type SalaryType @default(MONTHLY) //default pay rate pegawai tetap
+  rate Float @db.Real
+  effective_date DateTime @db.Date @default(dbgenerated("CURRENT_TIMESTAMP"))
+
+
+  created_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
+  updated_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
+  deleted_at DateTime? @db.Timestamptz() 
+  is_deleted Boolean @db.Boolean @default(false)
+
+  @@map("Salary")
+}
+
+enum SalaryType {
+  HOURLY
+  WEEKLY
+  MONTHLY
+}
+
+model Workspace {
+  id String @db.Uuid @id @unique @default(cuid())
+
+  name String @db.VarChar(100)
+
+  created_by String @db.Uuid 
+  creator User @relation(fields: [created_by],references: [id])
+
+  created_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
+  updated_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
+  deleted_at DateTime? @db.Timestamptz() 
+  is_deleted Boolean @db.Boolean @default(false)
+
+  employees Employee[]
+
+  @@map("Workspace")
+}
+
+model Subscription {
+  id String @db.Uuid @id @unique @default(cuid())
+
+  user_id String @db.Uuid
+  user User @relation(fields: [user_id],references: [id])
+
+  type SubscriptionType
+
+  status SubscriptionStatus
+
+  start_date DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
+  update_date DateTime @db.Timestamptz()
+  
+  created_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
+  updated_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
+  deleted_at DateTime? @db.Timestamptz() 
+  is_deleted Boolean @db.Boolean @default(false)
+
+  @@map("Subscription")
+}
+
+enum SubscriptionType {
+  Trial
+  Paid
+}
+
+enum SubscriptionStatus {
+  Active
+  Expired
+  Canceled
+}
+
+model Payment {
+  id String @db.Uuid @id @unique @default(cuid())
+
+  user_id String @db.Uuid
+  user User @relation(fields: [user_id],references: [id])
+
+  xendit_transaction_id String @db.Text @unique
+
+  amount Int @db.Integer
+  
+  created_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
+  updated_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
+  deleted_at DateTime? @db.Timestamptz() 
+  is_deleted Boolean @db.Boolean @default(false)
+
+  @@map("Payment")
+}
+
+model LetterFormat {
+  id String @db.Uuid @id @unique @default(cuid())
+
+  name String @db.VarChar(100)
+
+  content String @db.Text
+  status Int @db.Integer
+  created_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
+  updated_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
+  deleted_at DateTime? @db.Timestamptz() 
+  is_deleted Boolean @db.Boolean @default(false)
+
+  letters Letter[]
+
+  @@map("LetterFormat")
+}
+
+model Letter {
+  id String @db.Uuid @id @unique @default(cuid())
+
+  letter_format_id String @db.Uuid
+  letter_format LetterFormat @relation(fields: [letter_format_id],references: [id])
+
+  employee_id String @db.Uuid
+  employee Employee @relation(fields: [employee_id],references: [id])
+
+  name String @db.VarChar(100)
+  created_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
+  updated_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
+  deleted_at DateTime? @db.Timestamptz() 
+  is_deleted Boolean @db.Boolean @default(false)
+
+  @@map("Letter")
+}
+
+model CheckClocks {
+  id String @db.Uuid @id @unique @default(cuid())
+
+  employee_id String @db.Uuid
+  employee Employee @relation(fields: [employee_id],references: [id])
+
+  check_clock_type CheckClockType
+  check_clock_time DateTime @db.Time() @default(dbgenerated("NOW()"))
+  created_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
+  updated_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
+  deleted_at DateTime? @db.Timestamptz() 
+  is_deleted Boolean @db.Boolean @default(false)
+
+  @@map("CheckClocks")
+}
+
+enum CheckClockType {
+  START
+  END
+  // OVERTIME_START
+  // OVERTIME_END
+}
+
+model CheckClocksSetting{
+  id String @db.Uuid @id @unique @default(cuid())
+
+  name String @db.VarChar(100)
+  type Int @db.Integer
+
+  created_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
+  updated_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
+  deleted_at DateTime? @db.Timestamptz() 
+  is_deleted Boolean @db.Boolean @default(false)
+
+  attendances CheckClocksSettingTime[]
+
+  @@map("CheckClocksSetting")
+}
+
+model CheckClocksSettingTime {
+  id String @db.Uuid @id @unique @default(cuid())
+
+  ck_settings_id String @db.Uuid
+  ck_settings CheckClocksSetting @relation(fields: [ck_settings_id],references: [id])
+
+  day DateTime @db.Date 
+  clock_in DateTime @db.Time()
+  clock_out DateTime @db.Time()
+
+  break_start DateTime @db.Time()
+  break_end DateTime @db.Time()
+
+  created_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
+  updated_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
+  deleted_at DateTime? @db.Timestamptz() 
+  is_deleted Boolean @db.Boolean @default(false)
+
+  employees Employee[]
+
+  @@map("CheckClocksSettingTime")
+}
