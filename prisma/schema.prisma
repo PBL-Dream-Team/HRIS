@@ -105,6 +105,7 @@ model Workspace {
   name String @db.VarChar(100)
 
   subscription_id String @db.Uuid @unique
+  subscription Subscription @relation(fields: [subscription_id],references: [id])
 
   created_by String @db.Uuid 
   creator User @relation(fields: [created_by],references: [id])
@@ -115,7 +116,6 @@ model Workspace {
   is_deleted Boolean @db.Boolean @default(false)
 
   employees Employee[]
-  subscription Subscription[]
 
   @@map("Workspace")
 }
@@ -125,9 +125,6 @@ model Subscription {
 
   user_id String @db.Uuid
   user User @relation(fields: [user_id],references: [id])
-
-  workspace_id String @db.Uuid
-  workspace Workspace @relation(fields: [workspace_id],references: [id])
 
   type SubscriptionType
 
@@ -140,6 +137,8 @@ model Subscription {
   updated_at DateTime @db.Timestamptz() @updatedAt @default(dbgenerated("CURRENT_TIMESTAMP"))
   deleted_at DateTime? @db.Timestamptz() 
   is_deleted Boolean @db.Boolean @default(false)
+
+  workspace Workspace[]
 
   @@map("Subscription")
 }

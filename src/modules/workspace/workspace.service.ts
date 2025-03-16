@@ -1,25 +1,21 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
-import { createUserDto, editUserDto } from "./dto";
-import { hash } from "argon2";
+import { createWorkspaceDto, editWorkspaceDto } from "./dto";
 
 @Injectable()
-export class UserService{
+export class WorkspaceService{
     constructor(private prisma:PrismaService){}
 
-    async createUser(dto:createUserDto){
-        const hashed = await hash(dto.password);
-        let data : any = { ...dto}
-
-        data.password = hashed;
+    async createWorkspace(dto:createWorkspaceDto){
+        let data : any = { ...dto};
 
         try{
-            const user = await this.prisma.user.create({data:data});
+            const workspace = await this.prisma.workspace.create({data:data});
 
             return {
                 statusCode: 201,
                 message : "Data created successfully",
-                data : user
+                data : workspace
             }
         }
         catch(error){
@@ -30,10 +26,10 @@ export class UserService{
             }
         }
     }
-    async getUser(userId: string){
-        const data = await this.prisma.user.findFirst({
+    async getWorkspace(workspaceId: string){
+        const data = await this.prisma.workspace.findFirst({
             where: {
-                id: userId
+                id: workspaceId
             }
         });
         if(data){
@@ -51,25 +47,21 @@ export class UserService{
         }
         
     }
-    async getUsers(){
-        return await this.prisma.user.findMany();
+    async getWorkspaces(){
+        return await this.prisma.workspace.findMany();
     }
-    async updateUser(userId : string, dto: editUserDto){
+    async updateWorkspace(workspaceId : string, dto: editWorkspaceDto){
         let data: any = {...dto};
 
-        if(dto.password){
-            data.password = await hash(dto.password)
-        }
-
         try{
-            const user = await this.prisma.user.update({
-                where: {id:userId},data : data
+            const workspace = await this.prisma.workspace.update({
+                where: {id:workspaceId},data : data
             });
 
             return {
                 statusCode: 200,
                 message : "Data updated successfully",
-                data : user
+                data : workspace
             }
         }
         catch(error){
@@ -80,9 +72,9 @@ export class UserService{
             }
         }
     }
-    async deleteUser(userId :string){
+    async deleteWorkspace(workspaceId :string){
         try{
-            await this.prisma.user.delete({where:{id:userId}});
+            await this.prisma.workspace.delete({where:{id:workspaceId}});
 
             return {
                 statusCode: 200,
