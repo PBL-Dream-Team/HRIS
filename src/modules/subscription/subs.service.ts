@@ -1,25 +1,20 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
-import { createUserDto, editUserDto } from "./dto";
-import { hash } from "argon2";
+import { createSubsDto, editSubsDto } from "./dto";
 
 @Injectable()
-export class UserService{
+export class SubsService{
     constructor(private prisma:PrismaService){}
 
-    async createUser(dto:createUserDto){
-        const hashed = await hash(dto.password);
-        let data : any = { ...dto}
-
-        data.password = hashed;
-
+    async createSubs(dto:createSubsDto){
+        let data : any = { ...dto};
         try{
-            const user = await this.prisma.user.create({data:data});
+            const subs = await this.prisma.subscription.create({data:data});
 
             return {
                 statusCode: 201,
                 message : "Data created successfully",
-                data : user
+                data : subs
             }
         }
         catch(error){
@@ -30,10 +25,10 @@ export class UserService{
             }
         }
     }
-    async getUser(userId: string){
-        const data = await this.prisma.user.findFirst({
+    async getSub(subsId: string){
+        const data = await this.prisma.subscription.findFirst({
             where: {
-                id: userId
+                id: subsId
             }
         });
         if(data){
@@ -51,25 +46,21 @@ export class UserService{
         }
         
     }
-    async getUsers(){
-        return await this.prisma.user.findMany();
+    async getSubs(){
+        return await this.prisma.subscription.findMany();
     }
-    async updateUser(userId : string, dto: editUserDto){
+    async updateSubs(subsId : string, dto: editSubsDto){
         let data: any = {...dto};
 
-        if(dto.password){
-            data.password = await hash(dto.password)
-        }
-
         try{
-            const user = await this.prisma.user.update({
-                where: {id:userId},data : data
+            const subs = await this.prisma.subscription.update({
+                where: {id:subsId},data : data
             });
 
             return {
                 statusCode: 200,
                 message : "Data updated successfully",
-                data : user
+                data : subs
             }
         }
         catch(error){
@@ -80,9 +71,9 @@ export class UserService{
             }
         }
     }
-    async deleteUser(userId :string){
+    async deleteSubs(subsId :string){
         try{
-            await this.prisma.user.delete({where:{id:userId}});
+            await this.prisma.subscription.delete({where:{id:subsId}});
 
             return {
                 statusCode: 200,
