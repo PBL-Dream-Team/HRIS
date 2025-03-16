@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
-import { CreateLetterFormatDto, EditLetterFormatDto } from "./dto";
+import { CreateLetterFormatDto, editLetterFormatDto } from "./dto";
 
 @Injectable()
 export class LetterFormatService{
@@ -46,7 +46,7 @@ export class LetterFormatService{
         return await this.prisma.letterFormat.findMany();
     }
 
-    async updateLetterFormat(letterFormatId: string, dto: EditLetterFormatDto) {
+    async updateLetterFormat(letterFormatId: string, dto: editLetterFormatDto) {
         try {
             const letterFormat = await this.prisma.letterFormat.update({
                 where: { id: letterFormatId },

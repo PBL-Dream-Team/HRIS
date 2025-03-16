@@ -2,37 +2,37 @@ import { Body, Controller, Delete, Get, Param, Patch, Post } from "@nestjs/commo
 import { CheckClockService } from "./checkclock.service";
 import { createCheckClockDto, editCheckClockDto } from "./dto";
 
-@Controller('checkclocks')
+@Controller('checkclock')
 export class CheckClockController {
-    constructor(private readonly checkclockService: CheckClockService) {}
+    constructor(private readonly checkClockService: CheckClockService) {}
     
     @Post()
     createCheckClock(@Body() createCheckClockDto: createCheckClockDto) {
-        return this.checkclockService.createCheckClock(createCheckClockDto);
+        return this.checkClockService.createCheckClock(createCheckClockDto);
     }
 
     @Get()
     getCheckClocks() {
-        return this.checkclockService.getCheckClocks();
+        return this.checkClockService.getCheckClocks();
     }
 
     @Get(':id')
-    getCheckClock(@Param('id') checkclockId: string) {
-        return this.checkclockService.getCheckClock(checkclockId);
+    getCheckClock(@Param('id') checkClockId: string) {
+        return this.checkClockService.getCheckClock(checkClockId);
     }
 
     @Patch(':id')
     updateCheckClock(
-        @Param('id') checkclockId: string,
+        @Param('id') checkClockId: string,
         @Body() updateCheckClockDto: editCheckClockDto
     ){
-        return this.checkclockService.updateCheckClock(checkclockId, updateCheckClockDto);
+        return this.checkClockService.updateCheckClock(checkClockId, updateCheckClockDto);
     }
 
     @Delete(':id')
     deleteCheckClock(
-        @Param('id') checkclockId: string
+        @Param('id') checkClockId: string
     ) {
-        return this.checkclockService.deleteCheckClock(checkclockId);
+        return this.checkClockService.deleteCheckClock(checkClockId);
     }
 }

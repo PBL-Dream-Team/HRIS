@@ -4,35 +4,35 @@ import { createCheckClockSettingDto, editCheckClockSettingDto } from "./dto";
 
 @Controller('checkclocksettings')
 export class CheckClockSettingController {
-    constructor(private readonly checkclocksettingService: CheckClockSettingService) {}
+    constructor(private readonly checkClocksettingService: CheckClockSettingService) {}
     
     @Post()
     createCheckClockSetting(@Body() createCheckClockSettingDto: createCheckClockSettingDto) {
-        return this.checkclocksettingService.createCheckClockSetting(createCheckClockSettingDto);
+        return this.checkClocksettingService.createCheckClockSetting(createCheckClockSettingDto);
     }
 
     @Get()
     getCheckClockSettings() {
-        return this.checkclocksettingService.getCheckClockSettings();
+        return this.checkClocksettingService.getCheckClockSettings();
     }
 
     @Get(':id')
-    getCheckClockSetting(@Param('id') checkclocksettingId: string) {
-        return this.checkclocksettingService.getCheckClockSetting(checkclocksettingId);
+    getCheckClockSetting(@Param('id') checkClocksettingId: string) {
+        return this.checkClocksettingService.getCheckClockSetting(checkClocksettingId);
     }
 
     @Patch(':id')
     updateCheckClockSetting(
-        @Param('id') checkclocksettingId: string,
+        @Param('id') checkClocksettingId: string,
         @Body() updateCheckClockSettingDto: editCheckClockSettingDto
     ){
-        return this.checkclocksettingService.updateCheckClockSetting(checkclocksettingId, updateCheckClockSettingDto);
+        return this.checkClocksettingService.updateCheckClockSetting(checkClocksettingId, updateCheckClockSettingDto);
     }
 
     @Delete(':id')
     deleteCheckClockSetting(
-        @Param('id') checkclocksettingId: string
+        @Param('id') checkClocksettingId: string
     ) {
-        return this.checkclocksettingService.deleteCheckClockSetting(checkclocksettingId);
+        return this.checkClocksettingService.deleteCheckClockSetting(checkClocksettingId);
     }
 }

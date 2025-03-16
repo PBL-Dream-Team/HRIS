@@ -8,8 +8,9 @@ export class SalaryService {
     constructor(private prisma: PrismaService) {}
 
     async createSalary(dto: createSalaryDto) {
+        let data : any = { ...dto };
         try {
-            const salary = await this.prisma.salary.create({ data: dto });
+            const salary = await this.prisma.salary.create({ data: data });
             return {
                 statusCode: 201,
                 message: "Salary created successfully",
@@ -45,8 +46,10 @@ export class SalaryService {
     }
 
     async updateSalary(salaryId: string, dto: editSalaryDto) {
+        let data: any = { ...dto };
+
         try {
-            const salary = await this.prisma.salary.update({ where: { id: salaryId }, data: dto });
+            const salary = await this.prisma.salary.update({ where: { id: salaryId }, data: data });
             return {
                 statusCode: 200,
                 message: "Salary updated successfully",

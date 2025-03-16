@@ -7,12 +7,13 @@ export class CheckClockService {
     constructor(private prisma: PrismaService) {}
 
     async createCheckClock(dto: createCheckClockDto) {
+        let data : any = { ...dto };
         try {
-            const checkclock = await this.prisma.checkclock.create({ data: dto });
+            const checkClock = await this.prisma.checkClock.create({ data: data });
             return {
                 statusCode: 201,
                 message: "Check Clock created successfully",
-                data: checkclock
+                data: checkClock
             };
         } catch (error) {
             console.log("Error: ", error);
@@ -23,8 +24,8 @@ export class CheckClockService {
         }
     }
 
-    async getCheckClock(checkclockId: string) {
-        const data = await this.prisma.checkclock.findFirst({ where: { id: checkclockId } });
+    async getCheckClock(checkClockId: string) {
+        const data = await this.prisma.checkClock.findFirst({ where: { id: checkClockId } });
         if (data) {
             return {
                 statusCode: 200,
@@ -40,16 +41,17 @@ export class CheckClockService {
     }
 
     async getCheckClocks() {
-        return await this.prisma.checkclock.findMany();
+        return await this.prisma.checkClock.findMany();
     }
 
-    async updateCheckClock(checkclockId: string, dto: editCheckClockDto) {
+    async updateCheckClock(checkClockId: string, dto: editCheckClockDto) {
+        let data : any = { ...dto };
         try {
-            const checkclock = await this.prisma.checkclock.update({ where: { id: checkclockId }, data: dto });
+            const checkClock = await this.prisma.checkClock.update({ where: { id: checkClockId }, data: data });
             return {
                 statusCode: 200,
                 message: "Check Clock updated successfully",
-                data: checkclock
+                data: checkClock
             }
         } catch (error) {
             console.log("Error: ", error);
@@ -60,9 +62,9 @@ export class CheckClockService {
         }
     }
 
-    async deleteCheckClock(checkclockId: string) {
+    async deleteCheckClock(checkClockId: string) {
         try {
-            await this.prisma.checkclock.delete({ where: { id: checkclockId } });
+            await this.prisma.checkClock.delete({ where: { id: checkClockId } });
             return {
                 statusCode: 200,
                 message: "Check Clock deleted successfully"
