@@ -4,6 +4,7 @@ import configuration from "./config/app.config";
 import { PrismaModule } from './prisma/prisma.module';
 import { UserModule } from './modules/user/user.module';
 import { PaymentModule } from './modules/payment/payment.module';
+import { EmployeeModule } from './modules/employee/employee.module';
 
 @Module({
   imports: [
@@ -12,7 +13,8 @@ import { PaymentModule } from './modules/payment/payment.module';
       isGlobal:true}),
     PrismaModule,
     UserModule,
-    PaymentModule
+    PaymentModule,
+    EmployeeModule
   ],
 })
 export class AppModule {}
