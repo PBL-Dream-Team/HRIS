@@ -1,16 +1,9 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
-import configuration from "./config/app.config";
-import { PrismaModule } from './prisma/prisma.module';
 import { UserModule } from './modules/user/user.module';
+import { LetterModule } from './modules/letter/letter.module';
+import { LetterFormatModule } from './modules/letterFormat/letterFormat.module';
 
 @Module({
-  imports: [
-    ConfigModule.forRoot({
-      load:[configuration],
-      isGlobal:true}),
-    PrismaModule,
-    UserModule
-  ],
+  imports: [UserModule, LetterModule, LetterFormatModule],
 })
 export class AppModule {}
