@@ -54,7 +54,7 @@ model Employee {
   workspace Workspace @relation(fields: [workspace_id], references: [id])
 
   ck_time_id String @db.Uuid
-  ck_time CheckClocksSettingTime @relation(fields: [ck_time_id], references: [id])
+  ck_time CheckClockSettingTime @relation(fields: [ck_time_id], references: [id])
 
   joined_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
 
@@ -68,7 +68,7 @@ model Employee {
 
   salaries Salary[]
   letters Letter[]
-  attendance CheckClocks[]
+  attendance CheckClock[]
 
   @@map("Employee")
 }
@@ -207,7 +207,7 @@ model Letter {
   @@map("Letter")
 }
 
-model CheckClocks {
+model CheckClock {
   id String @db.Uuid @id @unique @default(uuid())
 
   employee_id String @db.Uuid
@@ -220,7 +220,7 @@ model CheckClocks {
   deleted_at DateTime? @db.Timestamptz() 
   is_deleted Boolean @db.Boolean @default(false)
 
-  @@map("CheckClocks")
+  @@map("CheckClock")
 }
 
 enum CheckClockType {
@@ -230,7 +230,7 @@ enum CheckClockType {
   // OVERTIME_END
 }
 
-model CheckClocksSetting{
+model CheckClockSetting{
   id String @db.Uuid @id @unique @default(uuid())
 
   name String @db.VarChar(100)
@@ -241,16 +241,16 @@ model CheckClocksSetting{
   deleted_at DateTime? @db.Timestamptz() 
   is_deleted Boolean @db.Boolean @default(false)
 
-  attendances CheckClocksSettingTime[]
+  attendances CheckClockSettingTime[]
 
-  @@map("CheckClocksSetting")
+  @@map("CheckClockSetting")
 }
 
-model CheckClocksSettingTime {
+model CheckClockSettingTime {
   id String @db.Uuid @id @unique @default(uuid())
 
   ck_settings_id String @db.Uuid
-  ck_settings CheckClocksSetting @relation(fields: [ck_settings_id],references: [id])
+  ck_settings CheckClockSetting @relation(fields: [ck_settings_id],references: [id])
 
   day DateTime @db.Date 
   clock_in DateTime @db.Time()
@@ -266,5 +266,5 @@ model CheckClocksSettingTime {
 
   employees Employee[]
 
-  @@map("CheckClocksSettingTime")
+  @@map("CheckClockSettingTime")
 }
