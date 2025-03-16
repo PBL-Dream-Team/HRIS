@@ -1,3 +1,4 @@
+import { Transform } from "@nestjs/class-transformer";
 import { IsUUID, IsNotEmpty, IsBoolean, IsDateString } from "@nestjs/class-validator";
 
 export class createEmployeeDto {
@@ -15,6 +16,7 @@ export class createEmployeeDto {
 
     @IsBoolean()
     @IsNotEmpty()
+    @Transform(({ value }) => value.toBoolean())
     is_hr: boolean;
 
     @IsDateString()
