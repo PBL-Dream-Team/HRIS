@@ -135,7 +135,7 @@ CREATE TABLE "Letter" (
 );
 
 -- CreateTable
-CREATE TABLE "CheckClocks" (
+CREATE TABLE "CheckClock" (
     "id" UUID NOT NULL,
     "employee_id" UUID NOT NULL,
     "check_clock_type" "CheckClockType" NOT NULL,
@@ -145,11 +145,11 @@ CREATE TABLE "CheckClocks" (
     "deleted_at" TIMESTAMPTZ,
     "is_deleted" BOOLEAN NOT NULL DEFAULT false,
 
-    CONSTRAINT "CheckClocks_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "CheckClock_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "CheckClocksSetting" (
+CREATE TABLE "CheckClockSetting" (
     "id" UUID NOT NULL,
     "name" VARCHAR(100) NOT NULL,
     "type" INTEGER NOT NULL,
@@ -158,11 +158,11 @@ CREATE TABLE "CheckClocksSetting" (
     "deleted_at" TIMESTAMPTZ,
     "is_deleted" BOOLEAN NOT NULL DEFAULT false,
 
-    CONSTRAINT "CheckClocksSetting_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "CheckClockSetting_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "CheckClocksSettingTime" (
+CREATE TABLE "CheckClockSettingTime" (
     "id" UUID NOT NULL,
     "ck_settings_id" UUID NOT NULL,
     "day" DATE NOT NULL,
@@ -175,7 +175,7 @@ CREATE TABLE "CheckClocksSettingTime" (
     "deleted_at" TIMESTAMPTZ,
     "is_deleted" BOOLEAN NOT NULL DEFAULT false,
 
-    CONSTRAINT "CheckClocksSettingTime_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "CheckClockSettingTime_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -218,13 +218,13 @@ CREATE UNIQUE INDEX "LetterFormat_id_key" ON "LetterFormat"("id");
 CREATE UNIQUE INDEX "Letter_id_key" ON "Letter"("id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "CheckClocks_id_key" ON "CheckClocks"("id");
+CREATE UNIQUE INDEX "CheckClock_id_key" ON "CheckClock"("id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "CheckClocksSetting_id_key" ON "CheckClocksSetting"("id");
+CREATE UNIQUE INDEX "CheckClockSetting_id_key" ON "CheckClockSetting"("id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "CheckClocksSettingTime_id_key" ON "CheckClocksSettingTime"("id");
+CREATE UNIQUE INDEX "CheckClockSettingTime_id_key" ON "CheckClockSettingTime"("id");
 
 -- AddForeignKey
 ALTER TABLE "Employee" ADD CONSTRAINT "Employee_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -233,7 +233,7 @@ ALTER TABLE "Employee" ADD CONSTRAINT "Employee_user_id_fkey" FOREIGN KEY ("user
 ALTER TABLE "Employee" ADD CONSTRAINT "Employee_workspace_id_fkey" FOREIGN KEY ("workspace_id") REFERENCES "Workspace"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Employee" ADD CONSTRAINT "Employee_ck_time_id_fkey" FOREIGN KEY ("ck_time_id") REFERENCES "CheckClocksSettingTime"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Employee" ADD CONSTRAINT "Employee_ck_time_id_fkey" FOREIGN KEY ("ck_time_id") REFERENCES "CheckClockSettingTime"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Salary" ADD CONSTRAINT "Salary_employee_id_fkey" FOREIGN KEY ("employee_id") REFERENCES "Employee"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -254,7 +254,7 @@ ALTER TABLE "Letter" ADD CONSTRAINT "Letter_letter_format_id_fkey" FOREIGN KEY (
 ALTER TABLE "Letter" ADD CONSTRAINT "Letter_employee_id_fkey" FOREIGN KEY ("employee_id") REFERENCES "Employee"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "CheckClocks" ADD CONSTRAINT "CheckClocks_employee_id_fkey" FOREIGN KEY ("employee_id") REFERENCES "Employee"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "CheckClock" ADD CONSTRAINT "CheckClock_employee_id_fkey" FOREIGN KEY ("employee_id") REFERENCES "Employee"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "CheckClocksSettingTime" ADD CONSTRAINT "CheckClocksSettingTime_ck_settings_id_fkey" FOREIGN KEY ("ck_settings_id") REFERENCES "CheckClocksSetting"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "CheckClockSettingTime" ADD CONSTRAINT "CheckClockSettingTime_ck_settings_id_fkey" FOREIGN KEY ("ck_settings_id") REFERENCES "CheckClockSetting"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

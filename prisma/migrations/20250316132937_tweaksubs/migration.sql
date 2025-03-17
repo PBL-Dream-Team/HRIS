@@ -1,3 +1,12 @@
+/*
+  Warnings:
+
+  - You are about to drop the column `workspace_id` on the `Subscription` table. All the data in the column will be lost.
+
+*/
+-- DropForeignKey
+ALTER TABLE "Subscription" DROP CONSTRAINT "Subscription_workspace_id_fkey";
+
 -- AlterTable
 ALTER TABLE "CheckClock" ALTER COLUMN "check_clock_time" SET DEFAULT NOW(),
 ALTER COLUMN "created_at" SET DEFAULT CURRENT_TIMESTAMP,
@@ -34,7 +43,8 @@ ALTER COLUMN "created_at" SET DEFAULT CURRENT_TIMESTAMP,
 ALTER COLUMN "updated_at" SET DEFAULT CURRENT_TIMESTAMP;
 
 -- AlterTable
-ALTER TABLE "Subscription" ALTER COLUMN "start_date" SET DEFAULT CURRENT_TIMESTAMP,
+ALTER TABLE "Subscription" DROP COLUMN "workspace_id",
+ALTER COLUMN "start_date" SET DEFAULT CURRENT_TIMESTAMP,
 ALTER COLUMN "created_at" SET DEFAULT CURRENT_TIMESTAMP,
 ALTER COLUMN "updated_at" SET DEFAULT CURRENT_TIMESTAMP;
 
@@ -45,3 +55,6 @@ ALTER COLUMN "updated_at" SET DEFAULT CURRENT_TIMESTAMP;
 -- AlterTable
 ALTER TABLE "Workspace" ALTER COLUMN "created_at" SET DEFAULT CURRENT_TIMESTAMP,
 ALTER COLUMN "updated_at" SET DEFAULT CURRENT_TIMESTAMP;
+
+-- AddForeignKey
+ALTER TABLE "Workspace" ADD CONSTRAINT "Workspace_subscription_id_fkey" FOREIGN KEY ("subscription_id") REFERENCES "Subscription"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

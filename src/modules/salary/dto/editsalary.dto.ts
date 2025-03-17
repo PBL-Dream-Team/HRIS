@@ -1,11 +1,13 @@
 import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID, IsDateString, IsEnum } from "@nestjs/class-validator";
+import { SalaryType } from "./createsalary.dto";
+
 
 export class editSalaryDto {
     @IsUUID()
     @IsOptional()
     employee_id: string;
 
-    @IsEnum(['monthly', 'weekly', 'hourly'])
+    @IsEnum(SalaryType)
     @IsOptional()
     type: string;
 

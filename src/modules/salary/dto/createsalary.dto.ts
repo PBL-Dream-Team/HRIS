@@ -1,11 +1,18 @@
 import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID, IsDateString, IsEnum } from "@nestjs/class-validator";
 
+
+export enum SalaryType {
+    Monthly = 'monthly',
+    Weekly = 'weekly',
+    Hourly = 'hourly'
+}
+
 export class createSalaryDto {
     @IsUUID()
     @IsNotEmpty()
     employee_id: string;
 
-    @IsEnum(['monthly', 'weekly', 'hourly'])
+    @IsEnum(SalaryType)
     @IsNotEmpty()
     type: string;
 
