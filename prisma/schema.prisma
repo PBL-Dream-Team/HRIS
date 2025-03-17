@@ -14,7 +14,7 @@ datasource db {
 }
 
 model User {
-  id String @db.Uuid @id @unique @default(cuid())
+  id String @db.Uuid @id @unique @default(uuid())
 
   email String @db.VarChar(100) @unique
   password String 
@@ -32,7 +32,7 @@ model User {
   refresh_token String? @db.Text @unique
   
   created_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
-  updated_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
+  updated_at DateTime @db.Timestamptz() @updatedAt @default(dbgenerated("CURRENT_TIMESTAMP"))
   deleted_at DateTime? @db.Timestamptz() 
   is_deleted Boolean @db.Boolean @default(false)
 
@@ -45,7 +45,7 @@ model User {
 }
 
 model Employee {
-  id String @db.Uuid @id @unique @default(cuid())
+  id String @db.Uuid @id @unique @default(uuid())
 
   user_id String @db.Uuid
   user User @relation(fields: [user_id],references: [id])
@@ -54,7 +54,7 @@ model Employee {
   workspace Workspace @relation(fields: [workspace_id], references: [id])
 
   ck_time_id String @db.Uuid
-  ck_time CheckClocksSettingTime @relation(fields: [ck_time_id], references: [id])
+  ck_time CheckClockSettingTime @relation(fields: [ck_time_id], references: [id])
 
   joined_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
 
@@ -62,19 +62,19 @@ model Employee {
   is_hr Boolean @db.Boolean
 
   created_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
-  updated_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
+  updated_at DateTime @db.Timestamptz() @updatedAt @default(dbgenerated("CURRENT_TIMESTAMP"))
   deleted_at DateTime? @db.Timestamptz() 
   is_deleted Boolean @db.Boolean @default(false)
 
   salaries Salary[]
   letters Letter[]
-  attendance CheckClocks[]
+  attendance CheckClock[]
 
   @@map("Employee")
 }
 
 model Salary {
-  id String @db.Uuid @id @unique @default(cuid())
+  id String @db.Uuid @id @unique @default(uuid())
 
   employee_id String @db.Uuid
   employee Employee @relation(fields: [employee_id],references: [id])
@@ -86,7 +86,7 @@ model Salary {
 
 
   created_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
-  updated_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
+  updated_at DateTime @db.Timestamptz() @updatedAt @default(dbgenerated("CURRENT_TIMESTAMP"))
   deleted_at DateTime? @db.Timestamptz() 
   is_deleted Boolean @db.Boolean @default(false)
 
@@ -100,34 +100,31 @@ enum SalaryType {
 }
 
 model Workspace {
-  id String @db.Uuid @id @unique @default(cuid())
+  id String @db.Uuid @id @unique @default(uuid())
 
   name String @db.VarChar(100)
 
   subscription_id String @db.Uuid @unique
+  subscription Subscription @relation(fields: [subscription_id],references: [id])
 
   created_by String @db.Uuid 
   creator User @relation(fields: [created_by],references: [id])
 
   created_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
-  updated_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
+  updated_at DateTime @db.Timestamptz() @updatedAt @default(dbgenerated("CURRENT_TIMESTAMP"))
   deleted_at DateTime? @db.Timestamptz() 
   is_deleted Boolean @db.Boolean @default(false)
 
   employees Employee[]
-  subscription Subscription[]
 
   @@map("Workspace")
 }
 
 model Subscription {
-  id String @db.Uuid @id @unique @default(cuid())
+  id String @db.Uuid @id @unique @default(uuid())
 
   user_id String @db.Uuid
   user User @relation(fields: [user_id],references: [id])
-
-  workspace_id String @db.Uuid
-  workspace Workspace @relation(fields: [workspace_id],references: [id])
 
   type SubscriptionType
 
@@ -137,9 +134,11 @@ model Subscription {
   update_date DateTime @db.Timestamptz()
   
   created_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
-  updated_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
+  updated_at DateTime @db.Timestamptz() @updatedAt @default(dbgenerated("CURRENT_TIMESTAMP"))
   deleted_at DateTime? @db.Timestamptz() 
   is_deleted Boolean @db.Boolean @default(false)
+
+  workspace Workspace[]
 
   @@map("Subscription")
 }
@@ -156,7 +155,7 @@ enum SubscriptionStatus {
 }
 
 model Payment {
-  id String @db.Uuid @id @unique @default(cuid())
+  id String @db.Uuid @id @unique @default(uuid())
 
   user_id String @db.Uuid
   user User @relation(fields: [user_id],references: [id])
@@ -166,7 +165,7 @@ model Payment {
   amount Int @db.Integer
   
   created_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
-  updated_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
+  updated_at DateTime @db.Timestamptz() @updatedAt @default(dbgenerated("CURRENT_TIMESTAMP"))
   deleted_at DateTime? @db.Timestamptz() 
   is_deleted Boolean @db.Boolean @default(false)
 
@@ -174,14 +173,14 @@ model Payment {
 }
 
 model LetterFormat {
-  id String @db.Uuid @id @unique @default(cuid())
+  id String @db.Uuid @id @unique @default(uuid())
 
   name String @db.VarChar(100)
 
   content String @db.Text
   status Int @db.Integer
   created_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
-  updated_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
+  updated_at DateTime @db.Timestamptz() @updatedAt @default(dbgenerated("CURRENT_TIMESTAMP"))
   deleted_at DateTime? @db.Timestamptz() 
   is_deleted Boolean @db.Boolean @default(false)
 
@@ -191,7 +190,7 @@ model LetterFormat {
 }
 
 model Letter {
-  id String @db.Uuid @id @unique @default(cuid())
+  id String @db.Uuid @id @unique @default(uuid())
 
   letter_format_id String @db.Uuid
   letter_format LetterFormat @relation(fields: [letter_format_id],references: [id])
@@ -201,15 +200,15 @@ model Letter {
 
   name String @db.VarChar(100)
   created_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
-  updated_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
+  updated_at DateTime @db.Timestamptz() @updatedAt @default(dbgenerated("CURRENT_TIMESTAMP"))
   deleted_at DateTime? @db.Timestamptz() 
   is_deleted Boolean @db.Boolean @default(false)
 
   @@map("Letter")
 }
 
-model CheckClocks {
-  id String @db.Uuid @id @unique @default(cuid())
+model CheckClock {
+  id String @db.Uuid @id @unique @default(uuid())
 
   employee_id String @db.Uuid
   employee Employee @relation(fields: [employee_id],references: [id])
@@ -217,11 +216,11 @@ model CheckClocks {
   check_clock_type CheckClockType
   check_clock_time DateTime @db.Time() @default(dbgenerated("NOW()"))
   created_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
-  updated_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
+  updated_at DateTime @db.Timestamptz() @updatedAt @default(dbgenerated("CURRENT_TIMESTAMP"))
   deleted_at DateTime? @db.Timestamptz() 
   is_deleted Boolean @db.Boolean @default(false)
 
-  @@map("CheckClocks")
+  @@map("CheckClock")
 }
 
 enum CheckClockType {
@@ -231,27 +230,27 @@ enum CheckClockType {
   // OVERTIME_END
 }
 
-model CheckClocksSetting{
-  id String @db.Uuid @id @unique @default(cuid())
+model CheckClockSetting{
+  id String @db.Uuid @id @unique @default(uuid())
 
   name String @db.VarChar(100)
   type Int @db.Integer
 
   created_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
-  updated_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
+  updated_at DateTime @db.Timestamptz() @updatedAt @default(dbgenerated("CURRENT_TIMESTAMP"))
   deleted_at DateTime? @db.Timestamptz() 
   is_deleted Boolean @db.Boolean @default(false)
 
-  attendances CheckClocksSettingTime[]
+  attendances CheckClockSettingTime[]
 
-  @@map("CheckClocksSetting")
+  @@map("CheckClockSetting")
 }
 
-model CheckClocksSettingTime {
-  id String @db.Uuid @id @unique @default(cuid())
+model CheckClockSettingTime {
+  id String @db.Uuid @id @unique @default(uuid())
 
   ck_settings_id String @db.Uuid
-  ck_settings CheckClocksSetting @relation(fields: [ck_settings_id],references: [id])
+  ck_settings CheckClockSetting @relation(fields: [ck_settings_id],references: [id])
 
   day DateTime @db.Date 
   clock_in DateTime @db.Time()
@@ -261,11 +260,11 @@ model CheckClocksSettingTime {
   break_end DateTime @db.Time()
 
   created_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
-  updated_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
+  updated_at DateTime @db.Timestamptz() @updatedAt @default(dbgenerated("CURRENT_TIMESTAMP"))
   deleted_at DateTime? @db.Timestamptz() 
   is_deleted Boolean @db.Boolean @default(false)
 
   employees Employee[]
 
-  @@map("CheckClocksSettingTime")
+  @@map("CheckClockSettingTime")
 }
