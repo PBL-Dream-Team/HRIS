@@ -8,7 +8,7 @@ export class CheckClockSettingService {
 
     async createCheckClockSetting(dto: createCheckClockSettingDto) {
         try {
-            const checkClockSetting = await this.prisma.checkClocksSetting.create({ data: dto });
+            const checkClockSetting = await this.prisma.checkClockSetting.create({ data: dto });
             return {
                 statusCode: 201,
                 message: "Check Clock Setting created successfully",
@@ -24,7 +24,7 @@ export class CheckClockSettingService {
     }
 
     async getCheckClockSetting(checkClockSettingId: string) {
-        const data = await this.prisma.checkClocksSetting.findFirst({ where: { id: checkClockSettingId } });
+        const data = await this.prisma.checkClockSetting.findFirst({ where: { id: checkClockSettingId } });
         if (data) {
             return {
                 statusCode: 200,
@@ -40,13 +40,13 @@ export class CheckClockSettingService {
     }
 
     async getCheckClockSettings() {
-        return await this.prisma.checkClocksSetting.findMany();
+        return await this.prisma.checkClockSetting.findMany();
     }
 
     async updateCheckClockSetting(checkClockSettingId: string, dto: editCheckClockSettingDto) {
         
         try {
-            const checkClockSetting = await this.prisma.checkClocksSetting.update({ where: { id: checkClockSettingId }, data: dto });
+            const checkClockSetting = await this.prisma.checkClockSetting.update({ where: { id: checkClockSettingId }, data: dto });
             return {
                 statusCode: 200,
                 message: "Check Clock Setting updated successfully",
@@ -63,7 +63,7 @@ export class CheckClockSettingService {
 
     async deleteCheckClockSetting(checkClockSettingId: string) {
         try {
-            await this.prisma.checkClocksSetting.delete({ where: { id: checkClockSettingId } });
+            await this.prisma.checkClockSetting.delete({ where: { id: checkClockSettingId } });
             return {
                 statusCode: 200,
                 message: "Check Clock Setting deleted successfully"
