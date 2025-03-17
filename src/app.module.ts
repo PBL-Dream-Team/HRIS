@@ -11,6 +11,8 @@ import { CheckClockModule } from './modules/checkclock/checkclock.module';
 import { CheckClockSettingModule } from './modules/checkclocksetting/checkclocksetting.module';
 import { CheckClockSettingTimeModule } from './modules/checkclocksettingtime/checkclocksettingtime.module';
 import configuration from './config/app.config';
+import { SubsModule } from './modules/subscription/subs.module';
+import { WorkspaceModule } from './modules/workspace/workspace.module';
 
 @Module({
   imports: [
@@ -28,6 +30,8 @@ import configuration from './config/app.config';
     CheckClockModule,
     CheckClockSettingModule,
     CheckClockSettingTimeModule,
+    SubsModule,
+    WorkspaceModule
   ],
 })
 export class AppModule {}
