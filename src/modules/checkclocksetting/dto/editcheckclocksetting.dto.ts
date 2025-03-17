@@ -1,12 +1,12 @@
-import { IsNotEmpty, IsNumber, IsString, MaxLength } from "@nestjs/class-validator";
+import { IsNotEmpty, IsOptional, IsNumber, IsString, MaxLength } from "@nestjs/class-validator";
 
 export class editCheckClockSettingDto {
     @IsString()
-    @IsNotEmpty()
+    @IsOptional()
     @MaxLength(50)
     name: string;
     
     @IsNumber()
-    @IsNotEmpty()
+    @IsOptional()
     type: number;
 }
