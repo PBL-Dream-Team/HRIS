@@ -1,27 +1,29 @@
-import { IsDate, IsNotEmpty, IsUUID } from "@nestjs/class-validator";
+import { Type } from "@nestjs/class-transformer";
+import { IsDate, IsISO8601, IsNotEmpty, IsString, IsUUID, Matches } from "@nestjs/class-validator";
 
 export class createCheckClockSettingTimeDto {
     @IsUUID()
     @IsNotEmpty()
-    ck_setting_id: string;
+    ck_settings_id: string;
 
-    @IsDate()
+    @Type(() => Date)
+    @IsISO8601()
     @IsNotEmpty()
     day: Date;
 
-    @IsDate()
+    @IsString()
     @IsNotEmpty()
-    clock_in: Date;
+    clock_in: string;
 
-    @IsDate()
+    @IsString()
     @IsNotEmpty()
-    clock_out: Date;
+    clock_out: string;
 
-    @IsDate()
+    @IsString()
     @IsNotEmpty()
-    break_start: Date;
+    break_start: string;
 
-    @IsDate()
+    @IsString()
     @IsNotEmpty()
-    break_end: Date;
+    break_end: string;
 }

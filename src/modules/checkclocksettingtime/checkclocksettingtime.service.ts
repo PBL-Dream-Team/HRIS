@@ -9,7 +9,7 @@ export class CheckClockSettingTimeService {
     async createCheckClockSettingTime(dto: createCheckClockSettingTimeDto) {
         let data : any = { ...dto };
         try {
-            const checkClockSettingTime = await this.prisma.checkClockSettingTime.create({ data: data });
+            const checkClockSettingTime = await this.prisma.checkClocksSettingTime.create({ data: data });
             return {
                 statusCode: 201,
                 message: "Check Clock Setting Time created successfully",
@@ -25,7 +25,7 @@ export class CheckClockSettingTimeService {
     }
 
     async getCheckClockSettingTime(checkClockSettingTimeId: string) {
-        const data = await this.prisma.checkClockSettingTime.findFirst({ where: { id: checkClockSettingTimeId } });
+        const data = await this.prisma.checkClocksSettingTime.findFirst({ where: { id: checkClockSettingTimeId } });
         if (data) {
             return {
                 statusCode: 200,
@@ -41,12 +41,12 @@ export class CheckClockSettingTimeService {
     }
 
     async getCheckClockSettingTimes() {
-        return await this.prisma.checkClockSettingTime.findMany();
+        return await this.prisma.checkClocksSettingTime.findMany();
     }
 
     async updateCheckClockSettingTime(checkClockSettingTimeId: string, dto: editCheckClockSettingTimeDto) {
         try {
-            const checkClockSettingTime = await this.prisma.checkClockSettingTime.update({ where: { id: checkClockSettingTimeId }, data: dto });
+            const checkClockSettingTime = await this.prisma.checkClocksSettingTime.update({ where: { id: checkClockSettingTimeId }, data: dto });
             return {
                 statusCode: 200,
                 message: "Check Clock Setting Time updated successfully",
@@ -63,7 +63,7 @@ export class CheckClockSettingTimeService {
 
     async deleteCheckClockSettingTime(checkClockSettingTimeId: string) {
         try {
-            await this.prisma.checkClockSettingTime.delete({ where: { id: checkClockSettingTimeId } });
+            await this.prisma.checkClocksSettingTime.delete({ where: { id: checkClockSettingTimeId } });
             return {
                 statusCode: 200,
                 message: "Check Clock Setting Time deleted successfully"
