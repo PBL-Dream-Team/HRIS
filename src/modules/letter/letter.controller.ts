@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Put, Delete, Param, Body } from '@nestjs/common';
+import { Controller, Post, Get, Put, Delete, Param, Body, Patch } from '@nestjs/common';
 import { LetterService } from './letter.service';
 import { CreateLetterDto, EditLetterDto } from './dto';
 
@@ -7,7 +7,7 @@ export class LetterController {
     constructor(private letterService: LetterService) {}
 
     @Post()
-    create(@Body() dto: CreateLetterDto) {
+    createLetter(@Body() dto: CreateLetterDto) {
         return this.letterService.createLetter(dto);
     }
 
@@ -17,17 +17,19 @@ export class LetterController {
     }
 
     @Get(':id')
-    getOne(@Param('id') letterId: string) {
+    getLetter(@Param('id') letterId: string) {
         return this.letterService.getLetter(letterId);
     }
 
-    @Put(':id')
-    update(@Param('id') letterId: string, @Body() dto: EditLetterDto) {
+    @Patch(':id')
+    updateLetter(@Param('id') letterId: string, 
+    @Body() dto: EditLetterDto
+    ) {
         return this.letterService.updateLetter(letterId, dto);
     }
 
     @Delete(':id')
-    delete(@Param('id') letterId: string) {
+    deleteLetter(@Param('id') letterId: string) {
         return this.letterService.deleteLetter(letterId);
     }
 }

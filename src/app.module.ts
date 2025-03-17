@@ -5,11 +5,12 @@ import { EmployeeModule } from './modules/employee/employee.module';
 import { SalaryModule } from './modules/salary/salary.module';
 import { LetterModule } from './modules/letter/letter.module';
 import { LetterFormatModule } from './modules/letterFormat/letterFormat.module';
+import { ConfigModule } from '@nestjs/config';
+import { PrismaModule } from './prisma/prisma.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      load:[configuration],
       isGlobal:true}),
     PrismaModule,
     UserModule,
@@ -19,6 +20,6 @@ import { LetterFormatModule } from './modules/letterFormat/letterFormat.module';
     LetterModule,
     LetterFormatModule
   ],
-
+})
 
 export class AppModule {}
