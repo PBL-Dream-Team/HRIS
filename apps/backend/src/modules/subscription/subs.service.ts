@@ -1,21 +1,20 @@
 import { Injectable } from "@nestjs/common";
-import { PrismaService } from "src/prisma/prisma.service";
-import { createWorkspaceDto, editWorkspaceDto } from "./dto";
+import { PrismaService } from "../../prisma/prisma.service";
+import { createSubsDto, editSubsDto } from "./dto";
 
 @Injectable()
-export class WorkspaceService{
+export class SubsService{
     constructor(private prisma:PrismaService){}
 
-    async createWorkspace(dto:createWorkspaceDto){
+    async createSubs(dto:createSubsDto){
         let data : any = { ...dto};
-
         try{
-            const workspace = await this.prisma.workspace.create({data:data});
+            const subs = await this.prisma.subscription.create({data:data});
 
             return {
                 statusCode: 201,
                 message : "Data created successfully",
-                data : workspace
+                data : subs
             }
         }
         catch(error){
@@ -26,10 +25,10 @@ export class WorkspaceService{
             }
         }
     }
-    async getWorkspace(workspaceId: string){
-        const data = await this.prisma.workspace.findFirst({
+    async getSub(subsId: string){
+        const data = await this.prisma.subscription.findFirst({
             where: {
-                id: workspaceId
+                id: subsId
             }
         });
         if(data){
@@ -47,21 +46,21 @@ export class WorkspaceService{
         }
         
     }
-    async getWorkspaces(){
-        return await this.prisma.workspace.findMany();
+    async getSubs(){
+        return await this.prisma.subscription.findMany();
     }
-    async updateWorkspace(workspaceId : string, dto: editWorkspaceDto){
+    async updateSubs(subsId : string, dto: editSubsDto){
         let data: any = {...dto};
 
         try{
-            const workspace = await this.prisma.workspace.update({
-                where: {id:workspaceId},data : data
+            const subs = await this.prisma.subscription.update({
+                where: {id:subsId},data : data
             });
 
             return {
                 statusCode: 200,
                 message : "Data updated successfully",
-                data : workspace
+                data : subs
             }
         }
         catch(error){
@@ -72,9 +71,9 @@ export class WorkspaceService{
             }
         }
     }
-    async deleteWorkspace(workspaceId :string){
+    async deleteSubs(subsId :string){
         try{
-            await this.prisma.workspace.delete({where:{id:workspaceId}});
+            await this.prisma.subscription.delete({where:{id:subsId}});
 
             return {
                 statusCode: 200,

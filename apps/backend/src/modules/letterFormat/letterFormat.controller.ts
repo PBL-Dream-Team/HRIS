@@ -1,5 +1,5 @@
 import { Controller, Post, Get, Put, Patch, Delete, Param, Body } from "@nestjs/common";
-import { LetterFormatService } from "src/modules/letterFormat/letterFormat.service";
+import { LetterFormatService } from "./letterFormat.service";
 import { CreateLetterFormatDto, editLetterFormatDto } from "./dto";
 
 
