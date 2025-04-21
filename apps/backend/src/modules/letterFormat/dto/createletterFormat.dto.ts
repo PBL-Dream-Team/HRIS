@@ -1,16 +1,15 @@
-import { IsNotEmpty, IsString, IsNumber } from "@nestjs/class-validator";
+import { IsNotEmpty, IsString, IsNumber } from '@nestjs/class-validator';
 
 export class CreateLetterFormatDto {
-    @IsString()
-    @IsNotEmpty()
-    name: string;
+  @IsString()
+  @IsNotEmpty()
+  name: string;
 
-    @IsString()
-    @IsNotEmpty()
-    content: string;
+  @IsString()
+  @IsNotEmpty()
+  content: string;
 
-    @IsNumber()
-    @IsNotEmpty()
-    status: number;
+  @IsNumber()
+  @IsNotEmpty()
+  status: number;
 }
-

@@ -1,16 +1,13 @@
 {
   "files": [],
   "compilerOptions": {
-    "baseUrl": ".",  // This ensures TypeScript looks at the root for paths
+    "baseUrl": ".", // This ensures TypeScript looks at the root for paths
     "strict": true,
     "esModuleInterop": true,
     "paths": {
       "*": ["node_modules/*"]
     },
-    "outDir": "./dist",
     "rootDir": "."
   },
-  "references": [
-    { "path": "./apps/backend" }
-  ]
+  "references": [{ "path": "./apps/backend" }]
 }

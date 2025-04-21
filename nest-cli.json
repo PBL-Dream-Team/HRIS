@@ -8,7 +8,7 @@
     "deleteOutDir": true
   },
   "projects": {
-    "backend":{
+    "backend": {
       "type": "application",
       "root": "apps/backend",
       "entryFile": "main",
