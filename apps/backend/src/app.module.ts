@@ -31,7 +31,7 @@ import { WorkspaceModule } from './modules/workspace/workspace.module';
     CheckClockSettingModule,
     CheckClockSettingTimeModule,
     SubsModule,
-    WorkspaceModule
-  ]
+    WorkspaceModule,
+  ],
 })
 export class AppModule {}
