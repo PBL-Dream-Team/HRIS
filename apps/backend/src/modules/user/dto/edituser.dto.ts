@@ -1,4 +1,4 @@
-import { Transform } from '@nestjs/class-transformer';
+import { Transform } from 'class-transformer';
 import {
   IsAlpha,
   IsAlphanumeric,
@@ -10,7 +10,7 @@ import {
   IsOptional,
   IsString,
   MaxLength,
-} from '@nestjs/class-validator';
+} from 'class-validator';
 
 export class editUserDto {
   @IsEmail()

@@ -7,7 +7,7 @@ import {
   IsUUID,
   IsDateString,
   IsEnum,
-} from '@nestjs/class-validator';
+} from 'class-validator';
 import { SalaryType } from './createsalary.dto';
 
 export class editSalaryDto {

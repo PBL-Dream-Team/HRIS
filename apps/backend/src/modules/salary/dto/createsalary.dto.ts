@@ -7,7 +7,7 @@ import {
   IsUUID,
   IsDateString,
   IsEnum,
-} from '@nestjs/class-validator';
+} from 'class-validator';
 
 export enum SalaryType {
   Monthly = 'monthly',

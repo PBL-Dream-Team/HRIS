@@ -4,7 +4,7 @@ import {
   IsNumber,
   IsBoolean,
   IsString,
-} from '@nestjs/class-validator';
+} from 'class-validator';
 
 export class updatePaymentDto {
   @IsUUID()

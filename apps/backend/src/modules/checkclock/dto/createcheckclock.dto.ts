@@ -1,4 +1,4 @@
-import { IsDate, IsNotEmpty, IsNumber, IsUUID } from '@nestjs/class-validator';
+import { IsDate, IsNotEmpty, IsNumber, IsUUID } from 'class-validator';
 
 export class createCheckClockDto {
   @IsUUID()

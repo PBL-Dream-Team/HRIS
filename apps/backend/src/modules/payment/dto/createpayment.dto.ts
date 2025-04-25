@@ -5,7 +5,7 @@ import {
   IsOptional,
   IsString,
   IsUUID,
-} from '@nestjs/class-validator';
+} from 'class-validator';
 
 export class createPaymentDto {
   @IsUUID()

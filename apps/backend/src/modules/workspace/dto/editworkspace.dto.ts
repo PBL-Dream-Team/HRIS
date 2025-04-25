@@ -9,7 +9,7 @@ import {
   IsOptional,
   IsString,
   MaxLength,
-} from '@nestjs/class-validator';
+} from 'class-validator';
 import { IsUUID } from 'class-validator';
 
 export class editWorkspaceDto {
