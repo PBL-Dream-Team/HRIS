@@ -3,7 +3,7 @@ import {
   IsNumber,
   IsString,
   MaxLength,
-} from '@nestjs/class-validator';
+} from 'class-validator';
 
 export class createCheckClockSettingDto {
   @IsString()

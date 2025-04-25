@@ -12,7 +12,7 @@ import {
   IsString,
   IsUUID,
   MaxLength,
-} from '@nestjs/class-validator';
+} from 'class-validator';
 
 export enum SubscriptionType {
   Trial = 'Trial',

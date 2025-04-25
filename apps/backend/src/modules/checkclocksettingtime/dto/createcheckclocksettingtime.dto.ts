@@ -1,4 +1,4 @@
-import { Type } from '@nestjs/class-transformer';
+import { Type } from 'class-transformer';
 import {
   IsDate,
   IsISO8601,
@@ -6,7 +6,7 @@ import {
   IsString,
   IsUUID,
   Matches,
-} from '@nestjs/class-validator';
+} from 'class-validator';
 
 export class createCheckClockSettingTimeDto {
   @IsUUID()

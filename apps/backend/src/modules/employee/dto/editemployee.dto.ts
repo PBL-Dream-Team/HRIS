@@ -3,7 +3,7 @@ import {
   IsOptional,
   IsBoolean,
   IsDateString,
-} from '@nestjs/class-validator';
+} from 'class-validator';
 
 export class editEmployeeDto {
   @IsUUID()

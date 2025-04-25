@@ -1,4 +1,4 @@
-import { IsOptional, IsString, IsNumber } from '@nestjs/class-validator';
+import { IsOptional, IsString, IsNumber } from 'class-validator';
 
 export class editLetterFormatDto {
   @IsString()
