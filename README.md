@@ -1,3 +1,9 @@
+## Introduction
+
+### Cloud Architecture
+
+![alt text](clouddiagram.png) 
+
 ## Setup
 
 ### Install node modules
