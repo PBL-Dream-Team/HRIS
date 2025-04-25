@@ -1,23 +1,30 @@
-# Node.js with React
-# Build a Node.js project that uses React.
-# Add steps that analyze code, save build artifacts, deploy, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
-
 trigger:
 - main
 
-pool:
-  name: Default
+stages:
+- stage: Deploy
+  jobs:
+  - deployment: DeployToVM
+    environment: 
+      name: Prod Environment
+      resourceType: VirtualMachine
+    pool:
+      name: Default
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: NodeTool@0
+            inputs:
+              versionSpec: '20.x'
+            displayName: 'Install Node.js'
 
-steps:
-- task: NodeTool@0
-  inputs:
-    versionSpec: '20.x'
-  displayName: 'Install Node.js'
+          - script: |
+              npm install
+              npx prisma init
+              npx prisma migrate reset --force
+              npm run build
+            displayName: 'Run setup'
 
-- script: |
-    npm install
-    npx prisma init
-    npx prisma migrate reset
-    npm run build
-  displayName: 'Run setup'
+          - script: echo "✅ Deployment complete on VM!"
+            displayName: 'Done!'
