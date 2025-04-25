@@ -17,5 +17,7 @@ steps:
 
 - script: |
     npm install
+    npx prisma init
+    npx prisma migrate reset
     npm run build
-  displayName: 'npm install and build'
+  displayName: 'Run setup'
