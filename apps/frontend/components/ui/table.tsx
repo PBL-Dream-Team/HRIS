@@ -1,7 +1,6 @@
-// components/ui/table.tsx
 import * as React from "react"
 
-import { cn } from "@/lib/utils" // pastikan kamu punya util ini, atau bisa ganti manual
+import { cn } from "@/lib/utils"
 
 const Table = React.forwardRef<
   HTMLTableElement,
