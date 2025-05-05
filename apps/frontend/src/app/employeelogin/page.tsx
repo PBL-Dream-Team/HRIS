@@ -9,8 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 
 export default function HrLoginPage() {
-  
-  const [checked, setChecked] = useState(false);
+    const [checked, setChecked] = useState(false);
 
   return (
     <div className="flex min-h-screen">
@@ -31,28 +30,41 @@ export default function HrLoginPage() {
                     className="object-contain"
                 />
                 <Link href="/pricing">
-                    <span className="text-sm font-medium text-blue-900 hover:underline">
+                    <span className="text-sm font-medium text-[#1E3A5F] hover:underline">
                         Try For Free!
                     </span>
                 </Link>
             </div>
 
-            <h2 className="text-2xl font-bold mb-2 text-zinc-950">Sign In</h2>
+            <h2 className="text-2xl font-bold mb-2 text-[#1E3A5F]">Sign In</h2>
             <p className="mb-6 text-gray-600 text-sm">
                 Welcome back to HRIS cmlabs! Manage everything with ease.
             </p>
 
             <form className="space-y-4">
-                {/* Email */}
+                {/* Company Username */}
                 <div className="space-y-2">
-                    <Label htmlFor="email" className="text-blue-900">
-                        Email or Phone Number
+                    <Label htmlFor="company-username" className="text-[#1E3A5F]">
+                        Company Username
                     </Label>
                     <Input
-                        id="email"
-                        type="email"
-                        placeholder="Enter your email or phone number"
-                        className="text-gray-700 border-zinc-600"
+                        id="company-username"
+                        type="text"
+                        placeholder="Enter your Company Username"
+                        className="text-gray-700 border-[#1E3A5F]"
+                    />
+                </div>
+
+                {/* ID Employee */}
+                <div className="space-y-2">
+                    <Label htmlFor="id-employee" className="text-[#1E3A5F]">
+                        ID Employee
+                    </Label>
+                    <Input
+                        id="id-employee"
+                        type="text"
+                        placeholder="Enter your ID Employee"
+                        className="text-gray-700 border-[#1E3A5F]"
                     />
                 </div>
 
@@ -65,7 +77,7 @@ export default function HrLoginPage() {
                         id="password"
                         type="password"
                         placeholder="Enter your password"
-                        className="text-gray-700 border-zinc-600"
+                        className="text-gray-700 border-[#1E3A5F]"
                     />
                 </div>
 
@@ -89,7 +101,8 @@ export default function HrLoginPage() {
                     </Link>
                 </div>
 
-                <Button type="submit" className="w-full bg-[#1E3A5F] hover:bg-[#1E3A5F]/90">
+                {/* Buttons */}
+                <Button type="submit" className="w-full bg-[#1E3A5F] hover:bg-blue-500">
                     Sign In
                 </Button>
 
@@ -98,25 +111,8 @@ export default function HrLoginPage() {
                     variant="outline"
                     className="w-full flex items-center justify-center gap-2"
                 >
-                    <Image
-                        src="/images/google.png"
-                        alt="Google"
-                        width={20}
-                        height={20}
-                        className="object-contain"
-                    />
-                    <span>Sign up with Google</span>
+                    Sign in with Another Method
                 </Button>
-
-                <Link href="/employeelogin" passHref>
-                    <Button
-                        type="button"
-                        variant="outline"
-                        className="w-full flex items-center justify-center gap-2"
-                    >
-                        Sign in with ID Employee
-                    </Button>
-                </Link>
 
                 <p className="text-center text-sm text-gray-600 mt-4">
                     Don’t have an account yet?{" "}
@@ -128,6 +124,7 @@ export default function HrLoginPage() {
                 </p>
             </form>
         </div>
+
       </div>
     </div>
   );
