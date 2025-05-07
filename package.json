@@ -72,6 +72,7 @@
     "@types/react-dom": "^19",
     "@types/supertest": "^6.0.2",
     "concurrently": "^9.1.2",
+    "cypress": "^14.3.3",
     "eslint": "^9.25.0",
     "eslint-config-next": "^15.3.1",
     "eslint-config-prettier": "^10.0.1",
