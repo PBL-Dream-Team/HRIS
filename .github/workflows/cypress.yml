@@ -17,9 +17,6 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Initialize Prisma
-        run: npx prisma init
-
       - name: Reset database with Prisma
         run: npx prisma migrate reset --force
       
