@@ -66,37 +66,10 @@ model Employee {
   deleted_at DateTime? @db.Timestamptz() 
   is_deleted Boolean @db.Boolean @default(false)
 
-  salaries Salary[]
   letters Letter[]
   attendance CheckClocks[]
 
   @@map("Employee")
-}
-
-model Salary {
-  id String @db.Uuid @id @unique @default(cuid())
-
-  employee_id String @db.Uuid
-  employee Employee @relation(fields: [employee_id],references: [id])
-
-  
-  type SalaryType @default(MONTHLY) //default pay rate pegawai tetap
-  rate Float @db.Real
-  effective_date DateTime @db.Date @default(dbgenerated("CURRENT_TIMESTAMP"))
-
-
-  created_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
-  updated_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
-  deleted_at DateTime? @db.Timestamptz() 
-  is_deleted Boolean @db.Boolean @default(false)
-
-  @@map("Salary")
-}
-
-enum SalaryType {
-  HOURLY
-  WEEKLY
-  MONTHLY
 }
 
 model Workspace {
