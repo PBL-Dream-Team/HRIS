@@ -19,6 +19,8 @@ jobs:
 
       - name: Reset database with Prisma
         run: npx prisma migrate reset --force
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
       
       - name: Cypress run
         # Uses the official Cypress GitHub action https://github.com/cypress-io/github-action
