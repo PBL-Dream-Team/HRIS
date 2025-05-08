@@ -26,6 +26,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@nestjs/class-validator": "^0.13.4",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.1",
     "@nestjs/core": "^11.0.1",
@@ -54,6 +55,7 @@
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "tailwind-variants": "^1.0.0",
+    "tailwindcss-animate": "^1.0.7",
     "tw-animate-css": "^1.2.9"
   },
   "devDependencies": {
