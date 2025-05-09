@@ -45,7 +45,7 @@ const data = {
   teams: [
     {
       name: 'HRIS',
-      logo: GalleryVerticalEnd,
+      logo: '/images/vector.png',
       // plan: 'Enterprise',
     },
   ],

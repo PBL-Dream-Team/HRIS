@@ -24,7 +24,7 @@ export function TeamSwitcher({
 }: {
   teams: {
     name: string;
-    logo: React.ElementType;
+    logo: React.ComponentType<any> | string;
     // plan: string;
   }[];
 }) {
@@ -35,6 +35,21 @@ export function TeamSwitcher({
     return null;
   }
 
+  const renderLogo = () => {
+    if (typeof activeTeam.logo === 'string') {
+      return (
+        <img
+          src={activeTeam.logo}
+          alt={activeTeam.name}
+          className="size-6 object-contain"
+        />
+      );
+    } else {
+      const LogoIcon = activeTeam.logo;
+      return <LogoIcon className="size-6" />;
+    }
+  };
+
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -44,8 +59,8 @@ export function TeamSwitcher({
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
-              <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                <activeTeam.logo className="size-4" />
+              <div className="text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center">
+                {renderLogo()}
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">{activeTeam.name}</span>
