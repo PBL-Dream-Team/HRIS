@@ -57,7 +57,7 @@ const data = {
     },
     {
       title: 'Employee',
-      url: '#',
+      url: 'employeedatabase',
       icon: UsersIcon,
     },
     {
