@@ -5,11 +5,11 @@ import { Bell } from 'lucide-react';
 import { NavUser } from '@/components/nav-user';
 import { Separator } from '@/components/ui/separator';
 
-import EmployeeInformation from './components/EmployeeInformation';
-import EmployeeStatisticsCard from './components/EmployeeStatisticsCard';
-import EmployeeStatusCard from './components/EmployeeStatusCard';
-import AttendanceOverviewCard from './components/AttendanceOverviewCard';
-import AttendanceTableCard from './components/AttendanceTableCard';
+import EmployeeInformation from '@/components/dashboard-admin/EmployeeInformation';
+import EmployeeStatisticsCard from '@/components/dashboard-admin/EmployeeStatisticsCard';
+import EmployeeStatusCard from '@/components/dashboard-admin/EmployeeStatusCard';
+import AttendanceOverviewCard from '@/components/dashboard-admin/AttendanceOverviewCard';
+import AttendanceTableCard from '@/components/dashboard-admin/AttendanceTableCard';
 
 import {
   Breadcrumb,
