@@ -52,7 +52,7 @@ import {
 
 import { VscSettings } from 'react-icons/vsc';
 import { IoMdAdd, IoMdSearch } from 'react-icons/io';
-import { FaFileDownload, FaEye } from "react-icons/fa";
+import { FaFileDownload, FaEye } from 'react-icons/fa';
 
 const data = {
   user: {
@@ -86,10 +86,8 @@ const letters = [
   },
 ];
 
-
-
 export default function Page() {
-    const [selectedLetter, setSelectedLetter] = useState(null);
+  const [selectedLetter, setSelectedLetter] = useState<null | typeof letters[0]>(null);
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -175,66 +173,79 @@ export default function Page() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-  {letters.map((letter) => (
-    <TableRow key={letter.id}>
-      <TableCell>{letter.letterName}</TableCell>
-      <TableCell>{letter.letterType}</TableCell>
-      <TableCell>{letter.validUntil}</TableCell>
-      <TableCell>
-        <div className="flex items-center">
-          <span
-            className={`px-2 py-1 rounded text-xs text-white ${
-              letter.status === 'Active' ? 'bg-green-600' : 'bg-gray-400'
-            }`}
-          >
-            {letter.status}
-          </span>
-        </div>
-      </TableCell>
-      <TableCell>
-        <div className="flex gap-4">
-          <Dialog>
-            <DialogTrigger asChild>
-              <button
-                className="text-[#1E3A5F] hover:text-blue-800"
-                onClick={() => setSelectedLetter(letter)}
-              >
-                <FaEye />
-              </button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-md">
-              <DialogHeader>
-                <DialogTitle>Letter Details</DialogTitle>
-                <DialogDescription>
-                  Information about this letter.
-                </DialogDescription>
-              </DialogHeader>
-              {selectedLetter && (
-                <div className="space-y-2">
-                  <p><strong>Name:</strong> {selectedLetter.letterName}</p>
-                  <p><strong>Type:</strong> {selectedLetter.letterType}</p>
-                  <p><strong>Valid Until:</strong> {selectedLetter.validUntil}</p>
-                  <p><strong>Status:</strong> {selectedLetter.status}</p>
-                </div>
-              )}
-              <DialogFooter>
-                <Button type="button" variant="secondary">
-                  Close
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-          <Link href={`download/${letter.id}`}>
-            <button className="text-[#1E3A5F] hover:text-green-800">
-              <FaFileDownload />
-            </button>
-          </Link>
-        </div>
-      </TableCell>
-    </TableRow>
-  ))}
-</TableBody>
-
+                {letters.map((letter) => (
+                  <TableRow key={letter.id}>
+                    <TableCell>{letter.letterName}</TableCell>
+                    <TableCell>{letter.letterType}</TableCell>
+                    <TableCell>{letter.validUntil}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center">
+                        <span
+                          className={`px-2 py-1 rounded text-xs text-white ${
+                            letter.status === 'Active'
+                              ? 'bg-green-600'
+                              : 'bg-gray-400'
+                          }`}
+                        >
+                          {letter.status}
+                        </span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex gap-4">
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <button
+                              className="text-[#1E3A5F] hover:text-blue-800"
+                              onClick={() => setSelectedLetter(letter)}
+                            >
+                              <FaEye />
+                            </button>
+                          </DialogTrigger>
+                          <DialogContent className="sm:max-w-md">
+                            <DialogHeader>
+                              <DialogTitle>Letter Details</DialogTitle>
+                              <DialogDescription>
+                                Information about this letter.
+                              </DialogDescription>
+                            </DialogHeader>
+                            {selectedLetter && (
+                              <div className="space-y-2">
+                                <p>
+                                  <strong>Name:</strong>{' '}
+                                  {selectedLetter.letterName}
+                                </p>
+                                <p>
+                                  <strong>Type:</strong>{' '}
+                                  {selectedLetter.letterType}
+                                </p>
+                                <p>
+                                  <strong>Valid Until:</strong>{' '}
+                                  {selectedLetter.validUntil}
+                                </p>
+                                <p>
+                                  <strong>Status:</strong>{' '}
+                                  {selectedLetter.status}
+                                </p>
+                              </div>
+                            )}
+                            <DialogFooter>
+                              <Button type="button" variant="secondary">
+                                Close
+                              </Button>
+                            </DialogFooter>
+                          </DialogContent>
+                        </Dialog>
+                        <Link href={`download/${letter.id}`}>
+                          <button className="text-[#1E3A5F] hover:text-green-800">
+                            <FaFileDownload />
+                          </button>
+                        </Link>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
             </Table>
 
             {/* Pagination */}
