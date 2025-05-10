@@ -1,5 +1,7 @@
 import Link from 'next/link';
 import { AppSidebar } from '@/components/app-sidebar';
+import { Label } from '@/components/ui/label';
+
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -12,6 +14,15 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from '@/components/ui/sidebar';
+
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
 
 import { Input } from '@/components/ui/input';
 import { Bell } from 'lucide-react';
@@ -147,9 +158,63 @@ export default function Page() {
                 <Button className="bg-gray-100 text-black shadow-xs">
                   <VscSettings /> Filter
                 </Button>
-                <Button>
-                  <IoMdAdd /> Add Letter
-                </Button>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button>
+                      <IoMdAdd /> Add Letter
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-2xl">
+                    <DialogHeader>
+                      <DialogTitle>Add Letter</DialogTitle>
+                    </DialogHeader>
+                    <form>
+                      <div className="mb-4">
+                        <Label htmlFor="letterName">Letter Name</Label>
+                        <Input
+                          id="letterName"
+                          type="text"
+                          placeholder="Enter letter name"
+                        />
+                      </div>
+                      <div className="mb-4">
+                        <Label htmlFor="letterType">Letter Type</Label>
+                        <Input
+                          id="letterType"
+                          type="text"
+                          placeholder="Enter letter type"
+                        />
+                      </div>
+                      <div className="mb-4">
+                        <Label htmlFor="letterDescription">
+                          Letter Description
+                        </Label>
+                        <Input
+                          id="letterDescription"
+                          type="text"
+                          placeholder="Enter letter description"
+                        />
+                      </div>
+                      <div className="mb-4">
+                        <Label htmlFor="letterStatus">Letter Status</Label>
+                        <Input
+                          id="letterStatus"
+                          type="text"
+                          placeholder="Enter letter status"
+                        />
+                      </div>
+                      <div className="mb-4">
+                        <Label htmlFor="validUntil">Valid Until</Label>
+                        <Input id="validUntil" type="date" />
+                      </div>
+                      <DialogFooter className="gap-2 sm:justify-end">
+                        <Button type="submit" className="w-20">
+                          Submit
+                        </Button>
+                      </DialogFooter>
+                    </form>
+                  </DialogContent>
+                </Dialog>
               </div>
             </div>
 
@@ -184,7 +249,7 @@ export default function Page() {
                     </TableCell>
                     <TableCell>
                       <div className="flex gap-4">
-                        <Link href={`/view/${letter.id}`}>
+                        <Link href={`view/${letter.id}`}>
                           <button className="text-[#1E3A5F] hover:text-blue-800">
                             <FaEye />
                           </button>
