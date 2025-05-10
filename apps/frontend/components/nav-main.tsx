@@ -1,8 +1,10 @@
 'use client';
 
-import { MailIcon, PlusCircleIcon, type LucideIcon } from 'lucide-react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { cn } from '@/lib/utils';
+import { type LucideIcon } from 'lucide-react';
 
-import { Button } from '@/components/ui/button';
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -20,18 +22,34 @@ export function NavMain({
     icon?: LucideIcon;
   }[];
 }) {
+  const pathname = usePathname();
   return (
     <SidebarGroup>
       <SidebarGroupContent className="flex flex-col gap-2">
         <SidebarMenu>
-          {items.map((item) => (
-            <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton tooltip={item.title}>
-                {item.icon && <item.icon />}
-                <span>{item.title}</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
+          {items.map((item) => {
+            const isActive = pathname.includes(item.url);
+            console.log("Current pathname:", pathname);
+            console.log(`Checking ${item.url}: isActive = ${isActive}`); // Debugging - periksa kondisi isActive
+            return (
+              <SidebarMenuItem key={item.title}>
+                <Link href={item.url} className="w-full">
+                  <SidebarMenuButton
+                    tooltip={item.title}
+                    className={cn(
+                      'w-full flex items-center gap-2 px-3 py-2 transition-colors hover:font-semibold',
+                      isActive
+                        ? 'bg-primary text-white font-semibold bg-[#1E3A5F] hover:bg-[#1E3A5F]/80 hover:text-white'
+                        : 'hover:bg-[#1E3A5F]/80 hover:text-white',
+                    )}
+                  >
+                    {item.icon && <item.icon className="h-5 w-5" />}
+                    <span>{item.title}</span>
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+            );
+          })}
         </SidebarMenu>
       </SidebarGroupContent>
     </SidebarGroup>

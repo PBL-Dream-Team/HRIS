@@ -1,4 +1,8 @@
+'use client';
 import Link from 'next/link';
+
+import { useState } from 'react';
+
 import { AppSidebar } from '@/components/app-sidebar';
 import {
   Breadcrumb,
@@ -18,6 +22,15 @@ import { Bell } from 'lucide-react';
 import { NavUser } from '@/components/nav-user';
 import { Button } from '@/components/ui/button';
 
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription,
+} from '@/components/ui/dialog';
 
 import {
   DropdownMenu,
@@ -39,12 +52,12 @@ import {
 
 import { VscSettings } from 'react-icons/vsc';
 import { IoMdAdd, IoMdSearch } from 'react-icons/io';
-import { FaFileDownload, FaEye } from "react-icons/fa";
+import { FaFileDownload, FaEye } from 'react-icons/fa';
 
 const data = {
   user: {
-    name: 'shadcn',
-    email: 'm@example.com',
+    name: 'Employee',
+    email: 'employee@hris.com',
     avatar: '/avatars/shadcn.jpg',
   },
 };
@@ -73,9 +86,8 @@ const letters = [
   },
 ];
 
-
-
 export default function Page() {
+  const [selectedLetter, setSelectedLetter] = useState<null | typeof letters[0]>(null);
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -90,7 +102,7 @@ export default function Page() {
             <Breadcrumb>
               <BreadcrumbList>
                 <BreadcrumbItem>
-                  <BreadcrumbPage>Letter Overview</BreadcrumbPage>
+                  <BreadcrumbPage>Letters</BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
@@ -98,11 +110,10 @@ export default function Page() {
 
           <div className="flex items-center gap-4">
             {/* Search */}
-            <Input
-              type="search"
-              placeholder="Search"
-              className="hidden lg:block w-80"
-            />
+            <div className="relative w-80 hidden lg:block">
+              <IoMdSearch className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-500" />
+              <Input type="search" placeholder="Search" className="pl-10" />
+            </div>
 
             {/* Notification */}
             <DropdownMenu>
@@ -144,7 +155,7 @@ export default function Page() {
                 <Input type="search" placeholder="Search" className="pl-10" />
               </div>
               <div className="flex flex-col gap-2 lg:flex-row lg:items-center lg:gap-4">
-                <Button className="bg-gray-100 text-black shadow-xs">
+                <Button className="bg-gray-100 text-black shadow-xs hover:bg-gray-200">
                   <VscSettings /> Filter
                 </Button>
               </div>
@@ -158,7 +169,7 @@ export default function Page() {
                   <TableHead>Letter Type</TableHead>
                   <TableHead>Valid Until</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead>Action</TableHead>
+                  <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -170,22 +181,63 @@ export default function Page() {
                     <TableCell>
                       <div className="flex items-center">
                         <span
-                          className={`px-2 py-1 rounded text-xs text-white ${letter.status === 'Active' ? 'bg-green-600' : 'bg-gray-400'
-                            }`}
+                          className={`px-2 py-1 rounded text-xs text-white ${
+                            letter.status === 'Active'
+                              ? 'bg-green-600'
+                              : 'bg-gray-400'
+                          }`}
                         >
                           {letter.status}
                         </span>
                       </div>
                     </TableCell>
-                    <TableCell className="">
+                    <TableCell>
                       <div className="flex gap-4">
-                        <Link href={`/employeeletter/view/${letter.id}`}>
-                          <button className="hover:text-blue-800">
-                            <FaEye />
-                          </button>
-                        </Link>
-                        <Link href={`/employeeletter/download/${letter.id}`}>
-                          <button className="hover:text-green-800">
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <button
+                              className="text-[#1E3A5F] hover:text-blue-800"
+                              onClick={() => setSelectedLetter(letter)}
+                            >
+                              <FaEye />
+                            </button>
+                          </DialogTrigger>
+                          <DialogContent className="sm:max-w-md">
+                            <DialogHeader>
+                              <DialogTitle>Letter Details</DialogTitle>
+                              <DialogDescription>
+                                Information about this letter.
+                              </DialogDescription>
+                            </DialogHeader>
+                            {selectedLetter && (
+                              <div className="space-y-2">
+                                <p>
+                                  <strong>Name:</strong>{' '}
+                                  {selectedLetter.letterName}
+                                </p>
+                                <p>
+                                  <strong>Type:</strong>{' '}
+                                  {selectedLetter.letterType}
+                                </p>
+                                <p>
+                                  <strong>Valid Until:</strong>{' '}
+                                  {selectedLetter.validUntil}
+                                </p>
+                                <p>
+                                  <strong>Status:</strong>{' '}
+                                  {selectedLetter.status}
+                                </p>
+                              </div>
+                            )}
+                            <DialogFooter>
+                              <Button type="button" variant="secondary">
+                                Close
+                              </Button>
+                            </DialogFooter>
+                          </DialogContent>
+                        </Dialog>
+                        <Link href={`download/${letter.id}`}>
+                          <button className="text-[#1E3A5F] hover:text-green-800">
                             <FaFileDownload />
                           </button>
                         </Link>

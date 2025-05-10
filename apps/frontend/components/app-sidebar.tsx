@@ -45,14 +45,14 @@ const data = {
   teams: [
     {
       name: 'HRIS',
-      logo: GalleryVerticalEnd,
+      logo: '/images/vector.png',
       // plan: 'Enterprise',
     },
   ],
   navMain: [
     {
       title: 'Dashboard',
-      url: '#',
+      url: 'dashboard',
       icon: LayoutDashboardIcon,
     },
     {
@@ -62,12 +62,12 @@ const data = {
     },
     {
       title: 'Checkclock',
-      url: '#',
+      url: 'checkclock',
       icon: Clock4,
     },
     {
       title: 'Letters',
-      url: '#',
+      url: 'letters',
       icon: ClipboardList,
     },
   ],

@@ -1,33 +1,28 @@
+"use client";
 import { AppSidebar } from '@/components/app-sidebar';
+import { Input } from '@/components/ui/input';
+import { Bell } from 'lucide-react';
+import { NavUser } from '@/components/nav-user';
+import { Separator } from '@/components/ui/separator';
+
+import EmployeeInformation from '@/components/dashboard-admin/EmployeeInformation';
+import EmployeeStatisticsCard from '@/components/dashboard-admin/EmployeeStatisticsCard';
+import EmployeeStatusCard from '@/components/dashboard-admin/EmployeeStatusCard';
+import AttendanceOverviewCard from '@/components/dashboard-admin/AttendanceOverviewCard';
+import AttendanceTableCard from '@/components/dashboard-admin/AttendanceTableCard';
+
 import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbList,
   BreadcrumbPage,
 } from '@/components/ui/breadcrumb';
-import { Separator } from '@/components/ui/separator';
+
 import {
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
 } from '@/components/ui/sidebar';
-
-import { Input } from '@/components/ui/input';
-import { Bell, UserCheck } from 'lucide-react';
-import { NavUser } from '@/components/nav-user';
-
-import { User, 
-  UserPlus, 
-  UserRoundCheck, 
-  UserMinus 
-} from 'lucide-react';
-
-import { Card,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle
- } from '@/components/ui/card';
 
 import {
   DropdownMenu,
@@ -38,10 +33,12 @@ import {
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 
+import { IoMdSearch } from 'react-icons/io';
+
 const data = {
   user: {
-    name: 'shadcn',
-    email: 'm@example.com',
+    name: 'Admin',
+    email: 'admin@hris.com',
     avatar: '/avatars/shadcn.jpg',
   },
 };
@@ -61,7 +58,7 @@ export default function Page() {
             <Breadcrumb>
               <BreadcrumbList>
                 <BreadcrumbItem>
-                  <BreadcrumbPage>Employee Database</BreadcrumbPage>
+                  <BreadcrumbPage>Dashboard</BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
@@ -69,11 +66,10 @@ export default function Page() {
 
           <div className="flex items-center gap-4">
             {/* Search */}
-            <Input
-              type="search"
-              placeholder="Search"
-              className="hidden lg:block w-80"
-            />
+            <div className="relative w-80 hidden lg:block">
+              <IoMdSearch className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-500" />
+              <Input type="search" placeholder="Search" className="pl-10" />
+            </div>
 
             {/* Notification */}
             <DropdownMenu>
@@ -105,82 +101,16 @@ export default function Page() {
             <NavUser user={data.user} />
           </div>
         </header>
+
+        {/* Content */}
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-          <div className="grid auto-rows-min gap-4 md:grid-cols-4 sm:grid-cols-2">
-            <Card className='@container/card bg-[#1E3A5F] text-white'>
-              <CardHeader className='relative'>
-                <CardTitle>
-                  <div className="flex items-center gap-2">
-                    <User className="h-8 w-8" />
-                    <h1 className='text-xl'>Total Employee</h1>
-                  </div>
-                </CardTitle>
-                <CardDescription className='text-white text-5xl font-semibold'>
-                  24
-                </CardDescription>
-              </CardHeader>
-              <CardFooter>
-                <div>
-                  Update: March 16, 2025
-                </div>
-              </CardFooter>
-            </Card>
-            <Card className='@container/card bg-[#1E3A5F] text-white'>
-              <CardHeader className='relative'>
-                <CardTitle>
-                  <div className="flex items-center gap-2">
-                    <UserPlus className="h-8 w-8" />
-                    <h1 className='text-xl'>New Employee</h1>
-                  </div>
-                </CardTitle>
-                <CardDescription className='text-white text-5xl font-semibold'>
-                  24
-                </CardDescription>
-              </CardHeader>
-              <CardFooter>
-                <div>
-                  Update: March 16, 2025
-                </div>
-              </CardFooter>
-            </Card>
-            <Card className='@container/card bg-[#1E3A5F] text-white'>
-              <CardHeader className='relative'>
-                <CardTitle>
-                  <div className="flex items-center gap-2">
-                    <UserCheck className="h-8 w-8" />
-                    <h1 className='text-xl'>Active Employee</h1>
-                  </div>
-                </CardTitle>
-                <CardDescription className='text-white text-5xl font-semibold'>
-                  24
-                </CardDescription>
-              </CardHeader>
-              <CardFooter>
-                <div>
-                  Update: March 16, 2025
-                </div>
-              </CardFooter>
-            </Card>
-            <Card className='@container/card bg-[#1E3A5F] text-white'>
-              <CardHeader className='relative'>
-                <CardTitle>
-                  <div className="flex items-center gap-2">
-                    <UserMinus className="h-8 w-8" />
-                    <h1 className='text-xl'>Resigned Employee</h1>
-                  </div>
-                </CardTitle>
-                <CardDescription className='text-white text-5xl font-semibold'>
-                  24
-                </CardDescription>
-              </CardHeader>
-              <CardFooter>
-                <div>
-                  Update: March 16, 2025
-                </div>
-              </CardFooter>
-            </Card>
+          <EmployeeInformation />
+          <div className="grid auto-rows-min gap-4 md:grid-cols-2 sm:grid-cols-2">
+            <EmployeeStatisticsCard />
+            <EmployeeStatusCard />
+            <AttendanceOverviewCard />
+            <AttendanceTableCard />
           </div>
-          <div className="bg-muted/50 min-h-[100vh] flex-1 rounded-xl md:min-h-min" />
         </div>
       </SidebarInset>
     </SidebarProvider>

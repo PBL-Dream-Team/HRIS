@@ -1,5 +1,7 @@
 import Link from 'next/link';
 import { AppSidebar } from '@/components/app-sidebar';
+import { Label } from '@/components/ui/label';
+
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -12,6 +14,15 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from '@/components/ui/sidebar';
+
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
 
 import { Input } from '@/components/ui/input';
 import { Bell } from 'lucide-react';
@@ -38,25 +49,42 @@ import {
 
 import { VscSettings } from 'react-icons/vsc';
 import { IoMdAdd, IoMdSearch } from 'react-icons/io';
-import { FaFileDownload } from "react-icons/fa";
-import { FiEye } from 'react-icons/fi';
+import { FaFileDownload, FaEye } from "react-icons/fa";
+import { RiDeleteBin6Fill } from "react-icons/ri";
 
 const data = {
   user: {
-    name: 'Employee',
-    email: 'employee@hris.com',
+    name: 'Admin',
+    email: 'admin@hris.com',
     avatar: '/avatars/shadcn.jpg',
   },
 };
 
-const users = [
+const letters = [
   {
     id: 1,
-    name: 'Employee of the Month',
-    type: 'Award',
-    validtime: '20 March 2025',
-    status: 'Valid',
-  }
+    userName: 'John Doe',
+    letterName: 'Employee of the Month',
+    letterType: 'Award',
+    validUntil: '01 Desember 2025',
+    status: 'Active',
+  },
+  {
+    id: 2,
+    userName: 'Jane Smith',
+    letterName: 'Work From Home Approval',
+    letterType: 'Permission',
+    validUntil: '01 Januari 2023',
+    status: 'Not Active',
+  },
+  {
+    id: 3,
+    userName: 'Alice Johnson',
+    letterName: 'Training Completion Certificate',
+    letterType: 'Certificate',
+    validUntil: '15 Maret 2024',
+    status: 'Not Active',
+  },
 ];
 
 export default function Page() {
@@ -130,9 +158,63 @@ export default function Page() {
                 <Button className="bg-gray-100 text-black shadow-xs">
                   <VscSettings /> Filter
                 </Button>
-                <Button>
-                  <IoMdAdd /> Tambah Data
-                </Button>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button>
+                      <IoMdAdd /> Add Letter
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-2xl">
+                    <DialogHeader>
+                      <DialogTitle>Add Letter</DialogTitle>
+                    </DialogHeader>
+                    <form>
+                      <div className="mb-4">
+                        <Label htmlFor="letterName">Letter Name</Label>
+                        <Input
+                          id="letterName"
+                          type="text"
+                          placeholder="Enter letter name"
+                        />
+                      </div>
+                      <div className="mb-4">
+                        <Label htmlFor="letterType">Letter Type</Label>
+                        <Input
+                          id="letterType"
+                          type="text"
+                          placeholder="Enter letter type"
+                        />
+                      </div>
+                      <div className="mb-4">
+                        <Label htmlFor="letterDescription">
+                          Letter Description
+                        </Label>
+                        <Input
+                          id="letterDescription"
+                          type="text"
+                          placeholder="Enter letter description"
+                        />
+                      </div>
+                      <div className="mb-4">
+                        <Label htmlFor="letterStatus">Letter Status</Label>
+                        <Input
+                          id="letterStatus"
+                          type="text"
+                          placeholder="Enter letter status"
+                        />
+                      </div>
+                      <div className="mb-4">
+                        <Label htmlFor="validUntil">Valid Until</Label>
+                        <Input id="validUntil" type="date" />
+                      </div>
+                      <DialogFooter className="gap-2 sm:justify-end">
+                        <Button type="submit" className="w-20">
+                          Submit
+                        </Button>
+                      </DialogFooter>
+                    </form>
+                  </DialogContent>
+                </Dialog>
               </div>
             </div>
 
@@ -140,6 +222,7 @@ export default function Page() {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead>Employee Name</TableHead>
                   <TableHead>Letter Name</TableHead>
                   <TableHead>Letter Type</TableHead>
                   <TableHead>Valid Until</TableHead>
@@ -148,22 +231,37 @@ export default function Page() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {users.map((u) => (
-                  <TableRow key={u.id}>
-                    <TableCell>{u.name}</TableCell>
-                    <TableCell>{u.type}</TableCell>
-                    <TableCell>{u.validtime}</TableCell>
-                    <TableCell>{u.status}</TableCell>
+                {letters.map((letter) => (
+                  <TableRow key={letter.id}>
+                    <TableCell>{letter.userName}</TableCell>
+                    <TableCell>{letter.letterName}</TableCell>
+                    <TableCell>{letter.letterType}</TableCell>
+                    <TableCell>{letter.validUntil}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center">
+                        <span
+                          className={`px-2 py-1 rounded text-xs text-white ${letter.status === 'Active' ? 'bg-green-600' : 'bg-gray-400'
+                            }`}
+                        >
+                          {letter.status}
+                        </span>
+                      </div>
+                    </TableCell>
                     <TableCell>
                       <div className="flex gap-4">
-                        <Link href={`/letters/view/${u.id}`}>
-                          <button className="hover:text-blue-800">
-                            <FiEye />
+                        <Link href={`view/${letter.id}`}>
+                          <button className="text-[#1E3A5F] hover:text-blue-800">
+                            <FaEye />
                           </button>
                         </Link>
-                        <Link href={`/letters/download/${u.id}`}>
-                          <button className="hover:text-green-800">
+                        <Link href={`/download/${letter.id}`}>
+                          <button className="text-[#1E3A5F] hover:text-green-800">
                             <FaFileDownload />
+                          </button>
+                        </Link>
+                        <Link href={`/delete/${letter.id}`}>
+                          <button className="text-[#1E3A5F] hover:text-red-800">
+                            <RiDeleteBin6Fill />
                           </button>
                         </Link>
                       </div>
@@ -177,8 +275,8 @@ export default function Page() {
             <div className="flex items-center justify-between p-4 border-t">
               <div className="text-sm text-gray-600">
                 Showing <span className="font-medium">1</span> to{' '}
-                <span className="font-medium">{users.length}</span> of{' '}
-                <span className="font-medium">{users.length}</span> results
+                <span className="font-medium">{letters.length}</span> of{' '}
+                <span className="font-medium">{letters.length}</span> results
               </div>
               <div className="flex items-center gap-2">
                 <button

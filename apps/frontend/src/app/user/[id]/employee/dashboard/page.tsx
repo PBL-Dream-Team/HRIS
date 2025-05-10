@@ -1,3 +1,8 @@
+import WorkInformation from '@/components/dashboard-employee/WorkInformation';
+import AttendanceSummaryCard from '@/components/dashboard-employee/AttendanceSummaryCard';
+import LeaveSummaryCard from '@/components/dashboard-employee/LeaveSummaryCard';
+import WorkHoursOverviewCard from '@/components/dashboard-employee/WorkHoursOverviewCard';
+
 import { AppSidebar } from '@/components/app-sidebar';
 import {
   Breadcrumb,
@@ -15,6 +20,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Bell } from 'lucide-react';
 import { NavUser } from '@/components/nav-user';
+import { IoMdSearch } from 'react-icons/io';
 
 import {
   DropdownMenu,
@@ -27,8 +33,8 @@ import {
 
 const data = {
   user: {
-    name: 'shadcn',
-    email: 'm@example.com',
+    name: 'Employee',
+    email: 'employee@hris.com',
     avatar: '/avatars/shadcn.jpg',
   },
 };
@@ -48,7 +54,7 @@ export default function Page() {
             <Breadcrumb>
               <BreadcrumbList>
                 <BreadcrumbItem>
-                  <BreadcrumbPage>Employee Database</BreadcrumbPage>
+                  <BreadcrumbPage>Dashboard</BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
@@ -56,11 +62,10 @@ export default function Page() {
 
           <div className="flex items-center gap-4">
             {/* Search */}
-            <Input
-              type="search"
-              placeholder="Search"
-              className="hidden lg:block w-80"
-            />
+            <div className="relative w-80 hidden lg:block">
+              <IoMdSearch className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-500" />
+              <Input type="search" placeholder="Search" className="pl-10" />
+            </div>
 
             {/* Notification */}
             <DropdownMenu>
@@ -93,12 +98,16 @@ export default function Page() {
           </div>
         </header>
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-          <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-            <div className="bg-muted/50 aspect-video rounded-xl" />
-            <div className="bg-muted/50 aspect-video rounded-xl" />
-            <div className="bg-muted/50 aspect-video rounded-xl" />
+          <WorkInformation />
+          <div className='flex flex-col gap-4'>
+            <div className='grid gap-4 sm:grid-cols-2'>
+              <AttendanceSummaryCard />
+              <LeaveSummaryCard />
+            </div>
+            <div className='h-[100px]'>
+              <WorkHoursOverviewCard />
+            </div>
           </div>
-          <div className="bg-muted/50 min-h-[100vh] flex-1 rounded-xl md:min-h-min" />
         </div>
       </SidebarInset>
     </SidebarProvider>
