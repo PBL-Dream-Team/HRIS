@@ -1,4 +1,5 @@
 import Link from 'next/link';
+
 import { AppSidebar } from '@/components/app-sidebar';
 import {
   Breadcrumb,
@@ -43,8 +44,8 @@ import { FaFileDownload, FaEye } from "react-icons/fa";
 
 const data = {
   user: {
-    name: 'shadcn',
-    email: 'm@example.com',
+    name: 'Employee',
+    email: 'employee@hris.com',
     avatar: '/avatars/shadcn.jpg',
   },
 };
@@ -90,7 +91,7 @@ export default function Page() {
             <Breadcrumb>
               <BreadcrumbList>
                 <BreadcrumbItem>
-                  <BreadcrumbPage>Letter Overview</BreadcrumbPage>
+                  <BreadcrumbPage>Letters</BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
@@ -98,11 +99,10 @@ export default function Page() {
 
           <div className="flex items-center gap-4">
             {/* Search */}
-            <Input
-              type="search"
-              placeholder="Search"
-              className="hidden lg:block w-80"
-            />
+            <div className="relative w-80 hidden lg:block">
+              <IoMdSearch className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-500" />
+              <Input type="search" placeholder="Search" className="pl-10" />
+            </div>
 
             {/* Notification */}
             <DropdownMenu>
@@ -144,7 +144,7 @@ export default function Page() {
                 <Input type="search" placeholder="Search" className="pl-10" />
               </div>
               <div className="flex flex-col gap-2 lg:flex-row lg:items-center lg:gap-4">
-                <Button className="bg-gray-100 text-black shadow-xs">
+                <Button className="bg-gray-100 text-black shadow-xs hover:bg-gray-200">
                   <VscSettings /> Filter
                 </Button>
               </div>
@@ -158,7 +158,7 @@ export default function Page() {
                   <TableHead>Letter Type</TableHead>
                   <TableHead>Valid Until</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead>Action</TableHead>
+                  <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -179,13 +179,13 @@ export default function Page() {
                     </TableCell>
                     <TableCell className="">
                       <div className="flex gap-4">
-                        <Link href={`/employeeletter/view/${letter.id}`}>
-                          <button className="hover:text-blue-800">
+                        <Link href={`view/${letter.id}`}>
+                          <button className="text-[#1E3A5F] hover:text-blue-800">
                             <FaEye />
                           </button>
                         </Link>
-                        <Link href={`/employeeletter/download/${letter.id}`}>
-                          <button className="hover:text-green-800">
+                        <Link href={`download/${letter.id}`}>
+                          <button className="text-[#1E3A5F] hover:text-green-800">
                             <FaFileDownload />
                           </button>
                         </Link>

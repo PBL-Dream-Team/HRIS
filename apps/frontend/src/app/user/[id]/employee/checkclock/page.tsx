@@ -46,7 +46,7 @@ const data = {
   },
 };
 
-const users = [
+const checkclocks = [
   {
     id: 1,
     date: '20 March 2025',
@@ -133,7 +133,7 @@ export default function Page() {
                 <Input type="search" placeholder="Search" className="pl-10" />
               </div>
               <div className="flex flex-col gap-2 lg:flex-row lg:items-center lg:gap-4">
-                <Button className="bg-gray-100 text-black shadow-xs">
+                <Button className="bg-gray-100 text-black shadow-xs hover:bg-gray-200">
                   <VscSettings /> Filter
                 </Button>
                 <Button>
@@ -154,13 +154,13 @@ export default function Page() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {users.map((u) => (
-                  <TableRow key={u.id}>
-                    <TableCell>{u.date}</TableCell>
-                    <TableCell>{u.clockin}</TableCell>
-                    <TableCell>{u.clockout}</TableCell>
-                    <TableCell>{u.workhours}</TableCell>
-                    <TableCell>{u.status}</TableCell>
+                {checkclocks.map((checkclock) => (
+                  <TableRow key={checkclock.id}>
+                    <TableCell>{checkclock.date}</TableCell>
+                    <TableCell>{checkclock.clockin}</TableCell>
+                    <TableCell>{checkclock.clockout}</TableCell>
+                    <TableCell>{checkclock.workhours}</TableCell>
+                    <TableCell>{checkclock.status}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -170,8 +170,8 @@ export default function Page() {
             <div className="flex items-center justify-between p-4 border-t">
               <div className="text-sm text-gray-600">
                 Showing <span className="font-medium">1</span> to{' '}
-                <span className="font-medium">{users.length}</span> of{' '}
-                <span className="font-medium">{users.length}</span> results
+                <span className="font-medium">{checkclocks.length}</span> of{' '}
+                <span className="font-medium">{checkclocks.length}</span> results
               </div>
               <div className="flex items-center gap-2">
                 <button

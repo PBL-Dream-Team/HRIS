@@ -40,8 +40,8 @@ export function NavSecondary({
                     className={cn(
                       'w-full flex items-center gap-2 px-3 py-2 transition-colors hover:font-semibold',
                       isActive
-                        ? 'bg-primary text-white font-semibold bg-[#1E3A5F]'
-                        : 'hover:bg-muted'
+                        ? 'bg-primary text-white font-semibold bg-[#1E3A5F] hover:bg-[#1E3A5F]/80 hover:text-white'
+                        : 'hover:bg-[#1E3A5F]/80 hover:text-white',
                     )}
                   >
                     {item.icon && <item.icon className="h-5 w-5" />}
