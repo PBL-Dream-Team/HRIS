@@ -96,7 +96,7 @@ export default function AttendanceOverviewCard() {
             <hr />
             <div className="flex flex-col gap-3">
               {attendancesData.slice(0, 4).map((item, index) => (
-                <div key={item.attendance} className="flex justify-between items-center">
+                <div key={item.attendance}>
                   <div className="flex items-center gap-2">
                     <span
                       className="w-3 h-3 rounded-full flex-shrink-0"
