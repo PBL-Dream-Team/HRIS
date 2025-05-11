@@ -1,9 +1,11 @@
-import {Controller,Get,Post,Body,Param,Delete,Patch,} from '@nestjs/common';
+import {Controller,Get,Post,Body,Param,Delete,Patch, UseGuards,} from '@nestjs/common';
 import { createSubscriptionDto } from './dtos/createSubscription.dto';
 import { editSubscriptionDto } from './dtos/editSubscription.dto';
 import { SubscriptionService } from './subscription.service';
+import { JwtGuard } from '../Auth/guard';
 
-@Controller('subscription')
+@UseGuards(JwtGuard)
+@Controller('api/subscription')
 export class SubscriptionController {
   constructor(private readonly SubscriptionService: SubscriptionService) {}
 

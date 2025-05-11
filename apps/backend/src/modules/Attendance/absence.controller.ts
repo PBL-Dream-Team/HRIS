@@ -1,9 +1,11 @@
-import {Controller,Get,Post,Body,Param,Delete,Patch,} from '@nestjs/common';
+import {Controller,Get,Post,Body,Param,Delete,Patch, UseGuards,} from '@nestjs/common';
 import { createAbsenceDto } from './dtos/createAbsence.dto';
 import { editAbsenceDto } from './dtos/editAbsence.dto';
 import { AbsenceService } from './absence.service';
+import { JwtGuard } from '../Auth/guard';
 
-@Controller('absence')
+@UseGuards(JwtGuard)
+@Controller('api/absence')
 export class AbsenceController {
   constructor(private readonly AbsenceService: AbsenceService) {}
 
