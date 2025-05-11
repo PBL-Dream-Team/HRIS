@@ -54,11 +54,16 @@ import {
   Pencil,
   Trash2,
   Eye,
-  Filter,
+  UploadCloud,
   Import,
   Download,
   Plus,
 } from 'lucide-react';
+import { VscSettings } from 'react-icons/vsc';
+import { IoMdSearch } from 'react-icons/io';
+import { BiImport, BiExport } from "react-icons/bi";
+
+
 import { EmployeeForm } from '@/components/EmployeeForm';
 
 const data = {
@@ -92,11 +97,10 @@ export default function Page() {
 
           <div className="flex items-center gap-4">
             {/* Search */}
-            <Input
-              type="search"
-              placeholder="Search"
-              className="hidden lg:block w-80"
-            />
+            <div className="relative w-80 hidden lg:block">
+              <IoMdSearch className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-500" />
+              <Input type="search" placeholder="Search" className="pl-10" />
+            </div>
 
             {/* Notification */}
             <DropdownMenu>
@@ -166,26 +170,26 @@ export default function Page() {
               </h2>
               <div className="flex flex-col w-full gap-2 md:flex-row md:items-center md:gap-2 md:w-auto">
                 {/* Search Input */}
-                <Input
-                  placeholder="Search"
-                  className="w-full md:w-auto max-w-full md:max-w-xs"
-                />
+              <div className="relative w-96 hidden lg:block">
+                <IoMdSearch className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-500" />
+                <Input type="search" placeholder="Search" className="pl-10" />
+              </div>
 
                 {/* Buttons */}
                 <div className="flex flex-col gap-2 md:flex-row md:flex-wrap md:gap-2">
                   <Button variant="outline" className="w-full md:w-auto">
-                    <Filter className="h-4 w-4 mr-1" /> Filter
+                    <VscSettings className="h-4 w-4 mr-1" /> Filter
                   </Button>
                   <Button variant="outline" className="w-full md:w-auto">
-                    <Download className="h-4 w-4 mr-1" /> Export
+                    <BiExport className="h-4 w-4 mr-1" /> Export
                   </Button>
                   <Button variant="outline" className="w-full md:w-auto">
-                    <Import className="h-4 w-4 mr-1" /> Import
+                    <BiImport className="h-4 w-4 mr-1" /> Import
                   </Button>
                   <Dialog>
                     <DialogTrigger asChild>
                       <Button className="w-full md:w-auto">
-                        <Plus className="h-4 w-4 mr-1" /> Tambah Data
+                        <Plus className="h-4 w-4 mr-1" /> Add Employee
                       </Button>
                     </DialogTrigger>
 
@@ -213,7 +217,7 @@ export default function Page() {
                   <TableHead className="text-white">Position</TableHead>
                   <TableHead className="text-white">Grade</TableHead>
                   <TableHead className="text-white">Status</TableHead>
-                  <TableHead className="text-white">Action Button</TableHead>
+                  <TableHead className="text-white">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -238,12 +242,12 @@ export default function Page() {
                       <Switch defaultChecked />
                     </TableCell>
                     <TableCell className="flex gap-2">
-                      <Button variant="outline" size="icon">
+                      <Button variant="outline" size="icon" className="hover:text-white hover:bg-blue-600">
                         <Eye className="h-4 w-4" />
                       </Button>
                       <Dialog>
                         <DialogTrigger asChild>
-                          <Button variant="outline" size="icon">
+                          <Button variant="outline" size="icon" className="hover:text-white hover:bg-yellow-500">
                             <Pencil className="h-4 w-4" />
                           </Button>
                         </DialogTrigger>
@@ -256,7 +260,7 @@ export default function Page() {
                         </DialogContent>
                       </Dialog>
 
-                      <Button variant="outline" size="icon">
+                      <Button variant="outline" size="icon" className="hover:text-white hover:bg-red-600">
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </TableCell>

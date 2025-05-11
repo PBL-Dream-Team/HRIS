@@ -1,7 +1,10 @@
-import Link from 'next/link';
 import { AppSidebar } from '@/components/app-sidebar';
-import { Label } from '@/components/ui/label';
+import {
+  Pencil,
+  Trash2,
+  Eye,
 
+} from 'lucide-react';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -28,6 +31,7 @@ import { Input } from '@/components/ui/input';
 import { Bell } from 'lucide-react';
 import { NavUser } from '@/components/nav-user';
 import { Button } from '@/components/ui/button';
+import { LetterForm } from '@/components/letter-form';
 
 import {
   DropdownMenu,
@@ -49,8 +53,6 @@ import {
 
 import { VscSettings } from 'react-icons/vsc';
 import { IoMdAdd, IoMdSearch } from 'react-icons/io';
-import { FaFileDownload, FaEye } from "react-icons/fa";
-import { RiDeleteBin6Fill } from "react-icons/ri";
 
 const data = {
   user: {
@@ -168,51 +170,7 @@ export default function Page() {
                     <DialogHeader>
                       <DialogTitle>Add Letter</DialogTitle>
                     </DialogHeader>
-                    <form>
-                      <div className="mb-4">
-                        <Label htmlFor="letterName">Letter Name</Label>
-                        <Input
-                          id="letterName"
-                          type="text"
-                          placeholder="Enter letter name"
-                        />
-                      </div>
-                      <div className="mb-4">
-                        <Label htmlFor="letterType">Letter Type</Label>
-                        <Input
-                          id="letterType"
-                          type="text"
-                          placeholder="Enter letter type"
-                        />
-                      </div>
-                      <div className="mb-4">
-                        <Label htmlFor="letterDescription">
-                          Letter Description
-                        </Label>
-                        <Input
-                          id="letterDescription"
-                          type="text"
-                          placeholder="Enter letter description"
-                        />
-                      </div>
-                      <div className="mb-4">
-                        <Label htmlFor="letterStatus">Letter Status</Label>
-                        <Input
-                          id="letterStatus"
-                          type="text"
-                          placeholder="Enter letter status"
-                        />
-                      </div>
-                      <div className="mb-4">
-                        <Label htmlFor="validUntil">Valid Until</Label>
-                        <Input id="validUntil" type="date" />
-                      </div>
-                      <DialogFooter className="gap-2 sm:justify-end">
-                        <Button type="submit" className="w-20">
-                          Submit
-                        </Button>
-                      </DialogFooter>
-                    </form>
+                    <LetterForm />
                   </DialogContent>
                 </Dialog>
               </div>
@@ -240,31 +198,38 @@ export default function Page() {
                     <TableCell>
                       <div className="flex items-center">
                         <span
-                          className={`px-2 py-1 rounded text-xs text-white ${letter.status === 'Active' ? 'bg-green-600' : 'bg-gray-400'
-                            }`}
+                          className={`px-2 py-1 rounded text-xs text-white ${
+                            letter.status === 'Active'
+                              ? 'bg-green-600'
+                              : 'bg-gray-400'
+                          }`}
                         >
                           {letter.status}
                         </span>
                       </div>
                     </TableCell>
-                    <TableCell>
-                      <div className="flex gap-4">
-                        <Link href={`view/${letter.id}`}>
-                          <button className="text-[#1E3A5F] hover:text-blue-800">
-                            <FaEye />
-                          </button>
-                        </Link>
-                        <Link href={`/download/${letter.id}`}>
-                          <button className="text-[#1E3A5F] hover:text-green-800">
-                            <FaFileDownload />
-                          </button>
-                        </Link>
-                        <Link href={`/delete/${letter.id}`}>
-                          <button className="text-[#1E3A5F] hover:text-red-800">
-                            <RiDeleteBin6Fill />
-                          </button>
-                        </Link>
-                      </div>
+                    <TableCell className="flex gap-2">
+                      <Button variant="outline" size="icon" className="hover:text-white hover:bg-blue-600">
+                        <Eye className="h-4 w-4" />
+                      </Button>
+
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button variant="outline" size="icon" className="hover:text-white hover:bg-yellow-500">
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-2xl">
+                          <DialogHeader>
+                            <DialogTitle>Edit Letter</DialogTitle>
+                          </DialogHeader>
+                          <LetterForm />
+                        </DialogContent>
+                      </Dialog>
+
+                      <Button variant="outline" size="icon" className="hover:text-white hover:bg-red-600">
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))}
