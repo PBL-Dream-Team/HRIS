@@ -22,6 +22,8 @@ import { Bell } from 'lucide-react';
 import { NavUser } from '@/components/nav-user';
 import { Button } from '@/components/ui/button';
 
+import { Eye, Download } from 'lucide-react';
+
 import {
   Dialog,
   DialogTrigger,
@@ -87,7 +89,9 @@ const letters = [
 ];
 
 export default function Page() {
-  const [selectedLetter, setSelectedLetter] = useState<null | typeof letters[0]>(null);
+  const [selectedLetter, setSelectedLetter] = useState<
+    null | (typeof letters)[0]
+  >(null);
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -192,15 +196,17 @@ export default function Page() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <div className="flex gap-4">
+                      <div className="flex gap-2">
                         <Dialog>
                           <DialogTrigger asChild>
-                            <button
-                              className="text-[#1E3A5F] hover:text-blue-800"
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              className="hover:text-white hover:bg-blue-600"
                               onClick={() => setSelectedLetter(letter)}
                             >
-                              <FaEye />
-                            </button>
+                              <Eye className="h-4 w-4" />
+                            </Button>
                           </DialogTrigger>
                           <DialogContent className="sm:max-w-md">
                             <DialogHeader>
@@ -237,9 +243,13 @@ export default function Page() {
                           </DialogContent>
                         </Dialog>
                         <Link href={`download/${letter.id}`}>
-                          <button className="text-[#1E3A5F] hover:text-green-800">
-                            <FaFileDownload />
-                          </button>
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="hover:text-white hover:bg-green-600"
+                          >
+                            <Download />
+                          </Button>
                         </Link>
                       </div>
                     </TableCell>
