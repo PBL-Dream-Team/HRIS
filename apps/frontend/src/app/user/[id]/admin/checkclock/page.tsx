@@ -35,7 +35,15 @@ import {
 } from '@/components/ui/dialog';
 
 import { Input } from '@/components/ui/input';
-import { Bell, Check, Filter, Plus, X } from 'lucide-react';
+import {
+  Bell,
+  Check,
+  DownloadIcon,
+  EyeIcon,
+  Filter,
+  Plus,
+  X,
+} from 'lucide-react';
 import { NavUser } from '@/components/nav-user';
 import { Button } from '@/components/ui/button';
 
@@ -63,6 +71,12 @@ import { MdImage } from 'react-icons/md';
 
 import MapPicker from '@/components/map-picker';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from '@/components/ui/sheet';
 
 const data = {
   user: {
@@ -92,6 +106,14 @@ export default function Page() {
     setLat(lat.toFixed(6));
     setLng(lng.toFixed(6));
     setAddressDetail(address);
+  };
+
+  const [openSheet, setOpenSheet] = useState(false);
+  const [selectedEmployee, setSelectedEmployee] = useState<any>(null);
+
+  const handleViewDetails = (employee: any) => {
+    setSelectedEmployee(employee);
+    setOpenSheet(true);
   };
 
   return (
@@ -394,9 +416,9 @@ export default function Page() {
                   return (
                     <TableRow key={i}>
                       <TableCell>
-                        <Avatar className="h-8 w-8 rounded-full">
+                        <Avatar className="h-8 w-8 rounded-lg">
                           <AvatarImage src="/avatars/user.jpg" alt="avatar" />
-                          <AvatarFallback>
+                          <AvatarFallback className="rounded-lg">
                             {employee.name
                               .split(' ')
                               .map((n) => n[0])
@@ -419,7 +441,11 @@ export default function Page() {
                         <span className="text-black">{employee.status}</span>
                       </TableCell>
                       <TableCell>
-                        <Button size="sm" variant="outline">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleViewDetails(employee)}
+                        >
                           View
                         </Button>
                       </TableCell>
@@ -454,6 +480,130 @@ export default function Page() {
           </div>
         </div>
       </SidebarInset>
+
+      <Sheet open={openSheet} onOpenChange={setOpenSheet}>
+        <SheetContent
+          side="right"
+          className="w-[400px] sm:w-[500px] overflow-y-auto"
+        >
+          <SheetHeader className="px-4">
+            <SheetTitle>Attendance Details</SheetTitle>
+          </SheetHeader>
+
+          {selectedEmployee && (
+            <div className="space-y-4 my-4 px-4">
+              {/* Header Info */}
+              <div className="flex items-center gap-3 border rounded-md p-4">
+                <Avatar className="h-8 w-8 rounded-lg">
+                  <AvatarImage src="/avatars/user.jpg" />
+                  <AvatarFallback className="rounded-lg">
+                    {selectedEmployee.name
+                      .split(' ')
+                      .map((n: string) => n[0])
+                      .join('')
+                      .toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <p className="font-medium">{selectedEmployee.name}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {selectedEmployee.position}
+                  </p>
+                </div>
+                <div className="ml-auto flex items-center gap-2">
+                  {/* Dot color change based on status */}
+                  <span
+                    className={`h-2 w-2 rounded-full ${
+                      selectedEmployee.status === 'Waiting Approval'
+                        ? 'bg-black'
+                        : selectedEmployee.status === 'On Time'
+                          ? 'bg-green-600'
+                          : selectedEmployee.status === 'Late'
+                            ? 'bg-yellow-500'
+                            : 'bg-red-600'
+                    }`}
+                  ></span>
+                  <span className="text-sm text-muted-foreground">
+                    {selectedEmployee.status}
+                  </span>
+                </div>
+              </div>
+
+              {/* Attendance Info */}
+              <div className="border rounded-md p-4 text-sm">
+                <h4 className="font-medium mb-4">Attendance Information</h4>
+                <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+                  <div>
+                    <p className="text-muted-foreground text-xs">Date</p>
+                    <p className="font-medium">1 March 2025</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground text-xs">Clock In</p>
+                    <p className="font-medium">{selectedEmployee.clockIn}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground text-xs">Clock Out</p>
+                    <p className="font-medium">{selectedEmployee.clockOut}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground text-xs">Status</p>
+                    <p className="font-medium">{selectedEmployee.status}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground text-xs">Work Hours</p>
+                    <p className="font-medium">{selectedEmployee.workHours}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground text-xs">Late</p>
+                    <p className="font-medium">10h 5m</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Location Info */}
+              <div className="border rounded-md p-4 text-sm">
+                <h4 className="font-medium mb-4">Location Information</h4>
+                <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+                  <div>
+                    <p className="text-muted-foreground text-xs">Location</p>
+                    <p className="font-medium">Kantor Pusat</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground text-xs">
+                      Detail Address
+                    </p>
+                    <p className="font-medium">Jl. Veteran No.1, Kota Malang</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground text-xs">Lat</p>
+                    <p className="font-medium">-</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground text-xs">Long</p>
+                    <p className="font-medium">-</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Proof of Attendance */}
+              <div className="border rounded-md p-4 space-y-2 text-sm">
+                <h4 className="font-medium">Proof of Attendance</h4>
+                <div className="flex items-center justify-between border rounded px-3 py-2">
+                  <span>Proof of Attendance.jpg</span>
+                  <div className="flex items-center gap-2">
+                    <button className="text-gray-600 hover:text-black">
+                      <EyeIcon className="w-4 h-4" />
+                    </button>
+                    <button className="text-gray-600 hover:text-black">
+                      <DownloadIcon className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </SheetContent>
+      </Sheet>
     </SidebarProvider>
   );
 }
