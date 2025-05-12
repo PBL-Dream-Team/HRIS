@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe, ClassSerializerInterceptor } from '@nestjs/common';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { Reflector } from '@nestjs/core';
 
 async function bootstrap() {
@@ -12,6 +13,14 @@ async function bootstrap() {
       transform: true,
     }),
   );
+  const SwaggerConfig = new DocumentBuilder()
+    .setTitle('HRIS API')
+    .setDescription('HRIS API documentation')
+    .build();
+
+  const document = SwaggerModule.createDocument(app, SwaggerConfig);
+  SwaggerModule.setup('api/docs', app, document);
+
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
   await app.listen(process.env.PORT ?? 3000);
 }
