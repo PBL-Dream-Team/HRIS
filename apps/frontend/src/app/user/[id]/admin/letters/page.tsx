@@ -1,4 +1,7 @@
+'use client';
+
 import { AppSidebar } from '@/components/app-sidebar';
+import { useState } from 'react';
 import {
   Pencil,
   Trash2,
@@ -90,6 +93,17 @@ const letters = [
 ];
 
 export default function Page() {
+    const [file, setFile] = useState<File | null>(null);
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const selected = e.target.files?.[0];
+      if (selected) {
+        setFile(selected);
+        setPreviewUrl(URL.createObjectURL(selected));
+      }
+    };
+
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -157,7 +171,7 @@ export default function Page() {
                 <Input type="search" placeholder="Search" className="pl-10" />
               </div>
               <div className="flex flex-col gap-2 lg:flex-row lg:items-center lg:gap-4">
-                <Button className="bg-gray-100 text-black shadow-xs">
+                <Button className="bg-gray-100 text-black shadow-xs hover:bg-gray-200">
                   <VscSettings /> Filter
                 </Button>
                 <Dialog>

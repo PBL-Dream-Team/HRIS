@@ -64,7 +64,7 @@ import { IoMdSearch } from 'react-icons/io';
 import { BiImport, BiExport } from "react-icons/bi";
 
 
-import { EmployeeForm } from '@/components/EmployeeForm';
+import { EmployeeForm } from '@/components/employee-form';
 
 const data = {
   user: {
