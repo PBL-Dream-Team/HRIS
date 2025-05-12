@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { AppSidebar } from '@/components/app-sidebar';
 import { useState } from 'react';
 import {
@@ -56,6 +57,7 @@ import {
 
 import { VscSettings } from 'react-icons/vsc';
 import { IoMdAdd, IoMdSearch } from 'react-icons/io';
+import { Download } from 'lucide-react';
 
 const data = {
   user: {
@@ -223,9 +225,15 @@ export default function Page() {
                       </div>
                     </TableCell>
                     <TableCell className="flex gap-2">
-                      <Button variant="outline" size="icon" className="hover:text-white hover:bg-blue-600">
-                        <Eye className="h-4 w-4" />
-                      </Button>
+                        <Link href={`download/${letter.id}`}>
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="hover:text-white hover:bg-green-600"
+                          >
+                            <Download />
+                          </Button>
+                        </Link>
 
                       <Dialog>
                         <DialogTrigger asChild>
