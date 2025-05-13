@@ -1,4 +1,8 @@
+'use client';
+
 import { AppSidebar } from '@/components/app-sidebar';
+import { useState } from 'react';
+
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -61,10 +65,15 @@ import {
 } from 'lucide-react';
 import { VscSettings } from 'react-icons/vsc';
 import { IoMdSearch } from 'react-icons/io';
-import { BiImport, BiExport } from "react-icons/bi";
-
+import { BiImport, BiExport } from 'react-icons/bi';
 
 import { EmployeeForm } from '@/components/employee-form';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from '@/components/ui/sheet';
 
 const data = {
   user: {
@@ -74,7 +83,62 @@ const data = {
   },
 };
 
+const employees = [
+  {
+    id: 1,
+    name: 'John Doe',
+    gender: 'Male',
+    mobile: '081221211122',
+    branch: 'Jakarta',
+    position: 'Head of HR',
+    grade: 'Management',
+    avatar: '/avatars/shadcn.jpg',
+    status: true,
+  },
+  {
+    id: 2,
+    name: 'Jane Smith',
+    gender: 'Female',
+    mobile: '082233344455',
+    branch: 'Bandung',
+    position: 'Finance Analyst',
+    grade: 'Staff',
+    avatar: '/avatars/user2.jpg',
+    status: false,
+  },
+  {
+    id: 3,
+    name: 'Michael Chen',
+    gender: 'Male',
+    mobile: '081334455667',
+    branch: 'Surabaya',
+    position: 'Software Engineer',
+    grade: 'Senior',
+    avatar: '/avatars/user3.jpg',
+    status: true,
+  },
+  {
+    id: 4,
+    name: 'Ayu Lestari',
+    gender: 'Female',
+    mobile: '085566778899',
+    branch: 'Bali',
+    position: 'Marketing Lead',
+    grade: 'Supervisor',
+    avatar: '/avatars/user4.jpg',
+    status: true,
+  },
+];
+
 export default function Page() {
+  const [openSheet, setOpenSheet] = useState(false);
+  const [selectedEmployee, setSelectedEmployee] = useState<any>(null);
+
+  const handleViewDetails = (employee: any) => {
+    setSelectedEmployee(employee);
+    setOpenSheet(true);
+  };
+
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -170,10 +234,10 @@ export default function Page() {
               </h2>
               <div className="flex flex-col w-full gap-2 md:flex-row md:items-center md:gap-2 md:w-auto">
                 {/* Search Input */}
-              <div className="relative w-96 hidden lg:block">
-                <IoMdSearch className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-500" />
-                <Input type="search" placeholder="Search" className="pl-10" />
-              </div>
+                <div className="relative w-96 hidden lg:block">
+                  <IoMdSearch className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-500" />
+                  <Input type="search" placeholder="Search" className="pl-10" />
+                </div>
 
                 {/* Buttons */}
                 <div className="flex flex-col gap-2 md:flex-row md:flex-wrap md:gap-2">
@@ -221,37 +285,49 @@ export default function Page() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {[1, 2].map((_, i) => (
-                  <TableRow key={i}>
-                    <TableCell>1</TableCell>
+                {employees.map((emp, i) => (
+                  <TableRow key={emp.id}>
+                    <TableCell>{i + 1}</TableCell>
                     <TableCell>
                       <Avatar className="h-8 w-8 rounded-lg">
-                        <AvatarImage src="/avatars/shadcn.jpg" alt="shadcn" />
+                        <AvatarImage src={emp.avatar} alt={emp.name} />
                         <AvatarFallback className="rounded-lg">
-                          CN
+                          {emp.name
+                            .split(' ')
+                            .map((n) => n[0])
+                            .join('')}
                         </AvatarFallback>
                       </Avatar>
                     </TableCell>
-                    <TableCell>John doel asdw</TableCell>
-                    <TableCell>Male</TableCell>
-                    <TableCell>081221211122</TableCell>
-                    <TableCell>Jakarta</TableCell>
-                    <TableCell>Head Of HR</TableCell>
-                    <TableCell>Management</TableCell>
+                    <TableCell>{emp.name}</TableCell>
+                    <TableCell>{emp.gender}</TableCell>
+                    <TableCell>{emp.mobile}</TableCell>
+                    <TableCell>{emp.branch}</TableCell>
+                    <TableCell>{emp.position}</TableCell>
+                    <TableCell>{emp.grade}</TableCell>
                     <TableCell>
-                      <Switch defaultChecked />
+                      <Switch defaultChecked={emp.status} />
                     </TableCell>
                     <TableCell className="flex gap-2">
-                      <Button variant="outline" size="icon" className="hover:text-white hover:bg-blue-600">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="hover:text-white hover:bg-blue-600"
+                        onClick={() => handleViewDetails(emp)}
+                      >
                         <Eye className="h-4 w-4" />
                       </Button>
+
                       <Dialog>
                         <DialogTrigger asChild>
-                          <Button variant="outline" size="icon" className="hover:text-white hover:bg-yellow-500">
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="hover:text-white hover:bg-yellow-500"
+                          >
                             <Pencil className="h-4 w-4" />
                           </Button>
                         </DialogTrigger>
-
                         <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
                           <DialogHeader>
                             <DialogTitle>Edit Employee</DialogTitle>
@@ -260,7 +336,11 @@ export default function Page() {
                         </DialogContent>
                       </Dialog>
 
-                      <Button variant="outline" size="icon" className="hover:text-white hover:bg-red-600">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="hover:text-white hover:bg-red-600"
+                      >
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </TableCell>
@@ -272,7 +352,9 @@ export default function Page() {
             {/* Pagination */}
             <div className="flex items-center justify-between mt-4 text-sm text-muted-foreground flex-wrap gap-2">
               {/* Info text */}
-              <div>Showing 1 to 1 of 1 results</div>
+              <div>
+                Showing 1 to {employees.length} of {employees.length} results
+              </div>
 
               {/* Page controls */}
               <div className="flex items-center gap-1">
@@ -294,6 +376,73 @@ export default function Page() {
           </div>
         </div>
       </SidebarInset>
+
+      <Sheet open={openSheet} onOpenChange={setOpenSheet}>
+        <SheetContent
+          side="right"
+          className="w-[400px] sm:w-[500px] overflow-y-auto"
+        >
+          <SheetHeader className="px-4">
+            <SheetTitle>Employee Details</SheetTitle>
+          </SheetHeader>
+
+          {selectedEmployee && (
+            <div className="space-y-4 my-4 px-4">
+              {/* Header Info */}
+              <div className="flex items-center gap-3 border rounded-md p-4">
+                <Avatar className="h-8 w-8 rounded-lg">
+                  <AvatarImage src={selectedEmployee.avatar} />
+                  <AvatarFallback className="rounded-lg">
+                    {selectedEmployee.name
+                      .split(' ')
+                      .map((n: string) => n[0])
+                      .join('')
+                      .toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <p className="font-medium">{selectedEmployee.name}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {selectedEmployee.position}
+                  </p>
+                </div>
+                <div className="ml-auto flex items-center gap-2">
+                  <span
+                    className={`h-2 w-2 rounded-full ${
+                      selectedEmployee.status ? 'bg-green-600' : 'bg-red-600'
+                    }`}
+                  ></span>
+                  <span className="text-sm text-muted-foreground">
+                    {selectedEmployee.status ? 'Active' : 'Inactive'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Basic Info */}
+              <div className="border rounded-md p-4 text-sm space-y-2">
+                <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+                  <div>
+                    <p className="text-muted-foreground text-xs">Gender</p>
+                    <p className="font-medium">{selectedEmployee.gender}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground text-xs">Mobile</p>
+                    <p className="font-medium">{selectedEmployee.mobile}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground text-xs">Branch</p>
+                    <p className="font-medium">{selectedEmployee.branch}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground text-xs">Grade</p>
+                    <p className="font-medium">{selectedEmployee.grade}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </SheetContent>
+      </Sheet>
     </SidebarProvider>
   );
 }

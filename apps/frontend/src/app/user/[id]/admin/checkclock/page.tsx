@@ -86,6 +86,49 @@ const data = {
   },
 };
 
+const employeeData = [
+  {
+    name: 'Alice Johnson',
+    position: 'Software Engineer',
+    clockIn: '08:00',
+    clockOut: '16:00',
+    workHours: '8h',
+    status: 'Waiting Approval',
+  },
+  {
+    name: 'Michael Chen',
+    position: 'Project Manager',
+    clockIn: '08:15',
+    clockOut: '16:30',
+    workHours: '8h 15m',
+    status: 'Waiting Approval',
+  },
+  {
+    name: 'Nina Patel',
+    position: 'UI/UX Designer',
+    clockIn: '08:00',
+    clockOut: '17:00',
+    workHours: '9h',
+    status: 'On Time',
+  },
+  {
+    name: 'David Lee',
+    position: 'DevOps Engineer',
+    clockIn: '09:20',
+    clockOut: '18:00',
+    workHours: '8h 40m',
+    status: 'Late',
+  },
+  {
+    name: 'Sarah Kim',
+    position: 'HR Staff',
+    clockIn: '-',
+    clockOut: '-',
+    workHours: '0h',
+    status: 'Absent/Leave',
+  },
+];
+
 export default function Page() {
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -339,48 +382,7 @@ export default function Page() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {[
-                  {
-                    name: 'Alice Johnson',
-                    position: 'Software Engineer',
-                    clockIn: '08:00',
-                    clockOut: '16:00',
-                    workHours: '8h',
-                    status: 'Waiting Approval',
-                  },
-                  {
-                    name: 'Michael Chen',
-                    position: 'Project Manager',
-                    clockIn: '08:15',
-                    clockOut: '16:30',
-                    workHours: '8h 15m',
-                    status: 'Waiting Approval',
-                  },
-                  {
-                    name: 'Nina Patel',
-                    position: 'UI/UX Designer',
-                    clockIn: '08:00',
-                    clockOut: '17:00',
-                    workHours: '9h',
-                    status: 'On Time',
-                  },
-                  {
-                    name: 'David Lee',
-                    position: 'DevOps Engineer',
-                    clockIn: '09:20',
-                    clockOut: '18:00',
-                    workHours: '8h 40m',
-                    status: 'Late',
-                  },
-                  {
-                    name: 'Sarah Kim',
-                    position: 'HR Staff',
-                    clockIn: '-',
-                    clockOut: '-',
-                    workHours: '0h',
-                    status: 'Absent/Leave',
-                  },
-                ].map((employee, i) => {
+                {employeeData.map((employee, i) => {
                   let approveContent;
 
                   switch (employee.status) {
@@ -458,7 +460,10 @@ export default function Page() {
             {/* Pagination */}
             <div className="flex items-center justify-between mt-4 text-sm text-muted-foreground flex-wrap gap-2">
               {/* Info text */}
-              <div>Showing 1 to 1 of 1 results</div>
+              <div>
+                Showing 1 to {employeeData.length} of {employeeData.length}{' '}
+                results
+              </div>
 
               {/* Page controls */}
               <div className="flex items-center gap-1">
