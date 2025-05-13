@@ -23,10 +23,11 @@ import {
 } from '@/components/ui/dialog';
 
 import { Input } from '@/components/ui/input';
-import { Bell, Check } from 'lucide-react';
+import { Bell } from 'lucide-react';
 import { NavUser } from '@/components/nav-user';
 import { Button } from '@/components/ui/button';
 import { CheckClockForm } from '@/components/checkclock-form';
+import PaginationFooter from '@/components/pagination';
 
 import {
   DropdownMenu,
@@ -77,7 +78,6 @@ const checkclocks = [
 ];
 
 export default function Page() {
-
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -158,7 +158,7 @@ export default function Page() {
                     <DialogHeader>
                       <DialogTitle>Add Check Clock</DialogTitle>
                     </DialogHeader>
-                    <CheckClockForm/>
+                    <CheckClockForm />
                   </DialogContent>
                 </Dialog>
               </div>
@@ -201,31 +201,10 @@ export default function Page() {
             </Table>
 
             {/* Pagination */}
-            <div className="flex items-center justify-between p-4 border-t">
-              <div className="text-sm text-gray-600">
-                Showing <span className="font-medium">1</span> to{' '}
-                <span className="font-medium">{checkclocks.length}</span> of{' '}
-                <span className="font-medium">{checkclocks.length}</span>{' '}
-                results
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  className="px-3 py-1 text-sm text-gray-600 bg-gray-200 rounded-md hover:bg-gray-300 disabled:opacity-50"
-                  disabled
-                >
-                  &lt;
-                </button>
-                <button className="px-3 py-1 text-sm text-gray-600 bg-gray-200 rounded-md hover:bg-gray-300">
-                  1
-                </button>
-                <button
-                  className="px-3 py-1 text-sm text-gray-600 bg-gray-200 rounded-md hover:bg-gray-300 disabled:opacity-50"
-                  disabled
-                >
-                  &gt;
-                </button>
-              </div>
-            </div>
+            <PaginationFooter
+              totalItems={checkclocks.length}
+              itemsPerPage={10}
+            />
           </div>
         </div>
       </SidebarInset>

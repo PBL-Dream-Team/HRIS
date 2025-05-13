@@ -21,6 +21,7 @@ import { Input } from '@/components/ui/input';
 import { Bell } from 'lucide-react';
 import { NavUser } from '@/components/nav-user';
 import { Button } from '@/components/ui/button';
+import PaginationFooter from '@/components/pagination';
 
 import { Eye, Download } from 'lucide-react';
 
@@ -42,7 +43,6 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Table,
   TableBody,
@@ -53,8 +53,7 @@ import {
 } from '@/components/ui/table';
 
 import { VscSettings } from 'react-icons/vsc';
-import { IoMdAdd, IoMdSearch } from 'react-icons/io';
-import { FaFileDownload, FaEye } from 'react-icons/fa';
+import { IoMdSearch } from 'react-icons/io';
 
 const data = {
   user: {
@@ -259,30 +258,7 @@ export default function Page() {
             </Table>
 
             {/* Pagination */}
-            <div className="flex items-center justify-between p-4 border-t">
-              <div className="text-sm text-gray-600">
-                Showing <span className="font-medium">1</span> to{' '}
-                <span className="font-medium">{letters.length}</span> of{' '}
-                <span className="font-medium">{letters.length}</span> records
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  className="px-3 py-1 text-sm text-gray-600 bg-gray-200 rounded-md hover:bg-gray-300 disabled:opacity-50"
-                  disabled
-                >
-                  &lt;
-                </button>
-                <button className="px-3 py-1 text-sm text-gray-600 bg-gray-200 rounded-md hover:bg-gray-300">
-                  1
-                </button>
-                <button
-                  className="px-3 py-1 text-sm text-gray-600 bg-gray-200 rounded-md hover:bg-gray-300 disabled:opacity-50"
-                  disabled
-                >
-                  &gt;
-                </button>
-              </div>
-            </div>
+            <PaginationFooter totalItems={letters.length} itemsPerPage={10} />
           </div>
         </div>
       </SidebarInset>

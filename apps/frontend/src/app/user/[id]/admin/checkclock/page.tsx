@@ -35,16 +35,9 @@ import {
 } from '@/components/ui/dialog';
 
 import { Input } from '@/components/ui/input';
-import {
-  Bell,
-  Check,
-  DownloadIcon,
-  EyeIcon,
-  Filter,
-  Plus,
-  X,
-} from 'lucide-react';
+import { Bell, Check, DownloadIcon, Eye, X } from 'lucide-react';
 import { NavUser } from '@/components/nav-user';
+import PaginationFooter from '@/components/pagination';
 import { Button } from '@/components/ui/button';
 
 import {
@@ -86,7 +79,7 @@ const data = {
   },
 };
 
-const employeeData = [
+const checkclocks = [
   {
     name: 'Alice Johnson',
     position: 'Software Engineer',
@@ -181,11 +174,10 @@ export default function Page() {
 
           <div className="flex items-center gap-4">
             {/* Search */}
-            <Input
-              type="search"
-              placeholder="Search"
-              className="hidden lg:block w-80"
-            />
+            <div className="relative w-80 hidden lg:block">
+              <IoMdSearch className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-500" />
+              <Input type="search" placeholder="Search" className="pl-10" />
+            </div>
 
             {/* Notification */}
             <DropdownMenu>
@@ -225,15 +217,15 @@ export default function Page() {
               <h2 className="text-lg font-semibold">Checkclock Overview</h2>
               <div className="flex flex-col w-full gap-2 md:flex-row md:items-center md:gap-2 md:w-auto">
                 {/* Search Input */}
-                <Input
-                  placeholder="Search"
-                  className="w-full md:w-auto max-w-full md:max-w-xs"
-                />
+                <div className="relative w-96 hidden lg:block">
+                  <IoMdSearch className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-500" />
+                  <Input type="search" placeholder="Search" className="pl-10" />
+                </div>
 
                 {/* Buttons */}
                 <div className="flex flex-col gap-2 md:flex-row md:flex-wrap md:gap-2">
                   <Button variant="outline" className="w-full md:w-auto">
-                    <Filter className="h-4 w-4 mr-1" /> Filter
+                    <VscSettings className="h-4 w-4 mr-1" /> Filter
                   </Button>
                   <Dialog>
                     <DialogTrigger asChild>
@@ -378,14 +370,14 @@ export default function Page() {
                   <TableHead>Work Hours</TableHead>
                   <TableHead>Approve</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead>Details</TableHead>
+                  <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {employeeData.map((employee, i) => {
+                {checkclocks.map((checkclock, i) => {
                   let approveContent;
 
-                  switch (employee.status) {
+                  switch (checkclock.status) {
                     case 'Waiting Approval':
                       approveContent = (
                         <div className="flex gap-1">
@@ -421,7 +413,7 @@ export default function Page() {
                         <Avatar className="h-8 w-8 rounded-lg">
                           <AvatarImage src="/avatars/user.jpg" alt="avatar" />
                           <AvatarFallback className="rounded-lg">
-                            {employee.name
+                            {checkclock.name
                               .split(' ')
                               .map((n) => n[0])
                               .join('')
@@ -429,26 +421,27 @@ export default function Page() {
                           </AvatarFallback>
                         </Avatar>
                       </TableCell>
-                      <TableCell>{employee.name}</TableCell>
-                      <TableCell>{employee.position}</TableCell>
-                      <TableCell>{employee.clockIn}</TableCell>
-                      <TableCell>{employee.clockOut}</TableCell>
-                      <TableCell>{employee.workHours}</TableCell>
+                      <TableCell>{checkclock.name}</TableCell>
+                      <TableCell>{checkclock.position}</TableCell>
+                      <TableCell>{checkclock.clockIn}</TableCell>
+                      <TableCell>{checkclock.clockOut}</TableCell>
+                      <TableCell>{checkclock.workHours}</TableCell>
                       <TableCell className="text-center">
                         <div className="flex justify-center items-center">
                           {approveContent}
                         </div>
                       </TableCell>
                       <TableCell>
-                        <span className="text-black">{employee.status}</span>
+                        <span className="text-black">{checkclock.status}</span>
                       </TableCell>
                       <TableCell>
                         <Button
-                          size="sm"
                           variant="outline"
-                          onClick={() => handleViewDetails(employee)}
+                          size="icon"
+                          className="hover:text-white hover:bg-blue-600"
+                          onClick={() => handleViewDetails(checkclock)}
                         >
-                          View
+                          <Eye className="h-4 w-4" />
                         </Button>
                       </TableCell>
                     </TableRow>
@@ -458,30 +451,10 @@ export default function Page() {
             </Table>
 
             {/* Pagination */}
-            <div className="flex items-center justify-between mt-4 text-sm text-muted-foreground flex-wrap gap-2">
-              {/* Info text */}
-              <div>
-                Showing 1 to {employeeData.length} of {employeeData.length}{' '}
-                results
-              </div>
-
-              {/* Page controls */}
-              <div className="flex items-center gap-1">
-                <Button variant="outline" size="icon" className="rounded-md">
-                  {'<'}
-                </Button>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="rounded-md bg-muted text-foreground"
-                >
-                  1
-                </Button>
-                <Button variant="outline" size="icon" className="rounded-md">
-                  {'>'}
-                </Button>
-              </div>
-            </div>
+            <PaginationFooter
+              totalItems={checkclocks.length}
+              itemsPerPage={10}
+            />
           </div>
         </div>
       </SidebarInset>
@@ -597,7 +570,7 @@ export default function Page() {
                   <span>Proof of Attendance.jpg</span>
                   <div className="flex items-center gap-2">
                     <button className="text-gray-600 hover:text-black">
-                      <EyeIcon className="w-4 h-4" />
+                      <Eye className="w-4 h-4" />
                     </button>
                     <button className="text-gray-600 hover:text-black">
                       <DownloadIcon className="w-4 h-4" />

@@ -99,12 +99,12 @@ export default function Page() {
         </header>
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
           <WorkInformation />
-          <div className='flex flex-col gap-4'>
-            <div className='grid gap-4 sm:grid-cols-2'>
+          <div className="flex flex-col gap-4">
+            <div className="grid gap-4 sm:grid-cols-2">
               <AttendanceSummaryCard />
               <LeaveSummaryCard />
             </div>
-            <div className='h-[100px]'>
+            <div className="h-[100px]">
               <WorkHoursOverviewCard />
             </div>
           </div>

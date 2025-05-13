@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import { AppSidebar } from '@/components/app-sidebar';
 import { Input } from '@/components/ui/input';
 import { Bell } from 'lucide-react';

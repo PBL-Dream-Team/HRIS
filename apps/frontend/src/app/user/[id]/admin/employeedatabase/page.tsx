@@ -68,6 +68,7 @@ import { IoMdSearch } from 'react-icons/io';
 import { BiImport, BiExport } from 'react-icons/bi';
 
 import { EmployeeForm } from '@/components/employee-form';
+import PaginationFooter from '@/components/pagination';
 import {
   Sheet,
   SheetContent,
@@ -350,29 +351,7 @@ export default function Page() {
             </Table>
 
             {/* Pagination */}
-            <div className="flex items-center justify-between mt-4 text-sm text-muted-foreground flex-wrap gap-2">
-              {/* Info text */}
-              <div>
-                Showing 1 to {employees.length} of {employees.length} results
-              </div>
-
-              {/* Page controls */}
-              <div className="flex items-center gap-1">
-                <Button variant="outline" size="icon" className="rounded-md">
-                  {'<'}
-                </Button>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="rounded-md bg-muted text-foreground"
-                >
-                  1
-                </Button>
-                <Button variant="outline" size="icon" className="rounded-md">
-                  {'>'}
-                </Button>
-              </div>
-            </div>
+            <PaginationFooter totalItems={employees.length} itemsPerPage={10} />
           </div>
         </div>
       </SidebarInset>

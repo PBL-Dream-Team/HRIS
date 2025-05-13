@@ -2,13 +2,7 @@
 
 import Link from 'next/link';
 import { AppSidebar } from '@/components/app-sidebar';
-import { useState } from 'react';
-import {
-  Pencil,
-  Trash2,
-  Eye,
-
-} from 'lucide-react';
+import { Pencil, Trash2 } from 'lucide-react';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -36,6 +30,7 @@ import { Bell } from 'lucide-react';
 import { NavUser } from '@/components/nav-user';
 import { Button } from '@/components/ui/button';
 import { LetterForm } from '@/components/letter-form';
+import PaginationFooter from '@/components/pagination';
 
 import {
   DropdownMenu,
@@ -95,17 +90,6 @@ const letters = [
 ];
 
 export default function Page() {
-    const [file, setFile] = useState<File | null>(null);
-    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const selected = e.target.files?.[0];
-      if (selected) {
-        setFile(selected);
-        setPreviewUrl(URL.createObjectURL(selected));
-      }
-    };
-
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -225,19 +209,23 @@ export default function Page() {
                       </div>
                     </TableCell>
                     <TableCell className="flex gap-2">
-                        <Link href={`download/${letter.id}`}>
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            className="hover:text-white hover:bg-green-600"
-                          >
-                            <Download />
-                          </Button>
-                        </Link>
+                      <Link href={`download/${letter.id}`}>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="hover:text-white hover:bg-green-600"
+                        >
+                          <Download />
+                        </Button>
+                      </Link>
 
                       <Dialog>
                         <DialogTrigger asChild>
-                          <Button variant="outline" size="icon" className="hover:text-white hover:bg-yellow-500">
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="hover:text-white hover:bg-yellow-500"
+                          >
                             <Pencil className="h-4 w-4" />
                           </Button>
                         </DialogTrigger>
@@ -249,7 +237,11 @@ export default function Page() {
                         </DialogContent>
                       </Dialog>
 
-                      <Button variant="outline" size="icon" className="hover:text-white hover:bg-red-600">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="hover:text-white hover:bg-red-600"
+                      >
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </TableCell>
@@ -259,30 +251,7 @@ export default function Page() {
             </Table>
 
             {/* Pagination */}
-            <div className="flex items-center justify-between p-4 border-t">
-              <div className="text-sm text-gray-600">
-                Showing <span className="font-medium">1</span> to{' '}
-                <span className="font-medium">{letters.length}</span> of{' '}
-                <span className="font-medium">{letters.length}</span> results
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  className="px-3 py-1 text-sm text-gray-600 bg-gray-200 rounded-md hover:bg-gray-300 disabled:opacity-50"
-                  disabled
-                >
-                  &lt;
-                </button>
-                <button className="px-3 py-1 text-sm text-gray-600 bg-gray-200 rounded-md hover:bg-gray-300">
-                  1
-                </button>
-                <button
-                  className="px-3 py-1 text-sm text-gray-600 bg-gray-200 rounded-md hover:bg-gray-300 disabled:opacity-50"
-                  disabled
-                >
-                  &gt;
-                </button>
-              </div>
-            </div>
+            <PaginationFooter totalItems={letters.length} itemsPerPage={10} />
           </div>
         </div>
       </SidebarInset>
