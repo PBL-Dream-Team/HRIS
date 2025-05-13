@@ -2,26 +2,42 @@
 import { useState } from 'react'
 import { Check, X } from 'lucide-react'
 
-const packages = [
+import { 
+  Card,
+  CardHeader,
+  CardContent,
+  CardTitle,
+  CardDescription,
+} from '@/components/ui/card';
+
+import { Button } from '@/components/ui/button'
+
+const singlePayment = [
     {
-        title: 'Paket 1',
-        description: 'Deskripsi',
+        title: 'Silver',
+        description: 'An ideal package for startups and small businesses looking to digitize their HR management with essential yet powerful features.',
+        price: 'Rp. 100.000',
+        range: '25 Employee',
         features: [
         true, true, true, true, true,
         true, true, false, false, false,
         ],
     },
     {
-        title: 'Paket 2',
-        description: 'Deskripsi',
+        title: 'Gold',
+        description: 'Perfect for growing businesses that require more flexibility and additional advanced features to manage their workforce efficiently.',
+        price: 'Rp. 100.000',
+        range: '50 Employee',
         features: [
         true, true, true, true, true,
         true, false, false, false, false,
         ],
     },
     {
-        title: 'Paket 3',
-        description: 'Deskripsi',
+        title: 'Diamond',
+        description: 'The best choice for medium to large enterprises aiming for maximum efficiency and full utilization of HRIS capabilities.',
+        price: 'Rp. 100.000',
+        range: '100 Employee',
         features: [
         true, true, true, true, true,
         false, false, false, false, false,
@@ -29,41 +45,20 @@ const packages = [
     },
 ]
 
-const seatPlans = [
+const payAsYouGo = [
     {
-        title: 'Paket 1',
+        title: 'Pay As You Go',
+        description: 'Ideal for small teams or short-term projects, this plan allows you to pay only for the users you need.',
         price: 'Rp. 100.000',
-        range: '1 - 10 Users',
-    },
-    {
-        title: 'Paket 2',
-        price: 'Rp. 200.000',
-        range: '11 - 50 Users',
-    },
-    {
-        title: 'Paket 3',
-        price: 'Rp. 300.000',
-        range: '51 - 100 Users',
-    },
-    {
-        title: 'Paket 4',
-        price: 'Rp. 400.000',
-        range: '101 - 200 Users',
-    },
-    {
-        title: 'Paket 5',
-        price: 'Rp. 500.000',
-        range: '201 - 500 Users',
-    },
-    {
-        title: 'Paket 6',
-        price: 'Rp. 600.000',
-        range: '501 - 1000 Users',
+        features: [
+        true, true, true, true, true,
+        false, false, false, false, false,
+        ],
     },
 ]
 
 export default function PricingPage() {
-  const [activeTab, setActiveTab] = useState<'package' | 'seat'>('package')
+  const [activeTab, setActiveTab] = useState<'singlePayment' | 'payAsYouGo'>('singlePayment')
 
   return (
     <div className="max-w-6xl mx-auto py-12 px-4 bg-white">
@@ -75,55 +70,81 @@ export default function PricingPage() {
       {/* Tabs */}
       <div className="flex justify-center my-6">
         <button
-          onClick={() => setActiveTab('package')}
-          className={`px-4 py-2 border rounded-l-lg ${activeTab === 'package' ? 'bg-[#1E3A5F] text-white' : 'border-[#1E3A5F] text-black'}`}
+          onClick={() => setActiveTab('singlePayment')}
+          className={`px-4 py-2 border rounded-l-lg ${activeTab === 'singlePayment' ? 'bg-[#1E3A5F] text-white' : 'border-[#1E3A5F] text-black'}`}
         >
-          Package
+          Single Payment
         </button>
         <button
-          onClick={() => setActiveTab('seat')}
-          className={`px-4 py-2 border rounded-r-lg ${activeTab === 'seat' ? 'bg-[#1E3A5F] text-white' : 'border-[#1E3A5F] text-black'}`}
+          onClick={() => setActiveTab('payAsYouGo')}
+          className={`px-4 py-2 border rounded-r-lg ${activeTab === 'payAsYouGo' ? 'bg-[#1E3A5F] text-white' : 'border-[#1E3A5F] text-black'}`}
         >
-          Seat
+          Pay As You Go
         </button>
       </div>
 
-      {activeTab === 'package' ? (
+      {activeTab === 'singlePayment' ? (
         <div className="grid md:grid-cols-3 gap-6">
-          {packages.map((pkg, idx) => (
-            <div key={idx} className="border rounded-lg p-6">
-              <h2 className="text-black text-lg font-semibold">{pkg.title}</h2>
-              <p className="text-sm text-black">Deskripsi</p>
+          {singlePayment.map((plan, idx) => (
+            <Card key={idx} className="border rounded-lg p-0">
+              <CardHeader className='pb-0'>
+                <CardTitle className='text-xl'>{plan.title}</CardTitle>
+                <p className="text-black text-sm mt-1">This Package Include {plan.range}</p>
+                <p className="text-black text-2xl font-bold mt-2">{plan.price} <span className="text-sm font-normal">/user/28 days</span></p>
+                <CardDescription>{plan.description}</CardDescription>
+                <Button className='w-full mt-4'>
+                  Get Started
+                </Button>
               <hr className="my-2" />
-              <ul className="space-y-1 text-black text-sm">
-                {pkg.features.map((enabled, i) => (
-                  <li key={i} className="flex justify-between">
-                    <span>Fitur {i + 1}</span>
-                    {enabled ? (
-                      <Check className="text-green-600 w-4 h-4" />
-                    ) : (
-                      <X className="text-red-600 w-4 h-4" />
-                    )}
-                  </li>
-                ))}
-              </ul>
-              <button className="mt-4 w-full bg-[#1E3A5F] text-white py-2 rounded flex justify-center items-center gap-2">
-                Select Package →
-              </button>
-            </div>
+              </CardHeader>
+              <CardContent>
+                  <CardTitle className='text-lg mb-2'>Feature</CardTitle>
+                  <ul className="space-y-1 text-black text-sm">
+                    {plan.features.map((enabled, i) => (
+                      <li key={i} className="flex gap-2 items-center">
+                        {enabled ? (
+                          <Check className="text-[#257047] w-4 h-4" />
+                        ) : (
+                          <X className="text-[#C11106] w-4 h-4" />
+                        )}
+                        <span>Fitur {i + 1}</span>
+                      </li>
+                    ))}
+                  </ul>
+              </CardContent>
+            </Card>
           ))}
         </div>
       ) : (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {seatPlans.map((plan, idx) => (
-            <div key={idx} className="border rounded-lg p-6">
-              <h2 className="text-black text-lg font-semibold">{plan.title}</h2>
-              <p className="text-black text-xl font-bold mt-2">{plan.price} <span className="text-sm font-normal">/user/28 days</span></p>
-              <p className="text-black text-sm mt-1">This Package For {plan.range}</p>
-              <button className="mt-4 w-full bg-[#1E3A5F] text-white py-2 rounded flex justify-center items-center gap-2">
-                Upgrade Package →
-              </button>
-            </div>
+        <div className="grid">
+          {payAsYouGo.map((plan, idx) => (
+            <Card key={idx} className="border rounded-lg p-0 max-w-md mx-auto">
+              <CardHeader className='pb-0'>
+                <CardTitle className='text-xl'>{plan.title}</CardTitle>
+                <p className="text-black text-sm mt-1">You can choose how many employee that you needed</p>
+                <p className="text-black text-2xl font-bold mt-2">{plan.price} <span className="text-sm font-normal">/user/28 days</span></p>
+                <CardDescription>{plan.description}</CardDescription>
+                <Button className='w-full mt-4'>
+                  Get Started
+                </Button>
+              <hr className="my-2" />
+              </CardHeader>
+              <CardContent>
+                  <CardTitle className='text-lg mb-2'>Feature</CardTitle>
+                  <ul className="space-y-1 text-black text-sm">
+                    {plan.features.map((enabled, i) => (
+                      <li key={i} className="flex gap-2 items-center">
+                        {enabled ? (
+                          <Check className="text-[#257047] w-4 h-4" />
+                        ) : (
+                          <X className="text-[#C11106] w-4 h-4" />
+                        )}
+                        <span>Fitur {i + 1}</span>
+                      </li>
+                    ))}
+                  </ul>
+              </CardContent>
+            </Card>
           ))}
         </div>
       )}
