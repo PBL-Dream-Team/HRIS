@@ -1,9 +1,11 @@
-import {Controller,Get,Post,Body,Param,Delete,Patch,} from '@nestjs/common';
+import {Controller,Get,Post,Body,Param,Delete,Patch, UseGuards,} from '@nestjs/common';
 import { createLetterTypeDto } from './dtos/createLetterType.dto';
 import { editLetterTypeDto } from './dtos/editLetterType.dto';
 import { LetterTypeService } from './lettertype.service';
+import { JwtGuard } from '../Auth/guard';
 
-@Controller('letterType')
+@UseGuards(JwtGuard)
+@Controller('api/letterType')
 export class LetterTypeController {
   constructor(private readonly LetterTypeService: LetterTypeService) {}
 

@@ -1,13 +1,20 @@
 {
   "files": [],
   "compilerOptions": {
+    "composite": true,
     "baseUrl": ".", // This ensures TypeScript looks at the root for paths
     "strict": true,
     "esModuleInterop": true,
     "paths": {
       "*": ["node_modules/*"]
     },
-    "rootDir": "."
+    "rootDir": ".",
+    "types": ["cypress"]
   },
+  "include": [
+    "cypress/**/*.ts",
+    "cypress.config.ts",
+    "cypress/support/**/*.ts"
+  ],
   "references": [{ "path": "./apps/backend" }]
 }

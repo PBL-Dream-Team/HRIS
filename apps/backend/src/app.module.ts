@@ -3,6 +3,16 @@ import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from './prisma/prisma.module';
 import configuration from './config/app.config';
 
+import { EmployeeModule } from './modules/Employee/employee.module';
+import { CompanyModule } from './modules/Company/company.module';
+import { SubscriptionModule } from './modules/Company/subscription.module';
+import { AttendanceTypeModule } from './modules/Attendance/attendancetype.module';
+import { AttendanceModule } from './modules/Attendance/attendance.module';
+import { AbsenceModule } from './modules/Attendance/absence.module';
+import { LetterModule } from './modules/Lettering/letter.module';
+import { LetterTypeModule } from './modules/Lettering/lettertype.module';
+import { AuthModule } from './modules/Auth/auth.module';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -10,7 +20,15 @@ import configuration from './config/app.config';
       isGlobal: true,
     }),
     PrismaModule,
-
+    EmployeeModule,
+    CompanyModule,
+    SubscriptionModule,
+    AttendanceModule,
+    AttendanceTypeModule,
+    AbsenceModule,
+    LetterModule,
+    LetterTypeModule,
+    AuthModule
   ],
 })
 export class AppModule {}

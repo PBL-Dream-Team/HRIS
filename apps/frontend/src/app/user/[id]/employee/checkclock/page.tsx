@@ -1,4 +1,7 @@
+'use client';
+
 import { AppSidebar } from '@/components/app-sidebar';
+
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -12,10 +15,24 @@ import {
   SidebarTrigger,
 } from '@/components/ui/sidebar';
 
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+
 import { Input } from '@/components/ui/input';
 import { Bell } from 'lucide-react';
 import { NavUser } from '@/components/nav-user';
 import { Button } from '@/components/ui/button';
+import { CheckClockForm } from '@/components/checkclock-form';
+import { useState } from 'react';
+import PaginationFooter from '@/components/pagination';
+import CheckClockDetails from '@/components/checkclock-details';
+import { Eye } from 'lucide-react';
 
 import {
   DropdownMenu,
@@ -46,26 +63,37 @@ const data = {
   },
 };
 
-const users = [
+const checkclocks = [
   {
     id: 1,
+    name: 'John Doe',
+    position: 'Software Engineer',
     date: '20 March 2025',
-    clockin: '09.00',
-    clockout: '17.00',
-    workhours: 8,
+    clockIn: '09.00',
+    clockOut: '17.00',
+    workHours: '8h',
     status: 'On Time',
   },
   {
     id: 2,
+    name: 'John Doe',
+    position: 'Software Engineer',
     date: '20 March 2025',
-    clockin: '09.00',
-    clockout: '17.00',
-    workhours: 8,
+    clockIn: '09.00',
+    clockOut: '18.00',
+    workHours: '8h',
     status: 'On Time',
   },
 ];
 
 export default function Page() {
+  const [openSheet, setOpenSheet] = useState(false);
+  const [selectedCheckClock, setselectedCheckClock] = useState<any>(null);
+
+  const handleViewDetails = (checkclock: any) => {
+    setselectedCheckClock(checkclock);
+    setOpenSheet(true);
+  };
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -133,12 +161,22 @@ export default function Page() {
                 <Input type="search" placeholder="Search" className="pl-10" />
               </div>
               <div className="flex flex-col gap-2 lg:flex-row lg:items-center lg:gap-4">
-                <Button className="bg-gray-100 text-black shadow-xs">
+                <Button className="bg-gray-100 text-black shadow-xs hover:bg-gray-200">
                   <VscSettings /> Filter
                 </Button>
-                <Button>
-                  <IoMdAdd /> Tambah Data
-                </Button>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button>
+                      <IoMdAdd /> Add Check Clock
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-4xl">
+                    <DialogHeader>
+                      <DialogTitle>Add Check Clock</DialogTitle>
+                    </DialogHeader>
+                    <CheckClockForm />
+                  </DialogContent>
+                </Dialog>
               </div>
             </div>
 
@@ -151,49 +189,59 @@ export default function Page() {
                   <TableHead>Clock Out</TableHead>
                   <TableHead>Work Hours</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {users.map((u) => (
-                  <TableRow key={u.id}>
-                    <TableCell>{u.date}</TableCell>
-                    <TableCell>{u.clockin}</TableCell>
-                    <TableCell>{u.clockout}</TableCell>
-                    <TableCell>{u.workhours}</TableCell>
-                    <TableCell>{u.status}</TableCell>
+                {checkclocks.map((checkclock) => (
+                  <TableRow key={checkclock.id}>
+                    <TableCell>{checkclock.date}</TableCell>
+                    <TableCell>{checkclock.clockIn}</TableCell>
+                    <TableCell>{checkclock.clockOut}</TableCell>
+                    <TableCell>{checkclock.workHours}</TableCell>
+                    <TableCell>
+                      <div>
+                        <span
+                          className={`px-2 py-1 rounded text-xs text-white 
+                                ${checkclock.status === 'On Time' ? 'bg-green-600' : ''}
+                                ${checkclock.status === 'Late' ? 'bg-yellow-600' : ''}
+                                ${checkclock.status === 'Absent' ? 'bg-red-600' : ''}
+                                `}
+                        >
+                          {checkclock.status}
+                        </span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="hover:text-white hover:bg-blue-600"
+                          onClick={() => handleViewDetails(checkclock)}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
 
             {/* Pagination */}
-            <div className="flex items-center justify-between p-4 border-t">
-              <div className="text-sm text-gray-600">
-                Showing <span className="font-medium">1</span> to{' '}
-                <span className="font-medium">{users.length}</span> of{' '}
-                <span className="font-medium">{users.length}</span> results
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  className="px-3 py-1 text-sm text-gray-600 bg-gray-200 rounded-md hover:bg-gray-300 disabled:opacity-50"
-                  disabled
-                >
-                  &lt;
-                </button>
-                <button className="px-3 py-1 text-sm text-gray-600 bg-gray-200 rounded-md hover:bg-gray-300">
-                  1
-                </button>
-                <button
-                  className="px-3 py-1 text-sm text-gray-600 bg-gray-200 rounded-md hover:bg-gray-300 disabled:opacity-50"
-                  disabled
-                >
-                  &gt;
-                </button>
-              </div>
-            </div>
+            <PaginationFooter
+              totalItems={checkclocks.length}
+              itemsPerPage={10}
+            />
           </div>
         </div>
       </SidebarInset>
+      <CheckClockDetails
+        open={openSheet}
+        onOpenChange={setOpenSheet}
+        selectedCheckClock={selectedCheckClock}
+      />
     </SidebarProvider>
   );
 }

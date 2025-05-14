@@ -42,19 +42,6 @@ export default function HrLoginPage() {
             </p>
 
             <form className="space-y-4">
-                {/* Company Username */}
-                <div className="space-y-2">
-                    <Label htmlFor="company-username" className="text-[#1E3A5F]">
-                        Company Username
-                    </Label>
-                    <Input
-                        id="company-username"
-                        type="text"
-                        placeholder="Enter your Company Username"
-                        className="text-gray-700 border-[#1E3A5F]"
-                    />
-                </div>
-
                 {/* ID Employee */}
                 <div className="space-y-2">
                     <Label htmlFor="id-employee" className="text-[#1E3A5F]">

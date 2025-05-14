@@ -1,9 +1,11 @@
-import {Controller,Get,Post,Body,Param,Delete,Patch,} from '@nestjs/common';
+import {Controller,Get,Post,Body,Param,Delete,Patch, UseGuards,} from '@nestjs/common';
 import { createAttendanceTypeDto } from './dtos/createAttendanceType.dto';
 import { editAttendanceTypeDto } from './dtos/editAttendanceType.dto';
 import { AttendanceTypeService } from './attendanceType.service';
+import { JwtGuard } from '../Auth/guard';
 
-@Controller('attendanceType')
+@UseGuards(JwtGuard)
+@Controller('api/attendanceType')
 export class AttendanceTypeController {
   constructor(private readonly AttendanceTypeService: AttendanceTypeService) {}
 

@@ -41,6 +41,7 @@ lerna-debug.log*
 .env.test.local
 .env.production.local
 .env.local
+cypress.env.json
 
 # temp directory
 .temp

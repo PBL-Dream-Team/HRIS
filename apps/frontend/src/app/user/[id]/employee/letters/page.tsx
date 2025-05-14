@@ -1,4 +1,8 @@
+'use client';
 import Link from 'next/link';
+
+import { useState } from 'react';
+
 import { AppSidebar } from '@/components/app-sidebar';
 import {
   Breadcrumb,
@@ -17,7 +21,9 @@ import { Input } from '@/components/ui/input';
 import { Bell } from 'lucide-react';
 import { NavUser } from '@/components/nav-user';
 import { Button } from '@/components/ui/button';
+import PaginationFooter from '@/components/pagination';
 
+import { Eye, Download } from 'lucide-react';
 
 import {
   DropdownMenu,
@@ -27,7 +33,6 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Table,
   TableBody,
@@ -38,13 +43,13 @@ import {
 } from '@/components/ui/table';
 
 import { VscSettings } from 'react-icons/vsc';
-import { IoMdAdd, IoMdSearch } from 'react-icons/io';
-import { FaFileDownload, FaEye } from "react-icons/fa";
+import { IoMdSearch } from 'react-icons/io';
+import LetterDetails from '@/components/letter-details';
 
 const data = {
   user: {
-    name: 'shadcn',
-    email: 'm@example.com',
+    name: 'Employee',
+    email: 'employee@hris.com',
     avatar: '/avatars/shadcn.jpg',
   },
 };
@@ -52,6 +57,8 @@ const data = {
 const letters = [
   {
     id: 1,
+    employeeName: 'John Doe',
+    position: 'Software Engineer',
     letterName: 'Employee of the Month',
     letterType: 'Award',
     validUntil: '01 Desember 2025',
@@ -59,6 +66,8 @@ const letters = [
   },
   {
     id: 2,
+    employeeName: 'Jane Smith',
+    position: 'Project Manager',
     letterName: 'Work From Home Approval',
     letterType: 'Permission',
     validUntil: '01 Januari 2023',
@@ -66,6 +75,8 @@ const letters = [
   },
   {
     id: 3,
+    employeeName: 'Alice Johnson',
+    position: 'UX Designer',
     letterName: 'Training Completion Certificate',
     letterType: 'Certificate',
     validUntil: '15 Maret 2024',
@@ -73,9 +84,14 @@ const letters = [
   },
 ];
 
-
-
 export default function Page() {
+  const [openSheet, setOpenSheet] = useState(false);
+  const [selectedLetter, setselectedLetter] = useState<any>(null);
+
+  const handleViewDetails = (checkclock: any) => {
+    setselectedLetter(checkclock);
+    setOpenSheet(true);
+  };
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -90,7 +106,7 @@ export default function Page() {
             <Breadcrumb>
               <BreadcrumbList>
                 <BreadcrumbItem>
-                  <BreadcrumbPage>Letter Overview</BreadcrumbPage>
+                  <BreadcrumbPage>Letters</BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
@@ -98,11 +114,10 @@ export default function Page() {
 
           <div className="flex items-center gap-4">
             {/* Search */}
-            <Input
-              type="search"
-              placeholder="Search"
-              className="hidden lg:block w-80"
-            />
+            <div className="relative w-80 hidden lg:block">
+              <IoMdSearch className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-500" />
+              <Input type="search" placeholder="Search" className="pl-10" />
+            </div>
 
             {/* Notification */}
             <DropdownMenu>
@@ -144,7 +159,7 @@ export default function Page() {
                 <Input type="search" placeholder="Search" className="pl-10" />
               </div>
               <div className="flex flex-col gap-2 lg:flex-row lg:items-center lg:gap-4">
-                <Button className="bg-gray-100 text-black shadow-xs">
+                <Button className="bg-gray-100 text-black shadow-xs hover:bg-gray-200">
                   <VscSettings /> Filter
                 </Button>
               </div>
@@ -158,7 +173,7 @@ export default function Page() {
                   <TableHead>Letter Type</TableHead>
                   <TableHead>Valid Until</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead>Action</TableHead>
+                  <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -170,24 +185,34 @@ export default function Page() {
                     <TableCell>
                       <div className="flex items-center">
                         <span
-                          className={`px-2 py-1 rounded text-xs text-white ${letter.status === 'Active' ? 'bg-green-600' : 'bg-gray-400'
-                            }`}
+                          className={`px-2 py-1 rounded text-xs text-white ${
+                            letter.status === 'Active'
+                              ? 'bg-green-600'
+                              : 'bg-gray-400'
+                          }`}
                         >
                           {letter.status}
                         </span>
                       </div>
                     </TableCell>
-                    <TableCell className="">
-                      <div className="flex gap-4">
-                        <Link href={`/employeeletter/view/${letter.id}`}>
-                          <button className="hover:text-blue-800">
-                            <FaEye />
-                          </button>
-                        </Link>
-                        <Link href={`/employeeletter/download/${letter.id}`}>
-                          <button className="hover:text-green-800">
-                            <FaFileDownload />
-                          </button>
+                    <TableCell>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="hover:text-white hover:bg-blue-600"
+                          onClick={() => handleViewDetails(letter)}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Link href={`download/${letter.id}`}>
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="hover:text-white hover:bg-green-600"
+                          >
+                            <Download />
+                          </Button>
                         </Link>
                       </div>
                     </TableCell>
@@ -197,33 +222,15 @@ export default function Page() {
             </Table>
 
             {/* Pagination */}
-            <div className="flex items-center justify-between p-4 border-t">
-              <div className="text-sm text-gray-600">
-                Showing <span className="font-medium">1</span> to{' '}
-                <span className="font-medium">{letters.length}</span> of{' '}
-                <span className="font-medium">{letters.length}</span> records
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  className="px-3 py-1 text-sm text-gray-600 bg-gray-200 rounded-md hover:bg-gray-300 disabled:opacity-50"
-                  disabled
-                >
-                  &lt;
-                </button>
-                <button className="px-3 py-1 text-sm text-gray-600 bg-gray-200 rounded-md hover:bg-gray-300">
-                  1
-                </button>
-                <button
-                  className="px-3 py-1 text-sm text-gray-600 bg-gray-200 rounded-md hover:bg-gray-300 disabled:opacity-50"
-                  disabled
-                >
-                  &gt;
-                </button>
-              </div>
-            </div>
+            <PaginationFooter totalItems={letters.length} itemsPerPage={10} />
           </div>
         </div>
       </SidebarInset>
+            <LetterDetails
+              open={openSheet}
+              onOpenChange={setOpenSheet}
+              selectedLetter={selectedLetter}
+            />
     </SidebarProvider>
   );
 }

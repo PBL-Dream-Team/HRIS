@@ -14,7 +14,7 @@ datasource db {
 }
 
 model Subscription {
-  id String @db.Uuid @id @default(cuid())
+  id String @db.Uuid @id @default(uuid())
   name String @db.VarChar(50)
   desc String? @db.Text
   max_employee Int @db.Integer
@@ -38,7 +38,7 @@ enum SubscriptionType {
 }
 
 model Company {
-  id String @db.Uuid @id @default(cuid())
+  id String @db.Uuid @id @default(uuid())
   name String @db.VarChar(100)
   address String @db.VarChar(100)
   loc_lat Float @db.DoublePrecision
@@ -74,7 +74,7 @@ enum CompanySubscriptionStatus {
 }
 
 model Employee {
-  id String @db.Uuid @id @default(cuid())
+  id String @db.Uuid @id @default(uuid())
 
   company_id String @db.Uuid()
   Company Company @relation(fields: [company_id],references: [id])
@@ -104,7 +104,7 @@ model Employee {
 
   birth_place String? @db.VarChar(50)
 
-  nik String? @db.VarChar(16)
+  nik String? @db.VarChar(16) @unique
 
   position String? @db.VarChar(50)
 
@@ -148,7 +148,7 @@ enum EducationType{
 }
 
 model LetterType{
-  id String @db.Uuid @id @default(cuid())
+  id String @db.Uuid @id @default(uuid())
 
   name String @db.VarChar(50)
 
@@ -168,7 +168,7 @@ model LetterType{
 }
 
 model Letter {
-  id String @db.Uuid @id @default(cuid())
+  id String @db.Uuid @id @default(uuid())
 
   company_id String @db.Uuid
   company Company @relation(fields: [company_id],references: [id])
@@ -194,7 +194,7 @@ model Letter {
 }
 
 model AttendanceType {
-  id String @db.Uuid @id @default(cuid())
+  id String @db.Uuid @id @default(uuid())
 
   company_id String @db.Uuid
   company Company @relation(fields: [company_id], references: [id])
@@ -213,7 +213,7 @@ model AttendanceType {
 }
 
 model Attendance {
-  id String @db.Uuid @id @default(cuid())
+  id String @db.Uuid @id @default(uuid())
 
   company_id String @db.Uuid()
   company Company @relation(fields: [company_id], references: [id])
@@ -250,7 +250,7 @@ enum CheckOutStatus {
 }
 
 model AbsenceLeave {
-  id String @db.Uuid @id @default(cuid())
+  id String @db.Uuid @id @default(uuid())
 
   employee_id String @db.Uuid
   employee Employee @relation(fields: [employee_id], references: [id])

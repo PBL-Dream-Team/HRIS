@@ -1,5 +1,8 @@
+'use client';
+
 import Link from 'next/link';
 import { AppSidebar } from '@/components/app-sidebar';
+import { Pencil, Trash2 } from 'lucide-react';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -13,10 +16,24 @@ import {
   SidebarTrigger,
 } from '@/components/ui/sidebar';
 
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+
 import { Input } from '@/components/ui/input';
 import { Bell } from 'lucide-react';
 import { NavUser } from '@/components/nav-user';
 import { Button } from '@/components/ui/button';
+import { LetterForm } from '@/components/letter-form';
+import PaginationFooter from '@/components/pagination';
+import { useState } from 'react';
+import LetterDetails from '@/components/letter-details';
+import { Eye } from 'lucide-react';
 
 import {
   DropdownMenu,
@@ -38,28 +55,55 @@ import {
 
 import { VscSettings } from 'react-icons/vsc';
 import { IoMdAdd, IoMdSearch } from 'react-icons/io';
-import { FaFileDownload } from "react-icons/fa";
-import { FiEye } from 'react-icons/fi';
+import { Download } from 'lucide-react';
 
 const data = {
   user: {
-    name: 'Employee',
-    email: 'employee@hris.com',
+    name: 'Admin',
+    email: 'admin@hris.com',
     avatar: '/avatars/shadcn.jpg',
   },
 };
 
-const users = [
+const letters = [
   {
     id: 1,
-    name: 'Employee of the Month',
-    type: 'Award',
-    validtime: '20 March 2025',
-    status: 'Valid',
-  }
+    employeeName: 'John Doe',
+    position: 'Software Engineer',
+    letterName: 'Employee of the Month',
+    letterType: 'Award',
+    validUntil: '01 Desember 2025',
+    status: 'Active',
+  },
+  {
+    id: 2,
+    employeeName: 'Jane Smith',
+    position: 'Project Manager',
+    letterName: 'Work From Home Approval',
+    letterType: 'Permission',
+    validUntil: '01 Januari 2023',
+    status: 'Not Active',
+  },
+  {
+    id: 3,
+    employeeName: 'Alice Johnson',
+    position: 'UX Designer',
+    letterName: 'Training Completion Certificate',
+    letterType: 'Certificate',
+    validUntil: '15 Maret 2024',
+    status: 'Not Active',
+  },
 ];
 
 export default function Page() {
+    const [openSheet, setOpenSheet] = useState(false);
+    const [selectedLetter, setselectedLetter] = useState<any>(null);
+  
+    const handleViewDetails = (checkclock: any) => {
+      setselectedLetter(checkclock);
+      setOpenSheet(true);
+    };
+
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -127,12 +171,22 @@ export default function Page() {
                 <Input type="search" placeholder="Search" className="pl-10" />
               </div>
               <div className="flex flex-col gap-2 lg:flex-row lg:items-center lg:gap-4">
-                <Button className="bg-gray-100 text-black shadow-xs">
+                <Button className="bg-gray-100 text-black shadow-xs hover:bg-gray-200">
                   <VscSettings /> Filter
                 </Button>
-                <Button>
-                  <IoMdAdd /> Tambah Data
-                </Button>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button>
+                      <IoMdAdd /> Add Letter
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-2xl">
+                    <DialogHeader>
+                      <DialogTitle>Add Letter</DialogTitle>
+                    </DialogHeader>
+                    <LetterForm />
+                  </DialogContent>
+                </Dialog>
               </div>
             </div>
 
@@ -140,6 +194,7 @@ export default function Page() {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead>Employee Name</TableHead>
                   <TableHead>Letter Name</TableHead>
                   <TableHead>Letter Type</TableHead>
                   <TableHead>Valid Until</TableHead>
@@ -148,25 +203,70 @@ export default function Page() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {users.map((u) => (
-                  <TableRow key={u.id}>
-                    <TableCell>{u.name}</TableCell>
-                    <TableCell>{u.type}</TableCell>
-                    <TableCell>{u.validtime}</TableCell>
-                    <TableCell>{u.status}</TableCell>
+                {letters.map((letter) => (
+                  <TableRow key={letter.id}>
+                    <TableCell>{letter.employeeName}</TableCell>
+                    <TableCell>{letter.letterName}</TableCell>
+                    <TableCell>{letter.letterType}</TableCell>
+                    <TableCell>{letter.validUntil}</TableCell>
                     <TableCell>
-                      <div className="flex gap-4">
-                        <Link href={`/letters/view/${u.id}`}>
-                          <button className="hover:text-blue-800">
-                            <FiEye />
-                          </button>
-                        </Link>
-                        <Link href={`/letters/download/${u.id}`}>
-                          <button className="hover:text-green-800">
-                            <FaFileDownload />
-                          </button>
-                        </Link>
+                      <div className="flex items-center">
+                        <span
+                          className={`px-2 py-1 rounded text-xs text-white ${
+                            letter.status === 'Active'
+                              ? 'bg-green-600'
+                              : 'bg-gray-400'
+                          }`}
+                        >
+                          {letter.status}
+                        </span>
                       </div>
+                    </TableCell>
+                    <TableCell className="flex gap-2">
+                      <Link href={`download/${letter.id}`}>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="hover:text-white hover:bg-green-600"
+                        >
+                          <Download />
+                        </Button>
+                      </Link>
+
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="hover:text-white hover:bg-blue-600"
+                        onClick={() => handleViewDetails(letter)}
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
+
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="hover:text-white hover:bg-yellow-500"
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-2xl">
+                          <DialogHeader>
+                            <DialogTitle>Edit Letter</DialogTitle>
+                          </DialogHeader>
+                          <LetterForm />
+                        </DialogContent>
+                      </Dialog>
+
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="hover:text-white hover:bg-red-600"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -174,33 +274,15 @@ export default function Page() {
             </Table>
 
             {/* Pagination */}
-            <div className="flex items-center justify-between p-4 border-t">
-              <div className="text-sm text-gray-600">
-                Showing <span className="font-medium">1</span> to{' '}
-                <span className="font-medium">{users.length}</span> of{' '}
-                <span className="font-medium">{users.length}</span> results
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  className="px-3 py-1 text-sm text-gray-600 bg-gray-200 rounded-md hover:bg-gray-300 disabled:opacity-50"
-                  disabled
-                >
-                  &lt;
-                </button>
-                <button className="px-3 py-1 text-sm text-gray-600 bg-gray-200 rounded-md hover:bg-gray-300">
-                  1
-                </button>
-                <button
-                  className="px-3 py-1 text-sm text-gray-600 bg-gray-200 rounded-md hover:bg-gray-300 disabled:opacity-50"
-                  disabled
-                >
-                  &gt;
-                </button>
-              </div>
-            </div>
+            <PaginationFooter totalItems={letters.length} itemsPerPage={10} />
           </div>
         </div>
       </SidebarInset>
+      <LetterDetails
+        open={openSheet}
+        onOpenChange={setOpenSheet}
+        selectedLetter={selectedLetter}
+      />
     </SidebarProvider>
   );
 }
