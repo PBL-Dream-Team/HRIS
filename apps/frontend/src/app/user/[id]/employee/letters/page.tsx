@@ -26,16 +26,6 @@ import PaginationFooter from '@/components/pagination';
 import { Eye, Download } from 'lucide-react';
 
 import {
-  Dialog,
-  DialogTrigger,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-  DialogDescription,
-} from '@/components/ui/dialog';
-
-import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -54,6 +44,7 @@ import {
 
 import { VscSettings } from 'react-icons/vsc';
 import { IoMdSearch } from 'react-icons/io';
+import LetterDetails from '@/components/letter-details';
 
 const data = {
   user: {
@@ -66,6 +57,8 @@ const data = {
 const letters = [
   {
     id: 1,
+    employeeName: 'John Doe',
+    position: 'Software Engineer',
     letterName: 'Employee of the Month',
     letterType: 'Award',
     validUntil: '01 Desember 2025',
@@ -73,6 +66,8 @@ const letters = [
   },
   {
     id: 2,
+    employeeName: 'Jane Smith',
+    position: 'Project Manager',
     letterName: 'Work From Home Approval',
     letterType: 'Permission',
     validUntil: '01 Januari 2023',
@@ -80,6 +75,8 @@ const letters = [
   },
   {
     id: 3,
+    employeeName: 'Alice Johnson',
+    position: 'UX Designer',
     letterName: 'Training Completion Certificate',
     letterType: 'Certificate',
     validUntil: '15 Maret 2024',
@@ -88,9 +85,13 @@ const letters = [
 ];
 
 export default function Page() {
-  const [selectedLetter, setSelectedLetter] = useState<
-    null | (typeof letters)[0]
-  >(null);
+  const [openSheet, setOpenSheet] = useState(false);
+  const [selectedLetter, setselectedLetter] = useState<any>(null);
+
+  const handleViewDetails = (checkclock: any) => {
+    setselectedLetter(checkclock);
+    setOpenSheet(true);
+  };
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -196,51 +197,14 @@ export default function Page() {
                     </TableCell>
                     <TableCell>
                       <div className="flex gap-2">
-                        <Dialog>
-                          <DialogTrigger asChild>
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              className="hover:text-white hover:bg-blue-600"
-                              onClick={() => setSelectedLetter(letter)}
-                            >
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent className="sm:max-w-md">
-                            <DialogHeader>
-                              <DialogTitle>Letter Details</DialogTitle>
-                              <DialogDescription>
-                                Information about this letter.
-                              </DialogDescription>
-                            </DialogHeader>
-                            {selectedLetter && (
-                              <div className="space-y-2">
-                                <p>
-                                  <strong>Name:</strong>{' '}
-                                  {selectedLetter.letterName}
-                                </p>
-                                <p>
-                                  <strong>Type:</strong>{' '}
-                                  {selectedLetter.letterType}
-                                </p>
-                                <p>
-                                  <strong>Valid Until:</strong>{' '}
-                                  {selectedLetter.validUntil}
-                                </p>
-                                <p>
-                                  <strong>Status:</strong>{' '}
-                                  {selectedLetter.status}
-                                </p>
-                              </div>
-                            )}
-                            <DialogFooter>
-                              <Button type="button" variant="secondary">
-                                Close
-                              </Button>
-                            </DialogFooter>
-                          </DialogContent>
-                        </Dialog>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="hover:text-white hover:bg-blue-600"
+                          onClick={() => handleViewDetails(letter)}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
                         <Link href={`download/${letter.id}`}>
                           <Button
                             variant="outline"
@@ -262,6 +226,11 @@ export default function Page() {
           </div>
         </div>
       </SidebarInset>
+            <LetterDetails
+              open={openSheet}
+              onOpenChange={setOpenSheet}
+              selectedLetter={selectedLetter}
+            />
     </SidebarProvider>
   );
 }

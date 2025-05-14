@@ -57,8 +57,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 const data = {
   user: {
-    name: 'Employee',
-    email: 'employee@hris.com',
+    name: 'Admin',
+    email: 'admin@hris.com',
     avatar: '/avatars/shadcn.jpg',
   },
 };
@@ -110,8 +110,8 @@ export default function Page() {
   const [openSheet, setOpenSheet] = useState(false);
   const [selectedCheckClock, setselectedCheckClock] = useState<any>(null);
 
-  const handleViewDetails = (employee: any) => {
-    setselectedCheckClock(employee);
+  const handleViewDetails = (checkclock: any) => {
+    setselectedCheckClock(checkclock);
     setOpenSheet(true);
   };
 
@@ -173,12 +173,11 @@ export default function Page() {
           </div>
         </header>
 
-        <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-          <div className="p-4 rounded-xl border bg-card text-card-foreground shadow">
+        <div className="flex flex-1 flex-col gap-4 p-10 pt-5">
+          <div className="border border-gray-300 rounded-md p-4">
             {/* Header */}
-            <div className="flex flex-col gap-2 mb-4 md:flex-row md:items-center md:justify-between">
+            <div className="flex items-center justify-between p-4 border-b">
               <h2 className="text-lg font-semibold">Checkclock Overview</h2>
-              <div className="flex flex-col w-full gap-2 md:flex-row md:items-center md:gap-2 md:w-auto">
                 {/* Search Input */}
                 <div className="relative w-96 hidden lg:block">
                   <IoMdSearch className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-500" />
@@ -204,7 +203,7 @@ export default function Page() {
                     </DialogContent>
                   </Dialog>
                 </div>
-              </div>
+              
             </div>
 
             {/* Table */}

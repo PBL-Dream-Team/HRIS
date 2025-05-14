@@ -1,3 +1,5 @@
+'use client';
+
 import { AppSidebar } from '@/components/app-sidebar';
 
 import {
@@ -27,7 +29,10 @@ import { Bell } from 'lucide-react';
 import { NavUser } from '@/components/nav-user';
 import { Button } from '@/components/ui/button';
 import { CheckClockForm } from '@/components/checkclock-form';
+import { useState } from 'react';
 import PaginationFooter from '@/components/pagination';
+import CheckClockDetails from '@/components/checkclock-details';
+import { Eye } from 'lucide-react';
 
 import {
   DropdownMenu,
@@ -61,23 +66,34 @@ const data = {
 const checkclocks = [
   {
     id: 1,
+    name: 'John Doe',
+    position: 'Software Engineer',
     date: '20 March 2025',
-    clockin: '09.00',
-    clockout: '17.00',
-    workhours: 8,
+    clockIn: '09.00',
+    clockOut: '17.00',
+    workHours: '8h',
     status: 'On Time',
   },
   {
     id: 2,
+    name: 'John Doe',
+    position: 'Software Engineer',
     date: '20 March 2025',
-    clockin: '09.00',
-    clockout: '17.00',
-    workhours: 8,
+    clockIn: '09.00',
+    clockOut: '18.00',
+    workHours: '8h',
     status: 'On Time',
   },
 ];
 
 export default function Page() {
+  const [openSheet, setOpenSheet] = useState(false);
+  const [selectedCheckClock, setselectedCheckClock] = useState<any>(null);
+
+  const handleViewDetails = (checkclock: any) => {
+    setselectedCheckClock(checkclock);
+    setOpenSheet(true);
+  };
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -173,15 +189,16 @@ export default function Page() {
                   <TableHead>Clock Out</TableHead>
                   <TableHead>Work Hours</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {checkclocks.map((checkclock) => (
                   <TableRow key={checkclock.id}>
                     <TableCell>{checkclock.date}</TableCell>
-                    <TableCell>{checkclock.clockin}</TableCell>
-                    <TableCell>{checkclock.clockout}</TableCell>
-                    <TableCell>{checkclock.workhours}</TableCell>
+                    <TableCell>{checkclock.clockIn}</TableCell>
+                    <TableCell>{checkclock.clockOut}</TableCell>
+                    <TableCell>{checkclock.workHours}</TableCell>
                     <TableCell>
                       <div>
                         <span
@@ -193,6 +210,18 @@ export default function Page() {
                         >
                           {checkclock.status}
                         </span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="hover:text-white hover:bg-blue-600"
+                          onClick={() => handleViewDetails(checkclock)}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -208,6 +237,11 @@ export default function Page() {
           </div>
         </div>
       </SidebarInset>
+      <CheckClockDetails
+        open={openSheet}
+        onOpenChange={setOpenSheet}
+        selectedCheckClock={selectedCheckClock}
+      />
     </SidebarProvider>
   );
 }

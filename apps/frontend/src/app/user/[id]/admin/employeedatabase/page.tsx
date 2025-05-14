@@ -181,7 +181,7 @@ export default function Page() {
             <NavUser user={data.user} />
           </div>
         </header>
-        <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+        <div className="flex flex-1 flex-col gap-4 p-10 pt-5">
           <div className="grid auto-rows-min gap-4 md:grid-cols-2 lg:grid-cols-4">
             <Card>
               <CardContent className="p-4">
@@ -211,45 +211,41 @@ export default function Page() {
             </Card>
           </div>
 
-          <div className="p-4 rounded-xl border bg-card text-card-foreground shadow">
+          <div className="border border-gray-300 rounded-md p-4">
             {/* Header */}
-            <div className="flex flex-col gap-2 mb-4 md:flex-row md:items-center md:justify-between">
-              <h2 className="text-lg font-semibold">
-                All Employees Information
-              </h2>
-              <div className="flex flex-col w-full gap-2 md:flex-row md:items-center md:gap-2 md:w-auto">
-                {/* Search Input */}
-                <div className="relative w-96 hidden lg:block">
-                  <IoMdSearch className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-500" />
-                  <Input type="search" placeholder="Search" className="pl-10" />
-                </div>
+            <div className="flex items-center justify-between p-4 border-b">
+              <div className="text-lg font-semibold">Employee Database Overview</div>
+              {/* Search Input */}
+              <div className="relative w-96 hidden lg:block">
+                <IoMdSearch className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-500" />
+                <Input type="search" placeholder="Search" className="pl-10" />
+              </div>
 
-                {/* Buttons */}
-                <div className="flex flex-col gap-2 md:flex-row md:flex-wrap md:gap-2">
-                  <Button variant="outline" className="w-full md:w-auto">
-                    <VscSettings className="h-4 w-4 mr-1" /> Filter
-                  </Button>
-                  <Button variant="outline" className="w-full md:w-auto">
-                    <BiExport className="h-4 w-4 mr-1" /> Export
-                  </Button>
-                  <Button variant="outline" className="w-full md:w-auto">
-                    <BiImport className="h-4 w-4 mr-1" /> Import
-                  </Button>
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button className="w-full md:w-auto">
-                        <Plus className="h-4 w-4 mr-1" /> Add Employee
-                      </Button>
-                    </DialogTrigger>
+              {/* Buttons */}
+              <div className="flex flex-col gap-2 md:flex-row md:flex-wrap md:gap-2">
+                <Button variant="outline" className="w-full md:w-auto">
+                  <VscSettings className="h-4 w-4 mr-1" /> Filter
+                </Button>
+                <Button variant="outline" className="w-full md:w-auto">
+                  <BiExport className="h-4 w-4 mr-1" /> Export
+                </Button>
+                <Button variant="outline" className="w-full md:w-auto">
+                  <BiImport className="h-4 w-4 mr-1" /> Import
+                </Button>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button className="w-full md:w-auto">
+                      <Plus className="h-4 w-4 mr-1" /> Add Employee
+                    </Button>
+                  </DialogTrigger>
 
-                    <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
-                      <DialogHeader>
-                        <DialogTitle>Add New Employee</DialogTitle>
-                      </DialogHeader>
-                      <EmployeeForm />
-                    </DialogContent>
-                  </Dialog>
-                </div>
+                  <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                      <DialogTitle>Add New Employee</DialogTitle>
+                    </DialogHeader>
+                    <EmployeeForm />
+                  </DialogContent>
+                </Dialog>
               </div>
             </div>
 

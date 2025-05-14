@@ -60,7 +60,7 @@ export default function CheckClockDetails({
                 <span
                   className={`h-2 w-2 rounded-full ${
                     selectedCheckClock.status === 'Waiting Approval'
-                      ? 'bg-black'
+                      ? 'bg-blue-600  '
                       : selectedCheckClock.status === 'On Time'
                       ? 'bg-green-600'
                       : selectedCheckClock.status === 'Late'

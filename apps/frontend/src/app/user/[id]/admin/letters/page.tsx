@@ -31,6 +31,9 @@ import { NavUser } from '@/components/nav-user';
 import { Button } from '@/components/ui/button';
 import { LetterForm } from '@/components/letter-form';
 import PaginationFooter from '@/components/pagination';
+import { useState } from 'react';
+import LetterDetails from '@/components/letter-details';
+import { Eye } from 'lucide-react';
 
 import {
   DropdownMenu,
@@ -65,7 +68,8 @@ const data = {
 const letters = [
   {
     id: 1,
-    userName: 'John Doe',
+    employeeName: 'John Doe',
+    position: 'Software Engineer',
     letterName: 'Employee of the Month',
     letterType: 'Award',
     validUntil: '01 Desember 2025',
@@ -73,7 +77,8 @@ const letters = [
   },
   {
     id: 2,
-    userName: 'Jane Smith',
+    employeeName: 'Jane Smith',
+    position: 'Project Manager',
     letterName: 'Work From Home Approval',
     letterType: 'Permission',
     validUntil: '01 Januari 2023',
@@ -81,7 +86,8 @@ const letters = [
   },
   {
     id: 3,
-    userName: 'Alice Johnson',
+    employeeName: 'Alice Johnson',
+    position: 'UX Designer',
     letterName: 'Training Completion Certificate',
     letterType: 'Certificate',
     validUntil: '15 Maret 2024',
@@ -90,6 +96,14 @@ const letters = [
 ];
 
 export default function Page() {
+    const [openSheet, setOpenSheet] = useState(false);
+    const [selectedLetter, setselectedLetter] = useState<any>(null);
+  
+    const handleViewDetails = (checkclock: any) => {
+      setselectedLetter(checkclock);
+      setOpenSheet(true);
+    };
+
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -191,7 +205,7 @@ export default function Page() {
               <TableBody>
                 {letters.map((letter) => (
                   <TableRow key={letter.id}>
-                    <TableCell>{letter.userName}</TableCell>
+                    <TableCell>{letter.employeeName}</TableCell>
                     <TableCell>{letter.letterName}</TableCell>
                     <TableCell>{letter.letterType}</TableCell>
                     <TableCell>{letter.validUntil}</TableCell>
@@ -218,6 +232,15 @@ export default function Page() {
                           <Download />
                         </Button>
                       </Link>
+
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="hover:text-white hover:bg-blue-600"
+                        onClick={() => handleViewDetails(letter)}
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
 
                       <Dialog>
                         <DialogTrigger asChild>
@@ -255,6 +278,11 @@ export default function Page() {
           </div>
         </div>
       </SidebarInset>
+      <LetterDetails
+        open={openSheet}
+        onOpenChange={setOpenSheet}
+        selectedLetter={selectedLetter}
+      />
     </SidebarProvider>
   );
 }
