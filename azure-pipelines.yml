@@ -1,0 +1,32 @@
+trigger:
+- main
+
+stages:
+- stage: Deploy
+  jobs:
+  - deployment: DeployToVM
+    environment: 
+      name: Prod Environment
+      resourceType: VirtualMachine
+    pool:
+      name: Default
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - checkout: self
+          - task: NodeTool@0
+            inputs:
+              versionSpec: '20.x'
+            displayName: 'Install Node.js'
+
+          - script: |
+              npm install
+              npx prisma init
+              npx prisma migrate reset --force
+              npm run build
+            displayName: 'Run setup'
+            env:
+              DATABASE_URL: $(DATABASE_URL)
+          - script: echo "✅ Deployment complete on VM!"
+            displayName: 'Done!'
