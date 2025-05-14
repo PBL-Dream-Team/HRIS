@@ -9,7 +9,8 @@ import { ExternalLink } from 'lucide-react';
 import { 
   Card,
   CardHeader,
-  CardContent
+  CardContent,
+  CardTitle
 } from '@/components/ui/card';
 
 import {
@@ -59,6 +60,18 @@ const attendancesTableData = [
     status: "On Time",
     clockIn: "08:00",
   },
+  { 
+    id: 2, 
+    name: "Jane Smith",
+    status: "Late",
+    clockIn: "09:00",
+  },
+  { 
+    id: 3, 
+    name: "Alice Johnson",
+    status: "Leave",
+    clockIn: "N/A",
+  },
 ]
 
 {/* Content */}
@@ -69,7 +82,9 @@ export default function AttendanceTableCard() {
       <CardHeader className='relative'>
         <div>
           <div className='flex items-center gap-2 pb-4'>
-            <h1>Attendance</h1>
+            <CardTitle className='text-xl'>
+              Attendance Summary
+            </CardTitle>
             <div className='absolute right-4 top-4 pr-1 flex items-center'>
               <SelectMonthFilter />
               <a href="/user/[id]/employee/checkclock">
@@ -115,7 +130,19 @@ export default function AttendanceTableCard() {
               <TableRow key={at.id}>
                 <TableCell>{at.id}</TableCell>
                 <TableCell>{at.name}</TableCell>
-                <TableCell>{at.status}</TableCell>
+                <TableCell>
+                  <div>
+                    <span 
+                      className={`px-2 py-1 rounded text-xs text-white 
+                            ${at.status === 'On Time' ? 'bg-[#257047]' : ''}
+                            ${at.status === 'Late' ? 'bg-[#FFAB00]' : ''}
+                            ${at.status === 'Leave' ? 'bg-[#C11106]' : ''}
+                            `}
+                    >
+                      {at.status}
+                    </span>
+                  </div>
+                </TableCell>
                 <TableCell>{at.clockIn}</TableCell>
               </TableRow>
             ))}

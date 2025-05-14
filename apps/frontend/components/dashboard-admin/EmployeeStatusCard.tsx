@@ -59,8 +59,8 @@ export default function EmployeeStatusCard() {
             <CardHeader className="relative pb-4">
                 <div className="flex items-center gap-2">
                     <div>
-                        <CardTitle>Employee Statistics</CardTitle>
-                        <CardDescription>Current Number of Employees</CardDescription>
+                        <CardTitle className='text-xl'>Employee Statistics</CardTitle>
+                        <CardDescription className='text-lg'>Current Number of Employees</CardDescription>
                     </div>
                     <div className="absolute right-4 top-4 pr-1">
                         <SelectMonthFilter />

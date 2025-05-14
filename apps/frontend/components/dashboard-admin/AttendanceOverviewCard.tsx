@@ -85,11 +85,11 @@ export default function AttendanceOverviewCard() {
         </div>
         <div className='col-span-6'>
           <CardContent className="flex flex-col gap-4 pt-0 pb-0 pl-6 pr-6">
-            <div className="flex justify-between text-sm">
+            <div className="flex justify-between text-lg">
               <span className="font-medium text-muted-foreground">Statistic</span>
               <span className="text-muted-foreground">Today</span>
             </div>
-            <div className="flex justify-between items-center text-sm">
+            <div className="flex justify-between items-center text-lg">
               <span className="text-muted-foreground">Attendance</span>
               <span className="text-muted-foreground">02 May 2025</span>
             </div>

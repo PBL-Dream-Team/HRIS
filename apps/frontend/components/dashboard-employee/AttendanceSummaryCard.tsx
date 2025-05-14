@@ -57,7 +57,7 @@ const chartConfig = {
     },
     absent: {
         label: "Absent",
-        color: "#f21508",
+        color: "#BA3C54",
     },
 } satisfies ChartConfig;
 
@@ -67,7 +67,7 @@ export default function AttendanceSummaryCard() {
         <Card>
             <CardHeader className="relative pb-4">
                 <div className="flex items-center gap-2">
-                    <CardTitle className='text-2xl'>Attendance Summary</CardTitle>
+                    <CardTitle className='text-xl'>Attendance Summary</CardTitle>
                     <div className="absolute right-4 top-4 pr-1">
                         <SelectMonthFilter />
                     </div>

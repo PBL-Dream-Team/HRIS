@@ -21,7 +21,7 @@ export default function LeaveSummaryCard() {
     <Card>
         <CardHeader className='relative pb-5'>
             <div className='flex items-center gap-2'>
-                <CardTitle className='text-2xl'>Leave Summary</CardTitle>
+                <CardTitle className='text-xl'>Leave Summary</CardTitle>
                 <div className='absolute right-4 top-4 pr-1'>
                     <SelectMonthFilter />
                 </div>

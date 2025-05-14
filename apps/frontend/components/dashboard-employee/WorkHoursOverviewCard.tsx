@@ -56,8 +56,8 @@ export default function WorkHoursOverviewCard() {
         <CardHeader className='relative pb-4'>
             <div className='flex items-center gap-2'>
                 <div>
-                    <CardTitle className='text-2xl'>Weekly Work Hours</CardTitle>
-                    <CardDescription className='text-xl'>120h 54m</CardDescription>
+                    <CardTitle className='text-xl'>Weekly Work Hours</CardTitle>
+                    <CardDescription className='text-lg'>120h 54m</CardDescription>
                 </div>
                 <div className='absolute right-4 top-4 pr-1'>
                     <SelectMonthFilter />
