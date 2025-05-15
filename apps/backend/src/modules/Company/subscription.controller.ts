@@ -6,7 +6,7 @@ import { JwtGuard } from '../Auth/guard';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
 
 @ApiTags("subscription")
-// @UseGuards(JwtGuard)
+@UseGuards(JwtGuard)
 @Controller('api/subscription')
 export class SubscriptionController {
   constructor(private readonly SubscriptionService: SubscriptionService) {}
