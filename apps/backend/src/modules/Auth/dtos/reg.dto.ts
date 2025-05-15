@@ -1,23 +1,13 @@
-import { IsDate, IsDateString, IsEmail, IsEnum, IsInt, IsISO8601, IsLatitude, IsLongitude, IsNotEmpty, IsPositive, IsString, IsUUID, Matches } from "@nestjs/class-validator";
+import { IsDate, IsDateString, IsEmail, IsEnum, IsInt, IsISO8601, IsLatitude, IsLongitude, IsNotEmpty, IsOptional, IsPositive, IsString, IsUUID, Matches } from "@nestjs/class-validator";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { CompanySubscriptionStatus } from "@prisma/client";
 
 export class RegDto{
     // Company Fields
+    @ApiProperty()
     @IsNotEmpty()
     @IsString()
     name: string;
-
-    @IsString()
-    @IsNotEmpty()
-    address:string;
-
-    @IsLatitude()
-    @IsNotEmpty()
-    loc_lat: number;
-
-    @IsLongitude()
-    @IsNotEmpty()
-    loc_long: number;
 
     @IsUUID()
     @IsNotEmpty()
@@ -38,7 +28,6 @@ export class RegDto{
 
     @IsEnum(CompanySubscriptionStatus,{message:"Invalid status"})
     status: CompanySubscriptionStatus
-
 
     // Admin Fields
     @IsString()

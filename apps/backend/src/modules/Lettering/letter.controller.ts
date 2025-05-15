@@ -2,14 +2,17 @@ import {Controller,Get,Post,Body,Param,Delete,Patch, UseGuards,} from '@nestjs/c
 import { createLetterDto } from './dtos/createLetter.dto';
 import { editLetterDto } from './dtos/editLetter.dto';
 import { LetterService } from './letter.service';
-import { JwtGuard } from '../Auth/guard';
+import { JwtGuard, SubscriptionGuard } from '../Auth/guard';
+import { ApiBody, ApiTags } from '@nestjs/swagger';
 
-@UseGuards(JwtGuard)
+@ApiTags('letter')
+@UseGuards(JwtGuard, SubscriptionGuard)
 @Controller('api/letter')
 export class LetterController {
   constructor(private readonly LetterService: LetterService) {}
 
   @Post()
+  @ApiBody({type:createLetterDto})
   createLetter(@Body() createLetterDto: createLetterDto) {
     return this.LetterService.createLetter(createLetterDto);
   }
@@ -25,6 +28,7 @@ export class LetterController {
   }
 
   @Patch(':id')
+  @ApiBody({type:editLetterDto})
   updateLetter(
     @Param('id') letterId: string,
     @Body() updateLetterDto: editLetterDto,

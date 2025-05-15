@@ -2,14 +2,17 @@ import {Controller,Get,Post,Body,Param,Delete,Patch, UseGuards,} from '@nestjs/c
 import { createAttendanceTypeDto } from './dtos/createAttendanceType.dto';
 import { editAttendanceTypeDto } from './dtos/editAttendanceType.dto';
 import { AttendanceTypeService } from './attendanceType.service';
-import { JwtGuard } from '../Auth/guard';
+import { JwtGuard, SubscriptionGuard } from '../Auth/guard';
+import { ApiBody, ApiTags } from '@nestjs/swagger';
 
-@UseGuards(JwtGuard)
+@ApiTags("attendancetype")
+@UseGuards(JwtGuard, SubscriptionGuard)
 @Controller('api/attendanceType')
 export class AttendanceTypeController {
   constructor(private readonly AttendanceTypeService: AttendanceTypeService) {}
 
   @Post()
+  @ApiBody({type:createAttendanceTypeDto})
   createAttendanceType(@Body() createAttendanceTypeDto: createAttendanceTypeDto) {
     return this.AttendanceTypeService.createAttendanceType(createAttendanceTypeDto);
   }
@@ -25,6 +28,7 @@ export class AttendanceTypeController {
   }
 
   @Patch(':id')
+  @ApiBody({type:editAttendanceTypeDto})
   updateAttendanceType(
     @Param('id') attendanceTypeId: string,
     @Body() updateAttendanceTypeDto: editAttendanceTypeDto,
