@@ -40,9 +40,9 @@ CREATE TABLE "Subscription" (
 CREATE TABLE "Company" (
     "id" UUID NOT NULL,
     "name" VARCHAR(100) NOT NULL,
-    "address" VARCHAR(100) NOT NULL,
-    "loc_lat" DOUBLE PRECISION NOT NULL,
-    "loc_long" DOUBLE PRECISION NOT NULL,
+    "address" VARCHAR(100),
+    "loc_lat" DOUBLE PRECISION,
+    "loc_long" DOUBLE PRECISION,
     "subscription_id" UUID NOT NULL,
     "max_employee" INTEGER NOT NULL,
     "subs_date_start" TIMESTAMPTZ NOT NULL,
@@ -174,6 +174,20 @@ CREATE TABLE "AbsenceLeave" (
     CONSTRAINT "AbsenceLeave_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "TransactionHistory" (
+    "id" UUID NOT NULL,
+    "company_id" UUID NOT NULL,
+    "subscription_id" UUID NOT NULL,
+    "total" INTEGER NOT NULL,
+    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "deleted_at" TIMESTAMPTZ,
+    "is_deleted" BOOLEAN NOT NULL DEFAULT false,
+
+    CONSTRAINT "TransactionHistory_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "Employee_nik_key" ON "Employee"("nik");
 
@@ -221,3 +235,9 @@ ALTER TABLE "AbsenceLeave" ADD CONSTRAINT "AbsenceLeave_employee_id_fkey" FOREIG
 
 -- AddForeignKey
 ALTER TABLE "AbsenceLeave" ADD CONSTRAINT "AbsenceLeave_company_id_fkey" FOREIGN KEY ("company_id") REFERENCES "Company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "TransactionHistory" ADD CONSTRAINT "TransactionHistory_company_id_fkey" FOREIGN KEY ("company_id") REFERENCES "Company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "TransactionHistory" ADD CONSTRAINT "TransactionHistory_subscription_id_fkey" FOREIGN KEY ("subscription_id") REFERENCES "Subscription"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

@@ -12,6 +12,7 @@ import { AbsenceModule } from './modules/Attendance/absence.module';
 import { LetterModule } from './modules/Lettering/letter.module';
 import { LetterTypeModule } from './modules/Lettering/lettertype.module';
 import { AuthModule } from './modules/Auth/auth.module';
+import { TransactionModule } from './modules/Company/transaction.module';
 
 @Module({
   imports: [
@@ -28,7 +29,8 @@ import { AuthModule } from './modules/Auth/auth.module';
     AbsenceModule,
     LetterModule,
     LetterTypeModule,
-    AuthModule
+    AuthModule,
+    TransactionModule
   ],
 })
 export class AppModule {}

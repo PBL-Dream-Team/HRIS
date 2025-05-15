@@ -1,6 +1,8 @@
 {
   "files": [],
   "compilerOptions": {
+    "target": "ES2023",
+    "module": "commonjs",
     "composite": true,
     "baseUrl": ".", // This ensures TypeScript looks at the root for paths
     "strict": true,
@@ -9,7 +11,7 @@
       "*": ["node_modules/*"]
     },
     "rootDir": ".",
-    "types": ["cypress"]
+    "types": ["cypress","node"]
   },
   "include": [
     "cypress/**/*.ts",

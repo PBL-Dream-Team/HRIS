@@ -2,14 +2,17 @@ import {Controller,Get,Post,Body,Param,Delete,Patch, UseGuards,} from '@nestjs/c
 import { createLetterTypeDto } from './dtos/createLetterType.dto';
 import { editLetterTypeDto } from './dtos/editLetterType.dto';
 import { LetterTypeService } from './lettertype.service';
-import { JwtGuard } from '../Auth/guard';
+import { JwtGuard, SubscriptionGuard } from '../Auth/guard';
+import { ApiBody, ApiTags } from '@nestjs/swagger';
 
-@UseGuards(JwtGuard)
+@ApiTags("lettertype")
+@UseGuards(JwtGuard, SubscriptionGuard)
 @Controller('api/letterType')
 export class LetterTypeController {
   constructor(private readonly LetterTypeService: LetterTypeService) {}
 
   @Post()
+  @ApiBody({type:createLetterTypeDto})
   createLetterType(@Body() createLetterTypeDto: createLetterTypeDto) {
     return this.LetterTypeService.createLetterType(createLetterTypeDto);
   }
@@ -25,6 +28,7 @@ export class LetterTypeController {
   }
 
   @Patch(':id')
+  @ApiBody({type:editLetterTypeDto})
   updateLetterType(
     @Param('id') letterTypeId: string,
     @Body() updateLetterTypeDto: editLetterTypeDto,
