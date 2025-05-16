@@ -12,7 +12,7 @@ type ValidateAccessOptions = {
 
 export async function validateAccess({ requireAdmin, currentPathId, section }: ValidateAccessOptions) {
   const cookieStore = await cookies()
-  const token = cookieStore.get('token')?.value
+  const token = cookieStore.get('hris_jwt')?.value
 
   if (!token) {
     redirect(requireAdmin ? '/signin' : '/signin/employee')
