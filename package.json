@@ -29,6 +29,7 @@
     "seed": "ts-node prisma/seeder.ts"
   },
   "dependencies": {
+    "@fastify/cookie": "^11.0.2",
     "@nestjs/class-validator": "^0.13.4",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.1",
@@ -58,7 +59,9 @@
     "class-validator": "^0.14.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "cookie-parser": "^1.4.7",
     "date-fns": "^4.1.0",
+    "express": "^5.1.0",
     "jwt-passport": "^0.0.5",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.503.0",
@@ -88,6 +91,7 @@
     "@swc/cli": "^0.6.0",
     "@swc/core": "^1.10.7",
     "@tailwindcss/postcss": "^4",
+    "@types/cookie-parser": "^1.4.8",
     "@types/express": "^5.0.0",
     "@types/jest": "^29.5.14",
     "@types/leaflet": "^1.9.17",

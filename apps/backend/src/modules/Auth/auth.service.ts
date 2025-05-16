@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable } from "@nestjs/common";
+import { ForbiddenException, Injectable, Res } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
 import { PrismaService } from '../../prisma/prisma.service';
@@ -101,10 +101,9 @@ export class AuthService{
             }
             else{
                 const token = await this.signToken(employee.id, employee.company_id,employee.is_admin);
-                return {
-                    statusCode: 200,
-                    token : token
-                }
+                
+
+                return token;
             }
         }
         catch(error){
@@ -132,10 +131,7 @@ export class AuthService{
             }
             else{
                 const token = await this.signToken(employee.id, employee.company_id,employee.is_admin);
-                return {
-                    statusCode: 200,
-                    token : token
-                }
+                return token;
             }
         }
         catch(error){

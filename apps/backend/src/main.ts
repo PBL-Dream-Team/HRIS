@@ -3,9 +3,11 @@ import { AppModule } from './app.module';
 import { ValidationPipe, ClassSerializerInterceptor } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { Reflector } from '@nestjs/core';
+import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.use(cookieParser());
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -13,6 +15,7 @@ async function bootstrap() {
       transform: true,
     }),
   );
+  
   const SwaggerConfig = new DocumentBuilder()
     .setTitle('HRIS API')
     .setDescription('HRIS API documentation')
