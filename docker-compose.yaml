@@ -23,7 +23,10 @@ services:
     ports:
       - 5432:5432
     environment:
-      - DATABASE_URL= ${{ secrets.DATABASE_URL }}
+      POSTGRES_USER:  ${{ secrets.DATABASE_USER }}
+      POSTGRES_PASSWORD:  ${{ secrets.DATABASE_PASSWORD }}
+      POSTGRES_DB:  hris_dev
+      POSTGRES_HOST:  ${{ secrets.DATABASE_HOST }}
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
