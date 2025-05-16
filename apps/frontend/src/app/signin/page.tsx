@@ -105,7 +105,7 @@ export default function HrLoginPage() {
                         height={20}
                         className="object-contain"
                     />
-                    <span>Sign up with Google</span>
+                    <span>Sign in with Google</span>
                 </Button>
 
                 <Link href="/employeelogin" passHref>
