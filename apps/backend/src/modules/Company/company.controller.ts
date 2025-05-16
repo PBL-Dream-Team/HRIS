@@ -3,13 +3,16 @@ import { createCompanyDto } from './dtos/createCompany.dto';
 import { editCompanyDto } from './dtos/editCompany.dto';
 import { CompanyService } from './company.service';
 import { JwtGuard } from '../Auth/guard';
+import { ApiBody, ApiTags } from '@nestjs/swagger';
 
+@ApiTags("company")
 @UseGuards(JwtGuard)
 @Controller('api/company')
 export class CompanyController {
   constructor(private readonly CompanyService: CompanyService) {}
 
   @Post()
+  @ApiBody({type:createCompanyDto})
   createCompany(@Body() createCompanyDto: createCompanyDto) {
     return this.CompanyService.createCompany(createCompanyDto);
   }
@@ -25,6 +28,7 @@ export class CompanyController {
   }
 
   @Patch(':id')
+  @ApiBody({type:editCompanyDto})
   updateCompany(
     @Param('id') companyId: string,
     @Body() updateCompanyDto: editCompanyDto,

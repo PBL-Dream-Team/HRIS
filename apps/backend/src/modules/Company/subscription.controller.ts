@@ -3,13 +3,16 @@ import { createSubscriptionDto } from './dtos/createSubscription.dto';
 import { editSubscriptionDto } from './dtos/editSubscription.dto';
 import { SubscriptionService } from './subscription.service';
 import { JwtGuard } from '../Auth/guard';
+import { ApiBody, ApiTags } from '@nestjs/swagger';
 
+@ApiTags("subscription")
 @UseGuards(JwtGuard)
 @Controller('api/subscription')
 export class SubscriptionController {
   constructor(private readonly SubscriptionService: SubscriptionService) {}
 
   @Post()
+  @ApiBody({type:createSubscriptionDto})
   createSubscription(@Body() createSubscriptionDto: createSubscriptionDto) {
     return this.SubscriptionService.createSubscription(createSubscriptionDto);
   }
@@ -25,6 +28,7 @@ export class SubscriptionController {
   }
 
   @Patch(':id')
+  @ApiBody({type:editSubscriptionDto})
   updateSubscription(
     @Param('id') subscriptionId: string,
     @Body() updateSubscriptionDto: editSubscriptionDto,

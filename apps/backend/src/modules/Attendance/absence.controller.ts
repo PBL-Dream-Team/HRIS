@@ -2,14 +2,17 @@ import {Controller,Get,Post,Body,Param,Delete,Patch, UseGuards,} from '@nestjs/c
 import { createAbsenceDto } from './dtos/createAbsence.dto';
 import { editAbsenceDto } from './dtos/editAbsence.dto';
 import { AbsenceService } from './absence.service';
-import { JwtGuard } from '../Auth/guard';
+import { JwtGuard, SubscriptionGuard } from '../Auth/guard';
+import { ApiBody, ApiTags } from '@nestjs/swagger';
 
-@UseGuards(JwtGuard)
+@ApiTags("absence")
+@UseGuards(JwtGuard, SubscriptionGuard)
 @Controller('api/absence')
 export class AbsenceController {
   constructor(private readonly AbsenceService: AbsenceService) {}
 
   @Post()
+  @ApiBody({type:createAbsenceDto})
   createAbsence(@Body() createAbsenceDto: createAbsenceDto) {
     return this.AbsenceService.createAbsence(createAbsenceDto);
   }
@@ -20,6 +23,7 @@ export class AbsenceController {
   }
 
   @Get(':id')
+  @ApiBody({type:editAbsenceDto})
   getAbsence(@Param('id') absenceId: string) {
     return this.AbsenceService.getAbsence(absenceId);
   }

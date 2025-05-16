@@ -17,7 +17,7 @@ model Subscription {
   id String @db.Uuid @id @default(uuid())
   name String @db.VarChar(50)
   desc String? @db.Text
-  max_employee Int @db.Integer
+  max_employee Int? @db.Integer
   price_per_employee Int @db.Integer
   type SubscriptionType
   day_length Int @db.Integer
@@ -28,6 +28,7 @@ model Subscription {
   is_deleted Boolean @db.Boolean @default(false) 
 
   Companies Company[]
+  History Transaction[]
 
   @@map("Subscription") 
 }
@@ -40,9 +41,9 @@ enum SubscriptionType {
 model Company {
   id String @db.Uuid @id @default(uuid())
   name String @db.VarChar(100)
-  address String @db.VarChar(100)
-  loc_lat Float @db.DoublePrecision
-  loc_long Float @db.DoublePrecision
+  address String? @db.VarChar(100)
+  loc_lat Float? @db.DoublePrecision
+  loc_long Float? @db.DoublePrecision
   
   subscription_id String @db.Uuid
   Subscription Subscription @relation(fields: [subscription_id],references: [id])
@@ -63,6 +64,7 @@ model Company {
   attendancetypes AttendanceType[]
   attendances Attendance[]
   absences AbsenceLeave[]
+  transactions Transaction[]
 
 
   @@map("Company")
@@ -275,4 +277,21 @@ enum leaveStatus {
   APPROVED
   REJECTED
   PENDING
+}
+
+model Transaction {
+  id String @db.Uuid @id @default(uuid())
+
+  company_id String @db.Uuid
+  company Company @relation(fields: [company_id], references: [id])
+
+  subscription_id String @db.Uuid
+  subscription Subscription @relation(fields: [subscription_id],references: [id])
+
+  total Int @db.Integer
+
+  created_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
+  updated_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
+  deleted_at DateTime? @db.Timestamptz() 
+  is_deleted Boolean @db.Boolean @default(false)
 }

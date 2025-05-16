@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable } from "@nestjs/common";
+import { ForbiddenException, Injectable, Res } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
 import { PrismaService } from '../../prisma/prisma.service';
@@ -6,6 +6,7 @@ import { AuthEmailDto } from "./dtos/authEmail.dto";
 import { hash, verify } from "argon2";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { RegDto } from "./dtos/reg.dto";
+import { AuthIdDto } from "./dtos";
 
 
 @Injectable()
@@ -19,11 +20,13 @@ export class AuthService{
     async signToken(
         userId: string,
         company_id: string,
+        is_admin: boolean
     ): Promise<{ access_token : string}>
     {
         const payload = {
             sub: userId,
             company_id,
+            is_admin
         }
 
         const secret = this.config.get('JWT_SECRET');
@@ -46,9 +49,6 @@ export class AuthService{
 
         //Company
         if(dto.name) companyData.name = dto.name;
-        if(dto.address) companyData.address = dto.address;
-        if(dto.loc_lat) companyData.loc_lat = dto.loc_lat;
-        if(dto.loc_long) companyData.loc_long = dto.loc_long;
         if(dto.max_employee) companyData.max_employee = dto.max_employee;
         if(dto.subscription_id) companyData.subscription_id = dto.subscription_id;
         if(dto.subs_date_start) companyData.subs_date_start = new Date(dto.subs_date_start);
@@ -100,11 +100,10 @@ export class AuthService{
                 );
             }
             else{
-                const token = await this.signToken(employee.id, employee.company_id);
-                return {
-                    statusCode: 200,
-                    token : token
-                }
+                const token = await this.signToken(employee.id, employee.company_id,employee.is_admin);
+                
+
+                return token;
             }
         }
         catch(error){
@@ -114,5 +113,34 @@ export class AuthService{
                 message: error.message
             }
         }
+    }
+    async IdSignIn(dto: AuthIdDto){
+        try {
+            const employee = await this.prisma.employee.findFirst({
+                 where: {
+                    OR : [
+                        {id: dto.id},
+                    ]
+                }
+                });
+
+            if(employee == null || await verify(employee.password,dto.password) == false){
+                throw new ForbiddenException(
+                    'Credentials Incorrect'
+                );
+            }
+            else{
+                const token = await this.signToken(employee.id, employee.company_id,employee.is_admin);
+                return token;
+            }
+        }
+        catch(error){
+            console.log("Error: ", error);
+            return {
+                statusCode: error.code,
+                message: error.message
+            }
+        }
+        
     }
 }

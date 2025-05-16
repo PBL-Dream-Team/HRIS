@@ -8,8 +8,9 @@ export class AttendanceService {
   constructor(private prisma: PrismaService) {}
 
   async createAttendance(dto: createAttendanceDto) {
+    const AttendanceData : any = dto;
     try {
-      const attendance = await this.prisma.attendance.create({ data: dto });
+      const attendance = await this.prisma.attendance.create({ data: AttendanceData });
       return {
         statusCode: 201,
         message: 'Attendance created successfully',
@@ -47,10 +48,11 @@ export class AttendanceService {
   }
 
   async updateAttendance(attendanceId: string, dto: editAttendanceDto) {
+    const AttendanceData : any = dto;
     try {
       const attendance = await this.prisma.attendance.update({
         where: { id: attendanceId },
-        data: dto,
+        data: AttendanceData,
       });
       return {
         statusCode: 200,
