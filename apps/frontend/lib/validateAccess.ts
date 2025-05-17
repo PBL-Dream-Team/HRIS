@@ -12,7 +12,7 @@ type ValidateAccessOptions = {
 
 export async function validateAccess({ requireAdmin, currentPathId, section }: ValidateAccessOptions) {
   const cookieStore = await cookies()
-  const token = cookieStore.get('hris_jwt')?.value
+  const token = cookieStore.get('jwt')?.value
 
   if (!token) {
     redirect(requireAdmin ? '/signin' : '/signin/employee')
@@ -21,29 +21,30 @@ export async function validateAccess({ requireAdmin, currentPathId, section }: V
   try {
     const decoded = jwt.verify(token, JWT_SECRET) as {
       sub: string
-      isAdmin: boolean
+      is_admin: boolean
+      company_id: string
     }
 
-    const { sub: userId, isAdmin } = decoded
+    const { sub, is_admin } = decoded
 
-    if (requireAdmin && !isAdmin) {
-      const targetSection = section ? `/user/${userId}/employee/${section}` : `/user/${userId}/employee/dashboard`
+    if (requireAdmin && !is_admin) {
+      const targetSection = section ? `/user/${sub}/employee/${section}` : `/user/${sub}/employee/dashboard`
       redirect(targetSection)
     }
 
-    if (!requireAdmin && isAdmin) {
-      const targetSection = section ? `/user/${userId}/admin/${section}` : `/user/${userId}/admin/dashboard`
+    if (!requireAdmin && is_admin) {
+      const targetSection = section ? `/user/${sub}/admin/${section}` : `/user/${sub}/admin/dashboard`
       redirect(targetSection)
     }
 
-    if (userId !== currentPathId) {
+    if (sub !== currentPathId) {
       const targetSection = section
-        ? `/user/${userId}/${isAdmin ? 'admin' : 'employee'}/${section}`
-        : `/user/${userId}/${isAdmin ? 'admin' : 'employee'}/dashboard`
+        ? `/user/${sub}/${is_admin ? 'admin' : 'employee'}/${section}`
+        : `/user/${sub}/${is_admin ? 'admin' : 'employee'}/dashboard`
       redirect(targetSection)
     }
 
-    return { userId, isAdmin }
+    return { sub, is_admin }
   } catch (err) {
     console.error('Invalid token:', err)
     redirect(requireAdmin ? '/signin' : '/signin/employee')

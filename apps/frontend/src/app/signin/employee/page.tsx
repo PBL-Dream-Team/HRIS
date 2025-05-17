@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import type { FormEvent } from 'react';
 import { useState } from 'react';
 import { Input } from '@/components/ui/input';
+import { AlertDestructive } from '@/components/alert/error';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -21,19 +22,19 @@ export default function HrLoginPage() {
     e.preventDefault();
 
     try {
-      const res = await api.post('/api/auth/signin/email', {
-        input,
-        password,
-      });
+      await api.post(
+        '/api/auth/signin/email',
+        {
+          input,
+          password,
+        },
+        { withCredentials: true },
+      );
 
-      const data = res.data;
-
-      document.cookie = `token=${data.access_token}; path=/`;
-      console.log('Login successful:', document.cookie);
-      router.push('/user/');
+      router.push('/redirect');
     } catch (error) {
       console.error(error);
-      alert('Login failed');
+      <AlertDestructive />;
     }
   }
 

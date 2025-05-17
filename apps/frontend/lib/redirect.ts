@@ -6,26 +6,27 @@ const JWT_SECRET = process.env.JWT_SECRET!;
 
 export async function redirectAfterLogin() {
   const cookieStore = await cookies();
-  const token = cookieStore.get('hris_jwt')?.value;
+  const token = cookieStore.get('jwt')?.value;
 
   if (!token) {
     redirect('/signin');
   }
 
+  let decoded;
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as {
+    decoded = jwt.verify(token, JWT_SECRET) as {
       sub: string;
-      isAdmin: boolean;
+      is_admin: boolean;
+      company_id: string;
     };
-
-    const { sub: userId, isAdmin } = decoded;
-
-    const role = isAdmin ? 'admin' : 'employee';
-    const target = `/user/${userId}/${role}/dashboard`;
-
-    redirect(target);
   } catch (err) {
     console.error('Invalid token during login redirect:', err);
     redirect('/signin');
   }
+
+  const { sub, is_admin } = decoded;
+  const role = is_admin ? 'admin' : 'employee';
+  const target = `/user/${sub}/${role}/dashboard`;
+
+  redirect(target);
 }
