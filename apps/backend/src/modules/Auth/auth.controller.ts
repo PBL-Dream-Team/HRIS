@@ -20,14 +20,14 @@ export class AuthController{
     @HttpCode(HttpStatus.OK)
     @Post('/signin/email')
     @ApiBody({type:AuthEmailDto})
-    email_signin(@Body() dto: AuthEmailDto, @Res({passthrough: true}) res: Response){
-        const token = this.authService.emailSignIn(dto);
+    async email_signin(@Body() dto: AuthEmailDto, @Res({passthrough: true}) res: Response){
+        const token = await this.authService.emailSignIn(dto);
 
-        res.cookie('hris_jwt',token,{
+        res.cookie('jwt',token['access_token'],{ //One of my most embarassing logical lapse, can't believe it made me revise my code for hours
             httpOnly: true,
-            secure:true ,
-            sameSite: 'strict',
-            maxAge: 1000 * 60 * 60 * 24 * 7
+            secure:true,
+            sameSite: 'none',
+            maxAge: 1000 * 60 * 60 * 24 * 7,
         });
 
         return {
@@ -38,14 +38,14 @@ export class AuthController{
     @HttpCode(HttpStatus.OK)
     @Post('signin/id')
     @ApiBody({type:AuthIdDto})
-    id_signin(@Body() dto: AuthIdDto, @Res({passthrough: true}) res: Response){
-        const token = this.authService.IdSignIn(dto);
+    async id_signin(@Body() dto: AuthIdDto, @Res({passthrough: true}) res: Response){
+        const token = await this.authService.IdSignIn(dto);
 
-        res.cookie('hris_jwt',token,{
+        res.cookie('jwt',token['access_token'],{
             httpOnly: true,
-            secure:true ,
-            sameSite: 'strict',
-            maxAge: 1000 * 60 * 60 * 24 * 7
+            secure:true,
+            sameSite: 'none',
+            maxAge: 1000 * 60 * 60 * 24 * 7,
         });
 
         return {
