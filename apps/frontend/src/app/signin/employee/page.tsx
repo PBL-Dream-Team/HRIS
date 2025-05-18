@@ -131,6 +131,7 @@ export default function HrLoginPage() {
               Sign In
             </Button>
 
+            <Link href="/signin" passHref>
             <Button
               type="button"
               variant="outline"
@@ -138,6 +139,7 @@ export default function HrLoginPage() {
             >
               Sign in with Another Method
             </Button>
+            </Link>
 
             {/* <p className="text-center text-sm text-gray-600 mt-4">
                     Don’t have an account yet?{" "}

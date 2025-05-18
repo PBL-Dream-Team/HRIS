@@ -3,13 +3,14 @@
 import {
   BadgeCheck,
   Bell,
-  ChevronsUpDown,
   CreditCard,
   LogOut,
   Sparkles,
 } from 'lucide-react';
 
+import { useRouter } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import api from '@/lib/axios';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,6 +30,20 @@ export function NavUser({
     avatar: string;
   };
 }) {
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    try {
+      const res = await api.post('/api/auth/logout', {
+        withCredentials: true,
+      });
+      alert(res.data.message);
+      router.push('/signin');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -41,11 +56,9 @@ export function NavUser({
             <span className="truncate font-medium">{user.name}</span>
             <span className="truncate text-xs">{user.email}</span>
           </div>
-          {/* <ChevronsUpDown className="ml-auto hidden lg:block size-6" /> */}
         </button>
       </DropdownMenuTrigger>
 
-      {/* Dropdown Content */}
       <DropdownMenuContent
         className="min-w-56 rounded-lg"
         side="bottom"
@@ -67,28 +80,28 @@ export function NavUser({
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem>
-            <Sparkles />
+            <Sparkles className="mr-2 h-4 w-4" />
             Upgrade to Pro
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem>
-            <BadgeCheck />
+            <BadgeCheck className="mr-2 h-4 w-4" />
             Account
           </DropdownMenuItem>
           <DropdownMenuItem>
-            <CreditCard />
+            <CreditCard className="mr-2 h-4 w-4" />
             Billing
           </DropdownMenuItem>
           <DropdownMenuItem>
-            <Bell />
+            <Bell className="mr-2 h-4 w-4" />
             Notifications
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
-          <LogOut />
+        <DropdownMenuItem onSelect={handleLogout}>
+          <LogOut className="mr-2 h-4 w-4" />
           Log out
         </DropdownMenuItem>
       </DropdownMenuContent>

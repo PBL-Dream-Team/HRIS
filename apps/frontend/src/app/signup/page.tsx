@@ -47,7 +47,6 @@ export default function HrSignUpPage() {
       });
 
       alert('Sign up successful!');
-      // reset form atau redirect
     } catch (error: any) {
       console.error(error);
       alert(error.response?.data.message || 'Sign up failed');
