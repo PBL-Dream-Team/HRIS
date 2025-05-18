@@ -44,10 +44,14 @@ const data = {
   },
 };
 
-export default function DashboardClient() {
+type DashboardClientProps = {
+  isAdmin: boolean;
+};
+
+export default function DashboardClient({ isAdmin }: DashboardClientProps) {
   return (
     <SidebarProvider>
-      <AppSidebar />
+      <AppSidebar isAdmin={isAdmin}/>
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center justify-between px-4 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
           <div className="flex items-center gap-2">
@@ -99,7 +103,7 @@ export default function DashboardClient() {
             </DropdownMenu>
 
             {/* Nav-user */}
-            <NavUser user={data.user} />
+            <NavUser user={data.user} isAdmin={isAdmin} />
           </div>
         </header>
 

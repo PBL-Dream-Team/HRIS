@@ -41,12 +41,12 @@ export async function validateAccess({
     ? `/user/${sub}/${is_admin ? 'admin' : 'employee'}/${section}`
     : `/user/${sub}/${is_admin ? 'admin' : 'employee'}/dashboard`;
 
-  // Redirect jika ID tidak cocok
+    // Redirect if the path is not valid
   if (currentPathId !== sub) {
     return redirect(expectedPath);
   }
 
-  // Redirect jika role tidak sesuai dengan page
+  // Redirect if the user is not an admin and the section requires admin access
   if ((requireAdmin && !is_admin) || (!requireAdmin && is_admin)) {
     return redirect(expectedPath);
   }

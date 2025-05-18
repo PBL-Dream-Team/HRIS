@@ -1,9 +1,19 @@
 import { validateAccess } from '@/lib/validateAccess'
 import LettersClient from './client'
 
-export default async function Page({ params }: { params: Promise<{ id: string }> }) {
-  const resolvedParams = await params;
-  await validateAccess({ requireAdmin: false, currentPathId: resolvedParams.id, section: 'letters' });
-
-  return <LettersClient />;
+interface PageProps {
+  params: {
+    id: string;
+  };
 }
+
+export default async function Page({ params }: PageProps) {
+  const { is_admin } = await validateAccess({
+    requireAdmin: false,
+    currentPathId: params.id,
+    section: 'letters',
+  });
+
+  return <LettersClient isAdmin={is_admin} />;
+}
+

@@ -1,15 +1,10 @@
 'use client';
 
-import {
-  BadgeCheck,
-  Bell,
-  CreditCard,
-  LogOut,
-  Sparkles,
-} from 'lucide-react';
+import { BadgeCheck, Bell, CreditCard, LogOut, Sparkles } from 'lucide-react';
 
 import { useRouter } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import Link from 'next/link';
 import api from '@/lib/axios';
 import {
   DropdownMenu,
@@ -23,12 +18,14 @@ import {
 
 export function NavUser({
   user,
+  isAdmin = false,
 }: {
   user: {
     name: string;
     email: string;
     avatar: string;
   };
+  isAdmin?: boolean;
 }) {
   const router = useRouter();
 
@@ -78,26 +75,34 @@ export function NavUser({
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuGroup>
+        {/* <DropdownMenuGroup>
           <DropdownMenuItem>
             <Sparkles className="mr-2 h-4 w-4" />
             Upgrade to Pro
           </DropdownMenuItem>
         </DropdownMenuGroup>
-        <DropdownMenuSeparator />
+        <DropdownMenuSeparator /> */}
         <DropdownMenuGroup>
-          <DropdownMenuItem>
-            <BadgeCheck className="mr-2 h-4 w-4" />
-            Account
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            <CreditCard className="mr-2 h-4 w-4" />
-            Billing
-          </DropdownMenuItem>
-          <DropdownMenuItem>
+          <Link href="account" className="w-full">
+            <DropdownMenuItem>
+              <BadgeCheck className="mr-2 h-4 w-4" />
+              Account
+            </DropdownMenuItem>
+          </Link>
+          {isAdmin && (
+            <Link href="/subscription" className="w-full">
+              <DropdownMenuItem asChild>
+                <div className="flex items-center w-full">
+                  <CreditCard className="mr-2 h-4 w-4" />
+                  Subscriptions
+                </div>
+              </DropdownMenuItem>
+            </Link>
+          )}
+          {/* <DropdownMenuItem>
             <Bell className="mr-2 h-4 w-4" />
             Notifications
-          </DropdownMenuItem>
+          </DropdownMenuItem> */}
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem onSelect={handleLogout}>

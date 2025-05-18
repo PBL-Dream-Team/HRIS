@@ -1,9 +1,18 @@
-import { validateAccess } from '@/lib/validateAccess'
-import DashboardClient from './client'
+import { validateAccess } from '@/lib/validateAccess';
+import DashboardClient from './client';
 
-export default async function Page({ params }: { params: Promise<{ id: string }> }) {
-  const resolvedParams = await params;
-  await validateAccess({ requireAdmin: false, currentPathId: resolvedParams.id, section: 'dashboard' });
+interface PageProps {
+  params: {
+    id: string;
+  };
+}
 
-  return <DashboardClient />;
+export default async function Page({ params }: PageProps) {
+  const { is_admin } = await validateAccess({
+    requireAdmin: false,
+    currentPathId: params.id,
+    section: 'dashboard',
+  });
+
+  return <DashboardClient isAdmin={is_admin} />;
 }
