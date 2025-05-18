@@ -5,9 +5,9 @@ import { Bell, Upload, CreditCardIcon, CalendarIcon, Pencil } from 'lucide-react
 import { NavUser } from '@/components/nav-user';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
-import { useState } from 'react';
 import { Label } from '@/components/ui/label';
-import { AdminForm } from '@/components/admin-form';
+import { EmployeeEditGeneralDataForm } from '@/components/editData-Employee/generalInformation-form';
+import { EmployeeEditWorkDataForm } from '@/components/editData-Employee/workInformation-form';
 
 import {
     Breadcrumb,
@@ -39,18 +39,13 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 
-import { 
-  Card,
-  CardHeader,
-  CardContent,
-  CardTitle,
-} from '@/components/ui/card';
-
 import {
   Avatar,
   AvatarFallback,
   AvatarImage,
-} from "@/components/ui/avatar"
+} from "@/components/ui/avatar";
+
+import { Card } from '@/components/ui/card';
 
 import { IoMdSearch } from 'react-icons/io';
 
@@ -63,7 +58,6 @@ const data = {
 };
 
 export default function Page() {
-    const [avatar, setAvatar] = useState<File | null>(null);
     return (
         <SidebarProvider>
             <AppSidebar />
@@ -126,7 +120,8 @@ export default function Page() {
                 <div className="flex flex-col md:flex-row gap-4 p-4 relative">
                     
                     {/* Profile Data */}
-                    <form className="w-full h-fit md:w-2/3 grid grid-cols-1 md:grid-cols-2 gap-4 border-2 p-4 bg-white rounded-lg shadow">
+                    <div className="w-full h-fit md:w-2/3 grid grid-cols-1 md:grid-cols-2 gap-4 border-2 p-4 bg-white rounded-lg shadow">
+                        <h1 className="text-lg font-semibold mb-2">General Information</h1>
                         <div className="col-span-full flex items-center gap-4">
                             <Avatar className='w-25 h-25'>
                                 <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
@@ -142,14 +137,34 @@ export default function Page() {
                             <Input placeholder="Your last name" readOnly />
                         </div>
                         <div>
-                            <Label>Email</Label>
-                            <Input placeholder="Your email" readOnly />
+                            <Label>Gender</Label>
+                            <Input placeholder="Your gender" readOnly />
+                        </div>
+                        <div>
+                            <Label>Last Education</Label>
+                            <Input placeholder="Your last education" readOnly />
                         </div>
                         <div>
                             <Label>Mobile Number</Label>
                             <Input placeholder="Your phone number" readOnly />
                         </div>
-                        <div className="col-span-full">
+                        <div>
+                            <Label>NIK</Label>
+                            <Input placeholder="Your NIK" readOnly />
+                        </div>
+                        <div>
+                            <Label>Place of Birth</Label>
+                            <Input placeholder="Your place of birth" readOnly />
+                        </div>
+                        <div>
+                            <Label>Date of Birth</Label>
+                            <Input placeholder="Your date of birth" readOnly />
+                        </div>
+                        <div>
+                            <Label>ID</Label>
+                            <Input placeholder="Your ID" readOnly />
+                        </div>
+                        <div >
                             <Label>Password</Label>
                             <Input placeholder="Your password" readOnly />
                         </div>
@@ -165,43 +180,67 @@ export default function Page() {
                                     <DialogHeader>
                                     <DialogTitle>Edit Profile</DialogTitle>
                                     </DialogHeader>
-                                    <AdminForm />
+                                    <EmployeeEditGeneralDataForm />
                                 </DialogContent>
                             </Dialog>
                         </div>
-                    </form>
+                    </div>
 
-                    {/* Subscription Data */}
-                    <div className="w-full h-fit md:w-1/3 gap-4 border-2 p-4 bg-white rounded-lg shadow">
-                        <h1 className="text-lg font-semibold mb-2">Subscription Information</h1>
-                        <Card>
-                            <CardHeader className='pb-2'>
-                                <p className='text-sm'>Joined on 31 December 2025</p>
-                                <CardTitle className='text-xl'>
-                                    Pay As You Go
-                                </CardTitle>
-                                <div className='flex items-center gap-2'>
-                                    <CalendarIcon className="w-4 h-4 text-muted-foreground" />
-                                    <p className="text-muted-foreground text-xs">Next payment is on 28 January 2026</p>   
-                                </div>
-                                <hr className="my-2" />
-                            </CardHeader>
-                            <CardContent className='pt-0'>
-                                <div className='grid grid-cols-2 gap-x-4 gap-y-3'>
-                                    <Button>
-                                        <a href="/pricing">Manage Subscription</a>
-                                    </Button>
-                                    <Button variant="outline">
-                                        Cancel
-                                    </Button>
-                                </div>
-                            </CardContent>
+                    {/* Work Information */}
+                    <div className='w-full h-fit md:w-1/3 grid grid-cols-1 gap-4 border-2 p-4 bg-white rounded-lg shadow'>
+                        <h1 className='text-lg font-semibold mb-1'>Work Information</h1>
+                        <Card className='grid grid-cols-1 md:grid-cols-2 gap-2 p-4'>
+                            <div>
+                                <Label>Position</Label>
+                                <Input placeholder="Your position" readOnly />
+                            </div>
+                            <div>
+                                <Label>Branch</Label>
+                                <Input placeholder="Your branch" readOnly />
+                            </div>
+                            <div>
+                                <Label>Contract Type</Label>
+                                <Input placeholder="Your contract type" readOnly />
+                            </div>
+                            <div>
+                                <Label>Grade</Label>
+                                <Input placeholder="Your grade" readOnly />
+                            </div>
+                            <div className='col-span-full'>
+                                <Label>SP Type</Label>
+                                <Input placeholder="Your sp type" readOnly />
+                            </div>
                         </Card>
-                        <div className='flex justify-end pt-4'>
-                            <Button>
-                                <a href="/user/[id]/admin/subscription">Subscription History</a>
-                            </Button>
-                        </div>
+                        <Card className='grid grid-cols-1 gap-2 p-4'>
+                            <div className='col-span-full'>
+                                <Label>Bank</Label>
+                                <Input placeholder="Your bank" readOnly />
+                            </div>
+                            <div>
+                                <Label>Account Number</Label>
+                                <Input placeholder="Your account number" readOnly />
+                            </div>
+                            <div>
+                                <Label>Account Holder Name</Label>
+                                <Input placeholder="Your account holder name" readOnly />
+                            </div>
+                            <div className="col-span-full flex justify-end mt-2">
+                                <Dialog>
+                                    <DialogTrigger asChild>
+                                        <Button className="w-full md:w-auto">
+                                        <Pencil className="h-4 w-4 mr-1" /> Edit Data
+                                        </Button>
+                                    </DialogTrigger>
+
+                                    <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+                                        <DialogHeader>
+                                        <DialogTitle>Edit Data</DialogTitle>
+                                        </DialogHeader>
+                                        <EmployeeEditWorkDataForm />
+                                    </DialogContent>
+                                </Dialog>
+                            </div>
+                        </Card>
                     </div>
                 </div>
             </SidebarInset>

@@ -145,15 +145,15 @@ export default function HrLoginPage() {
               <span>Sign up with Google</span>
             </Button>
 
-            <Link href="/signin/employee" passHref>
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full flex items-center justify-center gap-2"
-              >
-                Sign in with ID Employee
-              </Button>
-            </Link>
+                <Link href="/signin/employee" passHref>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        className="w-full flex items-center justify-center gap-2"
+                    >
+                        Sign in with ID Employee
+                    </Button>
+                </Link>
 
             <p className="text-center text-sm text-gray-600 mt-4">
               Don’t have an account yet?{' '}
