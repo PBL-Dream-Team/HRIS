@@ -101,7 +101,6 @@ export class AuthService{
             }
             else{
                 const token = await this.signToken(employee.id, employee.company_id,employee.is_admin);
-                
 
                 return token;
             }

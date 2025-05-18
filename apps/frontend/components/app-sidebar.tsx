@@ -19,6 +19,7 @@ import {
   ListIcon,
   SearchIcon,
   SettingsIcon,
+  BookMarked,
   UsersIcon,
 } from 'lucide-react';
 
@@ -35,57 +36,60 @@ import {
 } from '@/components/ui/sidebar';
 import { NavSecondary } from './nav-secondary';
 
-// This is sample data.
-const data = {
-  user: {
-    name: 'shadcn',
-    email: 'm@example.com',
-    avatar: '/avatars/shadcn.jpg',
-  },
-  teams: [
-    {
-      name: 'HRIS',
-      logo: '/images/vector.png',
-      // plan: 'Enterprise',
+// This is sample data
+export function AppSidebar({ isAdmin = false, ...props }: { isAdmin?: boolean } & React.ComponentProps<typeof Sidebar>) {
+  const data = {
+    user: {
+      name: 'shadcn',
+      email: 'm@example.com',
+      avatar: '/avatars/shadcn.jpg',
     },
-  ],
-  navMain: [
-    {
-      title: 'Dashboard',
-      url: 'dashboard',
-      icon: LayoutDashboardIcon,
-    },
-    {
-      title: 'Employee',
-      url: 'employeedatabase',
-      icon: UsersIcon,
-    },
-    {
-      title: 'Checkclock',
-      url: 'checkclock',
-      icon: Clock4,
-    },
-    {
-      title: 'Letters',
-      url: 'letters',
-      icon: ClipboardList,
-    },
-  ],
-  navSecondary: [
-    {
-      title: 'Get Help',
-      url: '#',
-      icon: Headset,
-    },
-    {
-      title: 'Settings',
-      url: '#',
-      icon: SettingsIcon,
-    },
-  ],
-};
-
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+    teams: [
+      {
+        name: 'HRIS',
+        logo: '/images/vector.png',
+        // plan: 'Enterprise',
+      },
+    ],
+    navMain: [
+      {
+        title: 'Dashboard',
+        url: 'dashboard',
+        icon: LayoutDashboardIcon,
+      },
+      ...(isAdmin
+        ? [
+            {
+              title: 'Employee',
+              url: 'employeedatabase',
+              icon: UsersIcon,
+            },
+          ]
+        : []),
+      {
+        title: 'Checkclock',
+        url: 'checkclock',
+        icon: Clock4,
+      },
+      {
+        title: 'Letters',
+        url: 'letters',
+        icon: ClipboardList,
+      },
+    ],
+    navSecondary: [
+      {
+        title: 'Guidebook',
+        url: '#',
+        icon: BookMarked,
+      },
+      {
+        title: 'Get Help',
+        url: '#',
+        icon: Headset,
+      },
+    ],
+  };
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>

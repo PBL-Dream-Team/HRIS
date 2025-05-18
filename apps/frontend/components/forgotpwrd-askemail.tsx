@@ -23,7 +23,7 @@ export function ForgotPwrdEmailForm({
           <Input id="email" type="email" placeholder="m@example.com" required />
         </div>
         <Button type="submit" className="w-full">
-          Reset Password
+          <a href="/setpassword">Reset Password</a>
         </Button>
         <a className="flex items-center place-content-center" href=''>
             <LuArrowLeft/>

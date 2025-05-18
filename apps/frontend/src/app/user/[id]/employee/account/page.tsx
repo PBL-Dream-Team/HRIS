@@ -1,5 +1,5 @@
-import { validateAccess } from '@/lib/validateAccess';
-import DashboardClient from './client';
+import { validateAccess } from '@/lib/validateAccess'
+import AccountClient from './client'
 
 interface PageProps {
   params: {
@@ -9,10 +9,11 @@ interface PageProps {
 
 export default async function Page({ params }: PageProps) {
   const { is_admin } = await validateAccess({
-    requireAdmin: true,
+    requireAdmin: false,
     currentPathId: params.id,
-    section: 'dashboard',
+    section: 'account',
   });
 
-  return <DashboardClient isAdmin={is_admin} />;
+  return <AccountClient isAdmin={is_admin} />;
 }
+
