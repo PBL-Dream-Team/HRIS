@@ -147,11 +147,6 @@ export default function CheckClockClient({
           </div>
 
           <div className="flex items-center gap-4">
-            <div className="relative w-80 hidden lg:block">
-              <IoMdSearch className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-500" />
-              <Input type="search" placeholder="Search" className="pl-10" />
-            </div>
-
             {/* Notification */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

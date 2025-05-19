@@ -1,6 +1,6 @@
 describe('Signup Page', () => {
   it('Visits the Signup Page', () => {
-    cy.visit('/signup'); // Sudah menggunakan baseUrl dari config
+    cy.visit('/signup');
   });
 });
 
@@ -13,6 +13,8 @@ describe('Signin Page with admin credentials', () => {
     cy.url().should('include', '/redirect');
   });
 });
+
+
 
 describe('Signin Page with employee credentials', () => {
   it('Signs in as employee', () => {

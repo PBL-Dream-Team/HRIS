@@ -1,6 +1,6 @@
 'use client';
 
-import { BadgeCheck, Bell, CreditCard, LogOut, Sparkles } from 'lucide-react';
+import { CircleUserRound, Bell, CreditCard, LogOut, Sparkles } from 'lucide-react';
 
 import { useRouter } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -85,12 +85,12 @@ export function NavUser({
         <DropdownMenuGroup>
           <Link href="account" className="w-full">
             <DropdownMenuItem>
-              <BadgeCheck className="mr-2 h-4 w-4" />
+              <CircleUserRound className="mr-2 h-4 w-4" />
               Account
             </DropdownMenuItem>
           </Link>
           {isAdmin && (
-            <Link href="/subscription" className="w-full">
+            <Link href="subscription" className="w-full">
               <DropdownMenuItem asChild>
                 <div className="flex items-center w-full">
                   <CreditCard className="mr-2 h-4 w-4" />
