@@ -1,11 +1,25 @@
 describe('Signup Page', () => {
   it('Visits the Signup Page', () => {
-    cy.visit(`${Cypress.env('BASE_URL')}/signup`);
+    cy.visit('/signup'); // Sudah menggunakan baseUrl dari config
   });
 });
 
-describe('Signin Page', () => {
-  it('Visits the Signin Page', () => {
-    cy.visit(`${Cypress.env('BASE_URL')}/signin`);
+describe('Signin Page with admin credentials', () => {
+  it('Signs in as admin', () => {
+    cy.visit('/signin');
+    cy.get('input[name="email"]').type('admin@gmail.com');
+    cy.get('input[name="password"]').type('admin123');
+    cy.get('button[type="submit"]').click();
+    cy.url().should('include', '/redirect');
+  });
+});
+
+describe('Signin Page with employee credentials', () => {
+  it('Signs in as employee', () => {
+    cy.visit('/signin/employee');
+    cy.get('input[name="email"]').type('setiabudi@gmail.com');
+    cy.get('input[name="password"]').type('admin123');
+    cy.get('button[type="submit"]').click();
+    cy.url().should('include', '/redirect');
   });
 });

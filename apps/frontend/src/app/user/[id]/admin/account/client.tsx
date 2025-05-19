@@ -231,7 +231,7 @@ export default function AccountClient({
             </Card>
             <div className="flex justify-end pt-4">
               <Button>
-                <a href="/user/[id]/admin/subscription">Subscription History</a>
+                <a href="subscription">Subscription History</a>
               </Button>
             </div>
           </div>

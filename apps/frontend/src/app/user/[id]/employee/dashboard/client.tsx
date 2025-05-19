@@ -1,3 +1,5 @@
+'use client';
+
 import WorkInformation from '@/components/dashboard-employee/WorkInformation';
 import AttendanceSummaryCard from '@/components/dashboard-employee/AttendanceSummaryCard';
 import LeaveSummaryCard from '@/components/dashboard-employee/LeaveSummaryCard';
