@@ -24,7 +24,7 @@ jobs:
         with:
           # Starts web server for E2E tests - replace with your own server invocation
           # https://docs.cypress.io/guides/continuous-integration/introduction#Boot-your-server
-          start: npm run dev:frontend && npm run dev:backend
+          start: npm run dev
           
           wait-on: 'http://localhost:3000' # Waits for above
           # Records to Cypress Cloud 
