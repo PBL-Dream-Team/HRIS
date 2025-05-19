@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { AppSidebar } from '@/components/app-sidebar';
-import { Pencil, Trash2 } from 'lucide-react';
+import { Pencil, Trash2, MailPlus } from 'lucide-react';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -30,6 +30,7 @@ import { Bell } from 'lucide-react';
 import { NavUser } from '@/components/nav-user';
 import { Button } from '@/components/ui/button';
 import { LetterForm } from '@/components/letter-form';
+import { LetterTypeForm } from '@/components/lettertype-form';
 import PaginationFooter from '@/components/pagination';
 import { useState } from 'react';
 import LetterDetails from '@/components/letter-details';
@@ -200,6 +201,19 @@ export default function LettersClient({
                 <Button className="bg-gray-100 text-black shadow-xs hover:bg-gray-200">
                   <VscSettings /> Filter
                 </Button>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button>
+                      <MailPlus /> Add Letter Type
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-2xl">
+                    <DialogHeader>
+                      <DialogTitle>Add Letter Type</DialogTitle>
+                    </DialogHeader>
+                    <LetterTypeForm />
+                  </DialogContent>
+                </Dialog>
                 <Dialog>
                   <DialogTrigger asChild>
                     <Button>
