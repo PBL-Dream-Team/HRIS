@@ -59,14 +59,8 @@ import { BiImport, BiExport } from 'react-icons/bi';
 import { EmployeeForm } from '@/components/employee-form';
 import PaginationFooter from '@/components/pagination';
 import EmployeeDetails from '@/components/employee-details';
-
-const data = {
-  user: {
-    name: 'shadcn',
-    email: 'm@example.com',
-    avatar: '/avatars/shadcn.jpg',
-  },
-};
+import api from '@/lib/axios';
+import { useEffect } from 'react';
 
 const employees = [
   {
@@ -116,9 +110,42 @@ const employees = [
 ];
 type EmployeeDatabaseClientProps = {
   isAdmin: boolean;
+  userId: string;
+  companyId: string;
 };
 
-export default function EmployeeDatabaseClient({ isAdmin }: EmployeeDatabaseClientProps) {
+export default function EmployeeDatabaseClient({
+  isAdmin,
+  userId,
+  companyId,
+}: EmployeeDatabaseClientProps) {
+  const [user, setUser] = useState({
+    name: '',
+    email: '',
+    avatar: '',
+  });
+
+  useEffect(() => {
+    async function fetchUser() {
+      try {
+        const res = await api.get(`/api/employee/${userId}`);
+        const { first_name, last_name, email, pict_dir } = res.data.data;
+
+        setUser({
+          name: `${first_name} ${last_name}`,
+          email: email,
+          avatar: pict_dir || '/avatars/default.jpg',
+        });
+      } catch (err: any) {
+        console.error(
+          'Error fetching user:',
+          err.response?.data || err.message,
+        );
+      }
+    }
+
+    fetchUser();
+  }, [userId]);
   const [openSheet, setOpenSheet] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<any>(null);
 
@@ -129,7 +156,7 @@ export default function EmployeeDatabaseClient({ isAdmin }: EmployeeDatabaseClie
 
   return (
     <SidebarProvider>
-      <AppSidebar isAdmin={ isAdmin }/>
+      <AppSidebar isAdmin={isAdmin} />
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center justify-between px-4 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
           <div className="flex items-center gap-2">
@@ -181,7 +208,7 @@ export default function EmployeeDatabaseClient({ isAdmin }: EmployeeDatabaseClie
             </DropdownMenu>
 
             {/* Nav-user */}
-            <NavUser user={data.user} isAdmin={isAdmin} />
+            <NavUser user={user} isAdmin={isAdmin} />
           </div>
         </header>
         <div className="flex flex-1 flex-col gap-4 p-10 pt-5">
@@ -217,7 +244,9 @@ export default function EmployeeDatabaseClient({ isAdmin }: EmployeeDatabaseClie
           <div className="border border-gray-300 rounded-md p-4">
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b">
-              <div className="text-lg font-semibold">Employee Database Overview</div>
+              <div className="text-lg font-semibold">
+                Employee Database Overview
+              </div>
               {/* Search Input */}
               <div className="relative w-96 hidden lg:block">
                 <IoMdSearch className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-500" />

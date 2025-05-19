@@ -8,11 +8,17 @@ interface PageProps {
 }
 
 export default async function Page({ params }: PageProps) {
-  const { is_admin } = await validateAccess({
+  const { sub, is_admin, company_id } = await validateAccess({
     requireAdmin: true,
     currentPathId: params.id,
     section: 'employeedatabase',
   });
 
-  return <EmployeeDatabaseClient isAdmin={is_admin} />;
+  return (
+    <EmployeeDatabaseClient
+      isAdmin={is_admin}
+      userId={sub}
+      companyId={company_id}
+    />
+  );
 }

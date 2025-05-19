@@ -15,6 +15,8 @@ import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { Label } from '@/components/ui/label';
 import { AdminForm } from '@/components/admin-form';
+import { useEffect } from 'react';
+import api from '@/lib/axios';
 
 import {
   Breadcrumb,
@@ -52,23 +54,49 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 import { IoMdSearch } from 'react-icons/io';
 
-const data = {
-  user: {
-    name: 'Admin',
-    email: 'admin@hris.com',
-    avatar: '/avatars/shadcn.jpg',
-  },
-};
-
 type AccountClientProps = {
   isAdmin: boolean;
+  userId: string;
+  companyId: string;
 };
 
-export default function AccountClient({ isAdmin }: AccountClientProps) {
+export default function AccountClient({
+  isAdmin,
+  userId,
+  companyId,
+}: AccountClientProps) {
+  const [user, setUser] = useState({
+    name: '',
+    email: '',
+    avatar: '',
+  });
+
+  useEffect(() => {
+    async function fetchUser() {
+      try {
+        const res = await api.get(`/api/employee/${userId}`);
+        const { first_name, last_name, email, pict_dir } = res.data.data;
+
+        setUser({
+          name: `${first_name} ${last_name}`,
+          email: email,
+          avatar: pict_dir || '/avatars/default.jpg',
+        });
+      } catch (err: any) {
+        console.error(
+          'Error fetching user:',
+          err.response?.data || err.message,
+        );
+      }
+    }
+
+    fetchUser();
+  }, [userId]);
+
   const [avatar, setAvatar] = useState<File | null>(null);
   return (
     <SidebarProvider>
-      <AppSidebar isAdmin={isAdmin}/>
+      <AppSidebar isAdmin={isAdmin} />
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center justify-between px-4 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
           <div className="flex items-center gap-2">
@@ -120,7 +148,7 @@ export default function AccountClient({ isAdmin }: AccountClientProps) {
             </DropdownMenu>
 
             {/* Nav-user */}
-            <NavUser user={data.user} isAdmin={isAdmin} />
+            <NavUser user={user} isAdmin={isAdmin} />
           </div>
         </header>
 

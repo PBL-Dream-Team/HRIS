@@ -35,7 +35,7 @@ export async function validateAccess({
     redirect(requireAdmin ? '/signin' : '/signin/employee');
   }
 
-  const { sub, is_admin } = decoded;
+  const { sub, is_admin, company_id } = decoded;
 
   const expectedPath = section
     ? `/user/${sub}/${is_admin ? 'admin' : 'employee'}/${section}`
@@ -51,5 +51,5 @@ export async function validateAccess({
     return redirect(expectedPath);
   }
 
-  return { sub, is_admin };
+  return { sub, is_admin, company_id };
 }

@@ -2,6 +2,8 @@
 
 import { AppSidebar } from '@/components/app-sidebar';
 import { useState } from 'react';
+import { useEffect } from 'react';
+import api from '@/lib/axios';
 
 import {
   Breadcrumb,
@@ -55,14 +57,6 @@ import { IoMdAdd, IoMdSearch } from 'react-icons/io';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
-const data = {
-  user: {
-    name: 'Admin',
-    email: 'admin@hris.com',
-    avatar: '/avatars/shadcn.jpg',
-  },
-};
-
 const checkclocks = [
   {
     name: 'Alice Johnson',
@@ -108,9 +102,43 @@ const checkclocks = [
 
 type CheckClockClientProps = {
   isAdmin: boolean;
+  userId: string;
+  companyId: string;
 };
 
-export default function CheckClockClient({ isAdmin }: CheckClockClientProps) {
+export default function CheckClockClient({
+  isAdmin,
+  userId,
+  companyId,
+}: CheckClockClientProps) {
+  const [user, setUser] = useState({
+    name: '',
+    email: '',
+    avatar: '',
+  });
+
+  useEffect(() => {
+    async function fetchUser() {
+      try {
+        const res = await api.get(`/api/employee/${userId}`);
+        const { first_name, last_name, email, pict_dir } = res.data.data;
+
+        setUser({
+          name: `${first_name} ${last_name}`,
+          email: email,
+          avatar: pict_dir || '/avatars/default.jpg',
+        });
+      } catch (err: any) {
+        console.error(
+          'Error fetching user:',
+          err.response?.data || err.message,
+        );
+      }
+    }
+
+    fetchUser();
+  }, [userId]);
+
   const [openSheet, setOpenSheet] = useState(false);
   const [selectedCheckClock, setselectedCheckClock] = useState<any>(null);
 
@@ -121,7 +149,7 @@ export default function CheckClockClient({ isAdmin }: CheckClockClientProps) {
 
   return (
     <SidebarProvider>
-      <AppSidebar isAdmin={isAdmin}/>
+      <AppSidebar isAdmin={isAdmin} />
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center justify-between px-4 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
           <div className="flex items-center gap-2">
@@ -173,7 +201,7 @@ export default function CheckClockClient({ isAdmin }: CheckClockClientProps) {
             </DropdownMenu>
 
             {/* Nav-user */}
-            <NavUser user={data.user} isAdmin={isAdmin} />
+            <NavUser user={user} isAdmin={isAdmin} />
           </div>
         </header>
 
@@ -182,32 +210,31 @@ export default function CheckClockClient({ isAdmin }: CheckClockClientProps) {
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b">
               <h2 className="text-lg font-semibold">Checkclock Overview</h2>
-                {/* Search Input */}
-                <div className="relative w-96 hidden lg:block">
-                  <IoMdSearch className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-500" />
-                  <Input type="search" placeholder="Search" className="pl-10" />
-                </div>
+              {/* Search Input */}
+              <div className="relative w-96 hidden lg:block">
+                <IoMdSearch className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-500" />
+                <Input type="search" placeholder="Search" className="pl-10" />
+              </div>
 
-                {/* Buttons */}
-                <div className="flex flex-col gap-2 md:flex-row md:flex-wrap md:gap-2">
-                  <Button variant="outline" className="w-full md:w-auto">
-                    <VscSettings className="h-4 w-4 mr-1" /> Filter
-                  </Button>
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button>
-                        <IoMdAdd /> Add Check Clock
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-4xl">
-                      <DialogHeader>
-                        <DialogTitle>Add Check Clock</DialogTitle>
-                      </DialogHeader>
-                      <CheckClockForm />
-                    </DialogContent>
-                  </Dialog>
-                </div>
-              
+              {/* Buttons */}
+              <div className="flex flex-col gap-2 md:flex-row md:flex-wrap md:gap-2">
+                <Button variant="outline" className="w-full md:w-auto">
+                  <VscSettings className="h-4 w-4 mr-1" /> Filter
+                </Button>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button>
+                      <IoMdAdd /> Add Check Clock
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-4xl">
+                    <DialogHeader>
+                      <DialogTitle>Add Check Clock</DialogTitle>
+                    </DialogHeader>
+                    <CheckClockForm />
+                  </DialogContent>
+                </Dialog>
+              </div>
             </div>
 
             {/* Table */}

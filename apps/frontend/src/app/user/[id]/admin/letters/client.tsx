@@ -34,6 +34,8 @@ import PaginationFooter from '@/components/pagination';
 import { useState } from 'react';
 import LetterDetails from '@/components/letter-details';
 import { Eye } from 'lucide-react';
+import api from '@/lib/axios';
+import { useEffect } from 'react';
 
 import {
   DropdownMenu,
@@ -56,14 +58,6 @@ import {
 import { VscSettings } from 'react-icons/vsc';
 import { IoMdAdd, IoMdSearch } from 'react-icons/io';
 import { Download } from 'lucide-react';
-
-const data = {
-  user: {
-    name: 'Admin',
-    email: 'admin@hris.com',
-    avatar: '/avatars/shadcn.jpg',
-  },
-};
 
 const letters = [
   {
@@ -97,20 +91,53 @@ const letters = [
 
 type LettersClientProps = {
   isAdmin: boolean;
+  userId: string;
+  companyId: string;
 };
 
-export default function LettersClient({ isAdmin }: LettersClientProps) {
-    const [openSheet, setOpenSheet] = useState(false);
-    const [selectedLetter, setselectedLetter] = useState<any>(null);
-  
-    const handleViewDetails = (checkclock: any) => {
-      setselectedLetter(checkclock);
-      setOpenSheet(true);
-    };
+export default function LettersClient({
+  isAdmin,
+  userId,
+  companyId,
+}: LettersClientProps) {
+  const [user, setUser] = useState({
+    name: '',
+    email: '',
+    avatar: '',
+  });
+
+  useEffect(() => {
+    async function fetchUser() {
+      try {
+        const res = await api.get(`/api/employee/${userId}`);
+        const { first_name, last_name, email, pict_dir } = res.data.data;
+
+        setUser({
+          name: `${first_name} ${last_name}`,
+          email: email,
+          avatar: pict_dir || '/avatars/default.jpg',
+        });
+      } catch (err: any) {
+        console.error(
+          'Error fetching user:',
+          err.response?.data || err.message,
+        );
+      }
+    }
+
+    fetchUser();
+  }, [userId]);
+  const [openSheet, setOpenSheet] = useState(false);
+  const [selectedLetter, setselectedLetter] = useState<any>(null);
+
+  const handleViewDetails = (checkclock: any) => {
+    setselectedLetter(checkclock);
+    setOpenSheet(true);
+  };
 
   return (
     <SidebarProvider>
-      <AppSidebar isAdmin={isAdmin}/>
+      <AppSidebar isAdmin={isAdmin} />
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center justify-between px-4 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
           <div className="flex items-center gap-2">
@@ -161,7 +188,7 @@ export default function LettersClient({ isAdmin }: LettersClientProps) {
             </DropdownMenu>
 
             {/* Nav-user */}
-            <NavUser user={data.user} isAdmin={isAdmin} />
+            <NavUser user={user} isAdmin={isAdmin} />
           </div>
         </header>
 

@@ -21,6 +21,8 @@ import { Input } from '@/components/ui/input';
 import { Bell } from 'lucide-react';
 import { NavUser } from '@/components/nav-user';
 import { IoMdSearch } from 'react-icons/io';
+import { useEffect, useState } from 'react';
+import api from '@/lib/axios';
 
 import {
   DropdownMenu,
@@ -31,22 +33,48 @@ import {
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 
-const data = {
-  user: {
-    name: 'Employee',
-    email: 'employee@hris.com',
-    avatar: '/avatars/shadcn.jpg',
-  },
-};
-
 type DashboardClientProps = {
   isAdmin: boolean;
+  userId: string;
+  companyId: string;
 };
 
-export default function DashboardClient({ isAdmin }: DashboardClientProps) {
+export default function DashboardClient({
+  isAdmin,
+  userId,
+  companyId,
+}: DashboardClientProps) {
+  const [user, setUser] = useState({
+    name: '',
+    email: '',
+    avatar: '',
+  });
+
+  useEffect(() => {
+    async function fetchUser() {
+      try {
+        const res = await api.get(`/api/employee/${userId}`);
+        const { first_name, last_name, email, pict_dir } = res.data.data;
+
+        setUser({
+          name: `${first_name} ${last_name}`,
+          email: email,
+          avatar: pict_dir || '/avatars/default.jpg',
+        });
+      } catch (err: any) {
+        console.error(
+          'Error fetching user:',
+          err.response?.data || err.message,
+        );
+      }
+    }
+
+    fetchUser();
+  }, [userId]);
+
   return (
     <SidebarProvider>
-      <AppSidebar isAdmin={isAdmin}/>
+      <AppSidebar isAdmin={isAdmin} />
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center justify-between px-4 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
           <div className="flex items-center gap-2">
@@ -98,7 +126,7 @@ export default function DashboardClient({ isAdmin }: DashboardClientProps) {
             </DropdownMenu>
 
             {/* Nav-user */}
-            <NavUser user={data.user} isAdmin={isAdmin} />
+            <NavUser user={user} isAdmin={isAdmin} />
           </div>
         </header>
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
