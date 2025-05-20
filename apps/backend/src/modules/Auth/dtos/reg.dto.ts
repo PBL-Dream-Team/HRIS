@@ -8,27 +8,6 @@ export class RegDto{
     @IsNotEmpty()
     @IsString()
     name: string;
-
-    @IsUUID()
-    @IsNotEmpty()
-    subscription_id: string;
-
-    @IsPositive({message: "Value must be positive"})
-    @IsInt({message: "Value must be an integer"})
-    @IsNotEmpty()
-    max_employee :number;
-
-    @IsISO8601()
-    @IsNotEmpty()
-    subs_date_start: string;
-
-    @IsISO8601()
-    @IsNotEmpty()
-    subs_date_end: string;
-
-    @IsEnum(CompanySubscriptionStatus,{message:"Invalid status"})
-    status: CompanySubscriptionStatus
-
     // Admin Fields
     @IsString()
     @IsNotEmpty()

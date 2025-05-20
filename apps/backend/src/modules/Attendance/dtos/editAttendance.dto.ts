@@ -15,6 +15,11 @@ export class editAttendanceDto {
     employee_id:string;
 
     @ApiPropertyOptional()
+    @IsUUID()
+    @IsOptional()
+    type_id:string;
+
+    @ApiPropertyOptional()
     @Matches(/^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/, {
         message: 'must be in HH:mm:ss format',
     })

@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, IsUUID, Matches } from "@nestjs/class-validator";
+import { IsLatitude, IsLongitude, IsNotEmpty, IsString, IsUUID, Matches } from "@nestjs/class-validator";
 import { ApiProperty } from "@nestjs/swagger";
 
 export class createAttendanceTypeDto {
@@ -25,4 +25,20 @@ export class createAttendanceTypeDto {
     })
     @IsNotEmpty()
     check_out: string;
+
+    @ApiProperty()
+    @IsString()
+    @IsNotEmpty()
+    workplace_address: string;
+
+    @ApiProperty()
+    @IsLatitude()
+    @IsNotEmpty()
+    workplace_lat: number;
+    
+    @ApiProperty()
+    @IsLongitude()
+    @IsNotEmpty()
+    workplace_long: number;
+    
 }

@@ -6,10 +6,12 @@ COPY package*.json ./
 
 RUN npm install
 
+COPY . .
+
 RUN npx prisma generate
 
 RUN npx prisma migrate deploy
 
-COPY . .
+
 
 CMD [ "npm","run","dev" ]

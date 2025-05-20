@@ -2,6 +2,7 @@ import { IsAlpha, IsBoolean, IsDate, IsEmail, IsEnum, IsNotEmpty, IsNumber, IsNu
 import { workscheme } from "./workscheme.enum";
 import { educationtype } from "./educationtype.enum";
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { contracttype } from "./contracttype.enum";
 
 export class createEmployeeDto {
     @ApiProperty()
@@ -85,9 +86,29 @@ export class createEmployeeDto {
     branch: string;
 
     @ApiPropertyOptional()
+    @IsEnum(contracttype)
+    @IsOptional()
+    contract: contracttype;
+
+    @ApiPropertyOptional()
     @IsEnum(educationtype, {message:""})
     @IsOptional()
-    last_education: educationtype
+    last_education: educationtype;
+
+    @ApiPropertyOptional()
+    @IsString()
+    @IsOptional()
+    account_bank: string;
+
+    @ApiPropertyOptional()
+    @IsNumberString()
+    @IsOptional()
+    account_number: string;
+
+    @ApiPropertyOptional()
+    @IsString()
+    @IsOptional()
+    account_name: string;
 
     @ApiPropertyOptional()
     @IsString()

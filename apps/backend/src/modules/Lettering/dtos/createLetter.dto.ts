@@ -1,4 +1,4 @@
-import { IsDate, IsNotEmpty, IsOptional, IsString, IsUUID } from "@nestjs/class-validator";
+import { IsBoolean, IsDate, IsNotEmpty, IsOptional, IsString, IsUUID } from "@nestjs/class-validator";
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 
 export class createLetterDto {
@@ -36,4 +36,9 @@ export class createLetterDto {
     @IsDate()
     @IsNotEmpty()
     valid_until: Date;
+
+    @ApiPropertyOptional()
+    @IsBoolean()
+    @IsOptional()
+    is_active: boolean;
 }

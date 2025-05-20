@@ -7,6 +7,7 @@ import { hash, verify } from "argon2";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { RegDto } from "./dtos/reg.dto";
 import { AuthIdDto } from "./dtos";
+import { CompanySubscriptionStatus } from "./dtos/CompanySubscriptionStatus.enum";
 
 
 @Injectable()
@@ -49,11 +50,13 @@ export class AuthService{
 
         //Company
         if(dto.name) companyData.name = dto.name;
-        if(dto.max_employee) companyData.max_employee = dto.max_employee;
-        if(dto.subscription_id) companyData.subscription_id = dto.subscription_id;
-        if(dto.subs_date_start) companyData.subs_date_start = new Date(dto.subs_date_start);
-        if(dto.subs_date_end) companyData.subs_date_end = new Date(dto.subs_date_end);
-        if(dto.status) companyData.status = dto.status;
+        companyData.max_employee = 10;
+        const trial = await this.prisma.subscription.findFirst({where:{name:'Trial'}});
+        companyData.subscription_id = trial.id;
+        let now = new Date()
+        companyData.subs_date_start = now.toISOString();
+        companyData.subs_date_end = new Date(now.getDate() + 14).toISOString();
+        companyData.status = CompanySubscriptionStatus.ACTIVE;
         //Employee
         if(dto.first_name) userData.first_name = dto.first_name;
         if(dto.last_name) userData.last_name = dto.last_name;
@@ -95,9 +98,10 @@ export class AuthService{
                 });
 
             if(employee == null || await verify(employee.password,dto.password) == false){
-                throw new ForbiddenException(
-                    'Credentials Incorrect'
-                );
+                return {
+                    statusCode: 401,
+                    message: "Credentials Incorrect"
+                }
             }
             else{
                 const token = await this.signToken(employee.id, employee.company_id,employee.is_admin);

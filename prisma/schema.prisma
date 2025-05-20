@@ -112,9 +112,15 @@ model Employee {
 
   branch String? @db.VarChar(50)
 
+  contract ContractType?
+
   last_education EducationType?
 
   pict_dir String?
+
+  account_bank String? @db.VarChar()
+  account_number String? @db.VarChar()
+  account_name String? @db.VarChar()
 
   //Oauth
   google_id String? @db.VarChar(100) @unique
@@ -131,6 +137,12 @@ model Employee {
   absences AbsenceLeave[]
 
   @@map("Employee")
+}
+
+enum ContractType{
+  PERMANENT
+  CONTRACT
+  INTERN
 }
 
 enum WorkSchemeType{
@@ -189,6 +201,8 @@ model Letter {
 
   valid_until DateTime @db.Date
 
+  is_active Boolean @db.Boolean @default(true) 
+
   created_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
   updated_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
   deleted_at DateTime? @db.Timestamptz() 
@@ -206,12 +220,17 @@ model AttendanceType {
   check_in DateTime @db.Time()
   check_out DateTime @db.Time()
 
+  workspace_address String? @db.VarChar()
+  workspace_long Float? @db.DoublePrecision
+  workspace_lat Float? @db.DoublePrecision
+
   created_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
   updated_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
   deleted_at DateTime? @db.Timestamptz() 
   is_deleted Boolean @db.Boolean @default(false)
 
   employees Employee[]
+  attendances Attendance[]
 }
 
 model Attendance {
@@ -223,17 +242,20 @@ model Attendance {
   employee_id String @db.Uuid
   employee Employee @relation(fields: [employee_id], references: [id])
 
+  type_id String @db.Uuid
+  type AttendanceType @relation(fields: [type_id], references: [id])
+
   check_in DateTime @db.Time()
   check_in_status CheckInStatus
+  check_in_address String @db.VarChar()
   check_in_long Float @db.DoublePrecision
   check_in_lat Float @db.DoublePrecision
 
   check_out DateTime? @db.Time()
   check_out_status CheckInStatus?
+  check_out_address String? @db.VarChar()
   check_out_long Float? @db.DoublePrecision
   check_out_lat Float? @db.DoublePrecision
-
-  workpict_dir String
 
   created_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
   updated_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
@@ -266,6 +288,8 @@ model AbsenceLeave {
 
   status leaveStatus @default(PENDING)
   status_change_at DateTime? @db.Timestamptz()
+
+  absencepict String
 
   created_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
   updated_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))

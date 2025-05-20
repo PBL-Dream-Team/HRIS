@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsOptional, IsString, IsUUID, Matches } from "@nestjs/class-validator";
+import { IsLatitude, IsLongitude, IsNotEmpty, IsOptional, IsString, IsUUID, Matches } from "@nestjs/class-validator";
 import { ApiPropertyOptional } from "@nestjs/swagger";
 
 export class editAttendanceTypeDto {
@@ -25,4 +25,19 @@ export class editAttendanceTypeDto {
     })
     @IsOptional()
     check_out: string;
+
+    @ApiPropertyOptional()
+    @IsString()
+    @IsOptional()
+    workplace_address: string;
+
+    @ApiPropertyOptional()
+    @IsLatitude()
+    @IsOptional()
+    workplace_lat: number;
+    
+    @ApiPropertyOptional()
+    @IsLongitude()
+    @IsOptional()
+    workplace_long: number;
 }
