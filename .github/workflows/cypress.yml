@@ -18,10 +18,10 @@ jobs:
       - name: Cypress run
         uses: cypress-io/github-action@v6
         with:
-          wait-on: 'http://34.50.86.184:3000'
+          wait-on: ${{ secrets.CYPRESS_BASE_URL }}
           record: true
           parallel: true
-          config: baseUrl=http://34.50.86.184:3000
+          config: baseUrl=${{ secrets.CYPRESS_BASE_URL }}
         env:
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
