@@ -98,11 +98,6 @@ export class editEmployeeDto {
     @ApiPropertyOptional()
     @IsString()
     @IsOptional()
-    pict_dir: string;
-
-    @ApiPropertyOptional()
-    @IsString()
-    @IsOptional()
     account_bank: string;
 
     @ApiPropertyOptional()

@@ -113,11 +113,6 @@ export class createEmployeeDto {
     @ApiPropertyOptional()
     @IsString()
     @IsOptional()
-    pict_dir: string;
-
-    @ApiPropertyOptional()
-    @IsString()
-    @IsOptional()
     google_id: string;
 
     @ApiPropertyOptional()

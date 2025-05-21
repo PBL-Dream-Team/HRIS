@@ -289,7 +289,7 @@ model AbsenceLeave {
   status leaveStatus @default(PENDING)
   status_change_at DateTime? @db.Timestamptz()
 
-  absencepict String
+  filedir String?
 
   created_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
   updated_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))

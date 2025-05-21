@@ -1,9 +1,12 @@
-import {Controller,Get,Post,Body,Param,Delete,Patch, UseGuards, Query,} from '@nestjs/common';
+import {Controller,Get,Post,Body,Param,Delete,Patch, UseGuards, Query, UploadedFile, UseInterceptors, UploadedFiles} from '@nestjs/common';
 import { EmployeeService } from './employee.service';
 import { createEmployeeDto } from './dtos/createEmployee.dto';
 import { editEmployeeDto } from './dtos/editEmployee.dto';
 import { JwtGuard, SubscriptionGuard } from '../Auth/guard';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
+import { UploadExtensionInterceptor } from '../../multer/image_upload.interceptor';
+import { FileInterceptor, FilesInterceptor} from '@nestjs/platform-express';
+import {} from 'multer';
 
 @ApiTags("employee")
 @UseGuards(JwtGuard, SubscriptionGuard)
@@ -13,8 +16,17 @@ export class EmployeeController {
 
   @Post()
   @ApiBody({type:createEmployeeDto})
-  createEmployee(@Body() createEmployeeDto: createEmployeeDto) {
-    return this.employeeService.createEmployee(createEmployeeDto);
+  @UseInterceptors(
+    FilesInterceptor('files',5,{
+      limits: { fileSize: 50 * 1024 * 1024},
+    }),
+    new UploadExtensionInterceptor(['jpg','jpeg','png'])
+  )
+  createEmployee(
+    @Body() createEmployeeDto: createEmployeeDto,
+    @UploadedFile() file: Express.Multer.File
+  ) {
+    return this.employeeService.createEmployee(createEmployeeDto, file);
   }
 
   @Get()
@@ -32,11 +44,18 @@ export class EmployeeController {
 
   @Patch(':id')
   @ApiBody({type:editEmployeeDto})
+  @UseInterceptors(
+    FileInterceptor('file',{
+      limits: { fileSize: 50 * 1024 * 1024},
+    }),
+    new UploadExtensionInterceptor(['jpg','jpeg','png'])
+  )
   updateEmployee(
     @Param('id') employeeId: string,
     @Body() updateEmployeeDto: editEmployeeDto,
+    @UploadedFile() file: Express.Multer.File
   ) {
-    return this.employeeService.updateEmployee(employeeId, updateEmployeeDto);
+    return this.employeeService.updateEmployee(employeeId, updateEmployeeDto, file);
   }
 
   @Delete(':id')
