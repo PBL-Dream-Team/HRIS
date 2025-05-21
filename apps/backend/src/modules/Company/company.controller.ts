@@ -1,4 +1,4 @@
-import {Controller,Get,Post,Body,Param,Delete,Patch, UseGuards,} from '@nestjs/common';
+import {Controller,Get,Post,Body,Param,Delete,Patch, UseGuards, Query,} from '@nestjs/common';
 import { createCompanyDto } from './dtos/createCompany.dto';
 import { editCompanyDto } from './dtos/editCompany.dto';
 import { CompanyService } from './company.service';
@@ -18,9 +18,12 @@ export class CompanyController {
   }
 
   @Get()
-  getCompanys() {
-    return this.CompanyService.getCompanys();
-  }
+  getCompanies(@Query() query: Record<string,any>) {
+      if(Object.keys(query).length >0){
+          return this.CompanyService.findFilters(query);
+      }
+      return this.CompanyService.getCompanies();
+    }
 
   @Get(':id')
   getCompany(@Param('id') companyId: string) {

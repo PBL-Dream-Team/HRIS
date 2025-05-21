@@ -1,4 +1,4 @@
-import {Controller,Get,Post,Body,Param,Delete,Patch, UseGuards,} from '@nestjs/common';
+import {Controller,Get,Post,Body,Param,Delete,Patch, UseGuards, Query,} from '@nestjs/common';
 import { createAttendanceDto } from './dtos/createAttendance.dto';
 import { editAttendanceDto } from './dtos/editAttendance.dto';
 import { AttendanceService } from './attendance.service';
@@ -18,9 +18,12 @@ export class AttendanceController {
   }
 
   @Get()
-  getAttendances() {
-    return this.AttendanceService.getAttendances();
-  }
+  getAttendances(@Query() query: Record<string,any>) {
+      if(Object.keys(query).length >0){
+          return this.AttendanceService.findFilters(query);
+      }
+      return this.AttendanceService.getAttendances();
+    }
 
   @Get(':id')
   getAttendance(@Param('id') attendanceId: string) {

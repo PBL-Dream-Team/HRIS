@@ -1,4 +1,4 @@
-import {Controller,Get,Post,Body,Param,Delete,Patch, UseGuards,} from '@nestjs/common';
+import {Controller,Get,Post,Body,Param,Delete,Patch, UseGuards, Query,} from '@nestjs/common';
 import { createSubscriptionDto } from './dtos/createSubscription.dto';
 import { editSubscriptionDto } from './dtos/editSubscription.dto';
 import { SubscriptionService } from './subscription.service';
@@ -18,8 +18,11 @@ export class SubscriptionController {
   }
 
   @Get()
-  getSubscriptions() {
-    return this.SubscriptionService.getSubscriptions();
+  getSubscriptions(@Query() query: Record<string,any>) {
+      if(Object.keys(query).length >0){
+          return this.SubscriptionService.findFilters(query);
+      }
+      return this.SubscriptionService.getSubscriptions();
   }
 
   @Get(':id')

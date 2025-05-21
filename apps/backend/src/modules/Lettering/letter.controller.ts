@@ -1,4 +1,4 @@
-import {Controller,Get,Post,Body,Param,Delete,Patch, UseGuards,} from '@nestjs/common';
+import {Controller,Get,Post,Body,Param,Delete,Patch, UseGuards, Query,} from '@nestjs/common';
 import { createLetterDto } from './dtos/createLetter.dto';
 import { editLetterDto } from './dtos/editLetter.dto';
 import { LetterService } from './letter.service';
@@ -18,9 +18,12 @@ export class LetterController {
   }
 
   @Get()
-  getLetters() {
-    return this.LetterService.getLetters();
-  }
+  getLetters(@Query() query: Record<string,any>) {
+      if(Object.keys(query).length >0){
+          return this.LetterService.findFilters(query);
+      }
+      return this.LetterService.getLetters();
+    }
 
   @Get(':id')
   getLetter(@Param('id') letterId: string) {

@@ -1,4 +1,4 @@
-import {Controller,Get,Post,Body,Param,Delete,Patch, UseGuards,} from '@nestjs/common';
+import {Controller,Get,Post,Body,Param,Delete,Patch, UseGuards, Query,} from '@nestjs/common';
 import { createAttendanceTypeDto } from './dtos/createAttendanceType.dto';
 import { editAttendanceTypeDto } from './dtos/editAttendanceType.dto';
 import { AttendanceTypeService } from './attendanceType.service';
@@ -18,9 +18,12 @@ export class AttendanceTypeController {
   }
 
   @Get()
-  getAttendanceTypes() {
-    return this.AttendanceTypeService.getAttendanceTypes();
-  }
+  getAttendanceTypes(@Query() query: Record<string,any>) {
+      if(Object.keys(query).length >0){
+          return this.AttendanceTypeService.findFilters(query);
+      }
+      return this.AttendanceTypeService.getAttendanceTypes();
+    }
 
   @Get(':id')
   getAttendanceType(@Param('id') attendanceTypeId: string) {

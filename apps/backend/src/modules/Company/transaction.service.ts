@@ -80,4 +80,13 @@ export class TransactionService {
       };
     }
   }
+  async findFilters(filters: Record< string, any>){
+    const where: Record<string , any> = {}
+
+    for (const [key,value] of Object.entries(filters)){
+      where[key] = { contains: value, mode: 'insensitive'};
+    }
+
+    return await this.prisma.transaction.findMany({where});
+  }
 }

@@ -1,4 +1,4 @@
-import {Controller,Get,Post,Body,Param,Delete,Patch, UseGuards,} from '@nestjs/common';
+import {Controller,Get,Post,Body,Param,Delete,Patch, UseGuards, Query,} from '@nestjs/common';
 import { createAbsenceDto } from './dtos/createAbsence.dto';
 import { editAbsenceDto } from './dtos/editAbsence.dto';
 import { AbsenceService } from './absence.service';
@@ -18,7 +18,10 @@ export class AbsenceController {
   }
 
   @Get()
-  getAbsences() {
+  getAbsences(@Query() query: Record<string,any>) {
+    if(Object.keys(query).length >0){
+        return this.AbsenceService.findFilters(query);
+    }
     return this.AbsenceService.getAbsences();
   }
 

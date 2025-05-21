@@ -1,4 +1,4 @@
-import {Controller,Get,Post,Body,Param,Delete,Patch, UseGuards,} from '@nestjs/common';
+import {Controller,Get,Post,Body,Param,Delete,Patch, UseGuards, Query,} from '@nestjs/common';
 import { EmployeeService } from './employee.service';
 import { createEmployeeDto } from './dtos/createEmployee.dto';
 import { editEmployeeDto } from './dtos/editEmployee.dto';
@@ -18,9 +18,12 @@ export class EmployeeController {
   }
 
   @Get()
-  getEmployees() {
-    return this.employeeService.getEmployees();
-  }
+  getEmployees(@Query() query: Record<string,any>) {
+      if(Object.keys(query).length >0){
+          return this.employeeService.findFilters(query);
+      }
+      return this.employeeService.getEmployees();
+    }
 
   @Get(':id')
   getEmployee(@Param('id') employeeId: string) {
