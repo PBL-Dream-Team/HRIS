@@ -1,5 +1,6 @@
 import { IsBoolean, IsDate, IsNotEmpty, IsOptional, IsString, IsUUID } from "@nestjs/class-validator";
 import { ApiPropertyOptional } from "@nestjs/swagger";
+import { Type, Transform } from 'class-transformer';
 
 export class editLetterDto {
     @ApiPropertyOptional()
@@ -27,13 +28,15 @@ export class editLetterDto {
     @IsOptional()
     desc: string;
 
-    @ApiPropertyOptional()
-    @IsDate()
-    @IsOptional()
-    valid_until: Date;
-
-    @ApiPropertyOptional()
-    @IsBoolean()
-    @IsOptional()
-    is_active: boolean;
+    @ApiProperty()
+        @IsDate()
+        @Type(() => Date) // Converts ISO string to Date
+        @IsNotEmpty()
+        valid_until: Date;
+    
+        @ApiPropertyOptional()
+        @IsBoolean()
+        @Transform(({ value }) => value === 'true' || value === true)
+        @IsOptional()
+        is_active: boolean;
 }
