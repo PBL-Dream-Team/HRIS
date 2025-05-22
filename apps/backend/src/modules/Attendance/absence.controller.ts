@@ -1,9 +1,11 @@
-import {Controller,Get,Post,Body,Param,Delete,Patch, UseGuards, Query,} from '@nestjs/common';
+import {Controller,Get,Post,Body,Param,Delete,Patch, UseGuards, Query, UseInterceptors, UploadedFile,} from '@nestjs/common';
 import { createAbsenceDto } from './dtos/createAbsence.dto';
 import { editAbsenceDto } from './dtos/editAbsence.dto';
 import { AbsenceService } from './absence.service';
 import { JwtGuard, SubscriptionGuard } from '../Auth/guard';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
+import { FilesInterceptor } from '@nestjs/platform-express';
+import { UploadExtensionInterceptor } from '../../multer/image_upload.interceptor';
 
 @ApiTags("absence")
 @UseGuards(JwtGuard, SubscriptionGuard)
@@ -13,8 +15,17 @@ export class AbsenceController {
 
   @Post()
   @ApiBody({type:createAbsenceDto})
-  createAbsence(@Body() createAbsenceDto: createAbsenceDto) {
-    return this.AbsenceService.createAbsence(createAbsenceDto);
+  @UseInterceptors(
+      FilesInterceptor('files',5,{
+        limits: { fileSize: 50 * 1024 * 1024},
+      }),
+      new UploadExtensionInterceptor(['jpg','jpeg','png','pdf'])
+    )
+  createAbsence(
+    @Body() createAbsenceDto: createAbsenceDto,
+    @UploadedFile() file: Express.Multer.File
+  ) {
+    return this.AbsenceService.createAbsence(createAbsenceDto, file);
   }
 
   @Get()
@@ -26,17 +37,25 @@ export class AbsenceController {
   }
 
   @Get(':id')
-  @ApiBody({type:editAbsenceDto})
+
   getAbsence(@Param('id') absenceId: string) {
     return this.AbsenceService.getAbsence(absenceId);
   }
 
   @Patch(':id')
+  @ApiBody({type:editAbsenceDto})
+  @UseInterceptors(
+      FilesInterceptor('files',5,{
+        limits: { fileSize: 50 * 1024 * 1024},
+      }),
+      new UploadExtensionInterceptor(['jpg','jpeg','png','pdf'])
+    )
   updateAbsence(
     @Param('id') absenceId: string,
     @Body() updateAbsenceDto: editAbsenceDto,
+    @UploadedFile() file: Express.Multer.File
   ) {
-    return this.AbsenceService.updateAbsence(absenceId, updateAbsenceDto);
+    return this.AbsenceService.updateAbsence(absenceId, updateAbsenceDto, file);
   }
 
   @Delete(':id')

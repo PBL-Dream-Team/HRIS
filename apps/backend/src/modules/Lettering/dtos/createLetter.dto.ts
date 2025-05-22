@@ -27,11 +27,6 @@ export class createLetterDto {
     @IsOptional()
     desc: string;
 
-    @ApiPropertyOptional()
-    @IsUUID()
-    @IsOptional()
-    file_dir:string;
-
     @ApiProperty()
     @IsDate()
     @IsNotEmpty()

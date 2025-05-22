@@ -28,11 +28,6 @@ export class editLetterDto {
     desc: string;
 
     @ApiPropertyOptional()
-    @IsUUID()
-    @IsOptional()
-    file_dir:string;
-
-    @ApiPropertyOptional()
     @IsDate()
     @IsOptional()
     valid_until: Date;

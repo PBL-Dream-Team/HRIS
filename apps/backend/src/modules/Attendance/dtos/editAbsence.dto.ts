@@ -30,9 +30,4 @@ export class editAbsenceDto {
     })
     @IsOptional()
     status_change_at: Date;
-
-    @ApiPropertyOptional()
-    @IsString()
-    @IsOptional()
-    absencepict: string;
 }

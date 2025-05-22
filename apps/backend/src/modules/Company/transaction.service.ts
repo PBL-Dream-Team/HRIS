@@ -84,7 +84,7 @@ export class TransactionService {
     const where: Record<string , any> = {}
 
     for (const [key,value] of Object.entries(filters)){
-      where[key] = { contains: value, mode: 'insensitive'};
+      where[key] = { equals: value};
     }
 
     return await this.prisma.transaction.findMany({where});

@@ -10,7 +10,7 @@ import { hash } from 'argon2';
 export class EmployeeService {
   constructor(private prisma: PrismaService) {}
 
-  async createEmployee(dto: createEmployeeDto, file: Express.Multer.File) {
+  async createEmployee(dto: createEmployeeDto, file?: Express.Multer.File) {
     const data : any = { ...dto};
     
     if(file){
@@ -116,7 +116,17 @@ export class EmployeeService {
 
   async deleteEmployee(employeeId: string) {
     try {
+      const user = await this.prisma.employee.findFirst({ where: {id: employeeId}});
+
       await this.prisma.employee.delete({ where: { id: employeeId } });
+
+      if(user.pict_dir){
+          const oldPath = join(process.cwd(),'storage','employee',user.pict_dir);
+          if(existsSync(oldPath)){
+            unlinkSync(oldPath);
+          }
+      }
+
       return {
         statusCode: 200,
         message: 'Employee deleted successfully',

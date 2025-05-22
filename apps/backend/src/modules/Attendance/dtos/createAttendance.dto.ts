@@ -72,9 +72,4 @@ export class createAttendanceDto {
     @IsLongitude()
     @IsOptional()
     check_out_long: number;
-
-    @ApiProperty()
-    @IsString()
-    @IsNotEmpty()
-    workpict_dir: string;
 }

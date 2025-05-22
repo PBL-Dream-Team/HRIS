@@ -59,8 +59,4 @@ export class editAttendanceDto {
     @IsLongitude()
     @IsOptional()
     check_out_long: number;
-
-    @IsString()
-    @IsOptional()
-    workpict_dir: string;
 }
