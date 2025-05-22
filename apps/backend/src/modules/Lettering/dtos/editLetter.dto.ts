@@ -28,15 +28,15 @@ export class editLetterDto {
     @IsOptional()
     desc: string;
 
-    @ApiProperty()
-        @IsDate()
-        @Type(() => Date) // Converts ISO string to Date
-        @IsNotEmpty()
-        valid_until: Date;
+    @ApiPropertyOptional()
+    @IsDate()
+    @Type(() => Date) // Converts ISO string to Date
+    @IsNotEmpty()
+    valid_until: Date;
     
-        @ApiPropertyOptional()
-        @IsBoolean()
-        @Transform(({ value }) => value === 'true' || value === true)
-        @IsOptional()
-        is_active: boolean;
+    @ApiPropertyOptional()
+    @IsBoolean()
+    @Transform(({ value }) => value === 'true' || value === true)
+    @IsOptional()
+    is_active: boolean;
 }
