@@ -4,7 +4,7 @@ import { editLetterDto } from './dtos/editLetter.dto';
 import { LetterService } from './letter.service';
 import { JwtGuard, SubscriptionGuard } from '../Auth/guard';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
-import { FilesInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { UploadExtensionInterceptor } from '../../multer/image_upload.interceptor';
 
 @ApiTags('letter')
@@ -16,10 +16,10 @@ export class LetterController {
   @Post()
   @ApiBody({type:createLetterDto})
   @UseInterceptors(
-      FilesInterceptor('files',5,{
+      FileInterceptor('file',{
         limits: { fileSize: 50 * 1024 * 1024},
       }),
-      new UploadExtensionInterceptor(['jpg','jpeg','png'])
+      new UploadExtensionInterceptor(['pdf','docx','doc'])
     )
   createLetter(
     @Body() createLetterDto: createLetterDto,
@@ -44,7 +44,7 @@ export class LetterController {
   @Patch(':id')
   @ApiBody({type:editLetterDto})
   @UseInterceptors(
-      FilesInterceptor('files',5,{
+      FileInterceptor('file',{
         limits: { fileSize: 50 * 1024 * 1024},
       }),
       new UploadExtensionInterceptor(['pdf','docx','doc'])

@@ -4,7 +4,7 @@ import { editAbsenceDto } from './dtos/editAbsence.dto';
 import { AbsenceService } from './absence.service';
 import { JwtGuard, SubscriptionGuard } from '../Auth/guard';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
-import { FilesInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { UploadExtensionInterceptor } from '../../multer/image_upload.interceptor';
 
 @ApiTags("absence")
@@ -16,7 +16,7 @@ export class AbsenceController {
   @Post()
   @ApiBody({type:createAbsenceDto})
   @UseInterceptors(
-      FilesInterceptor('files',5,{
+      FileInterceptor('file',{
         limits: { fileSize: 50 * 1024 * 1024},
       }),
       new UploadExtensionInterceptor(['jpg','jpeg','png','pdf'])
@@ -45,7 +45,7 @@ export class AbsenceController {
   @Patch(':id')
   @ApiBody({type:editAbsenceDto})
   @UseInterceptors(
-      FilesInterceptor('files',5,{
+      FileInterceptor('file',{
         limits: { fileSize: 50 * 1024 * 1024},
       }),
       new UploadExtensionInterceptor(['jpg','jpeg','png','pdf'])

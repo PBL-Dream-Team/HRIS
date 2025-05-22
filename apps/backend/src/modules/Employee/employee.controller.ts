@@ -17,7 +17,7 @@ export class EmployeeController {
   @Post()
   @ApiBody({type:createEmployeeDto})
   @UseInterceptors(
-    FilesInterceptor('files',5,{
+    FileInterceptor('file',{
       limits: { fileSize: 50 * 1024 * 1024},
     }),
     new UploadExtensionInterceptor(['jpg','jpeg','png'])
