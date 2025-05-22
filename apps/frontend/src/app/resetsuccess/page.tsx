@@ -37,18 +37,17 @@ export default function ResetSuccessPage() {
       </div>
 
       {/* Right Side - Image */}
-           <div className="hidden md:flex w-1/2 bg-blue-600 items-center justify-center relative">
-              <Image
-                src="/images/office.jpg"
-                alt="Office"
-                width={800}
-                height={600}
-                className="object-cover w-full h-full"
-              />
-              {/* Overlay transparan biru */}
-              <div className="absolute inset-0 bg-[#1E3A5F] opacity-60 z-10" />
-            </div>
-      
+      <div className="hidden md:flex w-1/2 bg-blue-600 items-center justify-center relative">
+        <Image
+          src="https://images.unsplash.com/photo-1606857521015-7f9fcf423740?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+          alt="Office"
+          fill
+          className="object-cover"
+        />
+        {/* Overlay transparan biru */}
+        <div className="absolute inset-0 bg-[#1E3A5F] opacity-60 z-10" />
+      </div>
+
     </div>
   );
 }

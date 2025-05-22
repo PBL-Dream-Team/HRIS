@@ -43,11 +43,10 @@ export default function HrLoginPage() {
       {/* Left Side - Image */}
       <div className="hidden md:flex w-1/2 bg-blue-600 items-center justify-center relative">
         <Image
-          src="/images/office2.jpg"
+          src="https://images.unsplash.com/photo-1631193816258-28b44b21e78b?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
           alt="Office"
-          width={800}
-          height={600}
-          className="object-cover w-full h-full"
+          fill
+          className="object-cover"
         />
         {/* Overlay transparan biru */}
         <div className="absolute inset-0 bg-[#1E3A5F] opacity-60 z-10" />
