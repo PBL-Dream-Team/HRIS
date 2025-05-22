@@ -41,13 +41,18 @@ export default function HrLoginPage() {
   return (
     <div className="flex min-h-screen">
       {/* Left Side - Image */}
-      <div className="hidden md:flex w-1/2 bg-blue-100 items-center justify-center">
-        <img
-          src="/signup-image.png"
-          alt="Signup"
-          className="object-cover h-full"
+      <div className="hidden md:flex w-1/2 bg-blue-600 items-center justify-center relative">
+        <Image
+          src="/images/office.jpg"
+          alt="Office"
+          width={800}
+          height={600}
+          className="object-cover w-full h-full"
         />
+        {/* Overlay transparan biru */}
+        <div className="absolute inset-0 bg-[#1E3A5F] opacity-60 z-10" />
       </div>
+
 
       {/* Right Side - Form */}
       <div className="bg-white flex flex-col justify-center w-full md:w-1/2 p-8">
@@ -145,15 +150,15 @@ export default function HrLoginPage() {
               <span>Sign up with Google</span>
             </Button>
 
-                <Link href="/signin/employee" passHref>
-                    <Button
-                        type="button"
-                        variant="outline"
-                        className="w-full flex items-center justify-center gap-2"
-                    >
-                        Sign in with ID Employee
-                    </Button>
-                </Link>
+            <Link href="/signin/employee" passHref>
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full flex items-center justify-center gap-2"
+              >
+                Sign in with ID Employee
+              </Button>
+            </Link>
 
             <p className="text-center text-sm text-gray-600 mt-4">
               Don’t have an account yet?{' '}

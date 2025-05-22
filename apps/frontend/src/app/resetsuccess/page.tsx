@@ -37,13 +37,18 @@ export default function ResetSuccessPage() {
       </div>
 
       {/* Right Side - Image */}
-      <div className="hidden md:flex w-1/2 bg-blue-100 items-center justify-center">
-        <img
-          src="/signup-image.png"
-          alt="Password Reset Success"
-          className="object-cover h-full"
-        />
-      </div>
+           <div className="hidden md:flex w-1/2 bg-blue-600 items-center justify-center relative">
+              <Image
+                src="/images/office.jpg"
+                alt="Office"
+                width={800}
+                height={600}
+                className="object-cover w-full h-full"
+              />
+              {/* Overlay transparan biru */}
+              <div className="absolute inset-0 bg-[#1E3A5F] opacity-60 z-10" />
+            </div>
+      
     </div>
   );
 }
