@@ -3,6 +3,8 @@
 import { AppSidebar } from '@/components/app-sidebar';
 import { useState } from 'react';
 
+import EmployeeInformation from '@/components/employee-information';
+
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -19,8 +21,6 @@ import {
 import { Input } from '@/components/ui/input';
 import { Bell } from 'lucide-react';
 import { NavUser } from '@/components/nav-user';
-
-import { Card, CardContent } from '@/components/ui/card';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
@@ -206,34 +206,7 @@ export default function EmployeeDatabaseClient({
           </div>
         </header>
         <div className="flex flex-1 flex-col gap-4 p-10 pt-5">
-          <div className="grid auto-rows-min gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <Card>
-              <CardContent className="p-4">
-                <p className="text-sm text-muted-foreground">Total Revenue</p>
-                <h2 className="text-2xl font-bold">$1,250.00</h2>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4">
-                <p className="text-sm text-muted-foreground">New Customers</p>
-                <h2 className="text-2xl font-bold">320</h2>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4">
-                <p className="text-sm text-muted-foreground">
-                  Orders Completed
-                </p>
-                <h2 className="text-2xl font-bold">842</h2>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4">
-                <p className="text-sm text-muted-foreground">Refund Requests</p>
-                <h2 className="text-2xl font-bold">17</h2>
-              </CardContent>
-            </Card>
-          </div>
+          <EmployeeInformation/>
 
           <div className="border border-gray-300 rounded-md p-4">
             {/* Header */}

@@ -80,7 +80,7 @@ export function AppSidebar({ isAdmin = false, ...props }: { isAdmin?: boolean } 
     navSecondary: [
       {
         title: 'Guidebook',
-        url: '#',
+        url: 'guidebook',
         icon: BookMarked,
       },
       {
