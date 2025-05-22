@@ -11,9 +11,9 @@ export class AbsenceService {
 
   async createAbsence(dto: createAbsenceDto, file?: Express.Multer.File) {
     const data : any = { ...dto};
-    
-    const filename = `${Date.now()}_${file.originalname}`;
-    data.filedir = filename;
+
+    if(file){const filename = `${Date.now()}_${file.originalname}`;
+    data.filedir = filename;}
 
     try {
       const absence = await this.prisma.absenceLeave.create({ data: data });
