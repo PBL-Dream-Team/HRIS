@@ -19,7 +19,7 @@ import {
 export default function WorkInformation() {
   return (
     <div className='grid auto-rows-min gap-4 md:grid-cols-4 sm:grid-cols-2'>
-        <Card className="@container/card bg-[#1E3A5F] text-white">
+      <Card className="@container/card border-black border-3">
         <CardHeader className="relative">
           <CardTitle>
             <div className="flex items-center gap-2">
@@ -27,13 +27,13 @@ export default function WorkInformation() {
               <h1 className="text-xl">Work Hours</h1>
             </div>
           </CardTitle>
-          <CardDescription className="text-white text-4xl font-semibold">
+          <CardDescription className="text-black text-4xl font-semibold">
             120h 54m
           </CardDescription>
         </CardHeader>
       </Card>
 
-      <Card className="@container/card bg-[#1E3A5F] text-white">
+      <Card className="@container/card border-black border-3">
         <CardHeader className="relative">
           <CardTitle>
             <div className="flex items-center gap-2">
@@ -41,13 +41,13 @@ export default function WorkInformation() {
               <h1 className="text-xl">On Time</h1>
             </div>
           </CardTitle>
-          <CardDescription className="text-white text-4xl font-semibold">
+          <CardDescription className="text-[#257047] text-4xl font-semibold">
             24 days
           </CardDescription>
         </CardHeader>
       </Card>
 
-      <Card className="@container/card bg-[#1E3A5F] text-white">
+      <Card className="@container/card border-black border-3">
         <CardHeader className="relative">
           <CardTitle>
             <div className="flex items-center gap-2">
@@ -55,13 +55,13 @@ export default function WorkInformation() {
               <h1 className="text-xl">Late</h1>
             </div>
           </CardTitle>
-          <CardDescription className="text-white text-4xl font-semibold">
+          <CardDescription className="text-[#FFAB00] text-4xl font-semibold">
             24 days
           </CardDescription>
         </CardHeader>
       </Card>
 
-      <Card className="@container/card bg-[#1E3A5F] text-white">
+      <Card className="@container/card border-black border-3">
         <CardHeader className="relative">
           <CardTitle>
             <div className="flex items-center gap-2">
@@ -69,7 +69,7 @@ export default function WorkInformation() {
               <h1 className="text-xl">Leave</h1>
             </div>
           </CardTitle>
-          <CardDescription className="text-white text-4xl font-semibold">
+          <CardDescription className="text-[#C11106] text-4xl font-semibold">
             24 days
           </CardDescription>
         </CardHeader>

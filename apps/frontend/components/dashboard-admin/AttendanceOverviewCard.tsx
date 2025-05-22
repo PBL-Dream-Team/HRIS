@@ -64,9 +64,6 @@ export default function AttendanceOverviewCard() {
                 height={300}
                 margin={{ top: 0, right: 0, left: 0, bottom: 0 }}
               >
-                <ChartTooltip
-                  content={<ChartTooltipContent nameKey="total" hideLabel />}
-                />
                 <Pie 
                   data={attendancesData} 
                   dataKey="total"
@@ -86,11 +83,11 @@ export default function AttendanceOverviewCard() {
         <div className='col-span-6'>
           <CardContent className="flex flex-col gap-4 pt-0 pb-0 pl-6 pr-6">
             <div className="flex justify-between text-lg">
-              <span className="font-medium text-muted-foreground">Statistic</span>
+              <span className="font-semibold">Statistic</span>
               <span className="text-muted-foreground">Today</span>
             </div>
             <div className="flex justify-between items-center text-lg">
-              <span className="text-muted-foreground">Attendance</span>
+              <span className="font-semibold">Attendance</span>
               <span className="text-muted-foreground">02 May 2025</span>
             </div>
             <hr />
@@ -104,11 +101,11 @@ export default function AttendanceOverviewCard() {
                         backgroundColor: chartConfig[item.attendance as keyof typeof chartConfig]?.color,
                       }}
                     ></span>
-                    <span className="text-sm text-muted-foreground font-medium">
+                    <span className="text-sm text-black font-medium">
                       {chartConfig[item.attendance as keyof typeof chartConfig]?.label}
                     </span>
                   </div>
-                  <span className="text-sm font-medium">{item.total}</span>
+                  <span className="text-sm font-medium text-muted-foreground">{item.total}</span>
                 </div>
               ))}
             </div>
