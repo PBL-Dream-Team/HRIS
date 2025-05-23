@@ -79,9 +79,9 @@ export default function LettersClient({
   });
 
   const router = useRouter();
+  const [employees, setEmployees] = useState<Record<string, any>>({});
+  const [letterTypeMap, setLetterTypeMap] = useState<Record<string, any>>({});
   const [letters, setLetters] = useState<any[]>([]);
-  const [letterTypes, setLetterTypes] = useState<any[]>([]);
-  
 
   useEffect(() => {
     async function fetchData() {
@@ -95,21 +95,33 @@ export default function LettersClient({
           avatar: pict_dir || '/avatars/default.jpg',
         });
 
-        const letterRes = await api.get(`/api/letter?company_id=${companyId}`);
-        setLetters(letterRes.data ?? []);
+        const [lettersRes, employeesRes, typesRes] = await Promise.all([
+          api.get(`/api/letter?company_id=${companyId}`),
+          api.get(`/api/employee?company_id=${companyId}`),
+          api.get(`/api/letterType?company_id=${companyId}`),
+        ]);
 
-        // Fetch letter types
-        const typeRes = await api.get(
-          `/api/letterType?company_id=${companyId}`,
-        );
-        setLetterTypes(typeRes.data ?? []);
+        const employeeMap: Record<string, any> = {};
+        for (const emp of employeesRes.data ?? []) {
+          employeeMap[emp.id] = emp;
+        }
+        setEmployees(employeeMap);
+
+        const typeMap: Record<string, any> = {};
+        for (const type of typesRes.data ?? []) {
+          typeMap[type.id] = type;
+        }
+        setLetterTypeMap(typeMap);
+
+        setLetters(lettersRes.data ?? []);
       } catch (err: any) {
         console.error(
-          'Error fetching user:',
+          'Error fetching data:',
           err.response?.data || err.message,
         );
         setLetters([]);
-        setLetterTypes([]);
+        setEmployees({});
+        setLetterTypeMap({});
       }
     }
 
@@ -247,85 +259,98 @@ export default function LettersClient({
                     </TableCell>
                   </TableRow>
                 ) : (
-                  letters.map((letter) => (
-                    <TableRow key={letter.id}>
-                      <TableCell>{letter.employee_id}</TableCell>
-                      <TableCell>{letter.name}</TableCell>
-                      <TableCell>{letter.lettertype_id}</TableCell>
-                      <TableCell>
-                        {new Date(letter.valid_until).toLocaleDateString(
-                          'id-ID',
-                          {
-                            day: '2-digit',
-                            month: 'long',
-                            year: 'numeric',
-                          },
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center">
-                          <span
-                            className={`px-2 py-1 rounded text-xs text-white ${
-                              letter.is_active ? 'bg-green-600' : 'bg-gray-400'
-                            }`}
-                          >
-                            {letter.is_active ? 'Active' : 'Not Active'}
-                          </span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="flex gap-2">
-                        <Link href={`download/${letter.id}`}>
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            className="hover:text-white hover:bg-green-600"
-                          >
-                            <Download />
-                          </Button>
-                        </Link>
+                  letters.map((letter) => {
+                    const employee = employees[letter.employee_id];
+                    const letterType = letterTypeMap[letter.lettertype_id];
 
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="hover:text-white hover:bg-blue-600"
-                          onClick={() => handleViewDetails(letter)}
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-
-                        <Dialog>
-                          <DialogTrigger asChild>
+                    return (
+                      <TableRow key={letter.id}>
+                        <TableCell>
+                          {employee
+                            ? `${employee.first_name} ${employee.last_name}`
+                            : 'Unknown'}
+                        </TableCell>
+                        <TableCell>{letter.name}</TableCell>
+                        <TableCell>
+                          {letterType ? letterType.name : 'Unknown'}
+                        </TableCell>
+                        <TableCell>
+                          {new Date(letter.valid_until).toLocaleDateString(
+                            'id-ID',
+                            {
+                              day: '2-digit',
+                              month: 'long',
+                              year: 'numeric',
+                            },
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center">
+                            <span
+                              className={`px-2 py-1 rounded text-xs text-white ${
+                                letter.is_active
+                                  ? 'bg-green-600'
+                                  : 'bg-gray-400'
+                              }`}
+                            >
+                              {letter.is_active ? 'Active' : 'Not Active'}
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="flex gap-2">
+                          <Link href={`download/${letter.id}`}>
                             <Button
                               variant="outline"
                               size="icon"
-                              className="hover:text-white hover:bg-yellow-500"
+                              className="hover:text-white hover:bg-green-600"
                             >
-                              <Pencil className="h-4 w-4" />
+                              <Download />
                             </Button>
-                          </DialogTrigger>
-                          <DialogContent className="max-w-2xl">
-                            <DialogHeader>
-                              <DialogTitle>Edit Letter</DialogTitle>
-                            </DialogHeader>
-                            <LetterForm
-                              mode="edit"
-                              companyId={companyId}
-                              initialData={letter}
-                              onSuccess={() => router.refresh()}
-                            />
-                          </DialogContent>
-                        </Dialog>
+                          </Link>
 
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="hover:text-white hover:bg-red-600"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="hover:text-white hover:bg-blue-600"
+                            onClick={() => handleViewDetails(letter)}
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                className="hover:text-white hover:bg-yellow-500"
+                              >
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-2xl">
+                              <DialogHeader>
+                                <DialogTitle>Edit Letter</DialogTitle>
+                              </DialogHeader>
+                              <LetterForm
+                                mode="edit"
+                                companyId={companyId}
+                                initialData={letter}
+                                onSuccess={() => router.refresh()}
+                              />
+                            </DialogContent>
+                          </Dialog>
+
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="hover:text-white hover:bg-red-600"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
                 )}
               </TableBody>
             </Table>
