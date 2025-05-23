@@ -1,64 +1,172 @@
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useState } from 'react';
 import {
   Select,
-  SelectContent,
   SelectTrigger,
+  SelectContent,
   SelectItem,
   SelectValue,
 } from '@/components/ui/select';
-
 import { CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import {
   Popover,
-  PopoverContent,
   PopoverTrigger,
+  PopoverContent,
 } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
-import { FaFile } from 'react-icons/fa6';
 import { DialogFooter } from '@/components/ui/dialog';
+import { FaFile } from 'react-icons/fa6';
+import api from '@/lib/axios';
 
-export function LetterForm() {
-  const [date, setDate] = useState<Date | undefined>();
+type LetterFormProps = {
+  mode: 'create' | 'edit';
+  companyId: string;
+  initialData?: {
+    id: string;
+    employee_id: string;
+    lettertype_id: string;
+    name: string;
+    desc: string;
+    valid_until: string;
+    is_active: boolean;
+    file_url?: string;
+  };
+  onSuccess?: () => void;
+};
+
+export function LetterForm({
+  mode,
+  companyId,
+  initialData,
+  onSuccess,
+}: LetterFormProps) {
+  const [employeeId, setEmployeeId] = useState('');
+  const [letterTypeId, setLetterTypeId] = useState('');
+  const [letterName, setLetterName] = useState('');
+  const [letterDesc, setLetterDesc] = useState('');
+  const [status, setStatus] = useState('active');
+  const [date, setDate] = useState<Date | undefined>(undefined);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [employees, setEmployees] = useState<{ id: string; first_name: string; last_name: string }[]>([]);
+  const [letterTypes, setLetterTypes] = useState<{ id: string; name: string }[]>([]);
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
     setSelectedFile(file || null);
   };
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!employeeId || !letterTypeId || !letterName || !date || !status) {
+      alert('Please complete all fields');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('company_id', companyId);
+    formData.append('employee_id', employeeId);
+    formData.append('lettertype_id', letterTypeId);
+    formData.append('name', letterName);
+    formData.append('desc', letterDesc);
+    formData.append('valid_until', date.toISOString());
+    formData.append('is_active', status === 'active' ? 'true' : 'false');
+    if (selectedFile) {
+      formData.append('file', selectedFile);
+    }
+
+    try {
+      if (mode === 'create') {
+        await api.post('/api/letter', formData);
+      } else if (mode === 'edit' && initialData?.id) {
+        await api.put(`/api/letter/${initialData.id}`, formData);
+      }
+
+      alert(
+        `Letter ${mode === 'create' ? 'created' : 'updated'} successfully!`,
+      );
+      onSuccess?.();
+    } catch (error) {
+      console.error(error);
+      for (const [key, value] of formData.entries()) {
+        console.log(`${key}:`, value);
+      }
+      alert('Something went wrong.');
+    }
+  };
+
+useEffect(() => {
+  if (
+    initialData &&
+    employees.length > 0 &&
+    letterTypes.length > 0
+  ) {
+    setEmployeeId(initialData.employee_id || '');
+    setLetterTypeId(initialData.lettertype_id || '');
+    setLetterName(initialData.name || '');
+    setLetterDesc(initialData.desc || '');
+    setStatus(initialData.is_active ? 'active' : 'notactive');
+    setDate(initialData.valid_until ? new Date(initialData.valid_until) : undefined);
+    setSelectedFile(null);
+  }
+}, [initialData, employees, letterTypes]);
+
+  useEffect(() => {
+    const fetchOptions = async () => {
+      try {
+        const empRes = await api.get(`/api/employee?company_id=${companyId}`);
+        setEmployees(empRes.data ?? []);
+
+        const typeRes = await api.get(
+          `/api/letterType?company_id=${companyId}`,
+        );
+        setLetterTypes(typeRes.data ?? []);
+      } catch (error) {
+        console.error('Error fetching form options:', error);
+        setEmployees([]);
+        setLetterTypes([]);
+      }
+    };
+
+    fetchOptions();
+  }, [companyId]);
+
   return (
-    <form>
+    <form onSubmit={handleSubmit}>
       <div className="flex flex-col md:flex-row gap-4">
         <div className="w-full md:w-1/2 space-y-4">
-          <div className="mb-4">
+          <div>
             <Label htmlFor="employee">Employee</Label>
-            <Select>
-              <SelectTrigger className="w-full">
+            <Select value={employeeId} onValueChange={setEmployeeId}>
+              <SelectTrigger>
                 <SelectValue placeholder="-Choose Employee-" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="employee1">Employee 1</SelectItem>
-                <SelectItem value="employee2">Employee 2</SelectItem>
-                <SelectItem value="employee3">Employee 3</SelectItem>
+                {employees.map((emp) => (
+                  <SelectItem key={emp.id} value={emp.id}>
+                    {emp.first_name} {emp.last_name}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
         </div>
         <div className="w-full md:w-1/2 space-y-4">
-          <div className="mb-4">
+          <div>
             <Label htmlFor="letterType">Letter Type</Label>
-            <Select>
-              <SelectTrigger className="w-full">
+            <Select value={letterTypeId} onValueChange={setLetterTypeId}>
+              <SelectTrigger>
                 <SelectValue placeholder="-Choose Letter-" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="letter1">Letter 1</SelectItem>
-                <SelectItem value="letter2">Letter 2</SelectItem>
-                <SelectItem value="letter3">Letter 3</SelectItem>
+                {letterTypes.map((type) => (
+                  <SelectItem key={type.id} value={type.id}>
+                    {type.name}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -67,45 +175,59 @@ export function LetterForm() {
 
       <div className="mb-4">
         <Label htmlFor="letterName">Letter Name</Label>
-        <Input id="letterName" type="text" placeholder="Enter letter name" />
+        <Input
+          id="letterName"
+          value={letterName}
+          onChange={(e) => setLetterName(e.target.value)}
+          placeholder="Enter letter name"
+        />
       </div>
       <div className="mb-4">
         <Label htmlFor="letterDescription">Letter Description</Label>
         <Input
           id="letterDescription"
-          type="text"
+          value={letterDesc}
+          onChange={(e) => setLetterDesc(e.target.value)}
           placeholder="Enter letter description"
         />
       </div>
+
       <div className="flex flex-col md:flex-row gap-4">
-            <div className="w-full md:w-1/2 space-y-4">
-      <Label htmlFor="letterFile">Upload Letter File</Label>
-      <div className="mt-2 relative w-full aspect-[3/1] border-2 border-dashed rounded-lg shadow-sm flex items-center justify-center hover:bg-gray-100 transition cursor-pointer">
-        {selectedFile ? (
-          <div className="flex flex-col items-center justify-center text-black text-sm">
-            <FaFile className="text-2xl text-[#1E3A5F] mb-1" />
-            <span className="text-sm text-center px-2 break-all">{selectedFile.name}</span>
-          </div>
-        ) : (
-          <span className="flex flex-col items-center justify-center text-black text-sm">
-            <FaFile className="text-2xl text-[#1E3A5F] mb-1" />
-            Click to upload
-          </span>
-        )}
-        <Input
-          id="letterFile"
-          type="file"
-          accept="*/*"
-          onChange={handleFileChange}
-          className="absolute opacity-0 w-full h-full cursor-pointer"
-        />
-      </div>
-    </div>
         <div className="w-full md:w-1/2 space-y-4">
-          <div className="mb-4">
+          <Label htmlFor="letterFile">Upload Letter File</Label>
+          <div className="mt-2 relative w-full aspect-[3/1] border-2 border-dashed rounded-lg shadow-sm flex items-center justify-center hover:bg-gray-100 transition cursor-pointer">
+            {selectedFile ? (
+              <div className="flex flex-col items-center justify-center text-black text-sm">
+                <FaFile className="text-2xl text-[#1E3A5F] mb-1" />
+                <span className="text-sm text-center px-2 break-all">
+                  {selectedFile.name}
+                </span>
+              </div>
+            ) : initialData?.file_url ? (
+              <div className="text-sm text-center">
+                <FaFile className="text-2xl text-[#1E3A5F] mb-1 mx-auto" />
+                Existing file: {initialData.file_url.split('/').pop()}
+              </div>
+            ) : (
+              <span className="flex flex-col items-center justify-center text-black text-sm">
+                <FaFile className="text-2xl text-[#1E3A5F] mb-1" />
+                Click to upload
+              </span>
+            )}
+            <Input
+              id="letterFile"
+              type="file"
+              accept="*/*"
+              onChange={handleFileChange}
+              className="absolute opacity-0 w-full h-full cursor-pointer"
+            />
+          </div>
+        </div>
+        <div className="w-full md:w-1/2 space-y-4">
+          <div>
             <Label htmlFor="letterStatus">Letter Status</Label>
-            <Select>
-              <SelectTrigger className="w-full">
+            <Select value={status} onValueChange={setStatus}>
+              <SelectTrigger>
                 <SelectValue placeholder="-Choose Letter Status-" />
               </SelectTrigger>
               <SelectContent>
@@ -114,7 +236,7 @@ export function LetterForm() {
               </SelectContent>
             </Select>
           </div>
-          <div className="mb-4">
+          <div>
             <Label htmlFor="validUntil">Valid Until</Label>
             <Popover>
               <PopoverTrigger asChild>
@@ -138,9 +260,10 @@ export function LetterForm() {
           </div>
         </div>
       </div>
-      <DialogFooter className="gap-2 sm:justify-end">
-        <Button type="submit" className="w-20">
-          Submit
+
+      <DialogFooter className="gap-2 sm:justify-end mt-4">
+        <Button type="submit" className="w-24">
+          {mode === 'create' ? 'Submit' : 'Update'}
         </Button>
       </DialogFooter>
     </form>
