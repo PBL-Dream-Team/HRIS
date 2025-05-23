@@ -57,6 +57,8 @@ import {
   TableRow,
 } from '@/components/ui/table';
 
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+
 import { VscSettings } from 'react-icons/vsc';
 import { IoMdAdd, IoMdSearch } from 'react-icons/io';
 import { Download } from 'lucide-react';
@@ -135,6 +137,28 @@ export default function LettersClient({
     setOpenSheet(true);
   };
 
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [letterToDelete, setLetterToDelete] = useState<any>(null);
+  const [successMessage, setSuccessMessage] = useState('');
+
+
+  const handleDeleteConfirmed = async () => {
+    if (!letterToDelete) return;
+
+    try {
+      await api.delete(`/api/letter/${letterToDelete.id}`);
+      setLetters((prevLetters) =>
+        prevLetters.filter((l) => l.id !== letterToDelete.id),
+      );
+      setSuccessMessage('Letter successfully deleted.');
+    } catch (err: any) {
+      console.error('Error deleting letter:', err.response?.data || err.message);
+    } finally {
+      setDeleteDialogOpen(false);
+      setLetterToDelete(null);
+    }
+  };
+
   return (
     <SidebarProvider>
       <AppSidebar isAdmin={isAdmin} />
@@ -188,6 +212,12 @@ export default function LettersClient({
         </header>
 
         <div className="flex flex-1 flex-col gap-4 p-10 pt-5">
+          {successMessage && (
+            <Alert className="border-green-300 bg-green-50 text-green-800">
+              <AlertTitle className="font-medium">Success</AlertTitle>
+              <AlertDescription>{successMessage}</AlertDescription>
+            </Alert>
+          )}
           <div className="border border-gray-300 rounded-md p-4">
             {/* Title and Search */}
             <div className="flex items-center justify-between p-4 border-b">
@@ -287,11 +317,10 @@ export default function LettersClient({
                         <TableCell>
                           <div className="flex items-center">
                             <span
-                              className={`px-2 py-1 rounded text-xs text-white ${
-                                letter.is_active
-                                  ? 'bg-green-600'
-                                  : 'bg-gray-400'
-                              }`}
+                              className={`px-2 py-1 rounded text-xs text-white ${letter.is_active
+                                ? 'bg-green-600'
+                                : 'bg-gray-400'
+                                }`}
                             >
                               {letter.is_active ? 'Active' : 'Not Active'}
                             </span>
@@ -339,14 +368,18 @@ export default function LettersClient({
                               />
                             </DialogContent>
                           </Dialog>
-
                           <Button
                             variant="outline"
                             size="icon"
                             className="hover:text-white hover:bg-red-600"
+                            onClick={() => {
+                              setLetterToDelete(letter);
+                              setDeleteDialogOpen(true);
+                            }}
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
+
                         </TableCell>
                       </TableRow>
                     );
@@ -359,7 +392,31 @@ export default function LettersClient({
             <PaginationFooter totalItems={letters.length} itemsPerPage={10} />
           </div>
         </div>
+
+        {/* Delete Confirmation Dialog */}
+        <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Delete Letter</DialogTitle>
+            </DialogHeader>
+            <div>Are you sure you want to delete this letter?</div>
+            <DialogFooter className="gap-2">
+              <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button
+                className="bg-red-600 text-white hover:bg-red-700"
+                onClick={handleDeleteConfirmed}
+              >
+                Delete
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
       </SidebarInset>
+
+      {/* Letter Details Sheet */}
       <LetterDetails
         open={openSheet}
         onOpenChange={setOpenSheet}
