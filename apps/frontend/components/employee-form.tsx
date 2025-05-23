@@ -72,7 +72,23 @@ export function EmployeeForm() {
         <Label>Last Name</Label>
         <Input placeholder="Enter last name" />
       </div>
-
+      <div className='w-full'>
+        <Label>Address</Label>
+        <Input placeholder="Enter address" />
+      </div>
+      {/*Status */}
+       <div>
+        <Label>Contract</Label>
+        <Select>
+          <SelectTrigger>
+            <SelectValue placeholder="Choose Contract" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="active">Active</SelectItem>
+            <SelectItem value="not active">Not Active</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
       {/* Gender and Education */}
       <div>
         <Label>Gender</Label>

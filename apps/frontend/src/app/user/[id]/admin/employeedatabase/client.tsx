@@ -206,7 +206,7 @@ export default function EmployeeDatabaseClient({
           </div>
         </header>
         <div className="flex flex-1 flex-col gap-4 p-10 pt-5">
-          <EmployeeInformation/>
+          <EmployeeInformation />
 
           <div className="border border-gray-300 rounded-md p-4">
             {/* Header */}
@@ -286,7 +286,16 @@ export default function EmployeeDatabaseClient({
                     <TableCell>{emp.position}</TableCell>
                     <TableCell>{emp.grade}</TableCell>
                     <TableCell>
-                      <Switch defaultChecked={emp.status} />
+                      <div className="flex items-center">
+                        <span
+                          className={`px-2 py-1 rounded text-xs text-white ${emp.status
+                              ? 'bg-green-600'
+                              : 'bg-gray-400'
+                            }`}
+                        >
+                          {emp.status ? 'Active' : 'Not Active'}
+                        </span>
+                      </div>
                     </TableCell>
                     <TableCell className="flex gap-2">
                       <Button
