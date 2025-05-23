@@ -48,36 +48,6 @@ import LetterDetails from '@/components/letter-details';
 import { useEffect } from 'react';
 import api from '@/lib/axios';
 
-const letters = [
-  {
-    id: 1,
-    employeeName: 'John Doe',
-    position: 'Software Engineer',
-    letterName: 'Employee of the Month',
-    letterType: 'Award',
-    validUntil: '01 Desember 2025',
-    status: 'Active',
-  },
-  {
-    id: 2,
-    employeeName: 'Jane Smith',
-    position: 'Project Manager',
-    letterName: 'Work From Home Approval',
-    letterType: 'Permission',
-    validUntil: '01 Januari 2023',
-    status: 'Not Active',
-  },
-  {
-    id: 3,
-    employeeName: 'Alice Johnson',
-    position: 'UX Designer',
-    letterName: 'Training Completion Certificate',
-    letterType: 'Certificate',
-    validUntil: '15 Maret 2024',
-    status: 'Not Active',
-  },
-];
-
 type LettersClientProps = {
   isAdmin: boolean;
   userId: string;
@@ -95,8 +65,12 @@ export default function LettersClient({
     avatar: '',
   });
 
+  const [employees, setEmployees] = useState<Record<string, any>>({});
+  const [letterTypeMap, setLetterTypeMap] = useState<Record<string, any>>({});
+  const [letters, setLetters] = useState<any[]>([]);
+
   useEffect(() => {
-    async function fetchUser() {
+    async function fetchData() {
       try {
         const res = await api.get(`/api/employee/${userId}`);
         const { first_name, last_name, email, pict_dir } = res.data.data;
@@ -106,15 +80,38 @@ export default function LettersClient({
           email: email,
           avatar: pict_dir || '/avatars/default.jpg',
         });
+
+        const [lettersRes, employeesRes, typesRes] = await Promise.all([
+          api.get(`/api/letter?company_id=${companyId}`),
+          api.get(`/api/employee?company_id=${companyId}`),
+          api.get(`/api/letterType?company_id=${companyId}`),
+        ]);
+
+        const employeeMap: Record<string, any> = {};
+        for (const emp of employeesRes.data ?? []) {
+          employeeMap[emp.id] = emp;
+        }
+        setEmployees(employeeMap);
+
+        const typeMap: Record<string, any> = {};
+        for (const type of typesRes.data ?? []) {
+          typeMap[type.id] = type;
+        }
+        setLetterTypeMap(typeMap);
+
+        setLetters(lettersRes.data ?? []);
       } catch (err: any) {
         console.error(
-          'Error fetching user:',
+          'Error fetching data:',
           err.response?.data || err.message,
         );
+        setLetters([]);
+        setEmployees({});
+        setLetterTypeMap({});
       }
     }
 
-    fetchUser();
+    fetchData();
   }, [userId]);
 
   const [openSheet, setOpenSheet] = useState(false);
@@ -203,47 +200,73 @@ export default function LettersClient({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {letters.map((letter) => (
-                  <TableRow key={letter.id}>
-                    <TableCell>{letter.letterName}</TableCell>
-                    <TableCell>{letter.letterType}</TableCell>
-                    <TableCell>{letter.validUntil}</TableCell>
-                    <TableCell>
-                      <div className="flex items-center">
-                        <span
-                          className={`px-2 py-1 rounded text-xs text-white ${
-                            letter.status === 'Active'
-                              ? 'bg-green-600'
-                              : 'bg-gray-400'
-                          }`}
-                        >
-                          {letter.status}
-                        </span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex gap-2">
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="hover:text-white hover:bg-blue-600"
-                          onClick={() => handleViewDetails(letter)}
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        <Link href={`download/${letter.id}`}>
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            className="hover:text-white hover:bg-green-600"
-                          >
-                            <Download />
-                          </Button>
-                        </Link>
-                      </div>
+                {letters.length === 0 ? (
+                  <TableRow>
+                    <TableCell
+                      colSpan={6}
+                      className="text-center text-gray-500 py-6"
+                    >
+                      No letter data available.
                     </TableCell>
                   </TableRow>
-                ))}
+                ) : (
+                  letters.map((letter) => {
+                    const letterType = letterTypeMap[letter.lettertype_id];
+
+                    return (
+                      <TableRow key={letter.id}>
+                        <TableCell>{letter.name}</TableCell>
+                        <TableCell>
+                          {letterType ? letterType.name : 'Unknown'}
+                        </TableCell>
+                        <TableCell>
+                          {new Date(letter.valid_until).toLocaleDateString(
+                            'id-ID',
+                            {
+                              day: '2-digit',
+                              month: 'long',
+                              year: 'numeric',
+                            },
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center">
+                            <span
+                              className={`px-2 py-1 rounded text-xs text-white ${
+                                letter.is_active
+                                  ? 'bg-green-600'
+                                  : 'bg-gray-400'
+                              }`}
+                            >
+                              {letter.is_active ? 'Active' : 'Not Active'}
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex gap-2">
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              className="hover:text-white hover:bg-blue-600"
+                              onClick={() => handleViewDetails(letter)}
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            <Link href={`download/${letter.id}`}>
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                className="hover:text-white hover:bg-green-600"
+                              >
+                                <Download />
+                              </Button>
+                            </Link>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
+                )}
               </TableBody>
             </Table>
 
