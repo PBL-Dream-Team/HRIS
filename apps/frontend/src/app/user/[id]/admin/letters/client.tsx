@@ -37,6 +37,7 @@ import LetterDetails from '@/components/letter-details';
 import { Eye } from 'lucide-react';
 import api from '@/lib/axios';
 import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 import {
   DropdownMenu,
@@ -60,36 +61,6 @@ import { VscSettings } from 'react-icons/vsc';
 import { IoMdAdd, IoMdSearch } from 'react-icons/io';
 import { Download } from 'lucide-react';
 
-const letters = [
-  {
-    id: 1,
-    employeeName: 'John Doe',
-    position: 'Software Engineer',
-    letterName: 'Employee of the Month',
-    letterType: 'Award',
-    validUntil: '01 Desember 2025',
-    status: 'Active',
-  },
-  {
-    id: 2,
-    employeeName: 'Jane Smith',
-    position: 'Project Manager',
-    letterName: 'Work From Home Approval',
-    letterType: 'Permission',
-    validUntil: '01 Januari 2023',
-    status: 'Not Active',
-  },
-  {
-    id: 3,
-    employeeName: 'Alice Johnson',
-    position: 'UX Designer',
-    letterName: 'Training Completion Certificate',
-    letterType: 'Certificate',
-    validUntil: '15 Maret 2024',
-    status: 'Not Active',
-  },
-];
-
 type LettersClientProps = {
   isAdmin: boolean;
   userId: string;
@@ -107,8 +78,13 @@ export default function LettersClient({
     avatar: '',
   });
 
+  const router = useRouter();
+  const [letters, setLetters] = useState<any[]>([]);
+  const [letterTypes, setLetterTypes] = useState<any[]>([]);
+  
+
   useEffect(() => {
-    async function fetchUser() {
+    async function fetchData() {
       try {
         const res = await api.get(`/api/employee/${userId}`);
         const { first_name, last_name, email, pict_dir } = res.data.data;
@@ -118,15 +94,26 @@ export default function LettersClient({
           email: email,
           avatar: pict_dir || '/avatars/default.jpg',
         });
+
+        const letterRes = await api.get(`/api/letter?company_id=${companyId}`);
+        setLetters(letterRes.data ?? []);
+
+        // Fetch letter types
+        const typeRes = await api.get(
+          `/api/letterType?company_id=${companyId}`,
+        );
+        setLetterTypes(typeRes.data ?? []);
       } catch (err: any) {
         console.error(
           'Error fetching user:',
           err.response?.data || err.message,
         );
+        setLetters([]);
+        setLetterTypes([]);
       }
     }
 
-    fetchUser();
+    fetchData();
   }, [userId]);
   const [openSheet, setOpenSheet] = useState(false);
   const [selectedLetter, setselectedLetter] = useState<any>(null);
@@ -211,7 +198,10 @@ export default function LettersClient({
                     <DialogHeader>
                       <DialogTitle>Add Letter Type</DialogTitle>
                     </DialogHeader>
-                    <LetterTypeForm />
+                    <LetterTypeForm
+                      companyId={companyId}
+                      onSuccess={() => router.refresh()}
+                    />
                   </DialogContent>
                 </Dialog>
                 <Dialog>
@@ -224,7 +214,11 @@ export default function LettersClient({
                     <DialogHeader>
                       <DialogTitle>Add Letter</DialogTitle>
                     </DialogHeader>
-                    <LetterForm />
+                    <LetterForm
+                      mode="create"
+                      companyId={companyId}
+                      onSuccess={() => router.refresh()}
+                    />
                   </DialogContent>
                 </Dialog>
               </div>
@@ -243,73 +237,96 @@ export default function LettersClient({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {letters.map((letter) => (
-                  <TableRow key={letter.id}>
-                    <TableCell>{letter.employeeName}</TableCell>
-                    <TableCell>{letter.letterName}</TableCell>
-                    <TableCell>{letter.letterType}</TableCell>
-                    <TableCell>{letter.validUntil}</TableCell>
-                    <TableCell>
-                      <div className="flex items-center">
-                        <span
-                          className={`px-2 py-1 rounded text-xs text-white ${
-                            letter.status === 'Active'
-                              ? 'bg-green-600'
-                              : 'bg-gray-400'
-                          }`}
-                        >
-                          {letter.status}
-                        </span>
-                      </div>
+                {letters.length === 0 ? (
+                  <TableRow>
+                    <TableCell
+                      colSpan={6}
+                      className="text-center text-gray-500 py-6"
+                    >
+                      No letter data available.
                     </TableCell>
-                    <TableCell className="flex gap-2">
-                      <Link href={`download/${letter.id}`}>
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="hover:text-white hover:bg-green-600"
-                        >
-                          <Download />
-                        </Button>
-                      </Link>
-
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        className="hover:text-white hover:bg-blue-600"
-                        onClick={() => handleViewDetails(letter)}
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button>
-
-                      <Dialog>
-                        <DialogTrigger asChild>
+                  </TableRow>
+                ) : (
+                  letters.map((letter) => (
+                    <TableRow key={letter.id}>
+                      <TableCell>{letter.employee_id}</TableCell>
+                      <TableCell>{letter.name}</TableCell>
+                      <TableCell>{letter.lettertype_id}</TableCell>
+                      <TableCell>
+                        {new Date(letter.valid_until).toLocaleDateString(
+                          'id-ID',
+                          {
+                            day: '2-digit',
+                            month: 'long',
+                            year: 'numeric',
+                          },
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center">
+                          <span
+                            className={`px-2 py-1 rounded text-xs text-white ${
+                              letter.is_active ? 'bg-green-600' : 'bg-gray-400'
+                            }`}
+                          >
+                            {letter.is_active ? 'Active' : 'Not Active'}
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="flex gap-2">
+                        <Link href={`download/${letter.id}`}>
                           <Button
                             variant="outline"
                             size="icon"
-                            className="hover:text-white hover:bg-yellow-500"
+                            className="hover:text-white hover:bg-green-600"
                           >
-                            <Pencil className="h-4 w-4" />
+                            <Download />
                           </Button>
-                        </DialogTrigger>
-                        <DialogContent className="max-w-2xl">
-                          <DialogHeader>
-                            <DialogTitle>Edit Letter</DialogTitle>
-                          </DialogHeader>
-                          <LetterForm />
-                        </DialogContent>
-                      </Dialog>
+                        </Link>
 
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        className="hover:text-white hover:bg-red-600"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="hover:text-white hover:bg-blue-600"
+                          onClick={() => handleViewDetails(letter)}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              className="hover:text-white hover:bg-yellow-500"
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="max-w-2xl">
+                            <DialogHeader>
+                              <DialogTitle>Edit Letter</DialogTitle>
+                            </DialogHeader>
+                            <LetterForm
+                              mode="edit"
+                              companyId={companyId}
+                              initialData={letter}
+                              onSuccess={() => router.refresh()}
+                            />
+                          </DialogContent>
+                        </Dialog>
+
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="hover:text-white hover:bg-red-600"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
               </TableBody>
             </Table>
 
