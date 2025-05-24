@@ -3,7 +3,7 @@
 import { AppSidebar } from '@/components/app-sidebar';
 import { MailPlus } from 'lucide-react';
 import { DataTable } from '@/components/data-table';
-import { letterColumns, Letter } from '@/components/columns/letters';
+import { letterColumns, Letter } from '@/components/columns/letters-admin';
 
 import {
   Breadcrumb,
