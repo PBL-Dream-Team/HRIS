@@ -22,6 +22,7 @@ import { FaFile } from 'react-icons/fa6';
 import api from '@/lib/axios';
 import { parse } from 'date-fns';
 import { id } from 'date-fns/locale';
+import { toast } from 'sonner';
 
 type LetterFormProps = {
   mode: 'create' | 'edit';
@@ -64,7 +65,7 @@ export function LetterForm({
     e.preventDefault();
 
     if (!employeeId || !letterTypeId || !letterName || !date || !status) {
-      alert('Please complete all fields');
+      toast.error('Please fill in all required fields.');
       return;
     }
 
@@ -87,7 +88,7 @@ export function LetterForm({
         await api.put(`/api/letter/${initialData.id}`, formData);
       }
 
-      alert(
+      toast.success(
         `Letter ${mode === 'create' ? 'created' : 'updated'} successfully!`,
       );
       onSuccess?.();
@@ -96,7 +97,7 @@ export function LetterForm({
       for (const [key, value] of formData.entries()) {
         console.log(`${key}:`, value);
       }
-      alert('Something went wrong.');
+      toast.error('Something went wrong.');
     }
   };
 

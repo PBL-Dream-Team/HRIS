@@ -15,6 +15,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { toast } from 'sonner';
 
 export function NavUser({
   user,
@@ -34,7 +35,7 @@ export function NavUser({
       const res = await api.post('/api/auth/logout', {
         withCredentials: true,
       });
-      alert(res.data.message);
+      toast.success(res.data.message);
       router.push('/signin');
     } catch (error) {
       console.error('Logout error:', error);

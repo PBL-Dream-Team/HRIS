@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { DialogFooter } from '@/components/ui/dialog';
 import api from '@/lib/axios';
+import { toast } from 'sonner';
 
 type LetterTypeFormProps = {
   companyId: string;
@@ -20,7 +21,7 @@ export function LetterTypeForm({ companyId, onSuccess }: LetterTypeFormProps) {
     e.preventDefault();
 
     if (!name || !content || !companyId) {
-      alert('Please fill in all fields.');
+      toast.error('Please fill in all fields.');
       return;
     }
 
@@ -32,13 +33,12 @@ export function LetterTypeForm({ companyId, onSuccess }: LetterTypeFormProps) {
 
     try {
       await api.post('/api/letterType', payload);
-      alert('Letter type created successfully!');
+      toast.success('Letter type created successfully!');
       setName('');
       setContent('');
       onSuccess?.();
     } catch (error) {
-      console.error('Failed to submit letter type:', error);
-      alert('Failed to create letter type.');
+      toast.error('Failed to create letter type.');
     }
   };
 

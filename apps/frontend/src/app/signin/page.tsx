@@ -5,12 +5,12 @@ import Image from 'next/image';
 import api from '@/lib/axios';
 import { useState } from 'react';
 import type { FormEvent } from 'react';
-import { AlertDestructive } from '@/components/alert/error';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 
 export default function HrLoginPage() {
   const [checked, setChecked] = useState(false);
@@ -34,7 +34,7 @@ export default function HrLoginPage() {
       router.push('/redirect');
     } catch (error) {
       console.error(error);
-      <AlertDestructive />;
+      toast.error('Login failed. Please check your credentials and try again.');
     }
   }
 
