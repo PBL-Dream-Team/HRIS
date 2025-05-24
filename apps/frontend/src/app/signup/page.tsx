@@ -20,6 +20,7 @@ import {
 export default function HrSignUpPage() {
   const [checked, setChecked] = useState(false);
   const [formData, setFormData] = useState({
+    name: '',
     first_name: '',
     last_name: '',
     email: '',
@@ -40,6 +41,7 @@ export default function HrSignUpPage() {
 
     try {
       const res = await api.post('/api/auth/signup', {
+        name: formData.name,
         first_name: formData.first_name,
         last_name: formData.last_name,
         email: formData.email,
@@ -94,6 +96,18 @@ export default function HrSignUpPage() {
           </p>
 
           <form className="space-y-4" onSubmit={handleSubmit}>
+            <div className="w-full">
+                <Label htmlFor="name" className="text-blue-900 mb-2">
+                  Company Name
+                </Label>
+                <Input
+                  id="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  placeholder="Enter your company name"
+                  className="text-gray-700 border-zinc-600"
+                />
+              </div>
             {/* First and Last Name */}
             <div className="flex gap-4">
               <div className="w-full">
