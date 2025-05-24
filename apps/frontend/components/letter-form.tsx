@@ -20,6 +20,8 @@ import { Calendar } from '@/components/ui/calendar';
 import { DialogFooter } from '@/components/ui/dialog';
 import { FaFile } from 'react-icons/fa6';
 import api from '@/lib/axios';
+import { parse } from 'date-fns';
+import { id } from 'date-fns/locale';
 
 type LetterFormProps = {
   mode: 'create' | 'edit';
@@ -98,21 +100,28 @@ export function LetterForm({
     }
   };
 
-useEffect(() => {
-  if (
-    initialData &&
-    employees.length > 0 &&
-    letterTypes.length > 0
-  ) {
-    setEmployeeId(initialData.employee_id || '');
-    setLetterTypeId(initialData.lettertype_id || '');
-    setLetterName(initialData.name || '');
-    setLetterDesc(initialData.desc || '');
-    setStatus(initialData.is_active ? 'active' : 'notactive');
-    setDate(initialData.valid_until ? new Date(initialData.valid_until) : undefined);
-    setSelectedFile(null);
-  }
-}, [initialData, employees, letterTypes]);
+  useEffect(() => {
+    if (initialData && employees.length > 0 && letterTypes.length > 0) {
+      setEmployeeId(initialData.employee_id || '');
+      setLetterTypeId(initialData.lettertype_id || '');
+      setLetterName(initialData.name || '');
+      setLetterDesc(initialData.desc || '');
+      setStatus(initialData.is_active ? 'active' : 'notactive');
+
+      let parsedDate: Date | undefined = undefined;
+      if (initialData.valid_until) {
+        try {
+          parsedDate = parse(initialData.valid_until, 'dd MMMM yyyy', new Date(), { locale: id });
+          if (isNaN(parsedDate.getTime())) parsedDate = undefined;
+        } catch {
+          parsedDate = undefined;
+        }
+      }
+
+      setDate(parsedDate);
+      setSelectedFile(null);
+    }
+  }, [initialData, employees, letterTypes]);
 
   useEffect(() => {
     const fetchOptions = async () => {

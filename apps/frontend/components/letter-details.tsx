@@ -15,6 +15,7 @@ type Letter = {
   position: string;
   letterName: string;
   letterType: string;
+  description: string;
   validUntil: string;
   status: string;
 };
@@ -43,18 +44,14 @@ export default function LetterDetails({
         ]);
 
         const employee = employeeRes.data.data;
-        const letterType = letterTypeRes.data;
 
         const finalLetter: Letter = {
           employeeName: `${employee.first_name} ${employee.last_name}`,
           position: employee.position || '-',
           letterName: selectedLetter.name,
-          letterType: letterType.name,
-          validUntil: new Date(selectedLetter.valid_until).toLocaleDateString('id-ID', {
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric',
-          }),
+          letterType: selectedLetter.letter_type,
+          description: selectedLetter.desc,
+          validUntil: selectedLetter.valid_until,
           status: selectedLetter.is_active ? 'Active' : 'Inactive',
         };
 
@@ -102,6 +99,10 @@ export default function LetterDetails({
               <div>
                 <p className="text-muted-foreground text-xs">Letter Type</p>
                 <p className="font-medium">{letter.letterType}</p>
+              </div>
+              <div>
+                <p className="text-muted-foreground text-xs">Description</p>
+                <p className="font-medium">{letter.description}</p>
               </div>
               <div>
                 <p className="text-muted-foreground text-xs">Valid Until</p>

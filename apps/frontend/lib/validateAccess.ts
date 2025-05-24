@@ -15,7 +15,7 @@ export async function validateAccess({
   currentPathId,
   section,
 }: ValidateAccessOptions) {
-  const cookieStore = await cookies(); // Tidak perlu await, cookies() bukan async
+  const cookieStore = await cookies();
   const token = cookieStore.get('jwt')?.value;
 
   const redirectPath = requireAdmin ? '/signin' : '/signin/employee';
