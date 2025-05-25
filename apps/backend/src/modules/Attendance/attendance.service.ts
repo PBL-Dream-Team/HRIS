@@ -90,6 +90,8 @@ export class AttendanceService {
 
     const old = await this.prisma.absenceLeave.findFirst({where:{id:attendanceId}});
 
+    
+
     if(file){
       const filename = `${Date.now()}_${file.originalname}`;
       AttendanceData.filedir = filename;
