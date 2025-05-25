@@ -1,8 +1,7 @@
 'use client';
 
 import { AppSidebar } from '@/components/app-sidebar';
-import { useState } from 'react';
-import { useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import api from '@/lib/axios';
 
 import {
@@ -56,9 +55,22 @@ import { VscSettings } from 'react-icons/vsc';
 import { IoMdAdd, IoMdSearch } from 'react-icons/io';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { useRouter } from 'next/navigation';
 
-let checkclocks;
+type CheckClockProcessed = {
+  id: string;
+  employee_id: string;
+  name: string;
+  avatarUrl?: string;
+  position: string;
+  date: string
+  clockIn: string;
+  clockOut: string;
+  workHours: string;
+  status: string;
+  approval: string;
+  originalData?: any;
+};
+
 
 type CheckClockClientProps = {
   isAdmin: boolean;
@@ -78,9 +90,11 @@ export function getTimeRangeInHours(startTime: string | Date, endTime: string | 
   };
   const start = parseTime(startTime);
   const end = parseTime(endTime);
+
   if (end < start) {
     end.setDate(end.getDate() + 1);
   }
+
   const diffMs = end.getTime() - start.getTime();
   return diffMs / (1000 * 60 * 60);
 }
@@ -89,11 +103,14 @@ export function formatTimeOnly(input: Date | string): string {
   const pad = (n: number) => n.toString().padStart(2, '0');
 
   if (typeof input === 'string') {
-    // "17:02:24.000Z" → "17:02:24"
-    return input.split('.')[0];
+    const timePart = input.split('.')[0];
+    if (timePart.includes('T')) {
+        const dateObj = new Date(input);
+        return `${pad(dateObj.getHours())}:${pad(dateObj.getMinutes())}:${pad(dateObj.getSeconds())}`;
+    }
+    return timePart;
   }
 
-  // Input is Date
   return `${pad(input.getHours())}:${pad(input.getMinutes())}:${pad(input.getSeconds())}`;
 }
 
@@ -108,20 +125,22 @@ export default function CheckClockClient({
     avatar: '',
   });
 
-  
+  const [employees, setEmployee] = useState<Record<string, any>>({});
+  const [attendanceType, setAttendanceType] = useState<Record<string, any>>({});
+  const [attendances, setAttendance] = useState<any[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
-  const router = useRouter();
-  const [employees,setEmployee] = useState<Record<string,any>>();
-  const [attendanceType,setAttendanceType] = useState<Record<string,any>>(); 
-  const [attendances,setAttendance] = useState<any[]>([]);
-  const [currentPage, setCurrentPage] = useState(1)
-  const itemsPerPage = 10
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchData() {
+      setIsLoading(true);
+      setError(null);
       try {
-        const res = await api.get(`/api/employee/${userId}`);
-        const { first_name, last_name, email, pict_dir } = res.data.data;
+        const userRes = await api.get(`/api/employee/${userId}`);
+        const { first_name, last_name, email, pict_dir } = userRes.data.data;
 
         setUser({
           name: `${first_name} ${last_name}`,
@@ -132,7 +151,7 @@ export default function CheckClockClient({
         const [attendanceRes, employeeRes, typeRes] = await Promise.all([
           api.get(`api/attendance?company_id=${companyId}`),
           api.get(`api/employee?company_id=${companyId}`),
-          api.get(`api/attendanceType?company_id=${companyId}`)
+          api.get(`api/attendanceType?company_id=${companyId}`),
         ]);
 
         const employeeMap: Record<string, any> = {};
@@ -141,53 +160,80 @@ export default function CheckClockClient({
         }
         setEmployee(employeeMap);
 
-        const typeMap: Record<string,any> = {};
-        for (const typ of typeRes.data ?? []){
+        const typeMap: Record<string, any> = {};
+        for (const typ of typeRes.data ?? []) {
           typeMap[typ.id] = typ;
         }
         setAttendanceType(typeMap);
 
         setAttendance(attendanceRes.data ?? []);
-
       } catch (err: any) {
         console.error(
-          'Error fetching user:',
+          'Error fetching data:',
           err.response?.data || err.message,
         );
+        setError('Failed to fetch data. Please try again.');
         setAttendance([]);
-        setEmployee([]);
-        setAttendanceType([]);
-
+        setEmployee({});
+        setAttendanceType({});
+      } finally {
+        setIsLoading(false);
       }
     }
 
-    fetchData();
-  }, [userId]);
+    if (userId && companyId) {
+        fetchData();
+    }
+  }, [userId, companyId]);
 
-  checkclocks = attendances.map((attendance)=>({ //IDK why, employee tetep ada nilainya
-    id: attendance.id,
-    employee_id: attendance.employee_id,
-    name: employees[attendance.employee_id]
-      ? `${employees[attendance.employee_id].first_name} ${employees[attendance.employee_id].last_name}`
-      : 'Unknown',
-    position: employees[attendance.employee_id]
-      ? `${employees[attendance.employee_id].position}`
-      : 'Unknown',
-    date: attendance.created_at,
-    clockIn: formatTimeOnly(attendance.check_in),
-    clockOut:attendance.check_out ? formatTimeOnly(attendance.check_out) : '-',
-    workHours: (attendance.check_out) ? getTimeRangeInHours(attendance.check_in, attendance.check_out) : '0h',
-    status: attendance.check_in_status,
-    approval: attendance.approval
-  }));
+  const checkclocks = useMemo<CheckClockProcessed[]>(() => {
+    return attendances.map((attendance) => {
+      const employeeData = employees[attendance.employee_id];
+      return {
+        id: attendance.id,
+        employee_id: attendance.employee_id,
+        name: employeeData
+          ? `${employeeData.first_name} ${employeeData.last_name}`
+          : 'Unknown Employee',
+        avatarUrl: employeeData?.pict_dir || undefined,
+        position: employeeData ? `${employeeData.position}` : 'N/A',
+        date: attendance.created_at ? new Date(attendance.created_at).toLocaleDateString() : 'N/A',
+        clockIn: attendance.check_in ? formatTimeOnly(attendance.check_in) : '-',
+        clockOut: attendance.check_out ? formatTimeOnly(attendance.check_out) : '-',
+        workHours: attendance.check_in && attendance.check_out
+          ? `${getTimeRangeInHours(attendance.check_in, attendance.check_out).toFixed(2)}h`
+          : '0h',
+        status: attendance.check_in_status || 'N/A',
+        approval: attendance.approval || 'N/A',
+        originalData: attendance,
+      };
+    });
+  }, [attendances, employees]);
 
   const [openSheet, setOpenSheet] = useState(false);
-  const [selectedCheckClock, setselectedCheckClock] = useState<any>(null);
+  const [selectedCheckClock, setSelectedCheckClock] = useState<CheckClockProcessed | null>(null);
 
-  const handleViewDetails = (checkclock: any) => {
-    setselectedCheckClock(checkclock);
+  const handleViewDetails = (checkclock: CheckClockProcessed) => {
+    setSelectedCheckClock(checkclock);
     setOpenSheet(true);
   };
+
+  // Pagination logic
+  const paginatedCheckclocks = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return checkclocks.slice(startIndex, endIndex);
+  }, [checkclocks, currentPage, itemsPerPage]);
+
+  if (isLoading) {
+    // Optional: Render a loading state
+    return <div className="p-10">Loading...</div>;
+  }
+
+  if (error) {
+    // Optional: Render an error message
+    return <div className="p-10 text-red-500">{error}</div>;
+  }
 
   return (
     <SidebarProvider>
@@ -210,49 +256,19 @@ export default function CheckClockClient({
           </div>
 
           <div className="flex items-center gap-4">
-            {/* Notification */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="relative p-2 rounded-md hover:bg-muted focus:outline-none">
-                  <Bell className="h-5 w-5" />
-                  <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-red-500" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                className="min-w-56 rounded-lg"
-                side="bottom"
-                sideOffset={8}
-                align="end"
-              >
-                <DropdownMenuLabel>Notifications</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>New user registered</DropdownMenuItem>
-                <DropdownMenuItem>Monthly report is ready</DropdownMenuItem>
-                <DropdownMenuItem>Server restarted</DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-center text-blue-600 hover:text-blue-700">
-                  View all
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            {/* Nav-user */}
             <NavUser user={user} isAdmin={isAdmin} />
           </div>
         </header>
 
         <div className="flex flex-1 flex-col gap-4 p-10 pt-5">
           <div className="border border-gray-300 rounded-md p-4">
-            {/* Header */}
             <div className="flex items-center justify-between p-4 border-b">
               <h2 className="text-lg font-semibold">Checkclock Overview</h2>
-              {/* Search Input */}
               <div className="relative w-96 hidden lg:block">
                 <IoMdSearch className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-500" />
                 <Input type="search" placeholder="Search" className="pl-10" />
+                {/* Add onChange handler and state for search functionality */}
               </div>
-
-              {/* Buttons */}
               <div className="flex flex-col gap-2 md:flex-row md:flex-wrap md:gap-2">
                 <Button variant="outline" className="w-full md:w-auto">
                   <VscSettings className="h-4 w-4 mr-1" /> Filter
@@ -267,110 +283,121 @@ export default function CheckClockClient({
                     <DialogHeader>
                       <DialogTitle>Add Check Clock</DialogTitle>
                     </DialogHeader>
-                    <CheckClockForm />
+                    {/* Pass companyId and other necessary props to CheckClockForm */}
+                    <CheckClockForm /* companyId={companyId} employees={employees} attendanceTypes={attendanceType} */ />
                   </DialogContent>
                 </Dialog>
               </div>
             </div>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Avatar</TableHead>
+                    <TableHead>Employee Name</TableHead>
+                    <TableHead>Position</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Clock In</TableHead>
+                    <TableHead>Clock Out</TableHead>
+                    <TableHead>Work Hours</TableHead>
+                    <TableHead>Approve</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {paginatedCheckclocks.map((checkclock) => {
+                    let approveContent;
+                    let statusString;
 
-            {/* Table */}
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Avatar</TableHead>
-                  <TableHead>Employee Name</TableHead>
-                  <TableHead>Position</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Clock In</TableHead>
-                  <TableHead>Clock Out</TableHead>
-                  <TableHead>Work Hours</TableHead>
-                  <TableHead>Approve</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {checkclocks.map((checkclock, i) => {
-                  let approveContent;
-                  let statusString;
-                  switch(checkclock.status){
-                    case 'ON_TIME':
-                      statusString = "On Time";
-                      break;
-                    case 'EARLY':
-                      statusString = "Early";
-                      break;
-                    case 'LATE':
-                      statusString = "Late";
-                      break;
-                  }
+                    switch (checkclock.status) {
+                      case 'ON_TIME':
+                        statusString = 'On Time';
+                        break;
+                      case 'EARLY':
+                        statusString = 'Early';
+                        break;
+                      case 'LATE':
+                        statusString = 'Late';
+                        break;
+                      default:
+                        statusString = checkclock.status || 'N/A';
+                    }
 
-                  switch (checkclock.approval) {
-                    case 'PENDING':
-                      approveContent = (
-                        <div className="flex gap-1">
-                          <Button size="icon" variant="outline">
-                            <Check className="text-green-600 w-4 h-4" />
+                    switch (checkclock.approval) {
+                      case 'PENDING':
+                        approveContent = (
+                          <div className="flex gap-1">
+                            {/* Add onClick handlers for approval actions */}
+                            <Button size="icon" variant="outline" title="Approve">
+                              <Check className="text-green-600 w-4 h-4" />
+                            </Button>
+                            <Button size="icon" variant="outline" title="Disapprove">
+                              <X className="text-red-600 w-4 h-4" />
+                            </Button>
+                          </div>
+                        );
+                        break;
+                      case 'APPROVED':
+                        approveContent = (
+                           <div className="flex items-center">
+                            <span className="h-2 w-2 rounded-full bg-green-600 inline-block mr-2" />
+                            Approved
+                          </div>
+                        );
+                        break;
+                      case 'DISAPPROVED':
+                         approveContent = (
+                          <div className="flex items-center">
+                            <span className="h-2 w-2 rounded-full bg-red-500 inline-block mr-2" />
+                            Rejected
+                          </div>
+                        );
+                        break;
+                      default:
+                        approveContent = checkclock.approval || 'N/A';
+                    }
+
+                    return (
+                      <TableRow key={checkclock.id}>
+                        <TableCell>
+                          <Avatar className="h-8 w-8 rounded-lg">
+                            <AvatarImage src={checkclock.avatarUrl || '/avatars/default-avatar.png'} alt={checkclock.name} />
+                            <AvatarFallback className="rounded-lg">
+                              {checkclock.name
+                                .split(' ')
+                                .map((n) => n[0])
+                                .join('')
+                                .toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                        </TableCell>
+                        <TableCell>{checkclock.name}</TableCell>
+                        <TableCell>{checkclock.position}</TableCell>
+                        <TableCell>{checkclock.date}</TableCell>
+                        <TableCell>{checkclock.clockIn}</TableCell>
+                        <TableCell>{checkclock.clockOut}</TableCell>
+                        <TableCell>{checkclock.workHours}</TableCell>
+                        <TableCell>{approveContent}</TableCell>
+                        <TableCell>
+                          <span className="text-black">{statusString}</span>
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="hover:text-white hover:bg-blue-600"
+                            onClick={() => handleViewDetails(checkclock)}
+                            title="View Details"
+                          >
+                            <Eye className="h-4 w-4" />
                           </Button>
-                          <Button size="icon" variant="outline">
-                            <X className="text-red-600 w-4 h-4" />
-                          </Button>
-                        </div>
-                      );
-                      break;
-                    case 'APPROVED':
-                      approveContent = (
-                        <span className="h-2 w-2 rounded-full bg-green-600 inline-block" />
-                      );
-                      break;
-                    case 'DISAPPROVED':
-                      approveContent = (
-                        <span className="h-2 w-2 rounded-full bg-yellow-500 inline-block" />
-                      );
-                      break;
-                  }
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
 
-                  return (
-                    <TableRow key={i}>
-                      <TableCell>
-                        <Avatar className="h-8 w-8 rounded-lg">
-                          <AvatarImage src="/avatars/user.jpg" alt="avatar" />
-                          <AvatarFallback className="rounded-lg">
-                            {checkclock.name
-                              .split(' ')
-                              .map((n) => n[0])
-                              .join('')
-                              .toUpperCase()}
-                          </AvatarFallback>
-                        </Avatar>
-                      </TableCell>
-                      <TableCell>{checkclock.name}</TableCell>
-                      <TableCell>{checkclock.position}</TableCell>
-                      <TableCell>{checkclock.date}</TableCell>
-                      <TableCell>{checkclock.clockIn}</TableCell>
-                      <TableCell>{checkclock.clockOut}</TableCell>
-                      <TableCell>{checkclock.workHours}</TableCell>
-                      <TableCell>{approveContent}</TableCell>
-                      <TableCell>
-                        <span className="text-black">{statusString}</span>
-                      </TableCell>
-                      <TableCell>
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="hover:text-white hover:bg-blue-600"
-                          onClick={() => handleViewDetails(checkclock)}
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-
-            {/* Pagination */}
             <PaginationFooter
               totalItems={checkclocks.length}
               itemsPerPage={itemsPerPage}
@@ -381,11 +408,13 @@ export default function CheckClockClient({
         </div>
       </SidebarInset>
 
-      <CheckClockDetails
-        open={openSheet}
-        onOpenChange={setOpenSheet}
-        selectedCheckClock={selectedCheckClock}
-      />
+      {selectedCheckClock && (
+        <CheckClockDetails
+          open={openSheet}
+          onOpenChange={setOpenSheet}
+          selectedCheckClock={selectedCheckClock.originalData || selectedCheckClock}
+        />
+      )}
     </SidebarProvider>
   );
 }

@@ -18,8 +18,10 @@ const markerIcon = new L.Icon({
 
 export default function LeafletMap({
   onLocationSelect,
+  onLoad,
 }: {
   onLocationSelect: (lat: number, lng: number, address: string) => void;
+  onLoad?: () => void;
 }) {
   const [position, setPosition] = useState<{ lat: number; lng: number } | null>(null);
   const [mapCenter, setMapCenter] = useState<[number, number]>([-6.2, 106.8]);
@@ -53,28 +55,31 @@ export default function LeafletMap({
   };
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          const { latitude, longitude } = pos.coords;
-          setPosition({ lat: latitude, lng: longitude });
-          setMapCenter([latitude, longitude]);
+  if (typeof window !== 'undefined' && navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { latitude, longitude } = pos.coords;
+        setPosition({ lat: latitude, lng: longitude });
+        setMapCenter([latitude, longitude]);
 
-          fetch(
-            `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
-          )
-            .then((res) => res.json())
-            .then((data) => {
-              const address = data.display_name || '';
-              onLocationSelect(latitude, longitude, address);
-            });
-        },
-        (err) => {
-          console.warn('GPS Error:', err);
-        }
-      );
-    }
-  }, []);
+        fetch(
+          `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
+        )
+          .then((res) => res.json())
+          .then((data) => {
+            const address = data.display_name || '';
+            onLocationSelect(latitude, longitude, address);
+            if (onLoad) onLoad(); // ✅ Panggil di sini setelah semua selesai
+          });
+      },
+      (err) => {
+        console.warn('GPS Error:', err);
+        if (onLoad) onLoad(); // ✅ Tetap panggil walau gagal
+      }
+    );
+  }
+}, []);
+
 
   return (
     <MapContainer
