@@ -22,18 +22,18 @@ export class AttendanceService {
   async createAttendance(dto: createAttendanceDto, file?: Express.Multer.File) {
     const AttendanceData : any = dto;
 
-    const type = await this.prisma.attendanceType.findFirst({where:{id:AttendanceData.type_id}})
+    const typ = await this.prisma.attendanceType.findFirst({where:{id:AttendanceData.type_id}})
 
-    AttendanceData.check_in_status = (isTimeAfter(new Date(AttendanceData.check_in), new Date(type.check_in))) ? "LATE" : "ON_TIME";
-    if(AttendanceData.check_out) AttendanceData.check_out_status = (isTimeAfter(new Date(type.check_out), new Date(AttendanceData.check_out))) ? "EARLY" : "ON_TIME";
+    AttendanceData.check_in_status = (isTimeAfter(new Date(AttendanceData.check_in), new Date(typ.check_in))) ? "LATE" : "ON_TIME";
+    if(AttendanceData.check_out) AttendanceData.check_out_status = (isTimeAfter(new Date(typ.check_out), new Date(AttendanceData.check_out))) ? "EARLY" : "ON_TIME";
     
     if(AttendanceData.check_in_status == "LATE") AttendanceData.approval = "PENDING";
     if(AttendanceData.check_out_status == "EARLY") AttendanceData.approval = "PENDING";
 
-    if(AttendanceData.check_in_lat > (type.workspace_lat + 100.0)) AttendanceData.approval = "PENDING";
-    if(AttendanceData.check_in_long > (type.workspace_long + 100.0)) AttendanceData.approval = "PENDING";
-    if(AttendanceData.check_out_lat > (type.workspace_lat + 100.0)) AttendanceData.approval = "PENDING";
-    if(AttendanceData.check_out_long > (type.workspace_long + 100.0)) AttendanceData.approval = "PENDING";
+    if(AttendanceData.check_in_lat > (typ.workspace_lat + 100.0)) AttendanceData.approval = "PENDING";
+    if(AttendanceData.check_in_long > (typ.workspace_long + 100.0)) AttendanceData.approval = "PENDING";
+    if(AttendanceData.check_out_lat > (typ.workspace_lat + 100.0)) AttendanceData.approval = "PENDING";
+    if(AttendanceData.check_out_long > (typ.workspace_long + 100.0)) AttendanceData.approval = "PENDING";
 
     if(file){const filename = `${Date.now()}_${file.originalname}`;
     AttendanceData.filedir = filename;}
