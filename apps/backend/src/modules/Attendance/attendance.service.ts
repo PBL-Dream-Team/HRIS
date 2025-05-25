@@ -88,7 +88,7 @@ export class AttendanceService {
   async updateAttendance(attendanceId: string, dto: editAttendanceDto, file?: Express.Multer.File) {
     const AttendanceData : any = dto;
 
-    const old = await this.prisma.absenceLeave.findFirst({where:{id:attendanceId}});
+    const old = await this.prisma.attendance.findFirst({where:{id:attendanceId}});
 
     
 
