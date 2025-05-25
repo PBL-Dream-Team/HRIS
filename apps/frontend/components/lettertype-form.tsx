@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -8,20 +8,50 @@ import { DialogFooter } from '@/components/ui/dialog';
 import api from '@/lib/axios';
 import { toast } from 'sonner';
 
+interface LetterType {
+  id: string;
+  name: string;
+  content: string;
+  company_id: string;
+}
+
 type LetterTypeFormProps = {
   companyId: string;
+  mode: 'create' | 'edit';
+  initialData?: LetterType | null;
   onSuccess?: () => void;
+  onClose?: () => void; // Untuk menutup dialog dari parent
 };
 
-export function LetterTypeForm({ companyId, onSuccess }: LetterTypeFormProps) {
+export function LetterTypeForm({
+  companyId,
+  mode,
+  initialData,
+  onSuccess,
+  onClose,
+}: LetterTypeFormProps) {
   const [name, setName] = useState('');
   const [content, setContent] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (mode === 'edit' && initialData) {
+      setName(initialData.name);
+      setContent(initialData.content);
+    } else {
+      // Reset form for create mode or if initialData is not available
+      setName('');
+      setContent('');
+    }
+  }, [mode, initialData]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
 
-    if (!name || !content || !companyId) {
-      toast.error('Please fill in all fields.');
+    if (!name || !content) { // companyId sudah pasti ada dari props
+      toast.error('Name and content fields are required.');
+      setIsLoading(false);
       return;
     }
 
@@ -32,41 +62,63 @@ export function LetterTypeForm({ companyId, onSuccess }: LetterTypeFormProps) {
     };
 
     try {
-      await api.post('/api/letterType', payload);
-      toast.success('Letter type created successfully!');
-      setName('');
-      setContent('');
+      if (mode === 'create') {
+        await api.post('/api/letterType', payload);
+        toast.success('Letter type created successfully!');
+      } else if (mode === 'edit' && initialData?.id) {
+        await api.patch(`/api/letterType/${initialData.id}`, payload);
+        toast.success('Letter type updated successfully!');
+      }
+      
+      if (mode === 'create') {
+        setName('');
+        setContent('');
+      }
       onSuccess?.();
-    } catch (error) {
-      toast.error('Failed to create letter type.');
+      onClose?.(); // Panggil onClose untuk menutup dialog jika disediakan
+    } catch (error: any) {
+      console.error("Error processing letter type:", error);
+      const errorMessage = error.response?.data?.message || 
+                           (mode === 'create' ? 'Failed to create letter type.' : 'Failed to update letter type.');
+      toast.error(errorMessage);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  return (
+return (
     <form onSubmit={handleSubmit}>
-      <div className="mb-4">
-        <Label htmlFor="letterTypeName">Letter Type Name</Label>
-        <Input
-          id="letterTypeName"
-          type="text"
-          placeholder="Enter letter name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
+      <div className="space-y-4">
+        <div>
+          <Label htmlFor="letterTypeName">Letter Type Name *</Label>
+          <Input
+            id="letterTypeName"
+            type="text"
+            placeholder="Enter letter type name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            disabled={isLoading}
+          />
+        </div>
+        <div>
+          <Label htmlFor="letterTypeContent">Content *</Label>
+          <Input // Menggunakan Textarea untuk konten yang mungkin lebih panjang
+            id="letterTypeContent"
+            placeholder="Enter content for the letter type"
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            disabled={isLoading}
+          />
+        </div>
       </div>
-      <div className="mb-4">
-        <Label htmlFor="letterTypeContent">Letter Type Content</Label>
-        <Input
-          id="letterTypeContent"
-          type="text"
-          placeholder="Enter letter content"
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-        />
-      </div>
-      <DialogFooter className="gap-2 sm:justify-end">
-        <Button type="submit" className="w-20">
-          Submit
+      <DialogFooter className="gap-2 pt-6 sm:justify-end">
+        {onClose && ( // Tombol cancel jika onClose disediakan
+            <Button type="button" variant="outline" onClick={onClose} disabled={isLoading}>
+                Cancel
+            </Button>
+        )}
+        <Button type="submit" className="w-24" disabled={isLoading}>
+          {isLoading ? (mode === 'create' ? 'Creating...' : 'Updating...') : (mode === 'create' ? 'Submit' : 'Update')}
         </Button>
       </DialogFooter>
     </form>

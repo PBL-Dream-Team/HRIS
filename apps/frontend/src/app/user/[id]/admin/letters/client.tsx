@@ -1,10 +1,12 @@
 'use client';
 
-import { AppSidebar } from '@/components/app-sidebar';
-import { MailPlus } from 'lucide-react';
-import { DataTable } from '@/components/data-table';
-import { letterColumns, Letter } from '@/components/columns/letters-admin';
+// React & Next.js Core
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 
+// UI Components (Shadcn/ui & Custom)
+import { AppSidebar } from '@/components/app-sidebar';
+import { DataTable } from '@/components/data-table';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -17,7 +19,6 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from '@/components/ui/sidebar';
-
 import {
   Dialog,
   DialogTrigger,
@@ -26,24 +27,39 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
-
-import { NavUser } from '@/components/nav-user';
 import { Button } from '@/components/ui/button';
+
+// Custom Components
+import { NavUser } from '@/components/nav-user';
 import { LetterForm } from '@/components/letter-form';
 import { LetterTypeForm } from '@/components/lettertype-form';
-import { useState } from 'react';
 import LetterDetails from '@/components/letter-details';
+import { LetterTypesOverviewContent } from '@/components/lettertype-overview';
+import { letterColumns, Letter } from '@/components/columns/letters-admin';
+
+// Libraries & Utilities
 import api from '@/lib/axios';
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+// Icons
+import { MailPlus } from 'lucide-react';
 import { IoMdAdd } from 'react-icons/io';
+import { MdOutlineAttachEmail } from 'react-icons/md';
 
+// Constants
+const ITEMS_PER_PAGE = 10;
+
+// Types
 type LettersClientProps = {
   isAdmin: boolean;
   userId: string;
   companyId: string;
+};
+
+type UserState = {
+  name: string;
+  email: string;
+  avatar: string;
 };
 
 export default function LettersClient({
@@ -51,118 +67,127 @@ export default function LettersClient({
   userId,
   companyId,
 }: LettersClientProps) {
-  const [user, setUser] = useState({
+  const router = useRouter();
+
+  // State Hooks
+  const [user, setUser] = useState<UserState>({
     name: '',
     email: '',
     avatar: '',
   });
-
-  const router = useRouter();
   const [employees, setEmployees] = useState<Record<string, any>>({});
   const [letterTypeMap, setLetterTypeMap] = useState<Record<string, any>>({});
-  const [letters, setLetters] = useState<any[]>([]);
-  const [currentPage, setCurrentPage] = useState(1)
-  const itemsPerPage = 10
+  const [letters, setLetters] = useState<Letter[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
 
+  const [selectedLetter, setSelectedLetter] = useState<Letter | null>(null);
+  const [letterToDelete, setLetterToDelete] = useState<Letter | null>(null);
+
+  const [isLetterDetailsSheetOpen, setIsLetterDetailsSheetOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isLetterTypesOverviewOpen, setIsLetterTypesOverviewOpen] = useState(false);
+
+  // Data Fetching
+  const fetchData = useCallback(async () => {
+    try {
+      const userRes = await api.get(`/api/employee/${userId}`);
+      const { first_name, last_name, email, pict_dir } = userRes.data.data;
+      setUser({
+        name: `${first_name} ${last_name}`,
+        email: email,
+        avatar: pict_dir || '/avatars/default.jpg',
+      });
+
+      const [lettersRes, employeesRes, typesRes] = await Promise.all([
+        api.get(`/api/letter?company_id=${companyId}`),
+        api.get(`/api/employee?company_id=${companyId}`),
+        api.get(`/api/letterType?company_id=${companyId}`),
+      ]);
+
+      const employeeMap: Record<string, any> = {};
+      (employeesRes.data ?? []).forEach((emp: any) => {
+        employeeMap[emp.id] = emp;
+      });
+      setEmployees(employeeMap);
+
+      const typeMap: Record<string, any> = {};
+      (typesRes.data ?? []).forEach((type: any) => {
+        typeMap[type.id] = type;
+      });
+      setLetterTypeMap(typeMap);
+
+      setLetters(lettersRes.data ?? []);
+    } catch (err: any) {
+      console.error(
+        'Error fetching data:',
+        err.response?.data || err.message,
+      );
+      toast.error(
+        'Failed to load data. Please check the console for more details.',
+      );
+    }
+  }, [userId, companyId]);
 
   useEffect(() => {
-    async function fetchData() {
-      try {
-        const res = await api.get(`/api/employee/${userId}`);
-        const { first_name, last_name, email, pict_dir } = res.data.data;
-
-        setUser({
-          name: `${first_name} ${last_name}`,
-          email: email,
-          avatar: pict_dir || '/avatars/default.jpg',
-        });
-
-        const [lettersRes, employeesRes, typesRes] = await Promise.all([
-          api.get(`/api/letter?company_id=${companyId}`),
-          api.get(`/api/employee?company_id=${companyId}`),
-          api.get(`/api/letterType?company_id=${companyId}`),
-        ]);
-
-        const employeeMap: Record<string, any> = {};
-        for (const emp of employeesRes.data ?? []) {
-          employeeMap[emp.id] = emp;
-        }
-        setEmployees(employeeMap);
-
-        const typeMap: Record<string, any> = {};
-        for (const type of typesRes.data ?? []) {
-          typeMap[type.id] = type;
-        }
-        setLetterTypeMap(typeMap);
-
-        setLetters(lettersRes.data ?? []);
-      } catch (err: any) {
-        console.error(
-          'Error fetching data:',
-          err.response?.data || err.message,
-        );
-        setLetters([]);
-        setEmployees({});
-        setLetterTypeMap({});
-      }
-    }
-
     fetchData();
-  }, [userId]);
+  }, [fetchData]);
 
-  const transformedLetters: Letter[] = letters.map((letter) => ({
-    id: letter.id,
-    employee_id: letter.employee_id,
-    employee_name: employees[letter.employee_id]
-      ? `${employees[letter.employee_id].first_name} ${employees[letter.employee_id].last_name}`
-      : 'Unknown',
-    name: letter.name,
-    lettertype_id: letter.lettertype_id,
-    letter_type: letterTypeMap[letter.lettertype_id]?.name || 'Unknown',
-    desc: letter.desc,
+  // Data Transformation
+  const transformedLetters = useMemo((): Letter[] => {
+    return letters.map((letter) => ({
+      ...letter,
+      employee_name: employees[letter.employee_id]
+        ? `${employees[letter.employee_id].first_name} ${employees[letter.employee_id].last_name}`
+        : 'Unknown',
+      letter_type: letterTypeMap[letter.lettertype_id]?.name || 'Unknown',
+      valid_until: new Date(letter.valid_until).toLocaleDateString('id-ID', {
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric',
+      }),
+    }));
+  }, [letters, employees, letterTypeMap]);
 
-    valid_until: new Date(letter.valid_until).toLocaleDateString('id-ID', {
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric',
-    }),
-    is_active: letter.is_active,
-  }));
-
-  const [openSheet, setOpenSheet] = useState(false);
-  const [selectedLetter, setselectedLetter] = useState<any>(null);
-
-  const handleViewDetails = (letters: any) => {
-    setselectedLetter(letters);
-    setOpenSheet(true);
-  };
-
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [letterToDelete, setLetterToDelete] = useState<any>(null);
-  const [successMessage, setSuccessMessage] = useState('');
-
+  // Event Handlers
+  const handleViewDetails = useCallback((letter: Letter) => {
+    setSelectedLetter(letter);
+    setIsLetterDetailsSheetOpen(true);
+  }, []);
 
   const handleDeleteConfirmed = async () => {
     if (!letterToDelete) return;
 
     try {
       await api.delete(`/api/letter/${letterToDelete.id}`);
-      setLetters((prevLetters) =>
-        prevLetters.filter((l) => l.id !== letterToDelete.id),
-      );
-      setSuccessMessage('Letter successfully deleted.');
+      toast.success('Letter deleted successfully.');
+      await fetchData();
     } catch (err: any) {
-      console.error('Error deleting letter:', err.response?.data || err.message);
+      console.error(
+        'Error deleting letter:',
+        err.response?.data || err.message,
+      );
+      toast.error('Failed to delete letter. Please try again.');
     } finally {
-      setDeleteDialogOpen(false);
+      setIsDeleteDialogOpen(false);
       setLetterToDelete(null);
     }
   };
+
+  const handleOperationSuccess = useCallback(async () => {
+    await fetchData();
+  }, [fetchData]);
+
+  // Column Definition for DataTable
+  const columns = useMemo(
+    () => letterColumns(handleViewDetails, setLetterToDelete, setIsDeleteDialogOpen, companyId, router),
+    [handleViewDetails, companyId, router]
+  );
 
   return (
     <SidebarProvider>
       <AppSidebar isAdmin={isAdmin} />
       <SidebarInset>
+        {/* Header Section */}
         <header className="flex h-16 shrink-0 items-center justify-between px-4 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
           <div className="flex items-center gap-2">
             <SidebarTrigger className="-ml-1" />
@@ -178,101 +203,110 @@ export default function LettersClient({
               </BreadcrumbList>
             </Breadcrumb>
           </div>
-
           <div className="flex items-center gap-4">
-            {/* Notification */}
-            {/* <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="relative p-2 rounded-md hover:bg-muted focus:outline-none">
-                  <Bell className="h-5 w-5" />
-                  <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-red-500" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                className="min-w-56 rounded-lg"
-                side="bottom"
-                sideOffset={8}
-                align="end"
-              >
-                <DropdownMenuLabel>Notifications</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>New user registered</DropdownMenuItem>
-                <DropdownMenuItem>Monthly report is ready</DropdownMenuItem>
-                <DropdownMenuItem>Server restarted</DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-center text-blue-600 hover:text-blue-700">
-                  View all
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu> */}
-
-            {/* Nav-user */}
             <NavUser user={user} isAdmin={isAdmin} />
           </div>
         </header>
 
-        <div className="flex flex-1 flex-col gap-4 p-10 pt-5">
-          {successMessage && (
-            <Alert className="border-green-300 bg-green-50 text-green-800">
-              <AlertTitle className="font-medium">Success</AlertTitle>
-              <AlertDescription>{successMessage}</AlertDescription>
-            </Alert>
-          )}
+        {/* Main Content Area */}
+        <main className="flex flex-1 flex-col gap-4 p-10 pt-5">
           <div className="border border-gray-300 rounded-md p-4">
-            {/* Data Table */}
             <DataTable
-              columns={letterColumns(handleViewDetails, setLetterToDelete, setDeleteDialogOpen, companyId, router)}
+              columns={columns}
               data={transformedLetters}
               searchableColumn="name"
               title="Letter Overview"
               actions={
                 <>
+                  {/* Letter Types Overview Dialog */}
+                  <Dialog
+                    open={isLetterTypesOverviewOpen}
+                    onOpenChange={setIsLetterTypesOverviewOpen}
+                  >
+                    <DialogTrigger asChild>
+                      <Button>
+                        <MdOutlineAttachEmail className="mr-2 h-4 w-4" />
+                        Letter Type Overview
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-2xl">
+                      <DialogHeader>
+                        <DialogTitle>Letter Types</DialogTitle>
+                      </DialogHeader>
+                      <LetterTypesOverviewContent
+                        companyId={companyId}
+                        isVisible={isLetterTypesOverviewOpen}
+                      />
+                    </DialogContent>
+                  </Dialog>
+
+                  {/* Add Letter Type Dialog */}
                   <Dialog>
                     <DialogTrigger asChild>
-                      <Button><MailPlus /> Add Letter Type</Button>
+                      <Button>
+                        <MailPlus className="mr-2 h-4 w-4" /> Add Letter Type
+                      </Button>
                     </DialogTrigger>
                     <DialogContent className="max-w-2xl">
                       <DialogHeader>
                         <DialogTitle>Add Letter Type</DialogTitle>
                       </DialogHeader>
-                      <LetterTypeForm companyId={companyId} onSuccess={() => router.refresh()} />
+                      <LetterTypeForm
+                        companyId={companyId}
+                        mode="create"
+                        onSuccess={handleOperationSuccess}
+                      />
                     </DialogContent>
                   </Dialog>
+
+                  {/* Add Letter Dialog */}
                   <Dialog>
                     <DialogTrigger asChild>
-                      <Button><IoMdAdd /> Add Letter</Button>
+                      <Button>
+                        <IoMdAdd className="mr-2 h-4 w-4" /> Add Letter
+                      </Button>
                     </DialogTrigger>
                     <DialogContent className="max-w-2xl">
                       <DialogHeader>
                         <DialogTitle>Add Letter</DialogTitle>
                       </DialogHeader>
-                      <LetterForm mode="create" companyId={companyId} onSuccess={() => router.refresh()} />
+                      <LetterForm
+                        mode="create"
+                        companyId={companyId}
+                        onSuccess={handleOperationSuccess}
+                      />
                     </DialogContent>
                   </Dialog>
                 </>
               }
               pagination={{
                 currentPage,
-                itemsPerPage,
+                itemsPerPage: ITEMS_PER_PAGE,
                 onPageChange: setCurrentPage,
               }}
             />
           </div>
-        </div>
+        </main>
 
         {/* Delete Confirmation Dialog */}
-        <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Delete Letter</DialogTitle>
             </DialogHeader>
-            <div>Are you sure you want to delete this letter?</div>
-            <DialogFooter className="gap-2">
-              <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
+            <div>
+              Are you sure you want to delete this letter? This action cannot be
+              undone.
+            </div>
+            <DialogFooter className="gap-2 pt-4">
+              <Button
+                variant="outline"
+                onClick={() => setIsDeleteDialogOpen(false)}
+              >
                 Cancel
               </Button>
               <Button
-                className="bg-red-600 text-white hover:bg-red-700"
+                variant="destructive"
                 onClick={handleDeleteConfirmed}
               >
                 Delete
@@ -280,13 +314,12 @@ export default function LettersClient({
             </DialogFooter>
           </DialogContent>
         </Dialog>
-
       </SidebarInset>
 
-      {/* Letter Details Sheet */}
+      {/* Letter Details Sheet/Side Panel */}
       <LetterDetails
-        open={openSheet}
-        onOpenChange={setOpenSheet}
+        open={isLetterDetailsSheetOpen}
+        onOpenChange={setIsLetterDetailsSheetOpen}
         selectedLetter={selectedLetter}
       />
     </SidebarProvider>
