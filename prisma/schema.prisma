@@ -259,10 +259,19 @@ model Attendance {
 
   filedir String?
 
+  approval AttendanceApproval @default(APPROVED)
+
   created_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
   updated_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
   deleted_at DateTime? @db.Timestamptz() 
   is_deleted Boolean @db.Boolean @default(false)
+
+}
+
+enum AttendanceApproval {
+  APPROVED
+  DISAPPROVED
+  PENDING
 }
 
 enum CheckInStatus {
@@ -284,6 +293,8 @@ model AbsenceLeave {
   company_id String @db.Uuid
   company Company @relation(fields: [company_id], references: [id])
 
+  type AbsentType
+
   reason String? @db.Text
   
   date DateTime @db.Date @default(now())
@@ -297,6 +308,12 @@ model AbsenceLeave {
   updated_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
   deleted_at DateTime? @db.Timestamptz() 
   is_deleted Boolean @db.Boolean @default(false)
+}
+
+enum AbsentType{
+  SICK
+  PERMIT
+  LEAVE
 }
 
 enum leaveStatus {

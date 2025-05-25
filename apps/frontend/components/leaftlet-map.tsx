@@ -34,19 +34,19 @@ export default function LeafletMap({
     }, [position, map]);
 
     useMapEvents({
-      click(e) {
-        const { lat, lng } = e.latlng;
-        setPosition({ lat, lng });
+      // click(e) {
+      //   const { lat, lng } = e.latlng;
+      //   setPosition({ lat, lng });
 
-        fetch(
-          `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`
-        )
-          .then((res) => res.json())
-          .then((data) => {
-            const address = data.display_name || '';
-            onLocationSelect(lat, lng, address);
-          });
-      },
+      //   fetch(
+      //     `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`
+      //   )
+      //     .then((res) => res.json())
+      //     .then((data) => {
+      //       const address = data.display_name || '';
+      //       onLocationSelect(lat, lng, address);
+      //     });
+      // },
     });
 
     return position ? <Marker position={position} icon={markerIcon} /> : null;
@@ -80,6 +80,7 @@ export default function LeafletMap({
     <MapContainer
       center={mapCenter}
       zoom={15}
+      dragging={false}
       scrollWheelZoom={true}
       attributionControl={false}
       className="h-64 w-full rounded-lg z-0"

@@ -5,12 +5,31 @@ import { editAttendanceDto } from './dtos/editAttendance.dto';
 import { join } from 'path';
 import { createWriteStream, existsSync, unlinkSync } from 'fs';
 
+function isTimeAfter(timeA: Date, timeB: Date): boolean {
+  const getTimeOnlyMs = (d: Date) =>
+    d.getUTCHours() * 3600000 +
+    d.getUTCMinutes() * 60000 +
+    d.getUTCSeconds() * 1000 +
+    d.getUTCMilliseconds();
+
+  return getTimeOnlyMs(timeA) > getTimeOnlyMs(timeB);
+}
+
 @Injectable()
 export class AttendanceService {
   constructor(private prisma: PrismaService) {}
 
   async createAttendance(dto: createAttendanceDto, file?: Express.Multer.File) {
     const AttendanceData : any = dto;
+
+    const type = await this.prisma.attendanceType.findFirst({where:{id:AttendanceData.type_id}})
+
+    AttendanceData.check_in_status = (isTimeAfter(new Date(AttendanceData.check_in), new Date(type.check_in))) ? "LATE" : "ON_TIME";
+    if(AttendanceData.check_out) AttendanceData.check_out_status = (isTimeAfter(new Date(type.check_out), new Date(AttendanceData.check_out))) ? "EARLY" : "ON_TIME";
+    
+    if(AttendanceData.check_in_status == "LATE") AttendanceData.approval = "PENDING";
+    if(AttendanceData.check_out_status == "EARLY") AttendanceData.approval = "PENDING";
+
 
     if(file){const filename = `${Date.now()}_${file.originalname}`;
     AttendanceData.filedir = filename;}

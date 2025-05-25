@@ -26,10 +26,10 @@ export class editAttendanceDto {
     @IsNotEmpty()
     check_in: Date;
 
-    @ApiPropertyOptional()
-    @IsEnum(checkinstatus)
-    @IsOptional()
-    check_in_status: checkinstatus;
+    // @ApiPropertyOptional()
+    // @IsEnum(checkinstatus)
+    // @IsOptional()
+    // check_in_status: checkinstatus;
 
     @ApiPropertyOptional()
     @IsLatitude()
@@ -48,9 +48,9 @@ export class editAttendanceDto {
     @IsNotEmpty()
     check_out: string;
 
-    @IsEnum(checkoutstatus)
-    @IsOptional()
-    check_out_status: checkoutstatus;
+    // @IsEnum(checkoutstatus)
+    // @IsOptional()
+    // check_out_status: checkoutstatus;
 
     @IsLatitude()
     @IsOptional()

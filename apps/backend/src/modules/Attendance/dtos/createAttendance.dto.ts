@@ -26,10 +26,10 @@ export class createAttendanceDto {
     @IsNotEmpty()
     check_in: Date;
 
-    @ApiProperty()
-    @IsEnum(checkinstatus)
-    @IsNotEmpty()
-    check_in_status: checkinstatus;
+//     @ApiProperty()
+//     @IsEnum(checkinstatus)
+//     @IsNotEmpty()
+//     check_in_status: checkinstatus;
 
     @ApiProperty()
     @IsString()
@@ -53,10 +53,10 @@ export class createAttendanceDto {
     @IsNotEmpty()
     check_out: Date;
 
-    @ApiPropertyOptional()
-    @IsEnum(checkoutstatus)
-    @IsOptional()
-    check_out_status: checkoutstatus;
+//     @ApiPropertyOptional()
+//     @IsEnum(checkoutstatus)
+//     @IsOptional()
+//     check_out_status: checkoutstatus;
 
     @ApiProperty()
     @IsString()

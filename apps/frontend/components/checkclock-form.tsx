@@ -99,6 +99,8 @@ export function CheckClockForm() {
                   placeholder="Enter address detail"
                   value={addressDetail}
                   onChange={(e) => setAddressDetail(e.target.value)}
+                  readOnly
+                  className="bg-gray-100"
                 />
               </div>
               <div className="flex flex-col md:flex-row gap-x-6">

@@ -99,6 +99,7 @@ type CheckClockClientProps = {
 };
 
 
+  const router = useRouter();
   const [employees,setEmployee] = useState<Record<string,any>>();
   const [attendanceType,setAttendanceType] = useState<Record<string,any>>(); 
   const [attendances,setAttendance] = useState<any[]>([]);
@@ -130,8 +131,8 @@ export default function CheckClockClient({
         });
 
         const [attendanceRes, employeeRes, typeRes] = await Promise.all([
-          api.get(`api/attendance?company_id=${companyId}`),
-          api.get(`api/employee?company_id=${companyId}`),
+          api.get(`api/attendance?employee_id=${userId}`),
+          api.get(`api/employee?employee_id=${userId}`),
           api.get(`api/attendanceType?company_id=${companyId}`)
         ]);
 

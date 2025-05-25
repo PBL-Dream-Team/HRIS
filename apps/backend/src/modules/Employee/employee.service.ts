@@ -18,7 +18,7 @@ export class EmployeeService {
       data.pict_dir = filename;
     }
 
-    data.password = hash(dto.password);
+    data.password = await hash(dto.password);
 
     try {
       const employee = await this.prisma.employee.create({ data: data });
@@ -76,7 +76,7 @@ export class EmployeeService {
     }
 
     if(dto.password){
-      const hashed = hash(dto.password);
+      const hashed = await hash(dto.password);
       data.password = hashed;
     }
 
