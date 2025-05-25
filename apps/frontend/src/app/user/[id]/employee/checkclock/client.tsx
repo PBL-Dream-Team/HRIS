@@ -25,7 +25,7 @@ import {
 } from '@/components/ui/dialog';
 
 import { Input } from '@/components/ui/input';
-import { Bell } from 'lucide-react';
+import { Bell, CalendarArrowUp } from 'lucide-react';
 import { NavUser } from '@/components/nav-user';
 import { Button } from '@/components/ui/button';
 import { CheckClockForm } from '@/components/checkclock-form';
@@ -102,6 +102,14 @@ type CheckClockClientProps = {
   companyId: string;
 };
 
+export function isSameDate(d1: Date, d2: Date): boolean {
+  return (
+    d1.getFullYear() === d2.getFullYear() &&
+    d1.getMonth() === d2.getMonth() &&
+    d1.getDate() === d2.getDate()
+  );
+}
+
 
 export default function CheckClockClient({
   isAdmin,
@@ -121,6 +129,7 @@ const [employees,setEmployee] = useState<any[]>([]);
 const [company,setCompany] = useState<any[]>([]);
 const [attendanceType,setAttendanceType] = useState<Record<string,any>>(); 
 const [attendances,setAttendance] = useState<any[]>([]);
+let dailyLimit = 1;
 const [currentPage, setCurrentPage] = useState(1)
 const itemsPerPage = 10
 
@@ -172,21 +181,26 @@ const itemsPerPage = 10
     fetchUser();
   }, [userId]);
 
-  checkclocks = attendances.map((attendance) => ({
-    id: attendance.id,
-    date: attendance.created_at,
-    name: `${employees[0].first_name} ${employees[0].last_name}`,
-    clockIn: formatTimeOnly(attendance.check_in),
-    clockOut:attendance.check_out ? formatTimeOnly(attendance.check_out) : '-',
-    workHours: (attendance.check_out) ?  `${getTimeRangeInHours(formatTimeOnly(attendance.check_in),formatTimeOnly(attendance.check_out))}h` : '0h',
-    status: attendance.check_in_status,
-    address: (attendance.check_out) ? attendance.check_out_address : attendance.check_in_address,
-    lat: (attendance.check_out) ? attendance.check_out_lat : attendance.check_in_lat,
-    long: (attendance.check_out) ? attendance.check_out_long : attendance.check_in_long,
-    location: (attendance.check_in_address == company[0].address)
-      ? "Office"
-      : (employees[0].workscheme != "WFO") ? "Outside Office (WFA/Hybrid)" : "Outside Office (WFO)",
-  }));
+  checkclocks = attendances.map((attendance) => 
+    {
+      if(isSameDate(new Date(attendance.created_at),new Date())){
+        dailyLimit = 0;
+      }
+      return {id: attendance.id,
+      date: attendance.created_at,
+      name: `${employees[0].first_name} ${employees[0].last_name}`,
+      clockIn: formatTimeOnly(attendance.check_in),
+      clockOut:attendance.check_out ? formatTimeOnly(attendance.check_out) : '-',
+      workHours: (attendance.check_out) ?  `${getTimeRangeInHours(formatTimeOnly(attendance.check_in),formatTimeOnly(attendance.check_out)).toFixed(2)}h` : '0h',
+      status: attendance.check_in_status,
+      address: (attendance.check_out) ? attendance.check_out_address : attendance.check_in_address,
+      lat: (attendance.check_out) ? attendance.check_out_lat : attendance.check_in_lat,
+      long: (attendance.check_out) ? attendance.check_out_long : attendance.check_in_long,
+      location: (attendance.check_in_address == company[0].address)
+        ? "Office"
+        : (employees[0].workscheme != "WFO") ? "Outside Office (WFA/Hybrid)" : "Outside Office (WFO)",}
+    }
+  );
 
   
   const [openSheet, setOpenSheet] = useState(false);
@@ -263,16 +277,18 @@ const itemsPerPage = 10
                 </Button>
                 <Dialog>
                   <DialogTrigger asChild>
-                    <Button>
+                    <Button disabled={dailyLimit === 0} variant="outline" className={dailyLimit === 0 ? "opacity-50 cursor-not-allowed" : ""}>
                       <IoMdAdd /> Add Check Clock
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="max-w-4xl">
-                    <DialogHeader>
-                      <DialogTitle>Add Check Clock</DialogTitle>
-                    </DialogHeader>
-                    <CheckClockForm />
-                  </DialogContent>
+                  {dailyLimit > 0 && (
+                    <DialogContent className="max-w-4xl">
+                      <DialogHeader>
+                        <DialogTitle>Add Check Clock</DialogTitle>
+                      </DialogHeader>
+                      <CheckClockForm />
+                    </DialogContent>
+                  )}
                 </Dialog>
               </div>
             </div>
@@ -324,6 +340,15 @@ const itemsPerPage = 10
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
+                        {checkclock.clockOut === "-" && (
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="hover:bg-white-600 bg-green-600 hover:text-white"
+                          // onClick={() => handleViewDetails(checkclock)} Open Form but for checkout 
+                        >
+                          <CalendarArrowUp className="h-4 w-4 text-white" />
+                        </Button>)}
                       </div>
                     </TableCell>
                   </TableRow>
