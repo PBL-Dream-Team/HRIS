@@ -66,7 +66,7 @@ export function CheckClockForm() {
 
             {/* Present form - Right (Lat/Lng) */}
             <div className="w-full md:w-1/2 flex flex-col gap-4">
-              <div>
+              {/* <div>
                 <Label htmlFor="checkClockType">Check Clock Type</Label>
                 <Select onValueChange={setCheckClockType}>
                   <SelectTrigger className="w-full">
@@ -77,8 +77,8 @@ export function CheckClockForm() {
                     <SelectItem value="clockout">Clock Out</SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
-              <div>
+              </div> */}
+              {/* <div>
                 <Label htmlFor="location">Work Location</Label>
                 <Select onValueChange={setLocation}>
                   <SelectTrigger className="w-full">
@@ -90,7 +90,7 @@ export function CheckClockForm() {
                     <SelectItem value="WFA">WFA</SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
+              </div> */}
               <div>
                 <Label htmlFor="addressDetail">Address Detail</Label>
                 <Input
@@ -173,7 +173,7 @@ export function CheckClockForm() {
                 />
               </div>
 
-              <div>
+              {/* <div>
                 <Label htmlFor="status">Status</Label>
                 <Select onValueChange={setStatus}>
                   <SelectTrigger className="w-full">
@@ -184,7 +184,7 @@ export function CheckClockForm() {
                     <SelectItem value="rejected">Reject</SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
+              </div> */}
             </div>
 
             {/* Absent form - Right*/}

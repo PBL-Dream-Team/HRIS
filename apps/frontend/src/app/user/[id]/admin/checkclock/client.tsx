@@ -177,7 +177,8 @@ export default function CheckClockClient({
     clockIn: formatTimeOnly(attendance.check_in),
     clockOut:attendance.check_out ? formatTimeOnly(attendance.check_out) : '-',
     workHours: (attendance.check_out) ? getTimeRangeInHours(attendance.check_in, attendance.check_out) : '0h',
-    status: attendance.check_in_status
+    status: attendance.check_in_status,
+    approval: attendance.approval
   }));
 
   const [openSheet, setOpenSheet] = useState(false);
@@ -279,10 +280,11 @@ export default function CheckClockClient({
                   <TableHead>Avatar</TableHead>
                   <TableHead>Employee Name</TableHead>
                   <TableHead>Position</TableHead>
+                  <TableHead>Date</TableHead>
                   <TableHead>Clock In</TableHead>
                   <TableHead>Clock Out</TableHead>
                   <TableHead>Work Hours</TableHead>
-                  {/* <TableHead>Approve</TableHead> */}
+                  <TableHead>Approve</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
@@ -303,35 +305,30 @@ export default function CheckClockClient({
                       break;
                   }
 
-                  // switch (checkclock.status) {
-                  //   case 'Waiting Approval':
-                  //     approveContent = (
-                  //       <div className="flex gap-1">
-                  //         <Button size="icon" variant="outline">
-                  //           <Check className="text-green-600 w-4 h-4" />
-                  //         </Button>
-                  //         <Button size="icon" variant="outline">
-                  //           <X className="text-red-600 w-4 h-4" />
-                  //         </Button>
-                  //       </div>
-                  //     );
-                  //     break;
-                  //   case 'On Time':
-                  //     approveContent = (
-                  //       <span className="h-2 w-2 rounded-full bg-green-600 inline-block" />
-                  //     );
-                  //     break;
-                  //   case 'Late':
-                  //     approveContent = (
-                  //       <span className="h-2 w-2 rounded-full bg-yellow-500 inline-block" />
-                  //     );
-                  //     break;
-                  //   case 'Absent/Leave':
-                  //     approveContent = (
-                  //       <span className="h-2 w-2 rounded-full bg-red-600 inline-block" />
-                  //     );
-                  //     break;
-                  // }
+                  switch (checkclock.approval) {
+                    case 'PENDING':
+                      approveContent = (
+                        <div className="flex gap-1">
+                          <Button size="icon" variant="outline">
+                            <Check className="text-green-600 w-4 h-4" />
+                          </Button>
+                          <Button size="icon" variant="outline">
+                            <X className="text-red-600 w-4 h-4" />
+                          </Button>
+                        </div>
+                      );
+                      break;
+                    case 'APPROVED':
+                      approveContent = (
+                        <span className="h-2 w-2 rounded-full bg-green-600 inline-block" />
+                      );
+                      break;
+                    case 'DISAPPROVED':
+                      approveContent = (
+                        <span className="h-2 w-2 rounded-full bg-yellow-500 inline-block" />
+                      );
+                      break;
+                  }
 
                   return (
                     <TableRow key={i}>
@@ -349,9 +346,11 @@ export default function CheckClockClient({
                       </TableCell>
                       <TableCell>{checkclock.name}</TableCell>
                       <TableCell>{checkclock.position}</TableCell>
+                      <TableCell>{checkclock.date}</TableCell>
                       <TableCell>{checkclock.clockIn}</TableCell>
                       <TableCell>{checkclock.clockOut}</TableCell>
                       <TableCell>{checkclock.workHours}</TableCell>
+                      <TableCell>{approveContent}</TableCell>
                       <TableCell>
                         <span className="text-black">{statusString}</span>
                       </TableCell>

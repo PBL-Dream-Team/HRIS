@@ -30,6 +30,10 @@ export class AttendanceService {
     if(AttendanceData.check_in_status == "LATE") AttendanceData.approval = "PENDING";
     if(AttendanceData.check_out_status == "EARLY") AttendanceData.approval = "PENDING";
 
+    if(AttendanceData.check_in_lat > (type.workspace_lat + 100.0)) AttendanceData.approval = "PENDING";
+    if(AttendanceData.check_in_long > (type.workspace_long + 100.0)) AttendanceData.approval = "PENDING";
+    if(AttendanceData.check_out_lat > (type.workspace_lat + 100.0)) AttendanceData.approval = "PENDING";
+    if(AttendanceData.check_out_long > (type.workspace_long + 100.0)) AttendanceData.approval = "PENDING";
 
     if(file){const filename = `${Date.now()}_${file.originalname}`;
     AttendanceData.filedir = filename;}
@@ -129,14 +133,6 @@ export class AttendanceService {
     try {
       const data = await this.prisma.attendance.findFirst({where:{id:attendanceId}});
       await this.prisma.attendance.delete({ where: { id: attendanceId } });
-
-      
-            if(data.filedir){
-              const oldPath = join(process.cwd(),'storage','attendance',data.filedir);
-                if(existsSync(oldPath)){
-                  unlinkSync(oldPath);
-                }
-            }
       return {
         statusCode: 200,
         message: 'Attendance deleted successfully',

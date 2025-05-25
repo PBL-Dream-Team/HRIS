@@ -10,12 +10,17 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Eye, DownloadIcon } from 'lucide-react';
 
 type CheckClock = {
+  date: string;
   name: string;
   position: string;
   status: string;
   clockIn: string;
   clockOut: string;
   workHours: string;
+  address: string;
+  lat: string;
+  long: string;
+  location:string;
 };
 
 interface CheckClockDetailsProps {
@@ -59,17 +64,22 @@ export default function CheckClockDetails({
               <div className="ml-auto flex items-center gap-2">
                 <span
                   className={`h-2 w-2 rounded-full ${
-                    selectedCheckClock.status === 'Waiting Approval'
-                      ? 'bg-blue-600  '
-                      : selectedCheckClock.status === 'On Time'
+                      selectedCheckClock.status === 'ON_TIME'
                       ? 'bg-green-600'
                       : selectedCheckClock.status === 'Late'
                       ? 'bg-yellow-500'
                       : 'bg-red-600'
                   }`}
-                ></span>
+                >
+                  
+                </span>
                 <span className="text-sm text-muted-foreground">
-                  {selectedCheckClock.status}
+                  {
+                      selectedCheckClock.status === 'ON_TIME'
+                      ? 'ON TIME'
+                      : selectedCheckClock.status === 'Late'
+                      ? 'LATE'
+                      : 'EARLY'}
                 </span>
               </div>
             </div>
@@ -80,27 +90,33 @@ export default function CheckClockDetails({
               <div className="grid grid-cols-2 gap-x-4 gap-y-3">
                 <div>
                   <p className="text-muted-foreground text-xs">Date</p>
-                  <p className="font-medium">1 March 2025</p>
+                  <p className="font-medium">{selectedCheckClock.date.replace(/T.*/,"")}</p>
                 </div>
                 <div>
                   <p className="text-muted-foreground text-xs">Clock In</p>
-                  <p className="font-medium">{selectedCheckClock.clockIn}</p>
+                  <p className="font-medium">{selectedCheckClock.clockIn.replace(/.*T/,"")}</p>
                 </div>
                 <div>
                   <p className="text-muted-foreground text-xs">Clock Out</p>
-                  <p className="font-medium">{selectedCheckClock.clockOut}</p>
+                  <p className="font-medium">{selectedCheckClock.clockOut.replace(/.*T/,"")}</p>
                 </div>
                 <div>
                   <p className="text-muted-foreground text-xs">Status</p>
-                  <p className="font-medium">{selectedCheckClock.status}</p>
+                  <p className="font-medium">
+                    {selectedCheckClock.status === 'ON_TIME'
+                      ? 'On Time'
+                      : selectedCheckClock.status === 'LATE'
+                      ? 'Late'
+                      : 'Early' 
+                      }
+                  </p>
                 </div>
                 <div>
                   <p className="text-muted-foreground text-xs">Work Hours</p>
-                  <p className="font-medium">{selectedCheckClock.workHours}</p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground text-xs">Late</p>
-                  <p className="font-medium">10h 5m</p>
+                  <p className="font-medium">{
+                  selectedCheckClock.workHours != '0h' ?
+                  selectedCheckClock.workHours : '-'
+                  }</p>
                 </div>
               </div>
             </div>
@@ -111,25 +127,25 @@ export default function CheckClockDetails({
               <div className="grid grid-cols-2 gap-x-4 gap-y-3">
                 <div>
                   <p className="text-muted-foreground text-xs">Location</p>
-                  <p className="font-medium">Kantor Pusat</p>
+                  <p className="font-medium">{selectedCheckClock.location}</p>
                 </div>
                 <div>
                   <p className="text-muted-foreground text-xs">Detail Address</p>
-                  <p className="font-medium">Jl. Veteran No.1, Kota Malang</p>
+                  <p className="font-medium">{selectedCheckClock.address}</p>
                 </div>
                 <div>
                   <p className="text-muted-foreground text-xs">Lat</p>
-                  <p className="font-medium">-</p>
+                  <p className="font-medium">{selectedCheckClock.lat}</p>
                 </div>
                 <div>
                   <p className="text-muted-foreground text-xs">Long</p>
-                  <p className="font-medium">-</p>
+                  <p className="font-medium">{selectedCheckClock.long}</p>
                 </div>
               </div>
             </div>
 
             {/* Proof of Attendance */}
-            <div className="border rounded-md p-4 space-y-2 text-sm">
+            {/* <div className="border rounded-md p-4 space-y-2 text-sm">
               <h4 className="font-medium">Proof of Attendance</h4>
               <div className="flex items-center justify-between border rounded px-3 py-2">
                 <span>Proof of Attendance.jpg</span>
@@ -142,7 +158,7 @@ export default function CheckClockDetails({
                   </button>
                 </div>
               </div>
-            </div>
+            </div> */}
           </div>
         )}
       </SheetContent>

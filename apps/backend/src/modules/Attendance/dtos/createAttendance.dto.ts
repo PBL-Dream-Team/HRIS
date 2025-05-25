@@ -50,7 +50,7 @@ export class createAttendanceDto {
     @Matches(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/, {
          message: 'Timestamp must be in ISO 8601 format',
     })
-    @IsNotEmpty()
+    @IsOptional()
     check_out: Date;
 
 //     @ApiPropertyOptional()
@@ -60,7 +60,7 @@ export class createAttendanceDto {
 
     @ApiProperty()
     @IsString()
-    @IsNotEmpty()
+    @IsOptional()
     check_out_address: string;
 
     @ApiPropertyOptional()

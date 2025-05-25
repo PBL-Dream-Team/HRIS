@@ -99,14 +99,6 @@ type CheckClockClientProps = {
 };
 
 
-  const router = useRouter();
-  const [employees,setEmployee] = useState<Record<string,any>>();
-  const [attendanceType,setAttendanceType] = useState<Record<string,any>>(); 
-  const [attendances,setAttendance] = useState<any[]>([]);
-  const [currentPage, setCurrentPage] = useState(1)
-  const itemsPerPage = 10
-
-
 export default function CheckClockClient({
   isAdmin,
   userId,
@@ -117,6 +109,17 @@ export default function CheckClockClient({
     email: '',
     avatar: '',
   });
+
+  
+
+const router = useRouter();
+const [employees,setEmployee] = useState<any[]>([]);
+const [company,setCompany] = useState<any[]>([]);
+const [attendanceType,setAttendanceType] = useState<Record<string,any>>(); 
+const [attendances,setAttendance] = useState<any[]>([]);
+const [currentPage, setCurrentPage] = useState(1)
+const itemsPerPage = 10
+
 
   useEffect(() => {
     async function fetchUser() {
@@ -130,18 +133,16 @@ export default function CheckClockClient({
           avatar: pict_dir || '/avatars/default.jpg',
         });
 
-        const [attendanceRes, employeeRes, typeRes] = await Promise.all([
+         const [attendanceRes, employeeRes, typeRes, companyRes] = await Promise.all([
           api.get(`api/attendance?employee_id=${userId}`),
-          api.get(`api/employee?employee_id=${userId}`),
-          api.get(`api/attendanceType?company_id=${companyId}`)
+          api.get(`api/employee?id=${userId}`),
+          api.get(`api/attendanceType?company_id=${companyId}`),
+          api.get(`api/company?id=${companyId}`)
         ]);
 
+
         
-        const employeeMap: Record<string, any> = {};
-        for (const emp of employeeRes.data ?? []) {
-          employeeMap[emp.id] = emp;
-        }
-        setEmployee(employeeMap);
+        setEmployee(employeeRes.data ?? []);
 
         const typeMap: Record<string,any> = {};
         for (const typ of typeRes.data ?? []){
@@ -151,34 +152,39 @@ export default function CheckClockClient({
 
         setAttendance(attendanceRes.data ?? []);
 
+        setCompany(companyRes.data ?? []);
+
       } catch (err: any) {
         console.error(
           'Error fetching user:',
           err.response?.data || err.message,
         );
+        setAttendance([]);
+        setEmployee([]);
+        setAttendanceType([]);
       }
     }
 
     fetchUser();
   }, [userId]);
 
-  
-  checkclocks = attendances.map((attendance)=>({ //IDK why, employee tetep ada nilainya
-      id: attendance.id,
-      employee_id: attendance.employee_id,
-      name: employees[attendance.employee_id]
-        ? `${employees[attendance.employee_id].first_name} ${employees[attendance.employee_id].last_name}`
-        : 'Unknown',
-      position: employees[attendance.employee_id]
-        ? `${employees[attendance.employee_id].position}`
-        : 'Unknown',
-      date: attendance.created_at,
-      clockIn: formatTimeOnly(attendance.check_in),
-      clockOut:attendance.check_out ? formatTimeOnly(attendance.check_out) : '-',
-      workHours: (attendance.check_out) ? getTimeRangeInHours(attendance.check_in, attendance.check_out) : '0h',
-      status: attendance.check_in_status
-    }));
+  checkclocks = attendances.map((attendance) => ({
+    id: attendance.id,
+    date: attendance.created_at,
+    name: `${employees[0].first_name} ${employees[0].last_name}`,
+    clockIn: formatTimeOnly(attendance.check_in),
+    clockOut:attendance.check_out ? formatTimeOnly(attendance.check_out) : '-',
+    workHours: (attendance.check_out) ? getTimeRangeInHours(attendance.check_in, attendance.check_out) : '0h',
+    status: attendance.check_in_status,
+    address: (attendance.check_out) ? attendance.check_out_address : attendance.check_in_address,
+    lat: (attendance.check_out) ? attendance.check_out_lat : attendance.check_in_lat,
+    long: (attendance.check_out) ? attendance.check_out_long : attendance.check_in_long,
+    location: (attendance.check_in_address == company[0].address)
+      ? "Office"
+      : (employees[0].workscheme != "WFO") ? "Outside Office (WFA/Hybrid)" : "Unknown",
+  }));
 
+  
   const [openSheet, setOpenSheet] = useState(false);
   const [selectedCheckClock, setselectedCheckClock] = useState<any>(null);
 
@@ -282,21 +288,25 @@ export default function CheckClockClient({
               <TableBody>
                 {checkclocks.map((checkclock) => (
                   <TableRow key={checkclock.id}>
-                    <TableCell>{checkclock.date}</TableCell>
-                    <TableCell>{checkclock.clockIn}</TableCell>
-                    <TableCell>{checkclock.clockOut}</TableCell>
+                    <TableCell>{checkclock.date.replace(/T.*/, "")}</TableCell>
+                    <TableCell>{checkclock.clockIn.replace(/.*T/,"")}</TableCell>
+                    <TableCell>{checkclock.clockOut.replace(/.*T/,"")}</TableCell>
                     <TableCell>{checkclock.workHours}</TableCell>
                     <TableCell>
                       <div>
                         <span
                           className={`px-2 py-1 rounded text-xs text-white 
                                 ${checkclock.status === 'ON_TIME' ? 'bg-green-600' : ''}
-                                ${checkclock.status === 'LATE' ? 'bg-yellow-600' : ''}
+                                ${checkclock.status === 'LATE' ? 'bg-red-600' : ''}
                                 ${checkclock.status === 'EARLY' ? 'bg-yellow-600' : ''}
-                                ${checkclock.status === 'ABSENT' ? 'bg-red-600' : ''}
                                 `}
                         >
-                          {checkclock.status}
+                          {
+                      checkclock.status === 'ON_TIME'
+                      ? 'ON TIME'
+                      : checkclock.status === 'Late'
+                      ? 'LATE'
+                      : 'EARLY'}
                         </span>
                       </div>
                     </TableCell>
