@@ -1,9 +1,11 @@
-import {Controller,Get,Post,Body,Param,Delete,Patch, UseGuards, Query,} from '@nestjs/common';
+import {Controller,Get,Post,Body,Param,Delete,Patch, UseGuards, Query, UploadedFile, UseInterceptors,} from '@nestjs/common';
 import { createAttendanceDto } from './dtos/createAttendance.dto';
 import { editAttendanceDto } from './dtos/editAttendance.dto';
 import { AttendanceService } from './attendance.service';
 import { JwtGuard, SubscriptionGuard } from '../Auth/guard';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
+import { UploadExtensionInterceptor } from '../../multer/image_upload.interceptor';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @ApiTags("attendance")
 @UseGuards(JwtGuard, SubscriptionGuard)
@@ -13,7 +15,14 @@ export class AttendanceController {
 
   @Post()
   @ApiBody({type:createAttendanceDto})
-  createAttendance(@Body() createAttendanceDto: createAttendanceDto) {
+  @UseInterceptors(
+        FileInterceptor('file',{
+          limits: { fileSize: 50 * 1024 * 1024},
+        }),
+        new UploadExtensionInterceptor(['jpg','jpeg','png','pdf'])
+      )
+  createAttendance(@Body() createAttendanceDto: createAttendanceDto,
+ @UploadedFile() file: Express.Multer.File) {
     return this.AttendanceService.createAttendance(createAttendanceDto);
   }
 
@@ -32,9 +41,16 @@ export class AttendanceController {
 
   @Patch(':id')
   @ApiBody({type:editAttendanceDto})
+  @UseInterceptors(
+      FileInterceptor('file',{
+        limits: { fileSize: 50 * 1024 * 1024},
+      }),
+      new UploadExtensionInterceptor(['jpg','jpeg','png','pdf'])
+    )
   updateAttendance(
     @Param('id') attendanceId: string,
     @Body() updateAttendanceDto: editAttendanceDto,
+    @UploadedFile() file: Express.Multer.File
   ) {
     return this.AttendanceService.updateAttendance(attendanceId, updateAttendanceDto);
   }

@@ -12,18 +12,18 @@ export class editAttendanceTypeDto {
     @IsOptional()
     name: string;
 
-    @ApiPropertyOptional()
-    @Matches(/^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/, {
-        message: 'startTime must be in HH:mm:ss format',
+    @ApiPropertyOptional({example:"1970-01-01T08:57:24.123Z"})
+    @Matches(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/, {
+        message: 'Timestamp must be in ISO 8601 format',
     })
-    @IsOptional()
+    @IsNotEmpty()
     check_in: string;
 
-    @ApiPropertyOptional()
-    @Matches(/^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/, {
-        message: 'startTime must be in HH:mm:ss format',
+    @ApiPropertyOptional({example:"1970-01-01T08:57:24.123Z"})
+    @Matches(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/, {
+        message: 'Timestamp must be in ISO 8601 format',
     })
-    @IsOptional()
+    @IsNotEmpty()
     check_out: string;
 
     @ApiPropertyOptional()

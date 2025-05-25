@@ -2,15 +2,30 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { createAttendanceDto } from './dtos/createAttendance.dto';
 import { editAttendanceDto } from './dtos/editAttendance.dto';
+import { join } from 'path';
+import { createWriteStream, existsSync, unlinkSync } from 'fs';
 
 @Injectable()
 export class AttendanceService {
   constructor(private prisma: PrismaService) {}
 
-  async createAttendance(dto: createAttendanceDto) {
+  async createAttendance(dto: createAttendanceDto, file?: Express.Multer.File) {
     const AttendanceData : any = dto;
+
+    if(file){const filename = `${Date.now()}_${file.originalname}`;
+    AttendanceData.filedir = filename;}
+
     try {
       const attendance = await this.prisma.attendance.create({ data: AttendanceData });
+
+      if(file && AttendanceData.filedir){
+              const writePath = join(process.cwd(),'storage','attendance',AttendanceData.filedir);
+              const writeStream = createWriteStream(writePath);
+              writeStream.write(file.buffer);
+              writeStream.end();
+            }
+
+        
       return {
         statusCode: 201,
         message: 'Attendance created successfully',
@@ -47,13 +62,36 @@ export class AttendanceService {
     return await this.prisma.attendance.findMany();
   }
 
-  async updateAttendance(attendanceId: string, dto: editAttendanceDto) {
+  async updateAttendance(attendanceId: string, dto: editAttendanceDto, file?: Express.Multer.File) {
     const AttendanceData : any = dto;
+
+    const old = await this.prisma.absenceLeave.findFirst({where:{id:attendanceId}});
+
+    if(file){
+      const filename = `${Date.now()}_${file.originalname}`;
+      AttendanceData.filedir = filename;
+    }
+
     try {
       const attendance = await this.prisma.attendance.update({
         where: { id: attendanceId },
         data: AttendanceData,
       });
+
+      if(file && AttendanceData.filedir){
+        const writePath = join(process.cwd(),'storage','attendance',AttendanceData.filedir);
+        const writeStream = createWriteStream(writePath);
+        writeStream.write(file.buffer);
+        writeStream.end();
+      
+        if(old.filedir){
+          const oldPath = join(process.cwd(),'storage','attendance',old.filedir);
+          if(existsSync(oldPath)){
+            unlinkSync(oldPath);
+          }
+        }
+      }
+
       return {
         statusCode: 200,
         message: 'Attendance updated successfully',
@@ -70,7 +108,16 @@ export class AttendanceService {
 
   async deleteAttendance(attendanceId: string) {
     try {
+      const data = await this.prisma.attendance.findFirst({where:{id:attendanceId}});
       await this.prisma.attendance.delete({ where: { id: attendanceId } });
+
+      
+            if(data.filedir){
+              const oldPath = join(process.cwd(),'storage','attendance',data.filedir);
+                if(existsSync(oldPath)){
+                  unlinkSync(oldPath);
+                }
+            }
       return {
         statusCode: 200,
         message: 'Attendance deleted successfully',

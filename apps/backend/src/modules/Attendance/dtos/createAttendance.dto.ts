@@ -1,4 +1,4 @@
-import { IsEnum, IsLatitude, IsLongitude, IsNotEmpty, IsOptional, IsString, IsUUID, Matches } from "@nestjs/class-validator";
+import { IsDate, IsEnum, IsLatitude, IsLongitude, IsNotEmpty, IsOptional, IsString, IsUUID, Matches } from "@nestjs/class-validator";
 import { checkinstatus } from "./checkinstatus.enum";
 import { checkoutstatus } from "./checkoutstatus.enum";
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
@@ -19,12 +19,12 @@ export class createAttendanceDto {
     @IsNotEmpty()
     type_id:string;
 
-    @ApiProperty()
-    @Matches(/^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/, {
-        message: 'must be in HH:mm:ss format',
+    @ApiProperty({example:"1970-01-01T08:57:24.123Z"})
+    @Matches(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/, {
+         message: 'Timestamp must be in ISO 8601 format',
     })
     @IsNotEmpty()
-    check_in: string;
+    check_in: Date;
 
     @ApiProperty()
     @IsEnum(checkinstatus)
@@ -46,12 +46,12 @@ export class createAttendanceDto {
     @IsNotEmpty()
     check_in_long: number;
     
-    @ApiPropertyOptional()
-    @Matches(/^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/, {
-        message: 'must be in HH:mm:ss format',
+    @ApiProperty({example:"1970-01-01T08:57:24.123Z"})
+    @Matches(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/, {
+         message: 'Timestamp must be in ISO 8601 format',
     })
-    @IsOptional()
-    check_out: string;
+    @IsNotEmpty()
+    check_out: Date;
 
     @ApiPropertyOptional()
     @IsEnum(checkoutstatus)

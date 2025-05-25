@@ -1,4 +1,4 @@
-import { IsLatitude, IsLongitude, IsNotEmpty, IsString, IsUUID, Matches } from "@nestjs/class-validator";
+import { IsDate, IsLatitude, IsLongitude, IsNotEmpty, IsString, IsUUID, Matches } from "@nestjs/class-validator";
 import { ApiProperty } from "@nestjs/swagger";
 
 export class createAttendanceTypeDto {
@@ -12,33 +12,33 @@ export class createAttendanceTypeDto {
     @IsNotEmpty()
     name: string;
 
-    @ApiProperty()
-    @Matches(/^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/, {
-        message: 'startTime must be in HH:mm:ss format',
+    @ApiProperty({example:"1970-01-01T08:57:24.123Z"})
+    @Matches(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/, {
+         message: 'Timestamp must be in ISO 8601 format',
     })
     @IsNotEmpty()
-    check_in: string;
+    check_in: Date;
 
-    @ApiProperty()
-    @Matches(/^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/, {
-        message: 'startTime must be in HH:mm:ss format',
+    @ApiProperty({example:"1970-01-01T08:57:24.123Z"})
+    @Matches(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/, {
+         message: 'Timestamp must be in ISO 8601 format',
     })
     @IsNotEmpty()
-    check_out: string;
+    check_out: Date;
 
     @ApiProperty()
     @IsString()
     @IsNotEmpty()
-    workplace_address: string;
+    workspace_address: string;
 
     @ApiProperty()
     @IsLatitude()
     @IsNotEmpty()
-    workplace_lat: number;
+    workspace_lat: number;
     
     @ApiProperty()
     @IsLongitude()
     @IsNotEmpty()
-    workplace_long: number;
+    workspace_long: number;
     
 }

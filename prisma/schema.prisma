@@ -252,10 +252,12 @@ model Attendance {
   check_in_lat Float @db.DoublePrecision
 
   check_out DateTime? @db.Time()
-  check_out_status CheckInStatus?
+  check_out_status CheckOutStatus?
   check_out_address String? @db.VarChar()
   check_out_long Float? @db.DoublePrecision
   check_out_lat Float? @db.DoublePrecision
+
+  filedir String?
 
   created_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
   updated_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))

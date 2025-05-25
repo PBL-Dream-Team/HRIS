@@ -19,12 +19,12 @@ export class editAttendanceDto {
     @IsOptional()
     type_id:string;
 
-    @ApiPropertyOptional()
-    @Matches(/^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/, {
-        message: 'must be in HH:mm:ss format',
+    @ApiPropertyOptional({example:"1970-01-01T08:57:24.123Z"})
+    @Matches(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/, {
+        message: 'Timestamp must be in ISO 8601 format',
     })
-    @IsOptional()
-    check_in: string;
+    @IsNotEmpty()
+    check_in: Date;
 
     @ApiPropertyOptional()
     @IsEnum(checkinstatus)
@@ -41,11 +41,11 @@ export class editAttendanceDto {
     @IsOptional()
     check_in_long: number;
     
-    @ApiPropertyOptional()
-    @Matches(/^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/, {
-        message: 'must be in HH:mm:ss format',
+    @ApiPropertyOptional({example:"1970-01-01T08:57:24.123Z"})
+    @Matches(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/, {
+        message: 'Timestamp must be in ISO 8601 format',
     })
-    @IsOptional()
+    @IsNotEmpty()
     check_out: string;
 
     @IsEnum(checkoutstatus)

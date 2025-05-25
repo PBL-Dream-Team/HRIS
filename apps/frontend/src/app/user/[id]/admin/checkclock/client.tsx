@@ -56,55 +56,46 @@ import { VscSettings } from 'react-icons/vsc';
 import { IoMdAdd, IoMdSearch } from 'react-icons/io';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useRouter } from 'next/navigation';
 
-const checkclocks = [
-  {
-    name: 'Alice Johnson',
-    position: 'Software Engineer',
-    clockIn: '08:00',
-    clockOut: '16:00',
-    workHours: '8h',
-    status: 'Waiting Approval',
-  },
-  {
-    name: 'Michael Chen',
-    position: 'Project Manager',
-    clockIn: '08:15',
-    clockOut: '16:30',
-    workHours: '8h 15m',
-    status: 'Waiting Approval',
-  },
-  {
-    name: 'Nina Patel',
-    position: 'UI/UX Designer',
-    clockIn: '08:00',
-    clockOut: '17:00',
-    workHours: '9h',
-    status: 'On Time',
-  },
-  {
-    name: 'David Lee',
-    position: 'DevOps Engineer',
-    clockIn: '09:20',
-    clockOut: '18:00',
-    workHours: '8h 40m',
-    status: 'Late',
-  },
-  {
-    name: 'Sarah Kim',
-    position: 'HR Staff',
-    clockIn: '-',
-    clockOut: '-',
-    workHours: '0h',
-    status: 'Absent/Leave',
-  },
-];
+let checkclocks;
 
 type CheckClockClientProps = {
   isAdmin: boolean;
   userId: string;
   companyId: string;
 };
+
+export function getTimeRangeInHours(startTime: string | Date, endTime: string | Date): number {
+  const parseTime = (time: string | Date): Date => {
+    if (typeof time === 'string') {
+      const [h, m, s] = time.split(':').map(Number);
+      const d = new Date();
+      d.setHours(h, m, s || 0, 0);
+      return d;
+    }
+    return time;
+  };
+  const start = parseTime(startTime);
+  const end = parseTime(endTime);
+  if (end < start) {
+    end.setDate(end.getDate() + 1);
+  }
+  const diffMs = end.getTime() - start.getTime();
+  return diffMs / (1000 * 60 * 60);
+}
+
+export function formatTimeOnly(input: Date | string): string {
+  const pad = (n: number) => n.toString().padStart(2, '0');
+
+  if (typeof input === 'string') {
+    // "17:02:24.000Z" → "17:02:24"
+    return input.split('.')[0];
+  }
+
+  // Input is Date
+  return `${pad(input.getHours())}:${pad(input.getMinutes())}:${pad(input.getSeconds())}`;
+}
 
 export default function CheckClockClient({
   isAdmin,
@@ -117,8 +108,17 @@ export default function CheckClockClient({
     avatar: '',
   });
 
+  
+
+  const router = useRouter();
+  const [employees,setEmployee] = useState<Record<string,any>>();
+  const [attendanceType,setAttendanceType] = useState<Record<string,any>>(); 
+  const [attendances,setAttendance] = useState<any[]>([]);
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 10
+
   useEffect(() => {
-    async function fetchUser() {
+    async function fetchData() {
       try {
         const res = await api.get(`/api/employee/${userId}`);
         const { first_name, last_name, email, pict_dir } = res.data.data;
@@ -128,16 +128,57 @@ export default function CheckClockClient({
           email: email,
           avatar: pict_dir || '/avatars/default.jpg',
         });
+
+        const [attendanceRes, employeeRes, typeRes] = await Promise.all([
+          api.get(`api/attendance?company_id=${companyId}`),
+          api.get(`api/employee?company_id=${companyId}`),
+          api.get(`api/attendanceType?company_id=${companyId}`)
+        ]);
+
+        const employeeMap: Record<string, any> = {};
+        for (const emp of employeeRes.data ?? []) {
+          employeeMap[emp.id] = emp;
+        }
+        setEmployee(employeeMap);
+
+        const typeMap: Record<string,any> = {};
+        for (const typ of typeRes.data ?? []){
+          typeMap[typ.id] = typ;
+        }
+        setAttendanceType(typeMap);
+
+        setAttendance(attendanceRes.data ?? []);
+
       } catch (err: any) {
         console.error(
           'Error fetching user:',
           err.response?.data || err.message,
         );
+        setAttendance([]);
+        setEmployee([]);
+        setAttendanceType([]);
+
       }
     }
 
-    fetchUser();
+    fetchData();
   }, [userId]);
+
+  checkclocks = attendances.map((attendance)=>({ //IDK why, employee tetep ada nilainya
+    id: attendance.id,
+    employee_id: attendance.employee_id,
+    name: employees[attendance.employee_id]
+      ? `${employees[attendance.employee_id].first_name} ${employees[attendance.employee_id].last_name}`
+      : 'Unknown',
+    position: employees[attendance.employee_id]
+      ? `${employees[attendance.employee_id].position}`
+      : 'Unknown',
+    date: attendance.created_at,
+    clockIn: formatTimeOnly(attendance.check_in),
+    clockOut:attendance.check_out ? formatTimeOnly(attendance.check_out) : '-',
+    workHours: (attendance.check_out) ? getTimeRangeInHours(attendance.check_in, attendance.check_out) : '0h',
+    status: attendance.check_in_status
+  }));
 
   const [openSheet, setOpenSheet] = useState(false);
   const [selectedCheckClock, setselectedCheckClock] = useState<any>(null);
@@ -241,7 +282,7 @@ export default function CheckClockClient({
                   <TableHead>Clock In</TableHead>
                   <TableHead>Clock Out</TableHead>
                   <TableHead>Work Hours</TableHead>
-                  <TableHead>Approve</TableHead>
+                  {/* <TableHead>Approve</TableHead> */}
                   <TableHead>Status</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
@@ -249,36 +290,48 @@ export default function CheckClockClient({
               <TableBody>
                 {checkclocks.map((checkclock, i) => {
                   let approveContent;
-
-                  switch (checkclock.status) {
-                    case 'Waiting Approval':
-                      approveContent = (
-                        <div className="flex gap-1">
-                          <Button size="icon" variant="outline">
-                            <Check className="text-green-600 w-4 h-4" />
-                          </Button>
-                          <Button size="icon" variant="outline">
-                            <X className="text-red-600 w-4 h-4" />
-                          </Button>
-                        </div>
-                      );
+                  let statusString;
+                  switch(checkclock.status){
+                    case 'ON_TIME':
+                      statusString = "On Time";
                       break;
-                    case 'On Time':
-                      approveContent = (
-                        <span className="h-2 w-2 rounded-full bg-green-600 inline-block" />
-                      );
+                    case 'EARLY':
+                      statusString = "Early";
                       break;
-                    case 'Late':
-                      approveContent = (
-                        <span className="h-2 w-2 rounded-full bg-yellow-500 inline-block" />
-                      );
-                      break;
-                    case 'Absent/Leave':
-                      approveContent = (
-                        <span className="h-2 w-2 rounded-full bg-red-600 inline-block" />
-                      );
+                    case 'LATE':
+                      statusString = "Late";
                       break;
                   }
+
+                  // switch (checkclock.status) {
+                  //   case 'Waiting Approval':
+                  //     approveContent = (
+                  //       <div className="flex gap-1">
+                  //         <Button size="icon" variant="outline">
+                  //           <Check className="text-green-600 w-4 h-4" />
+                  //         </Button>
+                  //         <Button size="icon" variant="outline">
+                  //           <X className="text-red-600 w-4 h-4" />
+                  //         </Button>
+                  //       </div>
+                  //     );
+                  //     break;
+                  //   case 'On Time':
+                  //     approveContent = (
+                  //       <span className="h-2 w-2 rounded-full bg-green-600 inline-block" />
+                  //     );
+                  //     break;
+                  //   case 'Late':
+                  //     approveContent = (
+                  //       <span className="h-2 w-2 rounded-full bg-yellow-500 inline-block" />
+                  //     );
+                  //     break;
+                  //   case 'Absent/Leave':
+                  //     approveContent = (
+                  //       <span className="h-2 w-2 rounded-full bg-red-600 inline-block" />
+                  //     );
+                  //     break;
+                  // }
 
                   return (
                     <TableRow key={i}>
@@ -299,13 +352,8 @@ export default function CheckClockClient({
                       <TableCell>{checkclock.clockIn}</TableCell>
                       <TableCell>{checkclock.clockOut}</TableCell>
                       <TableCell>{checkclock.workHours}</TableCell>
-                      <TableCell className="text-center">
-                        <div className="flex justify-center items-center">
-                          {approveContent}
-                        </div>
-                      </TableCell>
                       <TableCell>
-                        <span className="text-black">{checkclock.status}</span>
+                        <span className="text-black">{statusString}</span>
                       </TableCell>
                       <TableCell>
                         <Button
@@ -326,7 +374,9 @@ export default function CheckClockClient({
             {/* Pagination */}
             <PaginationFooter
               totalItems={checkclocks.length}
-              itemsPerPage={10}
+              itemsPerPage={itemsPerPage}
+              currentPage={currentPage}
+              onPageChange={setCurrentPage}
             />
           </div>
         </div>

@@ -56,35 +56,55 @@ import {
 
 import { VscSettings } from 'react-icons/vsc';
 import { IoMdAdd, IoMdSearch } from 'react-icons/io';
+import { useRouter } from 'next/navigation';
 
-const checkclocks = [
-  {
-    id: 1,
-    name: 'John Doe',
-    position: 'Software Engineer',
-    date: '20 March 2025',
-    clockIn: '09.00',
-    clockOut: '17.00',
-    workHours: '8h',
-    status: 'On Time',
-  },
-  {
-    id: 2,
-    name: 'John Doe',
-    position: 'Software Engineer',
-    date: '20 March 2025',
-    clockIn: '09.00',
-    clockOut: '18.00',
-    workHours: '8h',
-    status: 'On Time',
-  },
-];
+let checkclocks;
+
+
+export function getTimeRangeInHours(startTime: string | Date, endTime: string | Date): number {
+  const parseTime = (time: string | Date): Date => {
+    if (typeof time === 'string') {
+      const [h, m, s] = time.split(':').map(Number);
+      const d = new Date();
+      d.setHours(h, m, s || 0, 0);
+      return d;
+    }
+    return time;
+  };
+  const start = parseTime(startTime);
+  const end = parseTime(endTime);
+  if (end < start) {
+    end.setDate(end.getDate() + 1);
+  }
+  const diffMs = end.getTime() - start.getTime();
+  return diffMs / (1000 * 60 * 60);
+}
+
+export function formatTimeOnly(input: Date | string): string {
+  const pad = (n: number) => n.toString().padStart(2, '0');
+
+  if (typeof input === 'string') {
+    // "17:02:24.000Z" → "17:02:24"
+    return input.split('.')[0];
+  }
+
+  // Input is Date
+  return `${pad(input.getHours())}:${pad(input.getMinutes())}:${pad(input.getSeconds())}`;
+}
 
 type CheckClockClientProps = {
   isAdmin: boolean;
   userId: string;
   companyId: string;
 };
+
+
+  const [employees,setEmployee] = useState<Record<string,any>>();
+  const [attendanceType,setAttendanceType] = useState<Record<string,any>>(); 
+  const [attendances,setAttendance] = useState<any[]>([]);
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 10
+
 
 export default function CheckClockClient({
   isAdmin,
@@ -108,6 +128,28 @@ export default function CheckClockClient({
           email: email,
           avatar: pict_dir || '/avatars/default.jpg',
         });
+
+        const [attendanceRes, employeeRes, typeRes] = await Promise.all([
+          api.get(`api/attendance?company_id=${companyId}`),
+          api.get(`api/employee?company_id=${companyId}`),
+          api.get(`api/attendanceType?company_id=${companyId}`)
+        ]);
+
+        
+        const employeeMap: Record<string, any> = {};
+        for (const emp of employeeRes.data ?? []) {
+          employeeMap[emp.id] = emp;
+        }
+        setEmployee(employeeMap);
+
+        const typeMap: Record<string,any> = {};
+        for (const typ of typeRes.data ?? []){
+          typeMap[typ.id] = typ;
+        }
+        setAttendanceType(typeMap);
+
+        setAttendance(attendanceRes.data ?? []);
+
       } catch (err: any) {
         console.error(
           'Error fetching user:',
@@ -118,6 +160,23 @@ export default function CheckClockClient({
 
     fetchUser();
   }, [userId]);
+
+  
+  checkclocks = attendances.map((attendance)=>({ //IDK why, employee tetep ada nilainya
+      id: attendance.id,
+      employee_id: attendance.employee_id,
+      name: employees[attendance.employee_id]
+        ? `${employees[attendance.employee_id].first_name} ${employees[attendance.employee_id].last_name}`
+        : 'Unknown',
+      position: employees[attendance.employee_id]
+        ? `${employees[attendance.employee_id].position}`
+        : 'Unknown',
+      date: attendance.created_at,
+      clockIn: formatTimeOnly(attendance.check_in),
+      clockOut:attendance.check_out ? formatTimeOnly(attendance.check_out) : '-',
+      workHours: (attendance.check_out) ? getTimeRangeInHours(attendance.check_in, attendance.check_out) : '0h',
+      status: attendance.check_in_status
+    }));
 
   const [openSheet, setOpenSheet] = useState(false);
   const [selectedCheckClock, setselectedCheckClock] = useState<any>(null);
@@ -230,9 +289,10 @@ export default function CheckClockClient({
                       <div>
                         <span
                           className={`px-2 py-1 rounded text-xs text-white 
-                                ${checkclock.status === 'On Time' ? 'bg-green-600' : ''}
-                                ${checkclock.status === 'Late' ? 'bg-yellow-600' : ''}
-                                ${checkclock.status === 'Absent' ? 'bg-red-600' : ''}
+                                ${checkclock.status === 'ON_TIME' ? 'bg-green-600' : ''}
+                                ${checkclock.status === 'LATE' ? 'bg-yellow-600' : ''}
+                                ${checkclock.status === 'EARLY' ? 'bg-yellow-600' : ''}
+                                ${checkclock.status === 'ABSENT' ? 'bg-red-600' : ''}
                                 `}
                         >
                           {checkclock.status}
@@ -259,7 +319,9 @@ export default function CheckClockClient({
             {/* Pagination */}
             <PaginationFooter
               totalItems={checkclocks.length}
-              itemsPerPage={10}
+              itemsPerPage={itemsPerPage}
+              currentPage={currentPage}
+              onPageChange={setCurrentPage}
             />
           </div>
         </div>
