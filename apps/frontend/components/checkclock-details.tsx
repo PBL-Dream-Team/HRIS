@@ -48,11 +48,7 @@ export default function CheckClockDetails({
               <Avatar className="h-8 w-8 rounded-lg">
                 <AvatarImage src="/avatars/user.jpg" />
                 <AvatarFallback className="rounded-lg">
-                  {selectedCheckClock.name
-                    .split(' ')
-                    .map((n) => n[0])
-                    .join('')
-                    .toUpperCase()}
+                  {selectedCheckClock.name.split(' ').map((n) => n[0]).join('').toUpperCase()}
                 </AvatarFallback>
               </Avatar>
               <div>

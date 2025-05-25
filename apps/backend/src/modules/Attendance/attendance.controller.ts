@@ -15,14 +15,7 @@ export class AttendanceController {
 
   @Post()
   @ApiBody({type:createAttendanceDto})
-  @UseInterceptors(
-        FileInterceptor('file',{
-          limits: { fileSize: 50 * 1024 * 1024},
-        }),
-        new UploadExtensionInterceptor(['jpg','jpeg','png','pdf'])
-      )
-  createAttendance(@Body() createAttendanceDto: createAttendanceDto,
- @UploadedFile() file: Express.Multer.File) {
+  createAttendance(@Body() createAttendanceDto: createAttendanceDto) {
     return this.AttendanceService.createAttendance(createAttendanceDto);
   }
 
@@ -41,16 +34,9 @@ export class AttendanceController {
 
   @Patch(':id')
   @ApiBody({type:editAttendanceDto})
-  @UseInterceptors(
-      FileInterceptor('file',{
-        limits: { fileSize: 50 * 1024 * 1024},
-      }),
-      new UploadExtensionInterceptor(['jpg','jpeg','png','pdf'])
-    )
   updateAttendance(
     @Param('id') attendanceId: string,
-    @Body() updateAttendanceDto: editAttendanceDto,
-    @UploadedFile() file: Express.Multer.File
+    @Body() updateAttendanceDto: editAttendanceDto
   ) {
     return this.AttendanceService.updateAttendance(attendanceId, updateAttendanceDto);
   }

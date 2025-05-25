@@ -68,7 +68,11 @@ type CheckClockProcessed = {
   workHours: string;
   status: string;
   approval: string;
-  originalData?: any;
+  // originalData?: any;
+  lat: string;
+  long: string;
+  location: string;
+  address:string;
 };
 
 
@@ -127,6 +131,7 @@ export default function CheckClockClient({
 
   const [employees, setEmployee] = useState<Record<string, any>>({});
   const [attendanceType, setAttendanceType] = useState<Record<string, any>>({});
+  const [company, setCompany] = useState<any[]>([]);
   const [attendances, setAttendance] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -148,10 +153,11 @@ export default function CheckClockClient({
           avatar: pict_dir || '/avatars/default.jpg',
         });
 
-        const [attendanceRes, employeeRes, typeRes] = await Promise.all([
+        const [attendanceRes, employeeRes, typeRes, companyRes] = await Promise.all([
           api.get(`api/attendance?company_id=${companyId}`),
           api.get(`api/employee?company_id=${companyId}`),
           api.get(`api/attendanceType?company_id=${companyId}`),
+          api.get(`api/company?id=${companyId}`),
         ]);
 
         const employeeMap: Record<string, any> = {};
@@ -167,6 +173,7 @@ export default function CheckClockClient({
         setAttendanceType(typeMap);
 
         setAttendance(attendanceRes.data ?? []);
+        setCompany(companyRes.data ?? []);
       } catch (err: any) {
         console.error(
           'Error fetching data:',
@@ -196,16 +203,22 @@ export default function CheckClockClient({
           ? `${employeeData.first_name} ${employeeData.last_name}`
           : 'Unknown Employee',
         avatarUrl: employeeData?.pict_dir || undefined,
-        position: employeeData ? `${employeeData.position}` : 'N/A',
+        position: employeeData.position ? `${employeeData.position}` : 'N/A',
         date: attendance.created_at ? new Date(attendance.created_at).toLocaleDateString() : 'N/A',
         clockIn: attendance.check_in ? formatTimeOnly(attendance.check_in) : '-',
         clockOut: attendance.check_out ? formatTimeOnly(attendance.check_out) : '-',
         workHours: attendance.check_in && attendance.check_out
-          ? `${getTimeRangeInHours(attendance.check_in, attendance.check_out).toFixed(2)}h`
+          ? `${getTimeRangeInHours(formatTimeOnly(attendance.check_in),formatTimeOnly(attendance.check_out))}h`
           : '0h',
         status: attendance.check_in_status || 'N/A',
         approval: attendance.approval || 'N/A',
-        originalData: attendance,
+        // originalData: attendance,
+        address: (attendance.check_out) ? attendance.check_out_address : attendance.check_in_address,
+        lat: (attendance.check_out) ? attendance.check_out_lat : attendance.check_in_lat,
+        long: (attendance.check_out) ? attendance.check_out_long : attendance.check_in_long,
+        location: (attendance.check_in_address == company[0].address)
+      ? "Office"
+      : (employeeData.workscheme != "WFO") ? "Outside Office (WFA/Hybrid)" : "Outside Office (WFO)",
       };
     });
   }, [attendances, employees]);
@@ -273,7 +286,7 @@ export default function CheckClockClient({
                 <Button variant="outline" className="w-full md:w-auto">
                   <VscSettings className="h-4 w-4 mr-1" /> Filter
                 </Button>
-                <Dialog>
+                {/* <Dialog>
                   <DialogTrigger asChild>
                     <Button>
                       <IoMdAdd /> Add Check Clock
@@ -282,11 +295,10 @@ export default function CheckClockClient({
                   <DialogContent className="max-w-4xl">
                     <DialogHeader>
                       <DialogTitle>Add Check Clock</DialogTitle>
-                    </DialogHeader>
-                    {/* Pass companyId and other necessary props to CheckClockForm */}
-                    <CheckClockForm /* companyId={companyId} employees={employees} attendanceTypes={attendanceType} */ />
-                  </DialogContent>
-                </Dialog>
+                    </DialogHeader> */}
+                    {/* <CheckClockForm/> */}
+                  {/* </DialogContent>
+                </Dialog> */}
               </div>
             </div>
               <Table>
@@ -373,9 +385,9 @@ export default function CheckClockClient({
                         </TableCell>
                         <TableCell>{checkclock.name}</TableCell>
                         <TableCell>{checkclock.position}</TableCell>
-                        <TableCell>{checkclock.date}</TableCell>
-                        <TableCell>{checkclock.clockIn}</TableCell>
-                        <TableCell>{checkclock.clockOut}</TableCell>
+                        <TableCell>{checkclock.date.replace(/T.*/, "")}</TableCell>
+                        <TableCell>{checkclock.clockIn.replace(/.*T/,"")}</TableCell>
+                        <TableCell>{checkclock.clockOut.replace(/.*T/,"")}</TableCell>
                         <TableCell>{checkclock.workHours}</TableCell>
                         <TableCell>{approveContent}</TableCell>
                         <TableCell>
@@ -412,7 +424,8 @@ export default function CheckClockClient({
         <CheckClockDetails
           open={openSheet}
           onOpenChange={setOpenSheet}
-          selectedCheckClock={selectedCheckClock.originalData || selectedCheckClock}
+          selectedCheckClock={selectedCheckClock}
+          // selectedCheckClock={selectedCheckClock.originalData || selectedCheckClock}
         />
       )}
     </SidebarProvider>

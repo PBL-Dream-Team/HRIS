@@ -73,9 +73,11 @@ export function getTimeRangeInHours(startTime: string | Date, endTime: string | 
   };
   const start = parseTime(startTime);
   const end = parseTime(endTime);
+
   if (end < start) {
     end.setDate(end.getDate() + 1);
   }
+
   const diffMs = end.getTime() - start.getTime();
   return diffMs / (1000 * 60 * 60);
 }
@@ -84,11 +86,13 @@ export function formatTimeOnly(input: Date | string): string {
   const pad = (n: number) => n.toString().padStart(2, '0');
 
   if (typeof input === 'string') {
-    // "17:02:24.000Z" → "17:02:24"
-    return input.split('.')[0];
+    const timePart = input.split('.')[0];
+    if (timePart.includes('T')) {
+        const dateObj = new Date(input);
+        return `${pad(dateObj.getHours())}:${pad(dateObj.getMinutes())}:${pad(dateObj.getSeconds())}`;
+    }
+    return timePart;
   }
-
-  // Input is Date
   return `${pad(input.getHours())}:${pad(input.getMinutes())}:${pad(input.getSeconds())}`;
 }
 
@@ -174,14 +178,14 @@ const itemsPerPage = 10
     name: `${employees[0].first_name} ${employees[0].last_name}`,
     clockIn: formatTimeOnly(attendance.check_in),
     clockOut:attendance.check_out ? formatTimeOnly(attendance.check_out) : '-',
-    workHours: (attendance.check_out) ? getTimeRangeInHours(attendance.check_in, attendance.check_out) : '0h',
+    workHours: (attendance.check_out) ?  `${getTimeRangeInHours(formatTimeOnly(attendance.check_in),formatTimeOnly(attendance.check_out))}h` : '0h',
     status: attendance.check_in_status,
     address: (attendance.check_out) ? attendance.check_out_address : attendance.check_in_address,
     lat: (attendance.check_out) ? attendance.check_out_lat : attendance.check_in_lat,
     long: (attendance.check_out) ? attendance.check_out_long : attendance.check_in_long,
     location: (attendance.check_in_address == company[0].address)
       ? "Office"
-      : (employees[0].workscheme != "WFO") ? "Outside Office (WFA/Hybrid)" : "Unknown",
+      : (employees[0].workscheme != "WFO") ? "Outside Office (WFA/Hybrid)" : "Outside Office (WFO)",
   }));
 
   

@@ -20,11 +20,11 @@ export class AttendanceService {
   constructor(private prisma: PrismaService) {}
 
   async createAttendance(dto: createAttendanceDto, file?: Express.Multer.File) {
-    const AttendanceData : any = dto;
+    const AttendanceData : any = {...dto};
 
     const typ = await this.prisma.attendanceType.findFirst({where:{id:AttendanceData.type_id}})
 
-    AttendanceData.check_in_status = (isTimeAfter(new Date(AttendanceData.check_in), new Date(typ.check_in))) ? "LATE" : "ON_TIME";
+    if(AttendanceData.check_in) AttendanceData.check_in_status = (isTimeAfter(new Date(AttendanceData.check_in), new Date(typ.check_in))) ? "LATE" : "ON_TIME";
     if(AttendanceData.check_out) AttendanceData.check_out_status = (isTimeAfter(new Date(typ.check_out), new Date(AttendanceData.check_out))) ? "EARLY" : "ON_TIME";
     
     if(AttendanceData.check_in_status == "LATE") AttendanceData.approval = "PENDING";
@@ -85,37 +85,29 @@ export class AttendanceService {
     return await this.prisma.attendance.findMany();
   }
 
-  async updateAttendance(attendanceId: string, dto: editAttendanceDto, file?: Express.Multer.File) {
-    const AttendanceData : any = dto;
+  async updateAttendance(attendanceId: string, dto: editAttendanceDto) {
+    const AttendanceData : any = {...dto};
 
     const old = await this.prisma.attendance.findFirst({where:{id:attendanceId}});
+    const typ = await this.prisma.attendanceType.findFirst({where:{id:old.type_id}});
 
+    if(AttendanceData.check_in) AttendanceData.check_in_status = (isTimeAfter(new Date(AttendanceData.check_in), new Date(typ.check_in))) ? "LATE" : "ON_TIME";
+    if(AttendanceData.check_out) AttendanceData.check_out_status = (isTimeAfter(new Date(typ.check_out), new Date(AttendanceData.check_out))) ? "EARLY" : "ON_TIME";
     
+    if(AttendanceData.check_in_status == "LATE") AttendanceData.approval = "PENDING";
+    if(AttendanceData.check_out_status == "EARLY") AttendanceData.approval = "PENDING";
 
-    if(file){
-      const filename = `${Date.now()}_${file.originalname}`;
-      AttendanceData.filedir = filename;
-    }
-
+    if(AttendanceData.check_in_lat > (typ.workspace_lat + 100.0) && AttendanceData.check_in_lat) AttendanceData.approval = "PENDING";
+    if(AttendanceData.check_in_long > (typ.workspace_long + 100.0)  && AttendanceData.check_in_long) AttendanceData.approval = "PENDING";
+    if(AttendanceData.check_out_lat > (typ.workspace_lat + 100.0)  && AttendanceData.check_out_lat) AttendanceData.approval = "PENDING";
+    if(AttendanceData.check_out_long > (typ.workspace_long + 100.0)  && AttendanceData.check_out_lat) AttendanceData.approval = "PENDING";
+    
+    if(AttendanceData.check_in_status == "ON_TIME" && AttendanceData.check_out_status == "ON_TIME") AttendanceData.approval = "APPROVED";
     try {
       const attendance = await this.prisma.attendance.update({
         where: { id: attendanceId },
         data: AttendanceData,
       });
-
-      if(file && AttendanceData.filedir){
-        const writePath = join(process.cwd(),'storage','attendance',AttendanceData.filedir);
-        const writeStream = createWriteStream(writePath);
-        writeStream.write(file.buffer);
-        writeStream.end();
-      
-        if(old.filedir){
-          const oldPath = join(process.cwd(),'storage','attendance',old.filedir);
-          if(existsSync(oldPath)){
-            unlinkSync(oldPath);
-          }
-        }
-      }
 
       return {
         statusCode: 200,
