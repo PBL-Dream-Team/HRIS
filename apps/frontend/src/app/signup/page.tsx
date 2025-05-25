@@ -82,12 +82,6 @@ export default function HrSignUpPage() {
               height={48}
               className="object-contain"
             />
-            <Link
-              href="/signin"
-              className="text-sm font-medium text-blue-900 hover:underline"
-            >
-              Login Here!
-            </Link>
           </div>
 
           <h2 className="text-2xl font-bold mb-2 text-[#1E3A5F]">Sign Up</h2>

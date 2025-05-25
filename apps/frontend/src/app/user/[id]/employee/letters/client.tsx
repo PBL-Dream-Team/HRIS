@@ -15,12 +15,8 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from '@/components/ui/sidebar';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { DataTable } from '@/components/data-table';
-
-
 import { NavUser } from '@/components/nav-user';
-import { useRouter } from 'next/navigation';
 
 import LetterDetails from '@/components/letter-details';
 import { useEffect } from 'react';
@@ -43,7 +39,6 @@ export default function LettersClient({
     avatar: '',
   });
 
-  const router = useRouter();
   const [employees, setEmployees] = useState<Record<string, any>>({});
   const [letterTypeMap, setLetterTypeMap] = useState<Record<string, any>>({});
   const [letters, setLetters] = useState<any[]>([]);
@@ -63,7 +58,7 @@ export default function LettersClient({
         });
 
         const [lettersRes, employeesRes, typesRes] = await Promise.all([
-          api.get(`/api/letter?company_id=${companyId}`),
+          api.get(`/api/letter?employee_id=${userId}`),
           api.get(`/api/employee?company_id=${companyId}`),
           api.get(`/api/letterType?company_id=${companyId}`),
         ]);
@@ -122,8 +117,6 @@ export default function LettersClient({
     setOpenSheet(true);
   };
 
-  const [successMessage, setSuccessMessage] = useState('');
-
   return (
     <SidebarProvider>
       <AppSidebar isAdmin={isAdmin} />
@@ -176,12 +169,6 @@ export default function LettersClient({
           </div>
         </header>
         <div className="flex flex-1 flex-col gap-4 p-10 pt-5">
-          {successMessage && (
-            <Alert className="border-green-300 bg-green-50 text-green-800">
-              <AlertTitle className="font-medium">Success</AlertTitle>
-              <AlertDescription>{successMessage}</AlertDescription>
-            </Alert>
-          )}
           <div className="border border-gray-300 rounded-md p-4">
             {/* Data Table */}
             <DataTable

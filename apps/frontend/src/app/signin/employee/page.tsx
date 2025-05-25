@@ -87,7 +87,7 @@ export default function HrLoginPage() {
                 type="email"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Enter your ID Employee"
+                placeholder="Enter your email"
                 className="text-gray-700 border-[#1E3A5F]"
               />
             </div>

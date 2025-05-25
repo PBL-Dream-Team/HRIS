@@ -80,12 +80,12 @@ export default function HrLoginPage() {
             {/* Email */}
             <div className="space-y-2">
               <Label htmlFor="input" className="text-blue-900">
-                Email or Phone Number
+                Email
               </Label>
               <Input
                 id="input"
                 type="email"
-                placeholder="Enter your email or phone number"
+                placeholder="Enter your email"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 className="text-gray-700 border-zinc-600"
@@ -155,7 +155,7 @@ export default function HrLoginPage() {
                 variant="outline"
                 className="w-full flex items-center justify-center gap-2"
               >
-                Sign in with ID Employee
+                Sign in as Employee
               </Button>
             </Link>
 
