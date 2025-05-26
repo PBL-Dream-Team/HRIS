@@ -171,8 +171,8 @@ export class AttendanceService {
 
     for (const attendance of attendances) {
       if (attendance.check_in && attendance.check_out) {
-        const [inHour, inMin] = attendance.check_in.split(':').map(Number);
-        const [outHour, outMin] = attendance.check_out.split(':').map(Number);
+        const [inHour, inMin] = attendance.check_in.toDateString().split(':').map(Number);
+        const [outHour, outMin] = attendance.check_out.toDateString().split(':').map(Number);
 
         const checkIn = new Date(0, 0, 0, inHour, inMin);
         const checkOut = new Date(0, 0, 0, outHour, outMin);
