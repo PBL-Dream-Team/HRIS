@@ -52,6 +52,13 @@ export default function DashboardClient({
     avatar: '',
   });
 
+  const [workStats, setWorkStats] = useState<WorkStats>({
+    workHours: '0h 0m',
+    onTimeDays: 0,
+    lateDays: 0,
+    leaveDays: 0,
+  });
+
   useEffect(() => {
     async function fetchUser() {
       try {
@@ -60,19 +67,33 @@ export default function DashboardClient({
 
         setUser({
           name: `${first_name} ${last_name}`,
-          email: email,
+          email,
           avatar: pict_dir || '/avatars/default.jpg',
         });
       } catch (err: any) {
-        console.error(
-          'Error fetching user:',
-          err.response?.data || err.message,
-        );
+        console.error('Error fetching user:', err.response?.data || err.message);
+      }
+    }
+
+    async function fetchWorkStats() {
+      try {
+        const res = await api.get(`/api/employee/${userId}/work-info`);
+        const { workHours, onTimeDays, lateDays, leaveDays } = res.data;
+        setWorkStats({
+          workHours,
+          onTimeDays,
+          lateDays,
+          leaveDays,
+        });
+      } catch (err: any) {
+        console.error('Error fetching work stats:', err.response?.data || err.message);
       }
     }
 
     fetchUser();
+    fetchWorkStats();
   }, [userId]);
+
 
   return (
     <SidebarProvider>
@@ -126,7 +147,7 @@ export default function DashboardClient({
           </div>
         </header>
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-          <WorkInformation />
+            <WorkInformation stats={workStats} />
           <div className="flex flex-col gap-4">
             <div className="grid gap-4 sm:grid-cols-2">
               <AttendanceSummaryCard />

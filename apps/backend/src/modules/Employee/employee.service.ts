@@ -8,12 +8,12 @@ import { hash } from 'argon2';
 
 @Injectable()
 export class EmployeeService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async createEmployee(dto: createEmployeeDto, file?: Express.Multer.File) {
-    const data : any = { ...dto};
-    
-    if(file){
+    const data: any = { ...dto };
+
+    if (file) {
       const filename = `${Date.now()}_${file.originalname}`;
       data.pict_dir = filename;
     }
@@ -23,8 +23,8 @@ export class EmployeeService {
     try {
       const employee = await this.prisma.employee.create({ data: data });
 
-      if(file && data.pict_dir){
-        const writePath = join(process.cwd(),'storage','employee',data.pict_dir);
+      if (file && data.pict_dir) {
+        const writePath = join(process.cwd(), 'storage', 'employee', data.pict_dir);
         const writeStream = createWriteStream(writePath);
         writeStream.write(file.buffer);
         writeStream.end();
@@ -66,16 +66,16 @@ export class EmployeeService {
   }
 
   async updateEmployee(employeeId: string, dto: editEmployeeDto, file?: Express.Multer.File) {
-    const data : any = {...dto};
+    const data: any = { ...dto };
 
-    const user = await this.prisma.employee.findFirst({where:{id:employeeId}});
+    const user = await this.prisma.employee.findFirst({ where: { id: employeeId } });
 
-    if(file){
+    if (file) {
       const filename = `${Date.now()}_${file.originalname}`;
       data.pict_dir = filename;
     }
 
-    if(dto.password){
+    if (dto.password) {
       const hashed = await hash(dto.password);
       data.password = hashed;
     }
@@ -86,15 +86,15 @@ export class EmployeeService {
         data: data,
       });
 
-      if(file && data.pict_dir){
-        const writePath = join(process.cwd(),'storage','employee',data.pict_dir);
+      if (file && data.pict_dir) {
+        const writePath = join(process.cwd(), 'storage', 'employee', data.pict_dir);
         const writeStream = createWriteStream(writePath);
         writeStream.write(file.buffer);
         writeStream.end();
 
-        if(user.pict_dir){
-          const oldPath = join(process.cwd(),'storage','employee',user.pict_dir);
-          if(existsSync(oldPath)){
+        if (user.pict_dir) {
+          const oldPath = join(process.cwd(), 'storage', 'employee', user.pict_dir);
+          if (existsSync(oldPath)) {
             unlinkSync(oldPath);
           }
         }
@@ -116,15 +116,15 @@ export class EmployeeService {
 
   async deleteEmployee(employeeId: string) {
     try {
-      const user = await this.prisma.employee.findFirst({ where: {id: employeeId}});
+      const user = await this.prisma.employee.findFirst({ where: { id: employeeId } });
 
       await this.prisma.employee.delete({ where: { id: employeeId } });
 
-      if(user.pict_dir){
-          const oldPath = join(process.cwd(),'storage','employee',user.pict_dir);
-          if(existsSync(oldPath)){
-            unlinkSync(oldPath);
-          }
+      if (user.pict_dir) {
+        const oldPath = join(process.cwd(), 'storage', 'employee', user.pict_dir);
+        if (existsSync(oldPath)) {
+          unlinkSync(oldPath);
+        }
       }
 
       return {
@@ -139,13 +139,45 @@ export class EmployeeService {
     }
   }
 
-  async findFilters(filters: Record< string, any>){
-    const where: Record<string , any> = {}
+  async findFilters(filters: Record<string, any>) {
+    const where: Record<string, any> = {}
 
-    for (const [key,value] of Object.entries(filters)){
-      where[key] = { equals: value};
+    for (const [key, value] of Object.entries(filters)) {
+      where[key] = { equals: value };
     }
 
-    return await this.prisma.employee.findMany({where});
+    return await this.prisma.employee.findMany({ where });
   }
+
+  async countEmployees(companyId: string): Promise<{ total: number }> {
+    const total = await this.prisma.employee.count({
+      where: {
+        company_id: companyId,
+        is_admin: false, // asumsi: admin tidak dihitung
+      },
+    });
+    return { total };
+  }
+
+  async getStatusSummary(companyId: string) {
+    const employees = await this.prisma.employee.findMany({
+      where: {
+        company_id: companyId,
+        is_admin: false,
+      },
+    });
+
+    const summary = {
+      PERMANENT: 0,
+      CONTRACT: 0,
+      INTERN: 0,
+    };
+
+    for (const emp of employees) {
+      summary[emp.contract]++;
+    }
+
+    return summary;
+  }
+
 }

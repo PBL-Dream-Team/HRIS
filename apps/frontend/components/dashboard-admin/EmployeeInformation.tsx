@@ -1,9 +1,10 @@
-import React from 'react';
+'use client'
+import React, { useEffect, useState } from 'react';
 
-{/* Import Components */}
+{/* Import Components */ }
 
 import { User, UserPlus, UserCheck, UserMinus } from 'lucide-react';
-import { 
+import {
   Card,
   CardDescription,
   CardFooter,
@@ -11,9 +12,29 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 
-{/* Content */}
+{/* Content */ }
 
-export default function EmployeeInformation() {
+type EmployeeInformationProps = {
+  totalEmployees: number;
+};
+
+export default function EmployeeInformation({ totalEmployees }: EmployeeInformationProps) {
+  const [formattedDate, setFormattedDate] = useState('');
+
+  useEffect(() => {
+    const date = new Date();
+    const options: Intl.DateTimeFormatOptions = {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric',
+    };
+
+    // Format ke '25 May 2025'
+    const localDate = date.toLocaleDateString('en-US', options);
+    setFormattedDate(localDate);
+  }, []);
+
+
   return (
     <div className="grid auto-rows-min gap-4 md:grid-cols-4 sm:grid-cols-2">
       <Card className="@container/card">
@@ -25,13 +46,15 @@ export default function EmployeeInformation() {
             </div>
           </CardTitle>
           <CardDescription className="text-black text-5xl font-semibold">
-            24
+            {totalEmployees}
           </CardDescription>
         </CardHeader>
         <CardFooter>
-          <div className='text-muted-foreground'>Update: March 16, 2025</div>
+          <div className="text-muted-foreground">Update: {formattedDate}</div>
         </CardFooter>
       </Card>
+
+
 
       <Card className="@container/card">
         <CardHeader className="relative">

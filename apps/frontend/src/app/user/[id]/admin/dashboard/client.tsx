@@ -84,6 +84,21 @@ export default function DashboardClient({
 
     fetchUser();
   }, [userId]);
+
+  const [employeeCount, setEmployeeCount] = useState<number>(0);
+
+  useEffect(() => {
+    async function fetchEmployeeCount() {
+      try {
+        const res = await api.get(`/api/employee/count/${companyId}`);
+        setEmployeeCount(res.data.total);
+      } catch (err: any) {
+        console.error('Error fetching employee count:', err.response?.data || err.message);
+      }
+    }
+
+    fetchEmployeeCount();
+  }, [companyId]);
   return (
     <SidebarProvider>
       <AppSidebar isAdmin={isAdmin} />
@@ -138,7 +153,7 @@ export default function DashboardClient({
 
         {/* Content */}
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-          <EmployeeInformation />
+          <EmployeeInformation totalEmployees={employeeCount} />
           <div className="grid auto-rows-min gap-4 md:grid-cols-2 sm:grid-cols-1">
             <EmployeeStatisticsCard />
             <EmployeeStatusCard />
