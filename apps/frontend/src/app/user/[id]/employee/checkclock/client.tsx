@@ -297,7 +297,6 @@ const [checkOutId, setCheckOutId] = useState<string | null>(null);
                     <DialogTitle>Add Check Clock</DialogTitle>
                   </DialogHeader>
                   <CheckClockForm
-                  
                     employeeId={userId}
                     companyId={companyId}
                     typeId={user.typeId}

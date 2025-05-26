@@ -50,6 +50,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import AbsenceDetails from '@/components/absence-details';
 
 type Absence = {
     id: string;
@@ -58,13 +59,33 @@ type Absence = {
     reason: string;
     date: string;
     status: string;
+    name: string;
+    position: string;
+    type:string;
+    address: string;
+    created_at: string;
 };
+
 
 type AbsenceClientProps = {
     isAdmin: boolean;
     userId: string;
     companyId: string;
 };
+
+export function formatTimeOnly(input: Date | string): string {
+  const pad = (n: number) => n.toString().padStart(2, '0');
+
+  if (typeof input === 'string') {
+    const timePart = input.split('.')[0];
+    if (timePart.includes('T')) {
+        const dateObj = new Date(input);
+        return `${pad(dateObj.getHours())}:${pad(dateObj.getMinutes())}:${pad(dateObj.getSeconds())}`;
+    }
+    return timePart;
+  }
+  return `${pad(input.getHours())}:${pad(input.getMinutes())}:${pad(input.getSeconds())}`;
+}
 
 export default function AbsenceClient({ isAdmin, userId, companyId }: AbsenceClientProps) {
     const [user, setUser] = useState({ name: '', email: '', avatar: '' });
@@ -102,10 +123,46 @@ export default function AbsenceClient({ isAdmin, userId, companyId }: AbsenceCli
         fetchData();
     }, [userId]);
 
-    const displayedAbsences = absences.slice(
+
+    const transformedabsences = absences.map((absence) => {
+        const employee = employees[absence.employee_id];
+        return {
+            id: absence.id,
+            employee_id: absence.employee_id,
+            company_id: absence.company_id,
+            reason: absence.reason ? absence.reason : "-",
+            date: formatTimeOnly(absence.date),
+            status: absence.status,
+            name: `${employee.first_name} ${employee.last_name}`,
+            position: employee.position ? employee.position : "N/A",
+            type: absence.type,
+            address: employee.address ? employee.address : "-",
+            created_at: new Date(absence.created_at).toDateString()
+        }
+    });
+
+    const displayedAbsences = transformedabsences.slice(
         (currentPage - 1) * itemsPerPage,
         currentPage * itemsPerPage
     );
+
+    const [openSheet, setOpenSheet] = useState(false);
+    const [selectedAbsence, setSelectedAbsence] = useState<Absence | null>(null);
+
+    const handleViewDetails = (absence: Absence) => {
+        setSelectedAbsence(absence);
+        setOpenSheet(true);
+    };
+
+    const handleApproval = async (id: string, status: 'APPROVED' | 'DISAPPROVED') => {
+        try {
+          await api.patch(`/api/absence/${id}`, { status });
+          setAbsences(prev =>
+            prev.map(a => (a.id === id ? { ...a, status } : a))
+          );
+        } catch (err) {
+          console.error('Approval failed:', err);
+    }}
 
     return (
         <SidebarProvider>
@@ -158,7 +215,7 @@ export default function AbsenceClient({ isAdmin, userId, companyId }: AbsenceCli
                                 </div>
                                 <Button variant="outline"><VscSettings className="w-4 h-4 mr-1" /> Filter</Button>
 
-                                <Dialog>
+                                {/* <Dialog>
                                     <DialogTrigger asChild>
                                         <Button><IoMdAdd /> Add Absence</Button>
                                     </DialogTrigger>
@@ -168,7 +225,7 @@ export default function AbsenceClient({ isAdmin, userId, companyId }: AbsenceCli
                                         </DialogHeader>
                                         <AbsenceForm />
                                     </DialogContent>
-                                </Dialog>
+                                </Dialog> */}
                             </div>
                         </div>
 
@@ -178,7 +235,8 @@ export default function AbsenceClient({ isAdmin, userId, companyId }: AbsenceCli
                                     <TableHead>Avatar</TableHead>
                                     <TableHead>Name</TableHead>
                                     <TableHead>Position</TableHead>
-                                    <TableHead>Date</TableHead>
+                                    <TableHead>Created At</TableHead>
+                                    <TableHead>On Date</TableHead>
                                     <TableHead>Reason</TableHead>
                                     <TableHead>Status</TableHead>
                                     <TableHead>Actions</TableHead>
@@ -187,6 +245,41 @@ export default function AbsenceClient({ isAdmin, userId, companyId }: AbsenceCli
                             <TableBody>
                                 {displayedAbsences.map((abs, i) => {
                                     const emp = employees[abs.employee_id];
+                                    let approveContent;
+
+                                    switch (abs.status) {
+                                        case 'PENDING':
+                                            approveContent = (
+                                              <div className="flex gap-1">
+                                                {/* Add onClick handlers for approval actions */}
+                                                <Button size="icon" variant="outline" title="Approve" onClick={() => handleApproval(abs.id, 'APPROVED')}>
+                                                  <Check className="text-green-600 w-4 h-4" />
+                                                </Button>
+                                                <Button size="icon" variant="outline" title="Disapprove" onClick={() => handleApproval(abs.id, 'DISAPPROVED')}>
+                                                  <X className="text-red-600 w-4 h-4" />
+                                                </Button>
+                                              </div>
+                                            );
+                                            break;
+                                        case 'APPROVED':
+                                            approveContent = (
+                                               <div className="flex items-center">
+                                                <span className="h-2 w-2 rounded-full bg-green-600 inline-block mr-2" />
+                                                Approved
+                                              </div>
+                                            );
+                                            break;
+                                        case 'DISAPPROVED':
+                                            approveContent = (
+                                              <div className="flex items-center">
+                                                <span className="h-2 w-2 rounded-full bg-red-500 inline-block mr-2" />
+                                                Rejected
+                                              </div>
+                                            );
+                                        default:
+                                            approveContent = abs.status || 'N/A';
+                                    }
+                                    
                                     return (
                                         <TableRow key={i}>
                                             <TableCell>
@@ -199,11 +292,16 @@ export default function AbsenceClient({ isAdmin, userId, companyId }: AbsenceCli
                                             </TableCell>
                                             <TableCell>{emp ? `${emp.first_name} ${emp.last_name}` : 'Unknown'}</TableCell>
                                             <TableCell>{emp?.position || '-'}</TableCell>
+                                            <TableCell>{new Date(abs.created_at).toLocaleDateString()}</TableCell>
                                             <TableCell>{new Date(abs.date).toLocaleDateString()}</TableCell>
                                             <TableCell>{abs.reason}</TableCell>
-                                            <TableCell>{abs.status}</TableCell>
+                                            <TableCell>{approveContent}</TableCell>
                                             <TableCell>
-                                                <Button size="icon" variant="outline">
+                                                <Button size="icon"
+                                                 variant="outline"
+                                                 className="hover:text-white hover:bg-blue-600"
+                                                 onClick={() => handleViewDetails(abs)}
+                                                 title="View Details">
                                                     <Eye className="w-4 h-4" />
                                                 </Button>
                                             </TableCell>
@@ -222,6 +320,16 @@ export default function AbsenceClient({ isAdmin, userId, companyId }: AbsenceCli
                     </div>
                 </main>
             </SidebarInset>
+
+            
+            {selectedAbsence && (
+              <AbsenceDetails
+                open={openSheet}
+                onOpenChange={setOpenSheet}
+                selectedAbsence={selectedAbsence}
+                // selectedCheckClock={selectedCheckClock.originalData || selectedCheckClock}
+              />
+            )}
         </SidebarProvider>
     );
 }

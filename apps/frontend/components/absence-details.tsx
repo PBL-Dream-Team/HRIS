@@ -16,9 +16,10 @@ type Absence = {
   type: string;
   reason: string;
   status: string;
-  duration: string;
+  // duration: string;
   address: string;
-  location: string;
+  // location: string;
+  created_at: string;
 };
 
 interface AbsenceDetailsProps {
@@ -74,10 +75,10 @@ export default function AbsenceDetails({
                   <p className="text-muted-foreground text-xs">Type</p>
                   <p className="font-medium">{selectedAbsence.type}</p>
                 </div>
-                <div>
+                {/* <div>
                   <p className="text-muted-foreground text-xs">Duration</p>
                   <p className="font-medium">{selectedAbsence.duration}</p>
-                </div>
+                </div> */}
                 <div>
                   <p className="text-muted-foreground text-xs">Reason</p>
                   <p className="font-medium">{selectedAbsence.reason || '-'}</p>
@@ -89,10 +90,10 @@ export default function AbsenceDetails({
             <div className="border rounded-md p-4 text-sm">
               <h4 className="font-medium mb-4">Location Information</h4>
               <div className="grid grid-cols-2 gap-x-4 gap-y-3">
-                <div>
+                {/* <div>
                   <p className="text-muted-foreground text-xs">Location</p>
                   <p className="font-medium">{selectedAbsence.location}</p>
-                </div>
+                </div> */}
                 <div>
                   <p className="text-muted-foreground text-xs">Address</p>
                   <p className="font-medium">{selectedAbsence.address}</p>

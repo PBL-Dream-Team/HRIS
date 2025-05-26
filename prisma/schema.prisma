@@ -118,7 +118,7 @@ model Employee {
 
   pict_dir String?
 
-  account_bank String? @db.VarChar()
+  account_bank BankCode?
   account_number String? @db.VarChar()
   account_name String? @db.VarChar()
 
@@ -137,6 +137,28 @@ model Employee {
   absences AbsenceLeave[]
 
   @@map("Employee")
+}
+
+enum BankCode {
+  BRI       // 002
+  Mandiri   // 008
+  BNI       // 009
+  Danamon   // 011
+  Permata   // 013
+  BCA       // 014
+  Maybank   // 016
+  Panin     // 019
+  Bukopin   // 020
+  CIMB      // 022
+  UOB       // 023
+  OCBC      // 028
+  BJB       // 110
+  Muamalat  // 147
+  BTN       // 200
+  BTPN      // 213
+  Mega      // 426
+  SyariahMandiri // 451
+  Commonwealth   // 950
 }
 
 enum ContractType{
@@ -300,7 +322,6 @@ model AbsenceLeave {
   date DateTime @db.Date @default(now())
 
   status leaveStatus @default(PENDING)
-  status_change_at DateTime? @db.Timestamptz()
 
   filedir String?
 

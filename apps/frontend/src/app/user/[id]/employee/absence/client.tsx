@@ -50,6 +50,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import AbsenceDetails from '@/components/absence-details';
 
 type Absence = {
     id: string;
@@ -58,6 +59,11 @@ type Absence = {
     reason: string;
     date: string;
     status: string;
+    name: string;
+    position: string;
+    type:string;
+    address: string;
+    created_at: string;
 };
 
 type AbsenceClientProps = {
@@ -82,8 +88,8 @@ export default function AbsenceClient({ isAdmin, userId, companyId }: AbsenceCli
                 setUser({ name: `${first_name} ${last_name}`, email, avatar: pict_dir || '/avatars/default.jpg' });
 
                 const [absenceRes, employeeRes] = await Promise.all([
-                    api.get(`/api/absence?company_id=${companyId}`),
-                    api.get(`/api/employee?company_id=${companyId}`),
+                    api.get(`/api/absence?employee_id=${userId}`),
+                    api.get(`/api/employee?id=${userId}`),
                 ]);
 
                 const employeeMap: Record<string, any> = {};
@@ -102,10 +108,39 @@ export default function AbsenceClient({ isAdmin, userId, companyId }: AbsenceCli
         fetchData();
     }, [userId]);
 
-    const displayedAbsences = absences.slice(
+    
+
+    const transformedabsences = absences.map((absence) => {
+            const employee = employees[absence.employee_id];
+            return {
+                id: absence.id,
+                employee_id: absence.employee_id,
+                company_id: absence.company_id,
+                reason: absence.reason ? absence.reason : "-",
+                date: new Date(absence.date).toDateString(),
+                status: absence.status,
+                name: `${employee.first_name} ${employee.last_name}`,
+                position: employee.position ? employee.position : "N/A",
+                type: absence.type,
+                address: employee.address ? employee.address : "-",
+                created_at: new Date(absence.created_at).toDateString()
+            }
+        })
+
+    const displayedAbsences = transformedabsences.slice(
         (currentPage - 1) * itemsPerPage,
         currentPage * itemsPerPage
     );
+
+    
+        const [openSheet, setOpenSheet] = useState(false);
+        const [selectedAbsence, setSelectedAbsence] = useState<Absence | null>(null);
+    
+        const handleViewDetails = (absence: Absence) => {
+            setSelectedAbsence(absence);
+            setOpenSheet(true);
+        };
+        
 
     return (
         <SidebarProvider>
@@ -166,7 +201,10 @@ export default function AbsenceClient({ isAdmin, userId, companyId }: AbsenceCli
                                         <DialogHeader>
                                             <DialogTitle>Add Absence</DialogTitle>
                                         </DialogHeader>
-                                        <AbsenceForm />
+                                        <AbsenceForm 
+                                        employeeId={userId}
+                                        companyId={companyId}
+                                        />
                                     </DialogContent>
                                 </Dialog>
                             </div>
@@ -175,10 +213,9 @@ export default function AbsenceClient({ isAdmin, userId, companyId }: AbsenceCli
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead>Avatar</TableHead>
-                                    <TableHead>Name</TableHead>
-                                    <TableHead>Position</TableHead>
-                                    <TableHead>Date</TableHead>
+                                    <TableHead>Created At</TableHead>
+                                    <TableHead>On Date</TableHead>
+                                    <TableHead>Type</TableHead>
                                     <TableHead>Reason</TableHead>
                                     <TableHead>Status</TableHead>
                                     <TableHead>Actions</TableHead>
@@ -189,21 +226,17 @@ export default function AbsenceClient({ isAdmin, userId, companyId }: AbsenceCli
                                     const emp = employees[abs.employee_id];
                                     return (
                                         <TableRow key={i}>
-                                            <TableCell>
-                                                <Avatar className="h-8 w-8 rounded-lg">
-                                                    <AvatarImage src={emp?.pict_dir || '/avatars/default.jpg'} />
-                                                    <AvatarFallback>
-                                                        {emp ? emp.first_name[0] + emp.last_name[0] : 'NA'}
-                                                    </AvatarFallback>
-                                                </Avatar>
-                                            </TableCell>
-                                            <TableCell>{emp ? `${emp.first_name} ${emp.last_name}` : 'Unknown'}</TableCell>
-                                            <TableCell>{emp?.position || '-'}</TableCell>
+                                            <TableCell>{new Date(abs.created_at).toLocaleDateString()}</TableCell>
                                             <TableCell>{new Date(abs.date).toLocaleDateString()}</TableCell>
+                                            <TableCell>{abs.type}</TableCell>
                                             <TableCell>{abs.reason}</TableCell>
                                             <TableCell>{abs.status}</TableCell>
                                             <TableCell>
-                                                <Button size="icon" variant="outline">
+                                                <Button size="icon"
+                                                 variant="outline"
+                                                 className="hover:text-white hover:bg-blue-600"
+                                                 onClick={() => handleViewDetails(abs)}
+                                                 title="View Details">
                                                     <Eye className="w-4 h-4" />
                                                 </Button>
                                             </TableCell>
@@ -222,6 +255,14 @@ export default function AbsenceClient({ isAdmin, userId, companyId }: AbsenceCli
                     </div>
                 </main>
             </SidebarInset>
+             {selectedAbsence && (
+                          <AbsenceDetails
+                            open={openSheet}
+                            onOpenChange={setOpenSheet}
+                            selectedAbsence={selectedAbsence}
+                            // selectedCheckClock={selectedCheckClock.originalData || selectedCheckClock}
+                          />
+                        )}
         </SidebarProvider>
     );
 }

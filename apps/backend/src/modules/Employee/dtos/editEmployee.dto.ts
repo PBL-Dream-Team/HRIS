@@ -3,6 +3,7 @@ import { workscheme } from "./workscheme.enum";
 import { educationtype } from "./educationtype.enum";
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { contracttype } from "./contracttype.enum";
+import { BankCode } from "./bankcode.enum";
 
 export class editEmployeeDto {
     @ApiPropertyOptional()
@@ -95,8 +96,34 @@ export class editEmployeeDto {
     @IsOptional()
     last_education: educationtype;
 
-    @ApiPropertyOptional()
-    @IsString()
+    @ApiPropertyOptional({
+        example:{
+            /*
+            enum BankCode {
+            BRI       // 002
+            Mandiri   // 008
+            BNI       // 009
+            Danamon   // 011
+            Permata   // 013
+            BCA       // 014
+            Maybank   // 016
+            Panin     // 019
+            Bukopin   // 020
+            CIMB      // 022
+            UOB       // 023
+            OCBC      // 028
+            BJB       // 110
+            Muamalat  // 147
+            BTN       // 200
+            BTPN      // 213
+            Mega      // 426
+            SyariahMandiri // 451
+            Commonwealth   // 950
+            }
+            */
+        },
+    })
+    @IsEnum(BankCode)
     @IsOptional()
     account_bank: string;
 

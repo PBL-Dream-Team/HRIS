@@ -13,13 +13,22 @@ import {
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { DialogFooter } from '@/components/ui/dialog';
+import api from '@/lib/axios';  // assuming you have axios instance here
 
-export function AbsenceForm() {
+interface AbsenceFormProps {
+  employeeId: string;
+  companyId: string;
+  onSuccess?: () => void;  // optional callback after successful submit
+}
+
+export function AbsenceForm({ employeeId, companyId, onSuccess }: AbsenceFormProps) {
   const [absentType, setAbsentType] = useState('');
   const [date, setDate] = useState('');
   const [reason, setReason] = useState('');
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files?.[0];
@@ -29,14 +38,56 @@ export function AbsenceForm() {
     }
   };
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!absentType) {
+      setError('Please select an absent type.');
+      return;
+    }
+    if (!date) {
+      setError('Please select a date.');
+      return;
+    }
+
+    setError(null);
+    setLoading(true);
+
+    try {
+      // Build the POST body matching your API sample
+      const postData = {
+        company_id: companyId,
+        employee_id: employeeId,
+        date: new Date(date).toISOString(), // Convert date input to ISO string
+        type: absentType.toUpperCase(),     // Uppercase to match API ("SICK")
+        reason,                             // Optional, depends on your API, remove if not needed
+        // file upload is ignored here, add multipart/form-data if needed
+      };
+
+      await api.post('/api/absence', postData);
+
+      setLoading(false);
+      setAbsentType('');
+      setDate('');
+      setReason('');
+      setFile(null);
+      setPreviewUrl(null);
+
+      if (onSuccess) onSuccess();
+    } catch (err: any) {
+      setLoading(false);
+      setError(err.response?.data?.message || 'Failed to submit absence');
+    }
+  };
+
   return (
-    <div className="w-full max-w-4xl mx-auto p-4">
+    <form onSubmit={handleSubmit} className="w-full max-w-4xl mx-auto p-4">
       <div className="flex flex-col md:flex-row gap-6">
         {/* Left Column: Form Fields */}
         <div className="flex-1 space-y-4">
           <div>
             <Label htmlFor="absentType">Absent Type</Label>
-            <Select onValueChange={setAbsentType}>
+            <Select onValueChange={setAbsentType} value={absentType}>
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="-Choose Absent Type-" />
               </SelectTrigger>
@@ -65,6 +116,7 @@ export function AbsenceForm() {
               type="text"
               value={reason}
               onChange={(e) => setReason(e.target.value)}
+              placeholder="Optional reason"
             />
           </div>
         </div>
@@ -96,12 +148,14 @@ export function AbsenceForm() {
         </div>
       </div>
 
+      {error && <p className="text-red-600 mt-2">{error}</p>}
+
       {/* Submit Button */}
       <DialogFooter className="mt-6 sm:justify-end">
-        <Button type="submit" className="w-full sm:w-24">
-          Submit
+        <Button type="submit" className="w-full sm:w-24" disabled={loading}>
+          {loading ? 'Submitting...' : 'Submit'}
         </Button>
       </DialogFooter>
-    </div>
+    </form>
   );
 }
