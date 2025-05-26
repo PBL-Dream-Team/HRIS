@@ -6,12 +6,20 @@ import MapPicker from '@/components/map-picker';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { DialogFooter } from '@/components/ui/dialog';
+import api from '@/lib/axios';
 
-export function CheckClockForm() {
+interface CheckOutFormProps {
+  attendanceId: string;
+  onSuccess?: () => void;
+}
+
+export function CheckOutForm({ attendanceId, onSuccess }: CheckOutFormProps) {
   const [lat, setLat] = useState('');
   const [lng, setLng] = useState('');
   const [addressDetail, setAddressDetail] = useState('');
   const [isMapLoading, setIsMapLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleLocationSelect = (lat: number, lng: number, address: string) => {
     setLat(lat.toFixed(6));
@@ -23,9 +31,37 @@ export function CheckClockForm() {
     setIsMapLoading(false);
   };
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+
+    if (!lat || !lng || !addressDetail) {
+      setError('Please select a location on the map.');
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const payload = {
+        check_out: new Date().toISOString(),
+        check_out_address: addressDetail,
+        check_out_long: parseFloat(lng),
+        check_out_lat: parseFloat(lat),
+      };
+
+      await api.patch(`/api/attendance/${attendanceId}`, payload);
+
+      if (onSuccess) onSuccess();
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Failed to submit checkout.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
-    <div className="flex flex-col space-y-6">
-      {/* Map Picker */}
+    <form onSubmit={handleSubmit} className="flex flex-col space-y-6">
       <div className="w-full space-y-2">
         {isMapLoading && (
           <div className="text-gray-500 text-sm text-center">Loading map...</div>
@@ -33,7 +69,6 @@ export function CheckClockForm() {
         <MapPicker onLocationSelect={handleLocationSelect} onLoad={handleMapLoad} />
       </div>
 
-      {/* Address Detail */}
       <div className="w-full">
         <Label htmlFor="addressDetail">Address Detail</Label>
         <Input
@@ -46,7 +81,6 @@ export function CheckClockForm() {
         />
       </div>
 
-      {/* Lat & Long */}
       <div className="flex flex-col md:flex-row gap-4">
         <div className="w-full">
           <Label htmlFor="lat">Lat</Label>
@@ -70,12 +104,13 @@ export function CheckClockForm() {
         </div>
       </div>
 
-      {/* Submit Button */}
+      {error && <p className="text-red-600 text-sm">{error}</p>}
+
       <DialogFooter className="gap-2 sm:justify-end w-full">
-        <Button type="submit" className="w-24" disabled={isMapLoading}>
-          {isMapLoading ? 'Loading...' : 'Submit'}
+        <Button type="submit" className="w-24" disabled={isMapLoading || isSubmitting}>
+          {isSubmitting ? 'Submitting...' : isMapLoading ? 'Loading...' : 'Submit'}
         </Button>
       </DialogFooter>
-    </div>
+    </form>
   );
 }

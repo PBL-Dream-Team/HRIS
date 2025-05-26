@@ -36,7 +36,7 @@ export function CheckClockForm({ employeeId, companyId, typeId, onSuccess }: Che
     setIsSubmitting(true);
     try {
       const now = new Date();
-      const checkInISO = now.toISOString(); // Or format with timezone if needed
+      const checkInISO = now.toISOString(); 
 
       const payload = {
         company_id: companyId,

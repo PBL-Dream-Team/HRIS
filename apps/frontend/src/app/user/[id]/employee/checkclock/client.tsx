@@ -57,6 +57,7 @@ import {
 import { VscSettings } from 'react-icons/vsc';
 import { IoMdAdd, IoMdSearch } from 'react-icons/io';
 import { useRouter } from 'next/navigation';
+import { CheckOutForm } from '@/components/checkout-form';
 
 let checkclocks;
 
@@ -212,6 +213,14 @@ const itemsPerPage = 10
     setselectedCheckClock(checkclock);
     setOpenSheet(true);
   };
+
+  const [openCheckOutDialog, setOpenCheckOutDialog] = useState(false);
+const [checkOutId, setCheckOutId] = useState<string | null>(null);
+  const handleCheckOut = (id: string) => {
+  setCheckOutId(id);
+  setOpenCheckOutDialog(true);
+};
+
   return (
     <SidebarProvider>
       <AppSidebar isAdmin={isAdmin} />
@@ -279,7 +288,7 @@ const itemsPerPage = 10
                 </Button>
                 <Dialog>
                   <DialogTrigger asChild>
-                    <Button /*disabled={dailyLimit === 0}*/ variant="outline" className={/*dailyLimit === 0 ?*/ "opacity-50 cursor-not-allowed" /*: ""*/}>
+                    <Button disabled={dailyLimit === 0} variant="outline" className={dailyLimit === 0 ? "opacity-50 cursor-not-allowed" : ""}>
                       <IoMdAdd /> Add Check Clock
                     </Button>
                   </DialogTrigger>
@@ -288,12 +297,12 @@ const itemsPerPage = 10
                     <DialogTitle>Add Check Clock</DialogTitle>
                   </DialogHeader>
                   <CheckClockForm
+                  
                     employeeId={userId}
                     companyId={companyId}
-                    typeId={user.typeId} // Or whichever type you want to default to
+                    typeId={user.typeId}
                     onSuccess={() => {
-                      setOpenSheet(false); // or close dialog another way
-                      router.refresh?.(); // reload page or refetch data
+                      setOpenSheet; 
                     }}
                   />
                 </DialogContent>
@@ -349,14 +358,31 @@ const itemsPerPage = 10
                           <Eye className="h-4 w-4" />
                         </Button>
                         {checkclock.clockOut === "-" && (
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="hover:bg-white-600 bg-green-600 hover:text-white"
-                          // onClick={() => handleViewDetails(checkclock)} Open Form but for checkout 
-                        >
-                          <CalendarArrowUp className="h-4 w-4 text-white" />
-                        </Button>)}
+                        <Dialog open={openCheckOutDialog} onOpenChange={setOpenCheckOutDialog}>
+                          <DialogTrigger asChild>
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              className="hover:bg-white-600 bg-green-600 hover:text-white"
+                              onClick={() => handleCheckOut(checkclock.id)}
+                            >
+                              <CalendarArrowUp className="h-4 w-4 text-white" />
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="max-w-2xl">
+                            <DialogHeader>
+                              <DialogTitle>Clock Out</DialogTitle>
+                            </DialogHeader>
+                            <CheckOutForm
+                              attendanceId={checkOutId}
+                              onSuccess={() => {
+                                setOpenCheckOutDialog(false);
+                                // Optionally refetch attendance data here
+                              }}
+                            />
+                          </DialogContent>
+                        </Dialog>
+                      )}
                       </div>
                     </TableCell>
                   </TableRow>
