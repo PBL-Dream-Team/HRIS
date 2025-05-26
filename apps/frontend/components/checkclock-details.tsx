@@ -18,6 +18,7 @@ type CheckClock = {
   clockOut: string;
   workHours: string;
   address: string;
+  approval:string;
   lat: string;
   long: string;
   location:string;
@@ -62,8 +63,10 @@ export default function CheckClockDetails({
                   className={`h-2 w-2 rounded-full ${
                       selectedCheckClock.status === 'ON_TIME'
                       ? 'bg-green-600'
-                      : selectedCheckClock.status === 'Late'
-                      ? 'bg-yellow-500'
+                      : selectedCheckClock.status != 'ON_TIME' && selectedCheckClock.approval === 'APPROVED'
+                      ? 'bg-green-600' :
+                      selectedCheckClock.approval === 'PENDING'
+                      ?'bg-yellow-500'
                       : 'bg-red-600'
                   }`}
                 >
@@ -73,7 +76,7 @@ export default function CheckClockDetails({
                   {
                       selectedCheckClock.status === 'ON_TIME'
                       ? 'ON TIME'
-                      : selectedCheckClock.status === 'Late'
+                      : selectedCheckClock.status === 'LATE'
                       ? 'LATE'
                       : 'EARLY'}
                 </span>

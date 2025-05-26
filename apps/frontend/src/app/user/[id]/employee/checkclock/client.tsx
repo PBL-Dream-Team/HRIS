@@ -120,6 +120,7 @@ export default function CheckClockClient({
     name: '',
     email: '',
     avatar: '',
+    typeId: '',
   });
 
   
@@ -138,12 +139,13 @@ const itemsPerPage = 10
     async function fetchUser() {
       try {
         const res = await api.get(`/api/employee/${userId}`);
-        const { first_name, last_name, email, pict_dir } = res.data.data;
+        const { first_name, last_name, email, attendance_id , pict_dir } = res.data.data;
 
         setUser({
           name: `${first_name} ${last_name}`,
           email: email,
           avatar: pict_dir || '/avatars/default.jpg',
+          typeId : attendance_id
         });
 
          const [attendanceRes, employeeRes, typeRes, companyRes] = await Promise.all([
@@ -281,14 +283,20 @@ const itemsPerPage = 10
                       <IoMdAdd /> Add Check Clock
                     </Button>
                   </DialogTrigger>
-                  {dailyLimit > 0 && (
                     <DialogContent className="max-w-4xl">
-                      <DialogHeader>
-                        <DialogTitle>Add Check Clock</DialogTitle>
-                      </DialogHeader>
-                      <CheckClockForm />
-                    </DialogContent>
-                  )}
+                  <DialogHeader>
+                    <DialogTitle>Add Check Clock</DialogTitle>
+                  </DialogHeader>
+                  <CheckClockForm
+                    employeeId={userId}
+                    companyId={companyId}
+                    typeId={user.typeId} // Or whichever type you want to default to
+                    onSuccess={() => {
+                      setOpenSheet(false); // or close dialog another way
+                      router.refresh?.(); // reload page or refetch data
+                    }}
+                  />
+                </DialogContent>
                 </Dialog>
               </div>
             </div>
@@ -324,7 +332,7 @@ const itemsPerPage = 10
                           {
                       checkclock.status === 'ON_TIME'
                       ? 'ON TIME'
-                      : checkclock.status === 'Late'
+                      : checkclock.status === 'LATE'
                       ? 'LATE'
                       : 'EARLY'}
                         </span>

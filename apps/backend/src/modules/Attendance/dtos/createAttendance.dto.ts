@@ -2,6 +2,7 @@ import { IsDate, IsEnum, IsLatitude, IsLongitude, IsNotEmpty, IsOptional, IsStri
 import { checkinstatus } from "./checkinstatus.enum";
 import { checkoutstatus } from "./checkoutstatus.enum";
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { attendanceapproval } from "./attendanceapproval.enum";
 
 export class createAttendanceDto {
     @ApiProperty()
@@ -77,4 +78,9 @@ export class createAttendanceDto {
     @IsLongitude()
     @IsOptional()
     check_out_long: number;
+
+    @ApiPropertyOptional()
+    @IsEnum(attendanceapproval)
+    @IsOptional()
+    approval: string;
 }

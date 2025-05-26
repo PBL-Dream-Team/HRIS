@@ -1,7 +1,7 @@
 'use client';
 
 import { AppSidebar } from '@/components/app-sidebar';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import api from '@/lib/axios';
 
 import {
@@ -103,6 +103,7 @@ export function getTimeRangeInHours(startTime: string | Date, endTime: string | 
   return diffMs / (1000 * 60 * 60);
 }
 
+
 export function formatTimeOnly(input: Date | string): string {
   const pad = (n: number) => n.toString().padStart(2, '0');
 
@@ -139,8 +140,7 @@ export default function CheckClockClient({
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    async function fetchData() {
+  async function fetchData() {
       setIsLoading(true);
       setError(null);
       try {
@@ -188,6 +188,7 @@ export default function CheckClockClient({
       }
     }
 
+  useEffect(() => {
     if (userId && companyId) {
         fetchData();
     }
@@ -230,6 +231,10 @@ export default function CheckClockClient({
     setSelectedCheckClock(checkclock);
     setOpenSheet(true);
   };
+  
+  const handleOperationSuccess = useCallback(async () => {
+      await fetchData();
+    }, [fetchData]);
 
   // Pagination logic
   const paginatedCheckclocks = useMemo(() => {
@@ -247,6 +252,17 @@ export default function CheckClockClient({
     // Optional: Render an error message
     return <div className="p-10 text-red-500">{error}</div>;
   }
+
+  const handleApproval = async (id: string, approval: 'APPROVED' | 'DISAPPROVED') => {
+  try {
+    await api.patch(`/api/attendance/${id}`, { approval });
+    setAttendance(prev =>
+      prev.map(a => (a.id === id ? { ...a, approval } : a))
+    );
+  } catch (err) {
+    console.error('Approval failed:', err);
+  }
+};
 
   return (
     <SidebarProvider>
@@ -340,10 +356,10 @@ export default function CheckClockClient({
                         approveContent = (
                           <div className="flex gap-1">
                             {/* Add onClick handlers for approval actions */}
-                            <Button size="icon" variant="outline" title="Approve">
+                            <Button size="icon" variant="outline" title="Approve" onClick={() => handleApproval(checkclock.id, 'APPROVED')}>
                               <Check className="text-green-600 w-4 h-4" />
                             </Button>
-                            <Button size="icon" variant="outline" title="Disapprove">
+                            <Button size="icon" variant="outline" title="Disapprove" onClick={() => handleApproval(checkclock.id, 'DISAPPROVED')}>
                               <X className="text-red-600 w-4 h-4" />
                             </Button>
                           </div>
