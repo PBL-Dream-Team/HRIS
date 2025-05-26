@@ -53,9 +53,8 @@ export class AuthService{
         companyData.max_employee = 10;
         const trial = await this.prisma.subscription.findFirst({where:{name:'Trial'}});
         companyData.subscription_id = trial.id;
-        let now = new Date()
-        companyData.subs_date_start = now.toISOString();
-        companyData.subs_date_end = new Date(now.getDate() + 14).toISOString();
+        companyData.subs_date_start = new Date().toISOString();
+        companyData.subs_date_end = new Date(new Date().setDate(new Date().getDate() + 14)).toISOString(); //wtf??
         companyData.status = CompanySubscriptionStatus.ACTIVE;
         //Employee
         if(dto.first_name) userData.first_name = dto.first_name;

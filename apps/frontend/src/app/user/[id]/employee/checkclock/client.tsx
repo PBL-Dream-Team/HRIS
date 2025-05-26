@@ -279,7 +279,7 @@ const itemsPerPage = 10
                 </Button>
                 <Dialog>
                   <DialogTrigger asChild>
-                    <Button disabled={dailyLimit === 0} variant="outline" className={dailyLimit === 0 ? "opacity-50 cursor-not-allowed" : ""}>
+                    <Button /*disabled={dailyLimit === 0}*/ variant="outline" className={/*dailyLimit === 0 ?*/ "opacity-50 cursor-not-allowed" /*: ""*/}>
                       <IoMdAdd /> Add Check Clock
                     </Button>
                   </DialogTrigger>
