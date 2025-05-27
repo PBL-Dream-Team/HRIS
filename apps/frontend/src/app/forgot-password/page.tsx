@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { LuMailX } from "react-icons/lu";
 import { ForgotPwrdEmailForm } from '@/components/forgotpwrd-askemail';
 
-export default function LinkExpiredPage() {
+export default function ForgotPassword() {
   return (
     <div className="flex min-h-screen">
       {/* Left Side - Message Content */}

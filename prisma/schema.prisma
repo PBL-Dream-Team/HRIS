@@ -135,6 +135,7 @@ model Employee {
   letters Letter[]
   attendances Attendance[]
   absences AbsenceLeave[]
+  passwordResets PasswordReset[]
 
   @@map("Employee")
 }
@@ -359,3 +360,16 @@ model Transaction {
   deleted_at DateTime? @db.Timestamptz() 
   is_deleted Boolean @db.Boolean @default(false)
 }
+
+model PasswordReset {
+  id String   @id @default(uuid())
+
+  token String   @unique
+  
+  employee_id String @db.Uuid
+  employee Employee @relation(fields: [employee_id], references: [id])
+  
+  created_at DateTime @default(now())
+  expires_at DateTime
+}
+

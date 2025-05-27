@@ -39,6 +39,8 @@ export async function validateAccess({
 
   const { sub, is_admin, company_id } = decoded;
 
+  console.log('Decoded JWT:' + JSON.stringify(decoded));
+
   const expectedPath = section
     ? `/user/${sub}/${is_admin ? 'admin' : 'employee'}/${section}`
     : `/user/${sub}/${is_admin ? 'admin' : 'employee'}/dashboard`;

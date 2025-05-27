@@ -13,9 +13,32 @@ import { LetterModule } from './modules/Lettering/letter.module';
 import { LetterTypeModule } from './modules/Lettering/lettertype.module';
 import { AuthModule } from './modules/Auth/auth.module';
 import { TransactionModule } from './modules/Company/transaction.module';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 
 @Module({
   imports: [
+    MailerModule.forRoot({
+      transport: {
+        host: process.env.SMTP_HOST,
+        port: parseInt(process.env.SMTP_PORT),
+        secure: false,
+        auth: {
+          user: process.env.SMTP_USER,
+          pass: process.env.SMTP_PASS,
+        },
+      },
+      defaults: {
+        from: '"HRIS" <no-reply@example.com>',
+      },
+      template: {
+        dir: __dirname + '/templates',
+        adapter: new HandlebarsAdapter(),
+        options: {
+          strict: true,
+        },
+      },
+    }),
     ConfigModule.forRoot({
       load: [configuration],
       isGlobal: true,
@@ -30,7 +53,7 @@ import { TransactionModule } from './modules/Company/transaction.module';
     LetterModule,
     LetterTypeModule,
     AuthModule,
-    TransactionModule
+    TransactionModule,
   ],
 })
 export class AppModule {}

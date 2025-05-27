@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 // import { FiMail } from "react-icons/fi";
 import { LuMailX } from "react-icons/lu";
 
-export default function LinkExpiredPage() {
+export default function LinkExpired() {
   return (
     <div className="flex min-h-screen">
       {/* Left Side - Message Content */}
@@ -31,7 +31,7 @@ export default function LinkExpiredPage() {
 
           {/* Back to Login Button */}
           <Button asChild className="w-full bg-[#1E3A5F] hover:bg-[#1E3A5F]/90">
-            <Link href="/signup">Back to login</Link>
+            <Link href="/signin">Back to login</Link>
           </Button>
         </div>
       </div>

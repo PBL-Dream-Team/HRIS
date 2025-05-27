@@ -1,25 +1,51 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import Image from "next/image";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { FiEye, FiEyeOff } from "react-icons/fi";
+import api from "@/lib/axios";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
 
-export default function SetNewPasswordPage() {
+export default function SetNewPasswordForm({ token }: { token: string }) {
+  const router = useRouter();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   const isPasswordValid = password.length >= 8;
   const isMatching = password === confirmPassword;
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setSuccess("");
+
+    if (!isMatching) {
+      setError("Passwords do not match");
+      return;
+    }
+
+    try {
+      const res = await api.post('/api/auth/reset-password', {
+        token,
+        new_password: password
+      });
+
+      setSuccess(res.data.message || "Password reset successful!");
+      setTimeout(() => router.push('/signin'), 500);
+    } catch (err: any) {
+      setError(err.response?.data?.message || "Reset failed");
+    }
+  };
+
   return (
     <div className="flex min-h-screen">
-      {/* Left Side - Form */}
       <div className="bg-white flex flex-col justify-center w-full md:w-1/2 p-8">
         <div className="max-w-md w-full mx-auto space-y-6">
           <div>
@@ -33,19 +59,16 @@ export default function SetNewPasswordPage() {
             </p>
           </div>
 
-          <form className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
             {/* New Password */}
             <div className="space-y-2">
-              <Label htmlFor="new-password" className="text-sm font-medium">
-                New Password
-              </Label>
+              <Label htmlFor="new-password">New Password</Label>
               <div className="relative">
                 <Input
                   id="new-password"
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter your password"
                   className="pr-10 border-[#1E3A5F] my-2"
                 />
                 <div
@@ -55,25 +78,20 @@ export default function SetNewPasswordPage() {
                   {showPassword ? <FiEyeOff /> : <FiEye />}
                 </div>
               </div>
-              {!isPasswordValid && password !== "" && (
-                <p className="text-red-500 text-sm">
-                  Must be at least 8 characters
-                </p>
+              {!isPasswordValid && password && (
+                <p className="text-red-500 text-sm">Must be at least 8 characters</p>
               )}
             </div>
 
             {/* Confirm Password */}
             <div className="space-y-2">
-              <Label htmlFor="confirm-password" className="text-sm font-medium">
-                Confirm Password
-              </Label>
+              <Label htmlFor="confirm-password">Confirm Password</Label>
               <div className="relative">
                 <Input
                   id="confirm-password"
                   type={showConfirmPassword ? "text" : "password"}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Enter your password again"
                   className="pr-10 border-[#1E3A5F] my-2"
                 />
                 <div
@@ -83,14 +101,11 @@ export default function SetNewPasswordPage() {
                   {showConfirmPassword ? <FiEyeOff /> : <FiEye />}
                 </div>
               </div>
-              {confirmPassword !== "" && !isMatching && (
-                <p className="text-red-500 text-sm">
-                  Passwords do not match
-                </p>
+              {confirmPassword && !isMatching && (
+                <p className="text-red-500 text-sm">Passwords do not match</p>
               )}
             </div>
 
-            {/* Submit Button */}
             <Button
               type="submit"
               className="w-full bg-[#1E3A5F] hover:bg-[#1E3A5F]/90"
@@ -99,20 +114,13 @@ export default function SetNewPasswordPage() {
               Reset password
             </Button>
 
-            {/* Back to login */}
-            <div className="text-center mt-4">
-              <Link
-                href="/signup"
-                className="text-sm text-[#1E3A5F] hover:underline inline-flex items-center gap-1"
-              >
-                ← Back to log in
-              </Link>
-            </div>
+            {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+            {success && <p className="text-green-600 text-sm text-center">{success}</p>}
           </form>
         </div>
       </div>
 
-      {/* Right Side - Image */}
+            {/* Right Side - Image */}
       <div className="hidden md:flex w-1/2 bg-blue-600 items-center justify-center relative">
         <Image
           src="https://images.unsplash.com/photo-1579487785973-74d2ca7abdd5?q=80&w=1976&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
@@ -122,8 +130,7 @@ export default function SetNewPasswordPage() {
         />
         {/* Overlay transparan biru */}
         <div className="absolute inset-0 bg-[#1E3A5F] opacity-60 z-10" />
-      </div>
-
+    </div>
     </div>
   );
 }
