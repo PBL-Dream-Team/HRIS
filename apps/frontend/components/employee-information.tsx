@@ -1,9 +1,11 @@
 import React from 'react';
 
-{/* Import Components */}
+{
+  /* Import Components */
+}
 
 import { User, UserPlus, UserCheck, UserMinus } from 'lucide-react';
-import { 
+import {
   Card,
   CardDescription,
   CardFooter,
@@ -11,9 +13,15 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 
-{/* Content */}
+{
+  /* Content */
+}
 
-export default function EmployeeInformation() {
+export default function EmployeeInformation(props: any) {
+  const employees = props.employees;
+
+  const total = employees.length;
+
   return (
     <div className="grid auto-rows-min gap-4 md:grid-cols-4 sm:grid-cols-2">
       <Card className="@container/card">
@@ -25,11 +33,11 @@ export default function EmployeeInformation() {
             </div>
           </CardTitle>
           <CardDescription className="text-black text-5xl font-semibold">
-            24
+            {total}
           </CardDescription>
         </CardHeader>
         <CardFooter>
-          <div className='text-muted-foreground'>Update: March 16, 2025</div>
+          <div className="text-muted-foreground">Update: March 16, 2025</div>
         </CardFooter>
       </Card>
 
@@ -46,7 +54,7 @@ export default function EmployeeInformation() {
           </CardDescription>
         </CardHeader>
         <CardFooter>
-          <div className='text-muted-foreground'>Update: March 16, 2025</div>
+          <div className="text-muted-foreground">Update: March 16, 2025</div>
         </CardFooter>
       </Card>
 
@@ -63,7 +71,7 @@ export default function EmployeeInformation() {
           </CardDescription>
         </CardHeader>
         <CardFooter>
-          <div className='text-muted-foreground'>Update: March 16, 2025</div>
+          <div className="text-muted-foreground">Update: March 16, 2025</div>
         </CardFooter>
       </Card>
 
@@ -80,7 +88,7 @@ export default function EmployeeInformation() {
           </CardDescription>
         </CardHeader>
         <CardFooter>
-          <div className='text-muted-foreground'>Update: March 16, 2025</div>
+          <div className="text-muted-foreground">Update: March 16, 2025</div>
         </CardFooter>
       </Card>
     </div>

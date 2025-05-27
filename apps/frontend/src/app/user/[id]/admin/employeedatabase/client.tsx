@@ -2,6 +2,7 @@
 
 import { AppSidebar } from '@/components/app-sidebar';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 import EmployeeInformation from '@/components/employee-information';
 
@@ -30,6 +31,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from '@/components/ui/dialog';
 
 import {
@@ -62,52 +64,8 @@ import EmployeeDetails from '@/components/employee-details';
 import api from '@/lib/axios';
 import { useEffect } from 'react';
 
-const employees = [
-  {
-    id: 1,
-    name: 'John Doe',
-    gender: 'Male',
-    mobile: '081221211122',
-    branch: 'Jakarta',
-    position: 'Head of HR',
-    grade: 'Management',
-    avatar: '/avatars/shadcn.jpg',
-    status: true,
-  },
-  {
-    id: 2,
-    name: 'Jane Smith',
-    gender: 'Female',
-    mobile: '082233344455',
-    branch: 'Bandung',
-    position: 'Finance Analyst',
-    grade: 'Staff',
-    avatar: '/avatars/user2.jpg',
-    status: false,
-  },
-  {
-    id: 3,
-    name: 'Michael Chen',
-    gender: 'Male',
-    mobile: '081334455667',
-    branch: 'Surabaya',
-    position: 'Software Engineer',
-    grade: 'Senior',
-    avatar: '/avatars/user3.jpg',
-    status: true,
-  },
-  {
-    id: 4,
-    name: 'Ayu Lestari',
-    gender: 'Female',
-    mobile: '085566778899',
-    branch: 'Bali',
-    position: 'Marketing Lead',
-    grade: 'Supervisor',
-    avatar: '/avatars/user4.jpg',
-    status: true,
-  },
-];
+import { toast } from 'sonner'; // atau dari 'react-toastify'
+
 type EmployeeDatabaseClientProps = {
   isAdmin: boolean;
   userId: string;
@@ -119,6 +77,8 @@ export default function EmployeeDatabaseClient({
   userId,
   companyId,
 }: EmployeeDatabaseClientProps) {
+  const router = useRouter();
+
   const [user, setUser] = useState({
     name: '',
     email: '',
@@ -146,12 +106,62 @@ export default function EmployeeDatabaseClient({
 
     fetchUser();
   }, [userId]);
+
+  const [employees, setEmployees] = useState<any[]>([]);
+  useEffect(() => {
+    async function fetchEmployees() {
+      try {
+        const res = await api.get('/api/employee');
+        setEmployees(res.data); // atau `res.data.data` jika API kamu membungkus hasil dalam `data`
+      } catch (err: any) {
+        console.error(
+          'Error fetching employees:',
+          err.response?.data || err.message,
+        );
+      }
+    }
+
+    fetchEmployees();
+  }, []);
+
   const [openSheet, setOpenSheet] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<any>(null);
 
-  const handleViewDetails = (employee: any) => {
-    setSelectedEmployee(employee);
-    setOpenSheet(true);
+  const handleViewDetails = async (employee: any) => {
+    try {
+      const res = await api.get(`/api/employee/${employee.id}`);
+      setSelectedEmployee(res.data.data); // Update dengan data detail dari server
+      setOpenSheet(true);
+    } catch (err: any) {
+      console.error(
+        'Error fetching employee details:',
+        err.response?.data || err.message,
+      );
+    }
+  };
+
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [employeeToDelete, setEmployeeToDelete] = useState<any>(null);
+
+  const handleDeleteConfirmed = async () => {
+    if (!employeeToDelete) return;
+
+    try {
+      await api.delete(`/api/employee/${employeeToDelete.id}`);
+      toast.success('Employee deleted successfully.');
+      setEmployees((prev) =>
+        prev.filter((emp) => emp.id !== employeeToDelete.id),
+      );
+    } catch (err: any) {
+      console.error(
+        'Error deleting employee:',
+        err.response?.data || err.message,
+      );
+      toast.error('Failed to delete employee. Please try again.');
+    } finally {
+      setIsDeleteDialogOpen(false);
+      setEmployeeToDelete(null);
+    }
   };
 
   return (
@@ -206,7 +216,7 @@ export default function EmployeeDatabaseClient({
           </div>
         </header>
         <div className="flex flex-1 flex-col gap-4 p-10 pt-5">
-          <EmployeeInformation />
+          <EmployeeInformation employees={employees} />
 
           <div className="border border-gray-300 rounded-md p-4">
             {/* Header */}
@@ -242,7 +252,10 @@ export default function EmployeeDatabaseClient({
                     <DialogHeader>
                       <DialogTitle>Add New Employee</DialogTitle>
                     </DialogHeader>
-                    <EmployeeForm />
+                    <EmployeeForm
+                      companyId={companyId}
+                      onSuccess={() => router.refresh()}
+                    />
                   </DialogContent>
                 </Dialog>
               </div>
@@ -259,8 +272,8 @@ export default function EmployeeDatabaseClient({
                   <TableHead className="text-white">Mobile Number</TableHead>
                   <TableHead className="text-white">Branch</TableHead>
                   <TableHead className="text-white">Position</TableHead>
-                  <TableHead className="text-white">Grade</TableHead>
-                  <TableHead className="text-white">Status</TableHead>
+                  {/* <TableHead className="text-white">Grade</TableHead> */}
+                  {/* <TableHead className="text-white">Status</TableHead> */}
                   <TableHead className="text-white">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -270,33 +283,41 @@ export default function EmployeeDatabaseClient({
                     <TableCell>{i + 1}</TableCell>
                     <TableCell>
                       <Avatar className="h-8 w-8 rounded-lg">
-                        <AvatarImage src={emp.avatar} alt={emp.name} />
+                        <AvatarImage
+                          src={`/storage/employee/${emp.pict_dir}`}
+                          alt={`${emp.first_name} ${emp.last_name}`}
+                        />
                         <AvatarFallback className="rounded-lg">
-                          {emp.name
+                          {`${emp.first_name} ${emp.last_name}`
                             .split(' ')
-                            .map((n) => n[0])
+                            .map((n: string) => n[0])
                             .join('')}
                         </AvatarFallback>
                       </Avatar>
                     </TableCell>
-                    <TableCell>{emp.name}</TableCell>
-                    <TableCell>{emp.gender}</TableCell>
-                    <TableCell>{emp.mobile}</TableCell>
+                    <TableCell>{`${emp.first_name} ${emp.last_name}`}</TableCell>
+                    <TableCell>
+                      {emp.gender === 'M'
+                        ? 'Male'
+                        : emp.gender === 'F'
+                          ? 'Female'
+                          : 'Other'}
+                    </TableCell>
+                    <TableCell>{emp.phone}</TableCell>
                     <TableCell>{emp.branch}</TableCell>
                     <TableCell>{emp.position}</TableCell>
-                    <TableCell>{emp.grade}</TableCell>
-                    <TableCell>
+                    {/* <TableCell>{emp.grade}</TableCell> */}
+                    {/* <TableCell>
                       <div className="flex items-center">
                         <span
-                          className={`px-2 py-1 rounded text-xs text-white ${emp.status
-                              ? 'bg-green-600'
-                              : 'bg-gray-400'
-                            }`}
+                          className={`px-2 py-1 rounded text-xs text-white ${
+                            emp.status ? 'bg-green-600' : 'bg-gray-400'
+                          }`}
                         >
                           {emp.status ? 'Active' : 'Not Active'}
                         </span>
                       </div>
-                    </TableCell>
+                    </TableCell> */}
                     <TableCell className="flex gap-2">
                       <Button
                         variant="outline"
@@ -307,7 +328,7 @@ export default function EmployeeDatabaseClient({
                         <Eye className="h-4 w-4" />
                       </Button>
 
-                      <Dialog>
+                      {/* <Dialog>
                         <DialogTrigger asChild>
                           <Button
                             variant="outline"
@@ -323,12 +344,16 @@ export default function EmployeeDatabaseClient({
                           </DialogHeader>
                           <EmployeeForm />
                         </DialogContent>
-                      </Dialog>
+                      </Dialog> */}
 
                       <Button
                         variant="outline"
                         size="icon"
                         className="hover:text-white hover:bg-red-600"
+                        onClick={() => {
+                          setEmployeeToDelete(emp);
+                          setIsDeleteDialogOpen(true);
+                        }}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -339,7 +364,7 @@ export default function EmployeeDatabaseClient({
             </Table>
 
             {/* Pagination */}
-            <PaginationFooter totalItems={employees.length} itemsPerPage={10} />
+            {/* <PaginationFooter totalItems={employees.length} itemsPerPage={10} /> */}
           </div>
         </div>
       </SidebarInset>
@@ -348,6 +373,32 @@ export default function EmployeeDatabaseClient({
         onOpenChange={setOpenSheet}
         selectedEmployee={selectedEmployee}
       />
+
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Employee</DialogTitle>
+          </DialogHeader>
+          <div>
+            Are you sure you want to delete{' '}
+            <strong>
+              {employeeToDelete?.first_name} {employeeToDelete?.last_name}
+            </strong>
+            ? This action cannot be undone.
+          </div>
+          <DialogFooter className="gap-2 pt-4">
+            <Button
+              variant="outline"
+              onClick={() => setIsDeleteDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleDeleteConfirmed}>
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </SidebarProvider>
   );
 }
