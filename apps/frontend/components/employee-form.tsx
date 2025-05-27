@@ -21,12 +21,118 @@ import {
 } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 
-export function EmployeeForm() {
-  const [date, setDate] = useState<Date | undefined>();
+import api from '@/lib/axios';
+
+type EmployeeFormProps = {
+  companyId: string;
+  onSuccess?: () => void;
+  onClose?: () => void;
+};
+
+// Constants
+// const DATE_DISPLAY_FORMAT = 'dd/MM/yyyy';
+
+export function EmployeeForm({
+  companyId,
+  onSuccess,
+  onClose,
+}: EmployeeFormProps) {
   const [avatar, setAvatar] = useState<File | null>(null);
+  const [workScheme, setWorkScheme] = useState<'WFO' | 'WFA' | 'HYBRID'>();
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [gender, setGender] = useState<'male' | 'female' | 'other'>();
+  const [address, setAddress] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  // const [birthDate, setBirthDate] = useState<Date | undefined>(undefined);
+  const [birthPlace, setBirthPlace] = useState('');
+  const [nik, setNik] = useState('');
+  const [position, setPosition] = useState('');
+  const [branch, setBranch] = useState('');
+  const [contract, setContract] = useState<
+    'PERMANENT' | 'CONTRACT' | 'INTERN'
+  >();
+  const [education, setEducation] = useState<
+    'HIGH_SCHOOL' | 'BACHELOR' | 'MASTER' | 'DOCTOR'
+  >();
+  const [bank, setBank] = useState<'bca' | 'bni' | 'bri' | 'mandiri'>();
+  const [accountNumber, setAccountNumber] = useState('');
+  const [accountName, setAccountName] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!firstName || !lastName || !email || !password) {
+      alert('Please fill out all required fields');
+      return;
+    }
+
+    const formData = new FormData();
+
+    if (avatar) {
+      formData.append('file', avatar);
+    }
+    formData.append('company_id', companyId);
+    if (workScheme) formData.append('workscheme', workScheme);
+    formData.append('first_name', firstName);
+    formData.append('last_name', lastName);
+    if (gender) formData.append('gender', gender);
+    formData.append('address', address);
+    formData.append('email', email);
+    formData.append('password', password);
+    formData.append('phone', phoneNumber);
+    // if (birthDate) {
+    //   formData.append('birth_date', format(birthDate, 'yyyy-MM-dd'));
+    // }
+    formData.append('birth_place', birthPlace);
+    formData.append('nik', nik);
+    formData.append('position', position);
+    formData.append('branch', branch);
+    if (contract) formData.append('contract', contract);
+    if (education) formData.append('last_education', education);
+    if (bank) formData.append('account_bank', bank);
+    formData.append('account_number', accountNumber);
+    formData.append('account_name', accountName);
+
+    try {
+      for (const pair of formData.entries()) {
+        console.log(pair[0], pair[1]);
+      }
+
+      await api.post('/api/employee', formData);
+      setAvatar(null);
+      setWorkScheme(undefined);
+      setFirstName('');
+      setLastName('');
+      setGender(undefined);
+      setAddress('');
+      setEmail('');
+      setPassword('');
+      setPhoneNumber('');
+      // setBirthDate(undefined);
+      setBirthPlace('');
+      setNik('');
+      setPosition('');
+      setBranch('');
+      setContract(undefined);
+      setEducation(undefined);
+      setBank(undefined);
+      setAccountName('');
+      setAccountNumber('');
+      onSuccess?.();
+      onClose?.();
+    } catch (err) {
+      console.error('Submit error:', err);
+    }
+  };
 
   return (
-    <form className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <form
+      onSubmit={handleSubmit}
+      className="grid grid-cols-1 md:grid-cols-2 gap-4"
+    >
       {/* Avatar Upload */}
       <div className="col-span-full flex items-center gap-4">
         <label htmlFor="avatar-upload" className="cursor-pointer">
@@ -63,173 +169,240 @@ export function EmployeeForm() {
         </div>
       </div>
 
-      {/* First Row */}
+      {/* Work Scheme */}
+      <div>
+        <Label>Work Scheme</Label>
+        <Select value={workScheme} onValueChange={setWorkScheme}>
+          <SelectTrigger>
+            <SelectValue placeholder="Choose work scheme" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="WFO">WFO</SelectItem>
+            <SelectItem value="WFA">WFA</SelectItem>
+            <SelectItem value="HYBRID">HYBRID</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* First Name */}
       <div>
         <Label>First Name</Label>
-        <Input placeholder="Enter first name" />
+        <Input
+          placeholder="Enter first name"
+          value={firstName}
+          onChange={(e) => setFirstName(e.target.value)}
+        />
       </div>
+
+      {/* Last Name */}
       <div>
         <Label>Last Name</Label>
-        <Input placeholder="Enter last name" />
+        <Input
+          placeholder="Enter last name"
+          value={lastName}
+          onChange={(e) => setLastName(e.target.value)}
+        />
       </div>
-      <div className='w-full'>
-        <Label>Address</Label>
-        <Input placeholder="Enter address" />
-      </div>
-      {/*Status */}
-       <div>
-        <Label>Contract</Label>
-        <Select>
-          <SelectTrigger>
-            <SelectValue placeholder="Choose Contract" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="active">Active</SelectItem>
-            <SelectItem value="not active">Not Active</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-      {/* Gender and Education */}
+
+      {/* Gender */}
       <div>
         <Label>Gender</Label>
-        <Select>
+        <Select value={gender} onValueChange={setGender}>
           <SelectTrigger>
-            <SelectValue placeholder="Choose Gender" />
+            <SelectValue placeholder="Choose gender" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="male">Male</SelectItem>
-            <SelectItem value="female">Female</SelectItem>
-            <SelectItem value="other">Other</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-      <div>
-        <Label>Last Education</Label>
-        <Select>
-          <SelectTrigger>
-            <SelectValue placeholder="Choose Last Education" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="highschool">High School</SelectItem>
-            <SelectItem value="bachelor">Bachelor</SelectItem>
-            <SelectItem value="master">Master</SelectItem>
-            <SelectItem value="phd">PhD</SelectItem>
+            <SelectItem value="M">Male</SelectItem>
+            <SelectItem value="F">Female</SelectItem>
+            <SelectItem value="O">Other</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
-      {/* Mobile and NIK */}
-      <div>
-        <Label>Mobile Number</Label>
-        <Input placeholder="Enter mobile number" />
-      </div>
-      <div>
-        <Label>NIK</Label>
-        <Input placeholder="Enter NIK" />
+      {/* Address */}
+      <div className="w-full">
+        <Label>Address</Label>
+        <Input
+          placeholder="Enter address"
+          value={address}
+          onChange={(e) => setAddress(e.target.value)}
+        />
       </div>
 
-      {/* Birth Info */}
+      {/* Email */}
       <div>
-        <Label>Place of Birth</Label>
-        <Input placeholder="Enter place of birth" />
+        <Label>Email</Label>
+        <Input
+          type="email"
+          placeholder="Enter email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
       </div>
+
+      {/* Password */}
       <div>
-        <Label>Date of Birth</Label>
+        <Label>Password</Label>
+        <Input
+          type="password"
+          placeholder="Enter password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+      </div>
+
+      {/* Mobile */}
+      <div>
+        <Label>Phone Number</Label>
+        <Input
+          placeholder="Enter phone number"
+          value={phoneNumber}
+          onChange={(e) => setPhoneNumber(e.target.value)}
+        />
+      </div>
+
+      {/* Birth Date */}
+      {/* <div>
+        <Label>Birth Date</Label>
         <Popover>
           <PopoverTrigger asChild>
             <Button
+              id="validUntil"
               variant="outline"
               className="w-full justify-start text-left font-normal"
             >
               <CalendarIcon className="mr-2 h-4 w-4" />
-              {date ? format(date, 'dd/MM/yyyy') : 'Select date'}
+              {birthDate ? (
+                format(birthDate, DATE_DISPLAY_FORMAT)
+              ) : (
+                <span>Select date</span>
+              )}
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0" align="start">
             <Calendar
               mode="single"
-              selected={date}
-              onSelect={setDate}
+              selected={birthDate}
+              onSelect={setBirthDate}
               initialFocus
+              disabled={(date) =>
+                date < new Date(new Date().setHours(0, 0, 0, 0))
+              }
             />
           </PopoverContent>
         </Popover>
+      </div> */}
+
+      {/* Birth Place */}
+      <div>
+        <Label>Birth Place</Label>
+        <Input
+          placeholder="Enter birth place"
+          value={birthPlace}
+          onChange={(e) => setBirthPlace(e.target.value)}
+        />
       </div>
 
-      {/* Position and Branch */}
+      {/* NIK */}
+      <div>
+        <Label>NIK</Label>
+        <Input
+          placeholder="Enter NIK"
+          value={nik}
+          onChange={(e) => setNik(e.target.value)}
+        />
+      </div>
+
+      {/* Position */}
       <div>
         <Label>Position</Label>
-        <Input placeholder="Enter position" />
+        <Input
+          placeholder="Enter position"
+          value={position}
+          onChange={(e) => setPosition(e.target.value)}
+        />
       </div>
+
+      {/* Branch */}
       <div>
         <Label>Branch</Label>
-        <Input placeholder="Enter branch" />
+        <Input
+          placeholder="Enter branch"
+          value={branch}
+          onChange={(e) => setBranch(e.target.value)}
+        />
       </div>
 
-      {/* Contract Type and Grade */}
+      {/* Contract */}
       <div>
-        <Label>Contract Type</Label>
-        <RadioGroup defaultValue="permanent" className="flex gap-4">
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="permanent" id="permanent" />
-            <Label htmlFor="permanent">Permanent</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="contract" id="contract" />
-            <Label htmlFor="contract">Contract</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="intern" id="intern" />
-            <Label htmlFor="intern">Intern</Label>
-          </div>
-        </RadioGroup>
-      </div>
-      <div>
-        <Label>Grade</Label>
-        <Input placeholder="Enter grade" />
+        <Label>Contract</Label>
+        <Select value={contract} onValueChange={setContract}>
+          <SelectTrigger>
+            <SelectValue placeholder="Choose Contract" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="PERMANENT">Permanent</SelectItem>
+            <SelectItem value="CONTRACT">Contract</SelectItem>
+            <SelectItem value="INTERN">Intern</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
-      {/* Bank and Account Info */}
+      {/* Last Education */}
+      <div>
+        <Label>Last Education</Label>
+        <Select value={education} onValueChange={setEducation}>
+          <SelectTrigger>
+            <SelectValue placeholder="Choose Last Education" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="HIGH_SCHOOL">High School</SelectItem>
+            <SelectItem value="BACHELOR">Bachelor</SelectItem>
+            <SelectItem value="MASTER">Master</SelectItem>
+            <SelectItem value="DOCTOR">Doctor</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Bank */}
       <div>
         <Label>Bank</Label>
-        <Select>
+        <Select value={bank} onValueChange={setBank}>
           <SelectTrigger>
             <SelectValue placeholder="Choose Bank" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="bca">BCA</SelectItem>
-            <SelectItem value="bni">BNI</SelectItem>
-            <SelectItem value="bri">BRI</SelectItem>
-            <SelectItem value="mandiri">Mandiri</SelectItem>
+            <SelectItem value="BCA">BCA</SelectItem>
+            <SelectItem value="BNI">BNI</SelectItem>
+            <SelectItem value="BRI">BRI</SelectItem>
+            <SelectItem value="Mandiri">Mandiri</SelectItem>
           </SelectContent>
         </Select>
-      </div>
-      <div>
-        <Label>Account Number</Label>
-        <Input placeholder="Enter account number" />
       </div>
 
+      {/* Account Number */}
       <div>
-        <Label>Account Holder Name</Label>
-        <Input placeholder="Enter account holder name" />
+        <Label>Account Number</Label>
+        <Input
+          placeholder="Enter account number"
+          value={accountNumber}
+          onChange={(e) => setAccountNumber(e.target.value)}
+        />
       </div>
+
+      {/* Account Name */}
       <div>
-        <Label>SP Type</Label>
-        <Select>
-          <SelectTrigger>
-            <SelectValue placeholder="Choose SP Type" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="sp1">SP 1</SelectItem>
-            <SelectItem value="sp2">SP 2</SelectItem>
-            <SelectItem value="sp3">SP 3</SelectItem>
-          </SelectContent>
-        </Select>
+        <Label>Account Name</Label>
+        <Input
+          placeholder="Enter account name"
+          value={accountName}
+          onChange={(e) => setAccountName(e.target.value)}
+        />
       </div>
 
       {/* Form Buttons */}
       <div className="col-span-full flex justify-end gap-2 mt-4">
-        <Button variant="outline" type="reset">
+        <Button type="button" variant="outline" onClick={onClose}>
           Cancel
         </Button>
         <Button type="submit">Add</Button>
