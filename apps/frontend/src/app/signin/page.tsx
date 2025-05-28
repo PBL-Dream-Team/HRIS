@@ -30,7 +30,7 @@ export default function HrLoginPage() {
         },
         { withCredentials: true },
       );
-
+      toast.success('Login successful!');
       router.push('/redirect');
     } catch (error) {
       console.error(error);

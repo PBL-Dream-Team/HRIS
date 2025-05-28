@@ -43,6 +43,7 @@ export class AuthController {
         httpOnly: true,
         secure: true,
         sameSite: 'none',
+        domain: process.env.COOKIE_DOMAIN || 'localhost',
         maxAge: 1000 * 60 * 60 * 24 * 7,
       });
 
