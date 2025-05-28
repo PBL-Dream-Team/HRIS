@@ -3,9 +3,6 @@ import { AppSidebar } from '@/components/app-sidebar';
 import { Input } from '@/components/ui/input';
 import {
   Bell,
-  Upload,
-  CreditCardIcon,
-  CalendarIcon,
   Pencil,
 } from 'lucide-react';
 import { NavUser } from '@/components/nav-user';
@@ -14,6 +11,8 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { EmployeeEditGeneralDataForm } from '@/components/editData-Employee/generalInformation-form';
 import { EmployeeEditWorkDataForm } from '@/components/editData-Employee/workInformation-form';
+import { EditPassword } from '@/components/editData-Employee/editPass-form';
+import { format, parseISO } from 'date-fns';
 
 import {
   Breadcrumb,
@@ -48,49 +47,216 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 import { Card } from '@/components/ui/card';
-
-import { IoMdSearch } from 'react-icons/io';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import api from '@/lib/axios';
+import { useRouter } from 'next/navigation';
+import { use } from 'chai';
+
+type EducationType = 'HIGH_SCHOOL' | 'BACHELOR' | 'MASTER' | 'DOCTOR';
+type GenderType = 'M' | 'F';
+type Bank =
+  | 'BCA'
+  | 'BNI'
+  | 'BRI'
+  | 'Mandiri'
+  | 'Danamon'
+  | 'Permata'
+  | 'Maybank'
+  | 'Panin'
+  | 'Bukopin'
+  | 'CIMB'
+  | 'UOB'
+  | 'OCBC'
+  | 'BJB'
+  | 'Muamalat'
+  | 'BTN'
+  | 'BTPN'
+  | 'Mega'
+  | 'SyariahMandiri'
+  | 'Commonwealth';
+type BankCode = '002' | '008' | '009' | '011' | '013' | '014' | '016' | '019' | '020' | '022' | '023' | '028' | '110' | '147' | '200' | '213' | '426' | '451' | '950';
 
 type AccountClientProps = {
   isAdmin: boolean;
   userId: string;
   companyId: string;
+  initialData?: {
+    id: string;
+    employee_id: string;
+    first_name: string;
+    last_name: string;
+    gender: GenderType;
+    last_education: EducationType;
+    phone: string;
+    nik: string;
+    birth_place: string;
+    birth_date: string;
+    position: string;
+    branch: string;
+    contract: string;
+    workscheme: string;
+    account_bank: BankCode;
+    account_name: string;
+    account_number: string;
+    email: string;
+    pict_dir: string;
+  };
 };
 
 export default function AccountClient({
   isAdmin,
   userId,
   companyId,
+  initialData
 }: AccountClientProps) {
   const [user, setUser] = useState({
     name: '',
     email: '',
     avatar: '',
   });
+  const router = useRouter();
+
+  const [employeeData, setEmployeeData] = useState({
+    first_name: '',
+    last_name: '',
+    gender: '',
+    last_education: '',
+    email: '',
+    phone: '',
+    nik: '',
+    birth_place: '',
+    birth_date: '',
+    id: '',
+  });
+  const [employeeWorkData, setEmployeeWorkData] = useState({
+    position: '',
+    branch: '',
+    contract: '',
+    workscheme: '',
+    account_bank: '',
+    account_name: '',
+    account_number: '',
+  });
+
+  // Data Fetching
+  const fetchData = useCallback(async () => {
+    try {
+      const res = await api.get(`/api/employee/${userId}`);
+      const employee = res.data.data;
+
+      setUser({
+        name: `${employee.first_name} ${employee.last_name}`,
+        email: employee.email,
+        avatar: employee.pict_dir || '/avatars/default.jpg',
+      });
+
+      setEmployeeData({
+        first_name: employee.first_name || '',
+        last_name: employee.last_name || '',
+        gender: employee.gender || '',
+        last_education: employee.last_education || '',
+        phone: employee.phone || '',
+        email: employee.email || '',
+        nik: employee.nik || '',
+        birth_place: employee.birth_place || '',
+        birth_date: employee.birth_date || '',
+        id: employee.id || '',
+      });
+      
+      setEmployeeWorkData({
+        position: employee.position || '',
+        branch: employee.branch || '',
+        contract: employee.contract || '',
+        workscheme: employee.workscheme || '',
+        account_bank: employee.account_bank || '',
+        account_name: employee.account_name || '',
+        account_number: employee.account_number || '',
+      });
+    } catch (err: any) {
+      console.error(
+        'Error fetching user:',
+        err.response?.data || err.message,
+      );
+    } 
+  }, [userId, companyId]);
 
   useEffect(() => {
-    async function fetchUser() {
-      try {
-        const res = await api.get(`/api/employee/${userId}`);
-        const { first_name, last_name, email, pict_dir } = res.data.data;
+    fetchData();
+  }, [fetchData]);
 
-        setUser({
-          name: `${first_name} ${last_name}`,
-          email: email,
-          avatar: pict_dir || '/avatars/default.jpg',
-        });
-      } catch (err: any) {
-        console.error(
-          'Error fetching user:',
-          err.response?.data || err.message,
-        );
-      }
+  const handleOperationSuccess = useCallback(async () => {
+      await fetchData();
+    }, [fetchData]);
+
+  const displayValue = (value: string | undefined | null) => {
+    return value || '';
+  };
+
+  const formatGender = (genderCode: string) => {
+    switch (genderCode) {
+      case 'M':
+        return 'Male';
+      case 'F':
+        return 'Female';
+      default:
+        return genderCode; 
     }
+  };
 
-    fetchUser();
-  }, [userId]);
+  const formatLastEducation = (education: string) => {
+    switch (education) {
+      case 'HIGH_SCHOOL':
+        return 'High School';
+      case 'BACHELOR':
+        return 'Bachelor';
+      case 'MASTER':
+        return 'Master';
+      case 'DOCTOR':
+        return 'Doctor';
+      default:
+        return education; 
+    }
+  }
+
+  const formatContractType = (contract: string) => {
+    switch (contract) {
+      case 'PERMANENT':
+        return 'Permanent';
+      case 'CONTRACT':
+        return 'Contract';
+      case 'INTERN':
+        return 'Intern';
+      default:
+        return contract; 
+    }
+  }
+
+  const formatWorkscheme = (workscheme: string) => {
+    switch (workscheme) {
+      case 'WFO':
+        return 'Work From Office';
+      case 'WFA':
+        return 'Work From Anywhere';
+      case 'HYBRID':
+        return 'Hybrid';
+      default:
+        return workscheme; 
+    }
+  }
+
+  const formatDate = (dateString: string) => {
+    if (!dateString) return '';
+    try {
+      // Coba parse tanggal dari format ISO (yyyy-MM-dd)
+      const date = parseISO(dateString);
+      return format(date, 'PPP'); // Format menjadi "January 1st, 1990"
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return dateString; // Fallback ke string asli jika parsing gagal
+    }
+  };
+
+  const [open, setOpen] = useState(false);
 
   return (
     <SidebarProvider>
@@ -160,59 +326,136 @@ export default function AccountClient({
             </div>
             <div>
               <Label>First Name</Label>
-              <Input placeholder="Your first name" readOnly />
+              <Input 
+                id='first_name'
+                value={employeeData.first_name || ''} 
+                readOnly 
+                placeholder="Your first name" 
+              />
             </div>
             <div>
               <Label>Last Name</Label>
-              <Input placeholder="Your last name" readOnly />
+              <Input
+                id='last_name' 
+                value={employeeData.last_name || ''}
+                readOnly
+                placeholder="Your last name"
+             />
             </div>
             <div>
               <Label>Gender</Label>
-              <Input placeholder="Your gender" readOnly />
+              <Input 
+                id='gender'
+                value={formatGender(employeeData.gender) || ''} 
+                readOnly 
+                placeholder="Your gender" 
+              />
             </div>
             <div>
               <Label>Last Education</Label>
-              <Input placeholder="Your last education" readOnly />
+              <Input 
+                id='last_education'
+                value={formatLastEducation(employeeData.last_education) || ''} 
+                readOnly 
+                placeholder="Your last education" 
+              />
             </div>
             <div>
               <Label>Mobile Number</Label>
-              <Input placeholder="Your phone number" readOnly />
+              <Input 
+                id='phone'
+                value={employeeData.phone || ''}
+                readOnly 
+                placeholder="Your phone number" 
+              />
             </div>
             <div>
-              <Label>NIK</Label>
-              <Input placeholder="Your NIK" readOnly />
+              <Label>Email</Label>
+              <Input 
+                id='email'
+                value={user.email || ''} 
+                readOnly 
+                placeholder="Your email" 
+              />
             </div>
             <div>
               <Label>Place of Birth</Label>
-              <Input placeholder="Your place of birth" readOnly />
+              <Input 
+                id='birth_place'
+                value={employeeData.birth_place || ''} 
+                readOnly 
+                placeholder="Your place of birth" 
+              />
             </div>
             <div>
               <Label>Date of Birth</Label>
-              <Input placeholder="Your date of birth" readOnly />
+              <Input 
+                id='birth_date'
+                // value={formatDate(employeeData.birth_date) || ''}
+                readOnly 
+                placeholder="Your date of birth" 
+              />
             </div>
-            <div>
-              <Label>ID</Label>
-              <Input placeholder="Your ID" readOnly />
+            <div className='col-span-full'>
+              <Label>NIK</Label>
+              <Input 
+                id='nik'
+                value={employeeData.nik || ''} 
+                readOnly 
+                placeholder="Your NIK" 
+              />
             </div>
-            <div>
-              <Label>Password</Label>
-              <Input placeholder="Your password" readOnly />
-            </div>
-            <div className="col-span-full flex justify-end">
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button className="w-full md:w-auto">
-                    <Pencil className="h-4 w-4 mr-1" /> Edit Profile
-                  </Button>
-                </DialogTrigger>
-
-                <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
-                  <DialogHeader>
-                    <DialogTitle>Edit Profile</DialogTitle>
-                  </DialogHeader>
-                  <EmployeeEditGeneralDataForm />
-                </DialogContent>
-              </Dialog>
+            <div className='col-span-full flex justify-end items-center mt-4'>
+              <div className="flex items-center gap-2">
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button className="w-full md:w-auto">
+                      <Pencil className="h-4 w-4 mr-1" /> Edit Profile
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                      <DialogTitle>Edit Profile</DialogTitle>
+                    </DialogHeader>
+                    <EmployeeEditGeneralDataForm
+                      mode='edit'
+                      companyId={companyId}
+                      employeeId={employeeData.id}
+                      initialData={{
+                        id: employeeData.id || '',
+                        first_name: employeeData.first_name || '',
+                        last_name: employeeData.last_name || '',
+                        gender: employeeData.gender as GenderType,
+                        last_education: employeeData.last_education as EducationType,
+                        phone: employeeData.phone || '',
+                        nik: employeeData.nik || '',
+                        birth_place: employeeData.birth_place || '',
+                        birth_date: initialData?.birth_date || '',
+                        pict_dir: initialData?.pict_dir || '',
+                        email: employeeData.email || '',
+                      }}
+                      onSuccess={handleOperationSuccess}
+                    />
+                  </DialogContent>
+                </Dialog>
+              
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button className="w-full md:w-auto">
+                      <Pencil className="h-4 w-4 mr-1" /> Change Password
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                      <DialogTitle>Change Password</DialogTitle>
+                    </DialogHeader>
+                    <EditPassword
+                      userId={userId}
+                      onSuccess={handleOperationSuccess}  
+                    />
+                  </DialogContent>
+                </Dialog>
+              </div>
             </div>
           </div>
 
@@ -222,37 +465,77 @@ export default function AccountClient({
             <Card className="grid grid-cols-1 md:grid-cols-2 gap-2 p-4">
               <div>
                 <Label>Position</Label>
-                <Input placeholder="Your position" readOnly />
+                <Input 
+                  id='position'
+                  value={employeeWorkData.position || ''}
+                  readOnly 
+                  placeholder="Your position" 
+                />
               </div>
               <div>
                 <Label>Branch</Label>
-                <Input placeholder="Your branch" readOnly />
+                <Input 
+                  id='branch'
+                  value={employeeWorkData.branch || ''}
+                  readOnly 
+                  placeholder="Your branch" 
+                />
               </div>
               <div>
                 <Label>Contract Type</Label>
-                <Input placeholder="Your contract type" readOnly />
+                <Input 
+                  id='contract'
+                  value={formatContractType(employeeWorkData.contract) || ''}
+                  readOnly 
+                  placeholder="Your contract type" 
+                />
               </div>
               <div>
-                <Label>Grade</Label>
-                <Input placeholder="Your grade" readOnly />
+                <Label>Workscheme</Label>
+                <Input 
+                  id='workscheme'
+                  value={formatWorkscheme(employeeWorkData.workscheme) || ''}
+                  readOnly 
+                  placeholder="Your workscheme"
+                />
               </div>
-              <div className="col-span-full">
-                <Label>SP Type</Label>
-                <Input placeholder="Your sp type" readOnly />
+              <div className='col-span-full'>
+                <Label>ID</Label>
+                <Input 
+                  id='id'
+                  value={employeeData.id || ''}
+                  readOnly 
+                  placeholder="Your ID" 
+                />
               </div>
             </Card>
             <Card className="grid grid-cols-1 gap-2 p-4">
               <div className="col-span-full">
                 <Label>Bank</Label>
-                <Input placeholder="Your bank" readOnly />
+                <Input 
+                  id='account_bank'
+                  value={employeeWorkData.account_bank || ''}
+                  readOnly 
+                  placeholder="Your bank" 
+                />
               </div>
               <div>
                 <Label>Account Number</Label>
-                <Input placeholder="Your account number" readOnly />
+                <Input 
+                  id='account_number'
+                  value={employeeWorkData.account_number || ''}
+                  readOnly 
+                  placeholder="Your account number" 
+                />
               </div>
               <div>
                 <Label>Account Holder Name</Label>
-                <Input placeholder="Your account holder name" readOnly />
+                <Input 
+                  id='account_name'
+                  value={employeeWorkData.account_name || ''}
+                  readOnly 
+                  placeholder="Your account holder name" 
+                />
               </div>
               <div className="col-span-full flex justify-end mt-2">
                 <Dialog>
@@ -266,7 +549,18 @@ export default function AccountClient({
                     <DialogHeader>
                       <DialogTitle>Edit Data</DialogTitle>
                     </DialogHeader>
-                    <EmployeeEditWorkDataForm />
+                    <EmployeeEditWorkDataForm
+                      mode='edit'
+                      companyId={companyId}
+                      employeeId={employeeData.id}
+                      initialData={{
+                        id: employeeData.id || '',
+                        account_bank: employeeWorkData.account_bank as BankCode,
+                        account_name: employeeWorkData.account_name || '',
+                        account_number: employeeWorkData.account_number || '',
+                      }}
+                      onSuccess={handleOperationSuccess}
+                    />
                   </DialogContent>
                 </Dialog>
               </div>

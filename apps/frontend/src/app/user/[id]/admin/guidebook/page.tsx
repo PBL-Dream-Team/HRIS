@@ -1,6 +1,5 @@
 import { validateAccess } from '@/lib/validateAccess';
-import AccountClient from './client';
-import api from '@/lib/axios';
+import GuideBookClient from './client';
 
 interface PageProps {
   params: {
@@ -10,22 +9,16 @@ interface PageProps {
 
 export default async function Page({ params }: PageProps) {
   const { sub, is_admin, company_id } = await validateAccess({
-    requireAdmin: false,
+    requireAdmin: true,
     currentPathId: params.id,
-    section: 'account',
+    section: 'guidebook',
   });
 
-  // Fetch employee data di server side
-  const employeeData = await api.get(`/api/employee/${sub}`)
-    .then(res => res.data)
-    .catch(() => null);
-
   return (
-    <AccountClient
+    <GuideBookClient
       isAdmin={is_admin}
       userId={sub}
       companyId={company_id}
-      initialData={employeeData?.data} // Kirim data ke client
     />
   );
 }

@@ -1,10 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { createEmployeeDto } from './dtos/createEmployee.dto';
 import { editEmployeeDto } from './dtos/editEmployee.dto';
 import { createWriteStream, existsSync, unlinkSync } from 'fs';
 import { join } from 'path';
-import { hash } from 'argon2';
+import { hash, verify } from 'argon2';
 
 @Injectable()
 export class EmployeeService {
@@ -180,4 +180,24 @@ export class EmployeeService {
     return summary;
   }
 
+  async updatePassword(employeeId: string, dto: { old_password: string; new_password: string }) {
+    const user = await this.prisma.employee.findUnique({ where: { id: employeeId } });
+    if (!user) throw new NotFoundException('Employee not found');
+
+    const isPasswordValid = await verify(user.password, dto.old_password);
+    if (!isPasswordValid) throw new BadRequestException('Incorrect current password');
+
+    const newHashedPassword = await hash(dto.new_password);
+
+    await this.prisma.employee.update({
+      where: { id: employeeId },
+      data: { password: newHashedPassword },
+    });
+
+    return {
+      statusCode: 200,
+      message: 'Password updated successfully',
+    };
+  }
 }
+

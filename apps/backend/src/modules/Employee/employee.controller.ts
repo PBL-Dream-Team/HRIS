@@ -6,6 +6,7 @@ import { JwtGuard, SubscriptionGuard } from '../Auth/guard';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { UploadExtensionInterceptor } from '../../multer/image_upload.interceptor';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import { UpdatePasswordDto } from './dtos/updatePassword.dto';
 import { } from 'multer';
 
 @ApiTags("employee")
@@ -73,7 +74,13 @@ export class EmployeeController {
     return this.employeeService.getStatusSummary(companyId);
   }
 
-
+  @Patch(':id/password')
+  async updatePassword(
+    @Param('id') id: string,
+    @Body() dto: UpdatePasswordDto,
+  ) {
+    return this.employeeService.updatePassword(id, dto);
+  }
 
 
 }
