@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { MailerService } from '@nestjs-modules/mailer';
+import path from 'path';
 
 @Injectable()
 export class CustomMailService {
@@ -12,7 +13,15 @@ export class CustomMailService {
       template: './reset-password',
       context: {
         link,
+        year: new Date().getFullYear(),
       },
+      attachments: [
+        {
+          filename: 'logo.png',
+          path: __dirname + '../../../templates/logo.png',
+          cid: 'logo@hris',
+        },
+      ],
     });
   }
 }

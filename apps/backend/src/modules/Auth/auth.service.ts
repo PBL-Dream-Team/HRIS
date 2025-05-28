@@ -154,10 +154,14 @@ export class AuthService {
       where: { email },
     });
 
-    if (!employee) return { message: 'If email exists, reset link sent.' };
+    if (!employee)
+      return {
+        statusCode: 404,
+        message: 'Email not found.',
+      };
 
     const token = randomBytes(32).toString('hex');
-    const expires_at = new Date(Date.now() + 1000 * 60 * 15); // 15 menit
+    const expires_at = new Date(Date.now() + 1000 * 60 * 15);
 
     await this.prisma.passwordReset.create({
       data: {
@@ -171,9 +175,10 @@ export class AuthService {
 
     await this.mailService.sendResetPassword(employee.email, resetLink);
 
-    console.log('Reset link:', resetLink);
-
-    return { message: 'If email exists, reset link sent.' };
+    return {
+      statusCode: 200,
+      message: 'Reset link sent.',
+    };
   }
 
   async resetPassword(token: string, newPassword: string) {

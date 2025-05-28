@@ -79,7 +79,7 @@ export default function HrLoginPage() {
           <form className="space-y-4" onSubmit={handleSubmit}>
             {/* Email */}
             <div className="space-y-2">
-              <Label htmlFor="input" className="text-blue-900">
+              <Label htmlFor="input" className="text-[#1E3A5F]">
                 Email
               </Label>
               <Input
@@ -146,7 +146,7 @@ export default function HrLoginPage() {
                 height={20}
                 className="object-contain"
               />
-              <span>Sign up with Google</span>
+              <span>Sign in with Google</span>
             </Button>
 
             <Link href="/signin/employee" passHref>

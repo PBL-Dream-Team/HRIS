@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import api from '@/lib/axios';
+import { toast } from 'sonner';
 import { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -35,7 +36,7 @@ export default function HrSignUpPage() {
     e.preventDefault();
 
     if (formData.password !== formData.confirmPassword) {
-      alert('Passwords do not match!');
+      toast.error('Passwords do not match');
       return;
     }
 
@@ -48,10 +49,10 @@ export default function HrSignUpPage() {
         password: formData.password,
       });
 
-      alert('Sign up successful!');
+      toast.success(res.data.message || 'Sign up successful!');
     } catch (error: any) {
       console.error(error);
-      alert(error.response?.data.message || 'Sign up failed');
+      toast.error("Sign up failed. Please check your credentials and try again.");
     }
   };
 
@@ -91,21 +92,21 @@ export default function HrSignUpPage() {
 
           <form className="space-y-4" onSubmit={handleSubmit}>
             <div className="w-full">
-                <Label htmlFor="name" className="text-blue-900 mb-2">
-                  Company Name
-                </Label>
-                <Input
-                  id="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  placeholder="Enter your company name"
-                  className="text-gray-700 border-zinc-600"
-                />
-              </div>
+              <Label htmlFor="name" className="text-[#1E3A5F] mb-2">
+                Company Name
+              </Label>
+              <Input
+                id="name"
+                value={formData.name}
+                onChange={handleChange}
+                placeholder="Enter your company name"
+                className="text-gray-700 border-zinc-600"
+              />
+            </div>
             {/* First and Last Name */}
             <div className="flex gap-4">
               <div className="w-full">
-                <Label htmlFor="first_name" className="text-blue-900 mb-2">
+                <Label htmlFor="first_name" className="text-[#1E3A5F] mb-2">
                   First Name
                 </Label>
                 <Input
@@ -118,7 +119,7 @@ export default function HrSignUpPage() {
               </div>
 
               <div className="w-full">
-                <Label htmlFor="last_name" className="text-blue-900 mb-2">
+                <Label htmlFor="last_name" className="text-[#1E3A5F] mb-2">
                   Last Name
                 </Label>
                 <Input
@@ -133,7 +134,7 @@ export default function HrSignUpPage() {
 
             {/* Email */}
             <div className="w-full">
-              <Label htmlFor="email" className="text-blue-900 mb-2">
+              <Label htmlFor="email" className="text-[#1E3A5F] mb-2">
                 Email
               </Label>
               <Input
@@ -148,7 +149,7 @@ export default function HrSignUpPage() {
 
             {/* Password */}
             <div className="w-full">
-              <Label htmlFor="password" className="text-blue-900 mb-2">
+              <Label htmlFor="password" className="text-[#1E3A5F] mb-2">
                 Password
               </Label>
               <Input
@@ -163,7 +164,7 @@ export default function HrSignUpPage() {
 
             {/* Confirm Password */}
             <div className="w-full">
-              <Label htmlFor="confirmPassword" className="text-blue-900 mb-2">
+              <Label htmlFor="confirmPassword" className="text-[#1E3A5F] mb-2">
                 Confirm Password
               </Label>
               <Input
@@ -303,7 +304,7 @@ export default function HrSignUpPage() {
             {/* Link to Sign In */}
             <p className="text-center text-sm text-gray-600 mt-4">
               Already have an account?{' '}
-              <Link href="/signin" className="text-blue-900 hover:underline">
+              <Link href="/signin" className="text-[#1E3A5F] hover:underline">
                 Sign in here
               </Link>
             </p>
