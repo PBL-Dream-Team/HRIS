@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 // import { FiCheckCircle } from "react-icons/fi";
 import { FaCheck } from "react-icons/fa";
 
-export default function ResetSuccessPage() {
+export default function ResetSuccess() {
   return (
     <div className="flex min-h-screen">
       {/* Left Side - Message Content */}
@@ -31,7 +31,7 @@ export default function ResetSuccessPage() {
 
           {/* Back to Login Button */}
           <Button asChild className="w-full bg-[#1E3A5F] hover:bg-[#1E3A5F]/90">
-            <Link href="/signup">Login</Link>
+            <Link href="/signin">Sign In</Link>
           </Button>
         </div>
       </div>

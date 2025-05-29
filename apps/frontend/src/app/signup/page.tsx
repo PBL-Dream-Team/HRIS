@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
+import { useRouter } from 'next/navigation';
 import {
   Dialog,
   DialogContent,
@@ -19,6 +20,7 @@ import {
 } from '@/components/ui/dialog';
 
 export default function HrSignUpPage() {
+  const router = useRouter();
   const [checked, setChecked] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -50,6 +52,8 @@ export default function HrSignUpPage() {
       });
 
       toast.success(res.data.message || 'Sign up successful!');
+      router.push('/signin');
+      
     } catch (error: any) {
       console.error(error);
       toast.error("Sign up failed. Please check your credentials and try again.");

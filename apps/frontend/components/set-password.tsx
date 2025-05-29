@@ -6,24 +6,26 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import api from "@/lib/axios";
-import { useRouter } from "next/navigation";
-import Image from "next/image";
 import { toast } from "sonner";
+import ResetSuccess from "@/components/reset-success";
+import Image from "next/image";
 
 export default function SetNewPasswordForm({ token }: { token: string }) {
-  const router = useRouter();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
-  const isPasswordValid = password.length >= 8;
-  const isMatching = password === confirmPassword;
+  const [isSuccess, setIsSuccess] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!isMatching) {
+    if (password.length < 8) {
+      toast.error("Password must be at least 8 characters");
+      return;
+    }
+
+    if (password !== confirmPassword) {
       toast.error("Passwords do not match");
       return;
     }
@@ -35,11 +37,15 @@ export default function SetNewPasswordForm({ token }: { token: string }) {
       });
 
       toast.success(res.data.message || "Password reset successful!");
-      setTimeout(() => router.push('/signin'), 500);
+      setIsSuccess(true);
     } catch (err: any) {
       toast.error(err.response?.data?.message || "Reset failed");
     }
   };
+
+  if (isSuccess) {
+    return <ResetSuccess />;
+  }
 
   return (
     <div className="flex min-h-screen">
@@ -76,9 +82,6 @@ export default function SetNewPasswordForm({ token }: { token: string }) {
                   {showPassword ? <FiEyeOff /> : <FiEye />}
                 </div>
               </div>
-              {!isPasswordValid && password && (
-                <p className="text-red-500 text-sm">Must be at least 8 characters</p>
-              )}
             </div>
 
             {/* Confirm Password */}
@@ -100,15 +103,11 @@ export default function SetNewPasswordForm({ token }: { token: string }) {
                   {showConfirmPassword ? <FiEyeOff /> : <FiEye />}
                 </div>
               </div>
-              {confirmPassword && !isMatching && (
-                <p className="text-red-500 text-sm">Passwords do not match</p>
-              )}
             </div>
 
             <Button
               type="submit"
               className="w-full bg-[#1E3A5F] hover:bg-[#1E3A5F]/90"
-              disabled={!isPasswordValid || !isMatching}
             >
               Reset password
             </Button>
