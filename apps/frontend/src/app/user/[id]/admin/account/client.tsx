@@ -13,6 +13,10 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { AdminEditDataForm } from '@/components/editData-Admin/adminData-form';
 import { EditPassword } from '@/components/editData-Admin/editPass-form';
+import { EditCompany } from '@/components/editData-Admin/compData-form';
+import { EditWfo } from '@/components/editData-Admin/wfoEdit-form';
+import { EditWfa } from '@/components/editData-Admin/wfaEdit-form';
+import { EditHybrid } from '@/components/editData-Admin/hybridEdit-form';
 import { useEffect, useCallback, useState } from 'react';
 import api from '@/lib/axios';
 import { useRouter } from 'next/navigation';
@@ -72,8 +76,8 @@ type AccountClientProps = {
     subs_date_end: string;
     company_name: string;
     company_address: string;
-    location_lat: string;
-    location_lng: string;
+    loc_lat: string;
+    loc_long: string;
   }
 };
 
@@ -107,6 +111,7 @@ export default function AccountClient({
   });
 
   const [companyData, setCompanyData] = useState({
+    id: '',
     name: '',
     address: '',
     loc_lat: '',
@@ -175,6 +180,7 @@ export default function AccountClient({
       });
 
       setCompanyData({
+        id: company.id || '',
         name: company.name || '',
         address: company.address || '',
         loc_lat: company.loc_lat || '',
@@ -320,22 +326,22 @@ export default function AccountClient({
                 </DialogContent>
               </Dialog>
 
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button className="w-full md:w-auto">
-                      <Pencil className="h-4 w-4 mr-1" /> Change Password
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
-                    <DialogHeader>
-                      <DialogTitle>Change Password</DialogTitle>
-                    </DialogHeader>
-                    <EditPassword
-                      userId={adminData.id}
-                      onSuccess={handleOperationSuccess}
-                    />
-                  </DialogContent>
-                </Dialog>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button className="w-full md:w-auto">
+                    <Pencil className="h-4 w-4 mr-1" /> Change Password
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle>Change Password</DialogTitle>
+                  </DialogHeader>
+                  <EditPassword
+                    userId={adminData.id}
+                    onSuccess={handleOperationSuccess}
+                  />
+                </DialogContent>
+              </Dialog>
             </div>
           </form>
 
@@ -384,7 +390,7 @@ export default function AccountClient({
                 )}
                 <MapPicker onLocationSelect={handleLocationSelect} onLoad={handleMapLoad} />
               </div>
-              <div>
+              <div className='grid grid-cols-1'>
                 <div>
                   <Label>Company Name</Label>
                   <Input
@@ -403,40 +409,183 @@ export default function AccountClient({
                     placeholder="Address detail of your company"
                   />
                 </div>
-                <div>
-                  <Label>Langtitude</Label>
-                  <Input
-                    id='first_name'
-                    value={companyData.loc_lat || ''}
-                    readOnly
-                    placeholder="Langtitude of your company"
-                  />
+                <div className='grid grid-cols-2 gap-4'>
+                  <div>
+                    <Label>Langtitude</Label>
+                    <Input
+                      id='first_name'
+                      value={companyData.loc_lat || ''}
+                      readOnly
+                      placeholder="Langtitude of your company"
+                    />
+                  </div>
+                  <div>
+                    <Label>Longtitude</Label>
+                    <Input
+                      id='last_name'
+                      value={companyData.loc_long || ''}
+                      readOnly
+                      placeholder="Longtitude of your company"
+                    />
+                  </div>
                 </div>
-                <div>
-                  <Label>Longtitude</Label>
-                  <Input
-                    id='last_name'
-                    value={companyData.loc_long || ''}
-                    readOnly
-                    placeholder="Longtitude of your company"
-                  />
+                <div className='col-span-full flex justify-end mt-2'>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button className="w-full md:w-auto">
+                        <Pencil className="h-4 w-4 mr-1" /> Edit Data
+                      </Button>
+                    </DialogTrigger>
+
+                    <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+                      <DialogHeader>
+                        <DialogTitle>Edit Data Company</DialogTitle>
+                      </DialogHeader>
+                      <EditCompany
+                        companyId={companyData.id}
+                        initialData={{
+                          id: companyData.id,
+                          name: companyData.name,
+                          address: companyData.address,
+                          loc_lat: Number(companyData.loc_lat) || 0,
+                          loc_long: Number(companyData.loc_long) || 0,
+                        }}
+                        onSuccess={handleOperationSuccess}
+                      />
+                    </DialogContent>
+                  </Dialog>
                 </div>
               </div>
             </div>
-            <div className='col-span-full flex justify-end mt-2'>
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button className="w-full md:w-auto">
-                    <Pencil className="h-4 w-4 mr-1" /> Edit Data
-                  </Button>
-                </DialogTrigger>
 
-                <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
-                  <DialogHeader>
-                    <DialogTitle>Edit Data</DialogTitle>
-                  </DialogHeader>
-                </DialogContent>
-              </Dialog>
+            {/* Workscheme clock in/out information */}
+            <div className='grid grid-cols-1 md:grid-cols-3 gap-4 mt-4'>
+              <Card className='p-4'>
+                <h1 className='text-lg font-semibold mb-2'>WFO</h1>
+                <div className='grid grid-cols-1 gap-2'>
+                  <div>
+                    <Label>Clock In Default</Label>
+                    <Input
+                      id='wfo_clock_in'
+                      // value={}
+                      readOnly
+                      placeholder="Clock In Default"
+                    />
+                  </div>
+                  <div>
+                    <Label>Clock Out Default</Label>
+                    <Input
+                      id='wfo_clock_out'
+                      // value={}
+                      readOnly
+                      placeholder="Clock Out Default"
+                    />
+                  </div>
+                </div>
+                <div className='col-span-full flex justify-end mt-4'>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button className="w-full md:w-auto">
+                        <Pencil className="h-4 w-4 mr-1" /> Edit 
+                      </Button>
+                    </DialogTrigger>
+
+                    <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+                      <DialogHeader>
+                        <DialogTitle>Setting Check In/Out</DialogTitle>
+                      </DialogHeader>
+                      <EditWfo
+                        companyId={companyData.id}
+                        onSuccess={handleOperationSuccess}
+                      />
+                    </DialogContent>
+                  </Dialog>
+                </div>
+              </Card>
+              <Card className='p-4'>
+                <h1 className='text-lg font-semibold mb-2'>WFA</h1>
+                <div className='grid grid-cols-1 gap-2'>
+                  <div>
+                    <Label>Clock In Default</Label>
+                    <Input
+                      id='wfa_clock_in'
+                      // value={}
+                      readOnly
+                      placeholder="Clock In Default"
+                    />
+                  </div>
+                  <div>
+                    <Label>Clock Out Default</Label>
+                    <Input
+                      id='wfa_clock_out'
+                      // value={}
+                      readOnly
+                      placeholder="Clock Out Default"
+                    />
+                  </div>
+                </div>
+                <div className='col-span-full flex justify-end mt-4'>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button className="w-full md:w-auto">
+                        <Pencil className="h-4 w-4 mr-1" /> Edit
+                      </Button>
+                    </DialogTrigger>
+
+                    <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+                      <DialogHeader>
+                        <DialogTitle>Setting Check In/Out</DialogTitle>
+                      </DialogHeader>
+                      <EditWfa
+                        companyId={companyData.id}
+                        onSuccess={handleOperationSuccess}
+                      />
+                    </DialogContent>
+                  </Dialog>
+                </div>
+              </Card>
+              <Card className='p-4'>
+                <h1 className='text-lg font-semibold mb-2'>Hybrid</h1>
+                <div className='grid grid-cols-1 gap-2'>
+                  <div>
+                    <Label>Clock In Default</Label>
+                    <Input
+                      id='hybrid_clock_in'
+                      // value={}
+                      readOnly
+                      placeholder="Clock In Default"
+                    />
+                  </div>
+                  <div>
+                    <Label>Clock Out Default</Label>
+                    <Input
+                      id='hybrid_clock_out'
+                      // value={}
+                      readOnly
+                      placeholder="Clock Out Default"
+                    />
+                  </div>
+                </div>
+                <div className='col-span-full flex justify-end mt-4'>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button className="w-full md:w-auto">
+                        <Pencil className="h-4 w-4 mr-1" /> Edit
+                      </Button>
+                    </DialogTrigger>
+
+                    <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+                      <DialogHeader>
+                        <DialogTitle>Setting Check In/Out</DialogTitle>
+                      </DialogHeader>
+                      <EditHybrid
+                        companyId={companyData.id}
+                        onSuccess={handleOperationSuccess}
+                      />
+                    </DialogContent>
+                  </Dialog>
+                </div>
+              </Card>
             </div>
           </div>
         </div>

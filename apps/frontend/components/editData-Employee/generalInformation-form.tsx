@@ -59,12 +59,13 @@ export function EmployeeEditGeneralDataForm({
   const [avatar, setAvatar] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   const [first_name, setFirstName] = useState<string>('');
   const [last_name, setLastName] = useState<string>('');
   const [phone, setPhone] = useState<string>('');
   const [nik, setNik] = useState<string>('');
   const [birth_place, setBirthPlace] = useState<string>('');
+  const [birth_date, setBirthDate] = useState<Date | undefined>(undefined);
   const [gender, setGender] = useState<string>('');
   const [last_education, setLastEducation] = useState<string>('');
 
@@ -79,6 +80,7 @@ export function EmployeeEditGeneralDataForm({
   useEffect(() => {
     console.log('initialData received:', initialData);
     if (initialData) {
+      setAvatar(null); // Reset avatar to null if initialData is provided
       setFirstName(initialData.first_name || '');
       setLastName(initialData.last_name || '');
       setPhone(initialData.phone || '');
@@ -86,6 +88,15 @@ export function EmployeeEditGeneralDataForm({
       setBirthPlace(initialData.birth_place || '');
       setGender(initialData.gender || '');
       setLastEducation(initialData.last_education || '');
+
+      if (initialData.birth_date) {
+        try {
+          const parsedDate = parseISO(initialData.birth_date);
+          setBirthDate(parsedDate);
+        } catch (error) {
+          console.error('Error parsing birth_date:', error);
+        }
+      }
     }
   }, [initialData]);
 
@@ -94,6 +105,9 @@ export function EmployeeEditGeneralDataForm({
     setIsSubmitting(true);
     try {
       const formPayload = new FormData();
+      if (avatar) {
+        formPayload.append('file', avatar); 
+      }
       formPayload.append('first_name', first_name);
       formPayload.append('last_name', last_name);
       formPayload.append('phone', phone);
@@ -101,11 +115,19 @@ export function EmployeeEditGeneralDataForm({
       formPayload.append('birth_place', birth_place);
       formPayload.append('gender', gender);
       formPayload.append('last_education', last_education);
-  
-      await api.patch(`/api/employee/${employeeId}`, formPayload);
-  
+
+      if (birth_date) {
+        formPayload.append('birth_date', birth_date.toISOString().split('T')[0]);
+      }
+
+      await api.patch(`/api/employee/${employeeId}`, formPayload, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
       toast.success('Data updated successfully!');
-  
+
       if (onClose) onClose();
       router.refresh();
       if (onSuccess) onSuccess();
@@ -133,18 +155,32 @@ export function EmployeeEditGeneralDataForm({
         <div className="col-span-full flex items-center gap-4">
           <label htmlFor="avatar-upload" className="cursor-pointer">
             {avatar ? (
+              // Preview gambar yang baru dipilih
               <img
                 src={URL.createObjectURL(avatar)}
                 alt="Avatar Preview"
-                className="w-20 h-20 rounded-full object-cover"
+                className="w-20 h-20 rounded-full object-cover border-2 border-gray-200"
               />
             ) : (
-              <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center">
-                {initialData?.pict_dir ? (
-                  <img 
-                    src={initialData.pict_dir} 
-                    alt="Current Avatar" 
+              <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center border-2 border-gray-200">
+                {initialData?.pict_dir && initialData.pict_dir !== '[null]' ? (
+                  <img
+                    src={`/api/employee/${initialData.id}/avatar/${initialData.pict_dir}`}
+                    alt="Current Avatar"
                     className="w-full h-full rounded-full object-cover"
+                    onError={(e) => {
+                      console.log('Error loading avatar:', initialData.pict_dir);
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                      if (target.parentElement) {
+                        const div = document.createElement('div');
+                        div.innerHTML = '<Upload className="h-6 w-6 text-muted-foreground" />';
+                        target.parentElement.appendChild(div);
+                      }
+                    }}
+                    onLoad={() => {   
+                      console.log('Avatar loaded successfully');
+                    }}
                   />
                 ) : (
                   <Upload className="h-6 w-6 text-muted-foreground" />
@@ -158,7 +194,7 @@ export function EmployeeEditGeneralDataForm({
               variant="outline"
               onClick={() => document.getElementById('avatar-upload')?.click()}
             >
-              Change Avatar
+              {initialData?.pict_dir && initialData.pict_dir !== '[null]' ? 'Change Avatar' : 'Upload Avatar'}
             </Button>
             <input
               id="avatar-upload"
@@ -167,16 +203,33 @@ export function EmployeeEditGeneralDataForm({
               className="hidden"
               onChange={(e) => {
                 const file = e.target.files?.[0];
-                if (file) setAvatar(file);
+                if (file) {
+                  // Validasi ukuran file (maksimal 5MB)
+                  if (file.size > 5 * 1024 * 1024) {
+                    toast.error('File size should not exceed 5MB');
+                    return;
+                  }
+
+                  // Validasi tipe file
+                  if (!file.type.startsWith('image/')) {
+                    toast.error('Please select an image file');
+                    return;
+                  }
+
+                  setAvatar(file);
+                }
               }}
             />
+            <p className="text-xs text-muted-foreground mt-1">
+              Max file size: 5MB. Supported formats: JPG, PNG, JPEG
+            </p>
           </div>
         </div>
 
         {/* First Name */}
         <div>
           <Label htmlFor="first_name">First Name*</Label>
-          <Input 
+          <Input
             id="first_name"
             value={first_name}
             onChange={(e) => setFirstName(e.target.value)}
@@ -188,7 +241,7 @@ export function EmployeeEditGeneralDataForm({
         {/* Last Name */}
         <div>
           <Label htmlFor="last_name">Last Name*</Label>
-          <Input 
+          <Input
             id="last_name"
             value={last_name}
             onChange={(e) => setLastName(e.target.value)}
@@ -243,7 +296,7 @@ export function EmployeeEditGeneralDataForm({
         {/* Phone Number */}
         <div>
           <Label htmlFor="phone">Phone Number</Label>
-          <Input 
+          <Input
             id="phone"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
@@ -254,7 +307,7 @@ export function EmployeeEditGeneralDataForm({
         {/* NIK */}
         <div>
           <Label htmlFor="nik">NIK*</Label>
-          <Input 
+          <Input
             id="nik"
             value={nik}
             onChange={(e) => setNik(e.target.value)}
@@ -266,7 +319,7 @@ export function EmployeeEditGeneralDataForm({
         {/* Birth Place */}
         <div>
           <Label htmlFor="birth_place">Place of Birth</Label>
-          <Input 
+          <Input
             id="birth_place"
             value={birth_place}
             onChange={(e) => setBirthPlace(e.target.value)}
@@ -281,15 +334,18 @@ export function EmployeeEditGeneralDataForm({
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
-                className="w-full justify-start text-left font-normal"
+                className={`w-full justify-start text-left font-normal ${!birth_date && "text-muted-foreground"
+                  }`}
               >
                 <CalendarIcon className="mr-2 h-4 w-4" />
-                Select date
+                {birth_date ? format(birth_date, "dd/MM/yyyy") : "Select date"}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
               <Calendar
                 mode="single"
+                selected={birth_date}
+                onSelect={setBirthDate}
                 initialFocus
                 disabled={(date) => date > new Date() || date < new Date('1900-01-01')}
               />
@@ -307,10 +363,10 @@ export function EmployeeEditGeneralDataForm({
 
       {/* Form Buttons */}
       <DialogFooter className="gap-2 sm:justify-end mt-4 col-span-full">
-        {onClose && ( 
-             <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
-                 Cancel
-             </Button>
+        {onClose && (
+          <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
+            Cancel
+          </Button>
         )}
         <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? 'Saving...' : 'Save'}
