@@ -20,6 +20,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
+import { toast } from 'sonner';
 
 import api from '@/lib/axios';
 
@@ -57,7 +58,27 @@ export function EmployeeForm({
   const [education, setEducation] = useState<
     'HIGH_SCHOOL' | 'BACHELOR' | 'MASTER' | 'DOCTOR'
   >();
-  const [bank, setBank] = useState<'bca' | 'bni' | 'bri' | 'mandiri'>();
+  const [bank, setBank] = useState<
+    | 'BRI'
+    | 'Mandiri'
+    | 'BNI'
+    | 'Danamon'
+    | 'Permata'
+    | 'BCA'
+    | 'Maybank'
+    | 'Panin'
+    | 'Bukopin'
+    | 'CIMB'
+    | 'UOB'
+    | 'OCBC'
+    | 'BJB'
+    | 'Muamalat'
+    | 'BTN'
+    | 'BTPN'
+    | 'Mega'
+    | 'SyariahMandiri'
+    | 'Commonwealth'
+  >();
   const [accountNumber, setAccountNumber] = useState('');
   const [accountName, setAccountName] = useState('');
 
@@ -65,7 +86,7 @@ export function EmployeeForm({
     e.preventDefault();
 
     if (!firstName || !lastName || !email || !password) {
-      alert('Please fill out all required fields');
+      toast.error('Please fill out all required fields');
       return;
     }
 
@@ -97,11 +118,10 @@ export function EmployeeForm({
     formData.append('account_name', accountName);
 
     try {
-      for (const pair of formData.entries()) {
-        console.log(pair[0], pair[1]);
-      }
-
+      // Hapus log FormData jika tidak perlu
       await api.post('/api/employee', formData);
+      toast.success('Employee created successfully!');
+      // Reset form (opsional)
       setAvatar(null);
       setWorkScheme(undefined);
       setFirstName('');
@@ -121,10 +141,13 @@ export function EmployeeForm({
       setBank(undefined);
       setAccountName('');
       setAccountNumber('');
-      onSuccess?.();
+      onSuccess?.(); // trigger refresh data di parent
       onClose?.();
-    } catch (err) {
+    } catch (err: any) {
       console.error('Submit error:', err);
+      const errorMessage =
+        err.response?.data?.message || 'Something went wrong.';
+      toast.error(errorMessage);
     }
   };
 
@@ -376,6 +399,21 @@ export function EmployeeForm({
             <SelectItem value="BNI">BNI</SelectItem>
             <SelectItem value="BRI">BRI</SelectItem>
             <SelectItem value="Mandiri">Mandiri</SelectItem>
+            <SelectItem value="Danamon">Danamon</SelectItem>
+            <SelectItem value="Permata">Permata</SelectItem>
+            <SelectItem value="Maybank">Maybank</SelectItem>
+            <SelectItem value="Panin">Panin</SelectItem>
+            <SelectItem value="Bukopin">Bukopin</SelectItem>
+            <SelectItem value="CIMB">CIMB</SelectItem>
+            <SelectItem value="UOB">UOB</SelectItem>
+            <SelectItem value="OCBC">OCBC</SelectItem>
+            <SelectItem value="BJB">BJB</SelectItem>
+            <SelectItem value="Muamalat">Muamalat</SelectItem>
+            <SelectItem value="BTN">BTN</SelectItem>
+            <SelectItem value="BTPN">BTPN</SelectItem>
+            <SelectItem value="Mega">Mega</SelectItem>
+            <SelectItem value="SyariahMandiri">SyariahMandiri</SelectItem>
+            <SelectItem value="Commonwealth">Commonwealth</SelectItem>
           </SelectContent>
         </Select>
       </div>
