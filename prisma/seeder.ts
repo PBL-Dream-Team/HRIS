@@ -18,6 +18,30 @@ async function main(){
             price_per_employee: 7000,
             type: "PAID",
             day_length: 28,
+        },
+        {
+            // id: "d63b6982-048d-414e-92d4-50357234e010",
+            name: 'Bronze', // Testing only
+            max_employee:14,
+            price_per_employee: 1000,
+            type: "PAID",
+            day_length: 28,
+        },
+        {
+            // id: "d63b6982-048d-414e-92d4-50357234e010",
+            name: 'Silver',
+            max_employee:30,
+            price_per_employee: 1500,
+            type: "PAID",
+            day_length: 28,
+        },
+        {
+            // id: "d63b6982-048d-414e-92d4-50357234e010",
+            name: 'Gold',
+            max_employee:60,
+            price_per_employee: 1500,
+            type: "PAID",
+            day_length: 28,
         }
     ]});
 
