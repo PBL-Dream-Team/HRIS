@@ -58,27 +58,27 @@ export function EmployeeForm({
   const [education, setEducation] = useState<
     'HIGH_SCHOOL' | 'BACHELOR' | 'MASTER' | 'DOCTOR'
   >();
-  const [bank, setBank] = useState<
-    | 'BRI'
-    | 'Mandiri'
-    | 'BNI'
-    | 'Danamon'
-    | 'Permata'
-    | 'BCA'
-    | 'Maybank'
-    | 'Panin'
-    | 'Bukopin'
-    | 'CIMB'
-    | 'UOB'
-    | 'OCBC'
-    | 'BJB'
-    | 'Muamalat'
-    | 'BTN'
-    | 'BTPN'
-    | 'Mega'
-    | 'SyariahMandiri'
-    | 'Commonwealth'
-  >();
+  // const [bank, setBank] = useState<
+  //   | 'BRI'
+  //   | 'Mandiri'
+  //   | 'BNI'
+  //   | 'Danamon'
+  //   | 'Permata'
+  //   | 'BCA'
+  //   | 'Maybank'
+  //   | 'Panin'
+  //   | 'Bukopin'
+  //   | 'CIMB'
+  //   | 'UOB'
+  //   | 'OCBC'
+  //   | 'BJB'
+  //   | 'Muamalat'
+  //   | 'BTN'
+  //   | 'BTPN'
+  //   | 'Mega'
+  //   | 'SyariahMandiri'
+  //   | 'Commonwealth'
+  // >();
   const [accountNumber, setAccountNumber] = useState('');
   const [accountName, setAccountName] = useState('');
 
@@ -113,12 +113,11 @@ export function EmployeeForm({
     formData.append('branch', branch);
     if (contract) formData.append('contract', contract);
     if (education) formData.append('last_education', education);
-    if (bank) formData.append('account_bank', bank);
+    // if (bank) formData.append('account_bank', bank);
     formData.append('account_number', accountNumber);
     formData.append('account_name', accountName);
 
     try {
-      // Hapus log FormData jika tidak perlu
       await api.post('/api/employee', formData);
       toast.success('Employee created successfully!');
       // Reset form (opsional)
@@ -138,11 +137,11 @@ export function EmployeeForm({
       setBranch('');
       setContract(undefined);
       setEducation(undefined);
-      setBank(undefined);
+      // setBank(undefined);
       setAccountName('');
       setAccountNumber('');
-      onSuccess?.(); // trigger refresh data di parent
-      onClose?.();
+      onSuccess?.(); // hanya refresh data, JANGAN panggil onClose di sini!
+      // Hapus: onClose?.();
     } catch (err: any) {
       console.error('Submit error:', err);
       const errorMessage =
@@ -388,7 +387,7 @@ export function EmployeeForm({
       </div>
 
       {/* Bank */}
-      <div>
+      {/* <div>
         <Label>Bank</Label>
         <Select value={bank} onValueChange={setBank}>
           <SelectTrigger>
@@ -416,7 +415,7 @@ export function EmployeeForm({
             <SelectItem value="Commonwealth">Commonwealth</SelectItem>
           </SelectContent>
         </Select>
-      </div>
+      </div> */}
 
       {/* Account Number */}
       <div>
