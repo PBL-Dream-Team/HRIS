@@ -35,6 +35,7 @@ export class editLetterDto {
                message: 'Timestamp must be in ISO 8601 format (with Z or timezone offset)',
              })
     @IsNotEmpty()
+    @Transform(({ value }) => new Date(value))
     valid_until;
     
     @ApiPropertyOptional()

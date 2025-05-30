@@ -4,6 +4,8 @@ import { educationtype } from "./educationtype.enum";
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { contracttype } from "./contracttype.enum";
 import { BankCode } from "./bankcode.enum";
+import { Transform } from "class-transformer";
+import { Matches } from "class-validator";
 
 export class createEmployeeDto {
     @ApiProperty()
@@ -61,9 +63,14 @@ export class createEmployeeDto {
     @IsOptional()
     attendance_id: string;
 
-    @ApiPropertyOptional()
-    @IsDate()
+    @ApiProperty({example:"1970-01-01T08:57:24.123Z or 1970-01-01T08:57:24.123+07:00. Z for UTC +0 Zulu and +7 for Indonesia"})
+    @Matches(
+             /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}(Z|[+-]\d{2}:\d{2})$/,
+             {
+               message: 'Timestamp must be in ISO 8601 format (with Z or timezone offset)',
+             }) // Converts ISO string to Date
     @IsOptional()
+    @Transform(({ value }) => new Date(value))
     birth_date: Date;
 
     @ApiPropertyOptional()
