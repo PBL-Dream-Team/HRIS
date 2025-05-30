@@ -24,7 +24,7 @@ export class EmployeeService {
       const employee = await this.prisma.employee.create({ data: data });
 
       if (file && data.pict_dir) {
-        const writePath = join(process.cwd(), 'apps', 'frontend', 'public' , 'storage', 'employee', data.pict_dir);
+        const writePath = join(process.cwd(), 'apps', 'frontend', 'public', 'storage', 'employee', data.pict_dir);
         const writeStream = createWriteStream(writePath);
         writeStream.write(file.buffer);
         writeStream.end();
@@ -87,13 +87,13 @@ export class EmployeeService {
       });
 
       if (file && data.pict_dir) {
-        const writePath = join(process.cwd(), 'apps', 'frontend', 'public' , 'storage', 'employee', data.pict_dir);
+        const writePath = join(process.cwd(), 'apps', 'frontend', 'public', 'storage', 'employee', data.pict_dir);
         const writeStream = createWriteStream(writePath);
         writeStream.write(file.buffer);
         writeStream.end();
 
         if (user.pict_dir) {
-          const oldPath = join(process.cwd(), 'apps', 'frontend', 'public' , 'storage', 'employee', user.pict_dir);
+          const oldPath = join(process.cwd(), 'apps', 'frontend', 'public', 'storage', 'employee', user.pict_dir);
           if (existsSync(oldPath)) {
             unlinkSync(oldPath);
           }
@@ -122,7 +122,7 @@ export class EmployeeService {
 
       if (user.pict_dir) {
         // const oldPath = join(process.cwd(), 'storage', 'employee', user.pict_dir);
-        const oldPath = join(process.cwd(), 'apps', 'frontend', 'public' , 'storage', 'employee', user.pict_dir);
+        const oldPath = join(process.cwd(), 'apps', 'frontend', 'public', 'storage', 'employee', user.pict_dir);
         if (existsSync(oldPath)) {
           unlinkSync(oldPath);
         }
@@ -200,5 +200,19 @@ export class EmployeeService {
       message: 'Password updated successfully',
     };
   }
+
+  async getStatusCountByCompany(companyId: string) {
+    const result = await this.prisma.employee.groupBy({
+      by: ['contract'],
+      where: { company_id: companyId, is_admin: false },
+      _count: { _all: true },
+    });
+
+    return result.map(emp => ({
+      name: emp.contract,
+      total: emp._count._all,
+    }));
+  }
+
 }
 

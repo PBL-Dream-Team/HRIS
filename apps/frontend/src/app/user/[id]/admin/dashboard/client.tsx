@@ -99,6 +99,37 @@ export default function DashboardClient({
 
     fetchEmployeeCount();
   }, [companyId]);
+
+  const [employeeStatusData, setEmployeeStatusData] = useState<
+    { name: string; total: number; color: string }[]
+  >([]);
+
+  useEffect(() => {
+    async function fetchEmployeeStatus() {
+      try {
+        const res = await api.get(`/api/employee/status-count/${companyId}`);
+        const data = res.data;
+
+        const colorMap: Record<string, string> = {
+          PERMANENT: '#257047',
+          CONTRACT : '#FFAB00',
+          INTERN: '#2D8EFF',
+        };
+
+        const formatted = data.map((item: any) => ({
+          ...item,
+          color: colorMap[item.name] || '#8884d8',
+        }));
+
+        setEmployeeStatusData(formatted);
+      } catch (err: any) {
+        console.error('Error fetching employee status:', err.response?.data || err.message);
+      }
+    }
+
+    fetchEmployeeStatus();
+  }, [companyId]);
+
   return (
     <SidebarProvider>
       <AppSidebar isAdmin={isAdmin} />
@@ -156,7 +187,7 @@ export default function DashboardClient({
           <EmployeeInformation totalEmployees={employeeCount} />
           <div className="grid auto-rows-min gap-4 md:grid-cols-2 sm:grid-cols-1">
             <EmployeeStatisticsCard />
-            <EmployeeStatusCard />
+            <EmployeeStatusCard data={employeeStatusData} />
             <AttendanceOverviewCard />
             <AttendanceTableCard />
           </div>

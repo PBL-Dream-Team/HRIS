@@ -126,4 +126,10 @@ export class EmployeeController {
   ) {
     return this.employeeService.updatePassword(id, dto);
   }
+
+  @Get('status-count/:companyId')
+  async getStatusCount(@Param('companyId') companyId: string) {
+    return this.employeeService.getStatusCountByCompany(companyId);
+  }
+
 }
