@@ -8,8 +8,9 @@ export class TransactionService {
   constructor(private prisma: PrismaService) {}
 
   async createTransaction(dto: createTransactionDto) {
+    const data : any = {};
     try {
-      const transaction = await this.prisma.transaction.create({ data: dto });
+      const transaction = await this.prisma.transaction.create({ data: data });
       return {
         statusCode: 201,
         message: 'Transaction created successfully',
