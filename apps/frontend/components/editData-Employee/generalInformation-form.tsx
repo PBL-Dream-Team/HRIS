@@ -181,7 +181,7 @@ export function EmployeeEditGeneralDataForm({
               <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center border-2 border-gray-200">
                 {initialData?.pict_dir && initialData.pict_dir !== '[null]' ? (
                   <img
-                    src={`/user/${initialData.id}/employee/avatar/${initialData.pict_dir}`}
+                    src={`/storage/employee/${initialData.pict_dir}`}
                     alt="Current Avatar"
                     className="w-full h-full rounded-full object-cover"
                     onError={(e) => {

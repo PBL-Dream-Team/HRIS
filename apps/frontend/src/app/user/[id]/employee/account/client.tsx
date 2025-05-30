@@ -299,7 +299,7 @@ export default function AccountClient({
             <div className="col-span-full flex items-center gap-4">
                 <Avatar className="w-25 h-25">
                 <AvatarImage
-                  src={employeeData.pict_dir ? employeeData.pict_dir : '/avatars/default.jpg'}
+                  src={'/storage/employee/' + employeeData.pict_dir}
                   alt={employeeData.first_name || 'Avatar'}
                 />
                 <AvatarFallback>
