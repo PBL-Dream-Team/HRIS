@@ -52,11 +52,47 @@ async function main(){
             max_employee: 10,
             subs_date_start: "2025-05-29T14:25:30.123+08:00",
             subs_date_end:"2025-06-12T14:25:30.123+08:00",
-            status: "ACTIVE"
+            status: "ACTIVE",
+            loc_lat: -7.946270,
+            loc_long: 112.619786,
+            address: "Jalan Pinangsia, Jatimulyo, Malang, Kota Malang, East Java, Java, 65113, Indonesia"
         }
     });
 
     
+
+    
+    await prisma.attendanceType.createMany({
+        data:[
+            {
+                id: "3f5e99b8-8af9-4e9f-b2d7-4a939e3a9e2d",
+                company_id: "9be1d801-23af-4727-ae39-a2bf74ec00e0",
+                name: "WFA",
+                check_in: "1970-01-01T09:00:00.000+07:00",
+                check_out: "1970-01-01T17:00:00.000+07:00"
+        },
+            {
+                id: "7b6fc280-61fc-4e61-96f1-c41de52d7b8b",
+                company_id: "9be1d801-23af-4727-ae39-a2bf74ec00e0",
+                name: "Hybrid",
+                check_in: "1970-01-01T09:00:00.000+07:00",
+                check_out: "1970-01-01T17:00:00.000+07:00",
+                workspace_address: "Jalan Pinangsia, Jatimulyo, Malang, Kota Malang, East Java, Java, 65113, Indonesia",
+                workspace_lat: -7.946270,
+                workspace_long: 112.619786,
+            },
+            {
+                id: "1c2e0ec4-3957-4a5c-bc70-e4ad1b99391a",
+                company_id: "9be1d801-23af-4727-ae39-a2bf74ec00e0",
+                name: "WFO",
+                check_in: "1970-01-01T09:00:00.000+07:00",
+                check_out: "1970-01-01T17:00:00.000+07:00",
+                workspace_address: "Jalan Pinangsia, Jatimulyo, Malang, Kota Malang, East Java, Java, 65113, Indonesia",
+                workspace_lat: -7.946270,
+                workspace_long: 112.619786,
+            }
+        ]
+    });
 
     await prisma.employee.createMany({ data : [
         {
@@ -73,9 +109,28 @@ async function main(){
             email : "setiabudi@gmail.com",
             password: await hash("admin123"),
             company_id: "9be1d801-23af-4727-ae39-a2bf74ec00e0",
-            is_admin: false
+            is_admin: false,
+            attendance_id: "1c2e0ec4-3957-4a5c-bc70-e4ad1b99391a",
+            workscheme: "WFO"
         },
+        {
+            first_name : "Daffa",
+            last_name : "Yudisa",
+            email : "dappyud@gmail.com",
+            password: await hash("admin123"),
+            company_id: "9be1d801-23af-4727-ae39-a2bf74ec00e0",
+            is_admin: false,
+            attendance_id: "7b6fc280-61fc-4e61-96f1-c41de52d7b8b",
+            workscheme: "HYBRID"
+        }
     ]});
+
+    await prisma.letterType.create({ data: {
+        id:"2d72cde7-70b3-4340-9021-1739c5d06d2b",
+        name: "Surat Izin",
+        company_id: "9be1d801-23af-4727-ae39-a2bf74ec00e0",
+    }})
+
 
     console.log("✅ Seed complete");
 

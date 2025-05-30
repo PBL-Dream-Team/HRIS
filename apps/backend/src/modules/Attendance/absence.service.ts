@@ -19,7 +19,7 @@ export class AbsenceService {
       const absence = await this.prisma.absenceLeave.create({ data: data });
 
       if(file && data.filedir){
-        const writePath = join(process.cwd(),'storage','absence',data.filedir);
+        const writePath = join(process.cwd(), 'apps', 'frontend', 'public' , 'storage', 'absence', data.filedir);
         const writeStream = createWriteStream(writePath);
         writeStream.write(file.buffer);
         writeStream.end();
@@ -79,13 +79,13 @@ export class AbsenceService {
       });
 
       if(file && data.filedir){
-        const writePath = join(process.cwd(),'storage','absence',data.filedir);
+        const writePath = join(process.cwd(), 'apps', 'frontend', 'public' , 'storage', 'absence', data.filedir);
         const writeStream = createWriteStream(writePath);
         writeStream.write(file.buffer);
         writeStream.end();
       
         if(old.filedir){
-          const oldPath = join(process.cwd(),'storage','absence',old.filedir);
+          const oldPath = join(process.cwd(), 'apps', 'frontend', 'public' , 'storage', 'absence', old.filedir);
           if(existsSync(oldPath)){
             unlinkSync(oldPath);
           }
@@ -113,7 +113,7 @@ export class AbsenceService {
       await this.prisma.absenceLeave.delete({ where: { id: absenceId } });
 
       if(data.filedir){
-        const oldPath = join(process.cwd(),'storage','absence',data.filedir);
+        const oldPath = join(process.cwd(), 'apps', 'frontend', 'public' , 'storage', 'absence', data.filedir);
           if(existsSync(oldPath)){
             unlinkSync(oldPath);
           }

@@ -21,7 +21,7 @@ export class LetterService {
       const letter = await this.prisma.letter.create({ data: data });
 
       if(file && data.file_dir){
-              const writePath = join(process.cwd(),'storage','letter',data.file_dir);
+              const writePath = join(process.cwd(), 'apps', 'frontend', 'public' , 'storage','letter',data.file_dir);
               const writeStream = createWriteStream(writePath);
               writeStream.write(file.buffer);
               writeStream.end();
@@ -80,13 +80,13 @@ export class LetterService {
       });
 
       if(data.file_dir && file){
-        const writePath = join(process.cwd(),'storage','letter',data.pict_dir);
+        const writePath = join(process.cwd(), 'apps', 'frontend', 'public' , 'storage','letter',data.pict_dir);
         const writeStream = createWriteStream(writePath);
         writeStream.write(file.buffer);
         writeStream.end();
 
         if(old.file_dir){
-          const oldPath = join(process.cwd(),'storage','letter',old.file_dir);
+          const oldPath = join(process.cwd(), 'apps', 'frontend', 'public' , 'storage','letter',old.file_dir);
           if(existsSync(oldPath)){
             unlinkSync(oldPath);
           }
@@ -113,7 +113,7 @@ export class LetterService {
       await this.prisma.letter.delete({ where: { id: letterId } });
 
       if(letter.file_dir){
-        const writeStream = join(process.cwd(), 'storage','letter',letter.file_dir);
+        const writeStream = join(process.cwd(), 'apps', 'frontend', 'public' , 'storage','letter',letter.file_dir);
         if(existsSync(writeStream)){
           unlinkSync(writeStream);
         }
