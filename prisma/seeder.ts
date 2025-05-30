@@ -50,8 +50,8 @@ async function main(){
             name: "PBL 2",
             subscription_id: "bcf1b2a6-bdc2-4b66-98b1-e8a2c0ea2e95",
             max_employee: 10,
-            subs_date_start: "2025-05-12T14:25:30.123+08:00",
-            subs_date_end:"2025-05-26T14:25:30.123+08:00",
+            subs_date_start: "2025-05-29T14:25:30.123+08:00",
+            subs_date_end:"2025-06-12T14:25:30.123+08:00",
             status: "ACTIVE"
         }
     });

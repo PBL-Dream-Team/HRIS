@@ -1,6 +1,7 @@
 import { IsBoolean, IsDate, IsNotEmpty, IsOptional, IsString, IsUUID, Matches } from "@nestjs/class-validator";
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { Type, Transform } from 'class-transformer';
+import { IsISO8601 } from "class-validator";
 
 export class createLetterDto {
     @ApiProperty()
@@ -28,15 +29,11 @@ export class createLetterDto {
     @IsOptional()
     desc: string;
 
-    @ApiProperty({example:"1970-01-01T08:57:24.123Z or 1970-01-01T08:57:24.123+07:00. Z for UTC +0 Zulu and +7 for Indonesia"})
-    @Matches(
-             /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}(Z|[+-]\d{2}:\d{2})$/,
-             {
-               message: 'Timestamp must be in ISO 8601 format (with Z or timezone offset)',
-             }) // Converts ISO string to Date
+    @ApiProperty()
+    @IsDate()
     @IsNotEmpty()
     @Transform(({ value }) => new Date(value))
-    valid_until;
+    valid_until: Date;
 
     @ApiPropertyOptional()
     @IsBoolean()
