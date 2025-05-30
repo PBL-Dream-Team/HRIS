@@ -108,19 +108,20 @@ export default function EmployeeDatabaseClient({
   }, [userId]);
 
   const [employees, setEmployees] = useState<any[]>([]);
-  useEffect(() => {
-    async function fetchEmployees() {
-      try {
-        const res = await api.get('/api/employee');
-        setEmployees(res.data); // atau `res.data.data` jika API kamu membungkus hasil dalam `data`
-      } catch (err: any) {
-        console.error(
-          'Error fetching employees:',
-          err.response?.data || err.message,
-        );
-      }
-    }
 
+  const fetchEmployees = async () => {
+    try {
+      const res = await api.get('/api/employee');
+      setEmployees(res.data);
+    } catch (err: any) {
+      console.error(
+        'Error fetching employees:',
+        err.response?.data || err.message,
+      );
+    }
+  };
+
+  useEffect(() => {
     fetchEmployees();
   }, []);
 
@@ -162,6 +163,12 @@ export default function EmployeeDatabaseClient({
       setIsDeleteDialogOpen(false);
       setEmployeeToDelete(null);
     }
+  };
+
+  const [openAddDialog, setOpenAddDialog] = useState(false);
+
+  const handleAddEmployeeSuccess = () => {
+    fetchEmployees(); // hanya fetch data baru, dialog tetap terbuka
   };
 
   return (
@@ -241,20 +248,20 @@ export default function EmployeeDatabaseClient({
                 <Button variant="outline" className="w-full md:w-auto">
                   <BiImport className="h-4 w-4 mr-1" /> Import
                 </Button>
-                <Dialog>
+                <Dialog open={openAddDialog} onOpenChange={setOpenAddDialog}>
                   <DialogTrigger asChild>
                     <Button className="w-full md:w-auto">
                       <Plus className="h-4 w-4 mr-1" /> Add Employee
                     </Button>
                   </DialogTrigger>
-
                   <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
                       <DialogTitle>Add New Employee</DialogTitle>
                     </DialogHeader>
                     <EmployeeForm
                       companyId={companyId}
-                      onSuccess={() => router.refresh()}
+                      onSuccess={handleAddEmployeeSuccess}
+                      onClose={() => setOpenAddDialog(false)}
                     />
                   </DialogContent>
                 </Dialog>

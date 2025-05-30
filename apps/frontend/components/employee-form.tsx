@@ -118,7 +118,6 @@ export function EmployeeForm({
     formData.append('account_name', accountName);
 
     try {
-      // Hapus log FormData jika tidak perlu
       await api.post('/api/employee', formData);
       toast.success('Employee created successfully!');
       // Reset form (opsional)
@@ -141,8 +140,8 @@ export function EmployeeForm({
       setBank(undefined);
       setAccountName('');
       setAccountNumber('');
-      onSuccess?.(); // trigger refresh data di parent
-      onClose?.();
+      onSuccess?.(); // hanya refresh data, JANGAN panggil onClose di sini!
+      // Hapus: onClose?.();
     } catch (err: any) {
       console.error('Submit error:', err);
       const errorMessage =
