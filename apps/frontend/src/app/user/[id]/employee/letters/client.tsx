@@ -99,6 +99,7 @@ export default function LettersClient({
     name: letter.name,
     lettertype_id: letter.lettertype_id,
     letter_type: letterTypeMap[letter.lettertype_id]?.name || 'Unknown',
+    file_dir: letter.file_dir,
     desc: letter.desc,
 
     valid_until: new Date(letter.valid_until).toLocaleDateString('id-ID', {

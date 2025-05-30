@@ -2,8 +2,6 @@ import { ColumnDef } from '@tanstack/react-table';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Download, Eye, Pencil, Trash2 } from 'lucide-react';
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { LetterForm } from '@/components/letter-form';
 import { parse } from 'date-fns';
 import { id } from 'date-fns/locale';
 
@@ -15,6 +13,7 @@ export type Letter = {
   letter_type: string;
   name: string;
   desc: string;
+  file_dir: string;
   valid_until: string;
   is_active: boolean;
 };
@@ -87,7 +86,7 @@ export const letterColumns = (
         const letter = row.original;
         return (
           <div className="flex gap-2">
-            <Link href={`download/${letter.id}`}>
+            <Link href={`/storage/letter/${letter.file_dir}`}>
               <Button variant="outline" size="icon" className="hover:text-white hover:bg-green-600">
                 <Download />
               </Button>
