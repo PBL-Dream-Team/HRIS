@@ -54,27 +54,7 @@ import { use } from 'chai';
 
 type EducationType = 'HIGH_SCHOOL' | 'BACHELOR' | 'MASTER' | 'DOCTOR';
 type GenderType = 'M' | 'F';
-type Bank =
-  | 'BCA'
-  | 'BNI'
-  | 'BRI'
-  | 'Mandiri'
-  | 'Danamon'
-  | 'Permata'
-  | 'Maybank'
-  | 'Panin'
-  | 'Bukopin'
-  | 'CIMB'
-  | 'UOB'
-  | 'OCBC'
-  | 'BJB'
-  | 'Muamalat'
-  | 'BTN'
-  | 'BTPN'
-  | 'Mega'
-  | 'SyariahMandiri'
-  | 'Commonwealth';
-type BankCode = '002' | '008' | '009' | '011' | '013' | '014' | '016' | '019' | '020' | '022' | '023' | '028' | '110' | '147' | '200' | '213' | '426' | '451' | '950';
+type Bank = 'BRI' | 'Mandiri' | 'BNI' | 'Danamon' | 'Permata' | 'BCA' | 'Maybank' | 'Panin' | 'Bukopin' | 'CIMB' | 'UOB' | 'OCBC' | 'BJB' | 'Muamalat' | 'BTN' | 'BTPN' | 'Mega' | 'SyariahMandiri' | 'Commonwealth';
 
 type AccountClientProps = {
   isAdmin: boolean;
@@ -95,7 +75,7 @@ type AccountClientProps = {
     branch: string;
     contract: string;
     workscheme: string;
-    account_bank: BankCode;
+    account_bank: Bank;
     account_name: string;
     account_number: string;
     email: string;
@@ -127,6 +107,7 @@ export default function AccountClient({
     birth_place: '',
     birth_date: '',
     id: '',
+    pict_dir: '',
   });
   const [employeeWorkData, setEmployeeWorkData] = useState({
     position: '',
@@ -159,8 +140,9 @@ export default function AccountClient({
         email: employee.email || '',
         nik: employee.nik || '',
         birth_place: employee.birth_place || '',
-        birth_date: employee.birth_date || '',
+        birth_date: employee.birth_date?.split('T')[0] || '',
         id: employee.id || '',
+        pict_dir: employee.pict_dir || '',
       });
       
       setEmployeeWorkData({
@@ -247,7 +229,6 @@ export default function AccountClient({
   const formatDate = (dateString: string) => {
     if (!dateString) return '';
     try {
-      // Coba parse tanggal dari format ISO (yyyy-MM-dd)
       const date = parseISO(dateString);
       return format(date, 'PPP'); // Format menjadi "January 1st, 1990"
     } catch (error) {
@@ -316,13 +297,16 @@ export default function AccountClient({
           <div className="w-full h-fit md:w-2/3 grid grid-cols-1 md:grid-cols-2 gap-4 border-2 p-4 bg-white rounded-lg shadow">
             <h1 className="text-lg font-semibold mb-2">General Information</h1>
             <div className="col-span-full flex items-center gap-4">
-              <Avatar className="w-25 h-25">
+                <Avatar className="w-25 h-25">
                 <AvatarImage
-                  src="https://github.com/shadcn.png"
-                  alt="@shadcn"
+                  src={employeeData.pict_dir ? employeeData.pict_dir : '/avatars/default.jpg'}
+                  alt={employeeData.first_name || 'Avatar'}
                 />
-                <AvatarFallback>CN</AvatarFallback>
-              </Avatar>
+                <AvatarFallback>
+                  {employeeData.first_name?.[0]}
+                  {employeeData.last_name?.[0]}
+                </AvatarFallback>
+                </Avatar>
             </div>
             <div>
               <Label>First Name</Label>
@@ -391,7 +375,7 @@ export default function AccountClient({
               <Label>Date of Birth</Label>
               <Input 
                 id='birth_date'
-                // value={formatDate(employeeData.birth_date) || ''}
+                value={formatDate(employeeData.birth_date) || ''}
                 readOnly 
                 placeholder="Your date of birth" 
               />
@@ -431,7 +415,7 @@ export default function AccountClient({
                         nik: employeeData.nik || '',
                         birth_place: employeeData.birth_place || '',
                         birth_date: initialData?.birth_date || '',
-                        pict_dir: initialData?.pict_dir || '',
+                        pict_dir: employeeData.pict_dir || '',
                         email: employeeData.email || '',
                       }}
                       onSuccess={handleOperationSuccess}
@@ -555,7 +539,7 @@ export default function AccountClient({
                       employeeId={employeeData.id}
                       initialData={{
                         id: employeeData.id || '',
-                        account_bank: employeeWorkData.account_bank as BankCode,
+                        account_bank: employeeWorkData.account_bank as Bank,
                         account_name: employeeWorkData.account_name || '',
                         account_number: employeeWorkData.account_number || '',
                       }}

@@ -17,7 +17,6 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 
 type Bank = 'BRI' | 'Mandiri' | 'BNI' | 'Danamon' | 'Permata' | 'BCA' | 'Maybank' | 'Panin' | 'Bukopin' | 'CIMB' | 'UOB' | 'OCBC' | 'BJB' | 'Muamalat' | 'BTN' | 'BTPN' | 'Mega' | 'SyariahMandiri' | 'Commonwealth';
-type BankCode = '002' | '008' | '009' | '011' | '013' | '014' | '016' | '019' | '020' | '022' | '023' | '028' | '110' | '147' | '200' | '213' | '426' | '451' | '950';
 
 type EmployeeEditWorkDataFormProps = {
   mode: 'edit';
@@ -25,7 +24,7 @@ type EmployeeEditWorkDataFormProps = {
   employeeId: string;
   initialData?: {
     id: string;
-    account_bank: BankCode; 
+    account_bank: Bank; 
     account_name: string;
     account_number: string;
   };
@@ -58,25 +57,13 @@ export function EmployeeEditWorkDataForm({
     e.preventDefault();
     setIsSubmitting(true);
     
-    // Fix 2: Add validation
-    // if (!accountName.trim() || !accountNumber.trim()) {
-    //   toast.error('Please fill in all required fields');
-    //   return;
-    // }
-
-    
     try {
-      // const formPayload = new FormData();
-      // formPayload.append('account_bank', account_bank);
-      // formPayload.append('account_name', account_name);
-      // formPayload.append('account_number', account_number);
-      const payload = {
-        account_bank,
-        account_name, 
-        account_number
-      };
+      const formPayload = new FormData();
+      formPayload.append('account_bank', account_bank);
+      formPayload.append('account_name', account_name);
+      formPayload.append('account_number', account_number);
 
-      await api.patch(`/api/employee/${employeeId}`, payload);
+      await api.patch(`/api/employee/${employeeId}`, formPayload);
 
       toast.success('Work data updated successfully!');
       
@@ -99,25 +86,25 @@ export function EmployeeEditWorkDataForm({
 
   // Bank options
   const bankOptions = [
-    { value: '002', label: 'BRI' },
-    { value: '008', label: 'Mandiri' },
-    { value: '009', label: 'BNI' },
-    { value: '011', label: 'Danamon' },
-    { value: '013', label: 'Permata' },
-    { value: '014', label: 'BCA' },
-    { value: '016', label: 'Maybank' },
-    { value: '019', label: 'Panin' },
-    { value: '020', label: 'Bukopin' },
-    { value: '022', label: 'CIMB' },
-    { value: '023', label: 'UOB' },
-    { value: '028', label: 'OCBC' },
-    { value: '110', label: 'BJB' },
-    { value: '147', label: 'Muamalat' },
-    { value: '200', label: 'BTN' },
-    { value: '213', label: 'BTPN' },
-    { value: '426', label: 'Mega' },
-    { value: '451', label: 'SyariahMandiri' },
-    { value: '950', label: 'Commonwealth' }
+    { value: 'BRI', label: 'BRI' },
+    { value: 'Mandiri', label: 'Mandiri' },
+    { value: 'BNI', label: 'BNI' },
+    { value: 'Danamon', label: 'Danamon' },
+    { value: 'Permata', label: 'Permata' },
+    { value: 'BCA', label: 'BCA' },
+    { value: 'Maybank', label: 'Maybank' },
+    { value: 'Panin', label: 'Panin' },
+    { value: 'Bukopin', label: 'Bukopin' },
+    { value: 'CIMB', label: 'CIMB' },
+    { value: 'UOB', label: 'UOB' },
+    { value: 'OCBC', label: 'OCBC' },
+    { value: 'BJB', label: 'BJB' },
+    { value: 'Muamalat', label: 'Muamalat' },
+    { value: 'BTN', label: 'BTN' },
+    { value: 'BTPN', label: 'BTPN' },
+    { value: 'Mega', label: 'Mega' },
+    { value: 'SyariahMandiri', label: 'Syariah Mandiri' },
+    { value: 'Commonwealth', label: 'Commonwealth Bank' }
   ];
 
   return (
@@ -128,7 +115,7 @@ export function EmployeeEditWorkDataForm({
         <Select
           value={account_bank}
           onValueChange={handleBankChange}
-          key={`account_bank-${account_bank}`} // Ensure re-render on bank change
+          key={`account_bank-${account_bank}`}
         >
           <SelectTrigger id="bank-select">
             <SelectValue placeholder="Choose Bank">
@@ -153,7 +140,7 @@ export function EmployeeEditWorkDataForm({
           value={account_name}
           onChange={(e) => setAccountName(e.target.value)}
           placeholder="Enter account holder name"
-          required 
+          // required 
         />
       </div>
 

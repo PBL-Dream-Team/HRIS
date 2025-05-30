@@ -91,8 +91,14 @@ export function EmployeeEditGeneralDataForm({
 
       if (initialData.birth_date) {
         try {
-          const parsedDate = parseISO(initialData.birth_date);
-          setBirthDate(parsedDate);
+          // Handle both ISO strings and other formats
+          const parsedDate = new Date(initialData.birth_date + 'T00:00:00'); 
+          if (!isNaN(parsedDate.getTime())) {
+            setBirthDate(parsedDate);
+            console.log('Successfully parsed date:', parsedDate); // Debug log
+          } else {
+            console.warn('Invalid date received:', initialData.birth_date);
+          }
         } catch (error) {
           console.error('Error parsing birth_date:', error);
         }
@@ -106,7 +112,7 @@ export function EmployeeEditGeneralDataForm({
     try {
       const formPayload = new FormData();
       if (avatar) {
-        formPayload.append('file', avatar); 
+        formPayload.append('file', avatar);
       }
       formPayload.append('first_name', first_name);
       formPayload.append('last_name', last_name);
@@ -116,9 +122,8 @@ export function EmployeeEditGeneralDataForm({
       formPayload.append('gender', gender);
       formPayload.append('last_education', last_education);
 
-      if (birth_date) {
-        formPayload.append('birth_date', birth_date.toISOString().split('T')[0]);
-      }
+      const isoDateString = birth_date ? birth_date.toISOString() : '';
+      formPayload.append('birth_date', isoDateString);
 
       await api.patch(`/api/employee/${employeeId}`, formPayload, {
         headers: {
@@ -148,6 +153,17 @@ export function EmployeeEditGeneralDataForm({
     setLastEducation(value);
   };
 
+  const formatDate = (dateString: string) => {
+    if (!dateString) return '';
+    try {
+      const date = parseISO(dateString);
+      return format(date, 'PPP'); // Format menjadi "January 1st, 1990"
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return dateString; // Fallback ke string asli jika parsing gagal
+    }
+  };
+
   return (
     <form onSubmit={handleSubmit}>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -165,7 +181,7 @@ export function EmployeeEditGeneralDataForm({
               <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center border-2 border-gray-200">
                 {initialData?.pict_dir && initialData.pict_dir !== '[null]' ? (
                   <img
-                    src={`/api/employee/${initialData.id}/avatar/${initialData.pict_dir}`}
+                    src={`/user/${initialData.id}/employee/avatar/${initialData.pict_dir}`}
                     alt="Current Avatar"
                     className="w-full h-full rounded-full object-cover"
                     onError={(e) => {
@@ -178,7 +194,7 @@ export function EmployeeEditGeneralDataForm({
                         target.parentElement.appendChild(div);
                       }
                     }}
-                    onLoad={() => {   
+                    onLoad={() => {
                       console.log('Avatar loaded successfully');
                     }}
                   />
@@ -338,7 +354,7 @@ export function EmployeeEditGeneralDataForm({
                   }`}
               >
                 <CalendarIcon className="mr-2 h-4 w-4" />
-                {birth_date ? format(birth_date, "dd/MM/yyyy") : "Select date"}
+                {birth_date ? format(birth_date, "dd/MM/yyyy") : initialData?.birth_date || "Select date"}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
@@ -348,6 +364,7 @@ export function EmployeeEditGeneralDataForm({
                 onSelect={setBirthDate}
                 initialFocus
                 disabled={(date) => date > new Date() || date < new Date('1900-01-01')}
+                defaultMonth={birth_date || new Date()}
               />
             </PopoverContent>
           </Popover>
