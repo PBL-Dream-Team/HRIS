@@ -1,9 +1,6 @@
 name: Deploy to VM (staging)
 
-on:
-  push:
-    branches:
-      - staging
+on: [push]
 
 jobs:
   deploy:
