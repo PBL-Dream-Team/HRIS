@@ -10,14 +10,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: SSH into Azure VM and deploy
+    - name: SSH into GCP VM and deploy
       uses: appleboy/ssh-action@v0.1.6
       with:
-        host: ${{ secrets.AZURE_HOST }}
-        username: ${{ secrets.AZURE_USER }}
-        key: ${{ secrets.AZURE_KEY }}
+        host: ${{ secrets.STAGING_VM_HOST }}
+        username: ${{ secrets.STAGING_VM_USER }}
+        key: ${{ secrets.STAGING_VM_SSH_KEY }}
         script: |
           cd HRIS
           git pull
           npm install
+          npx prisma migrate reset --force
           pm2 restart all
+          sudo systemctl restart nginx
