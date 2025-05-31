@@ -63,6 +63,7 @@ export class AuthService {
     if (dto.first_name) userData.first_name = dto.first_name;
     if (dto.last_name) userData.last_name = dto.last_name;
     if (dto.email) userData.email = dto.email;
+    if (dto.phone) userData.phone = dto.phone;
     if (dto.password) userData.password = await hash(dto.password);
     userData.is_admin = true;
 
