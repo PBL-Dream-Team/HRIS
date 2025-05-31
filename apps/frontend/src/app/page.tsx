@@ -1,103 +1,172 @@
-import Image from "next/image";
+import Navbar from "@/components/landingpage/Navbar"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import Image from "next/image"
+import {
+  Card,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+  CardContent,
+} from '@/components/ui/card';
+import { PricingSection } from "@/components/landingpage/PricingSection";
+import { HowToUseSection } from "@/components/landingpage/HowToUseSection";
+import { TestimonialSection } from "@/components/landingpage/TestimonialSection";
+import { FaqSection } from "@/components/landingpage/FAQSection";
+import { Footer } from "@/components/landingpage/Footer";
+
 
 export default function Home() {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <>
+      <Navbar />
+      <main className="pt-20">
+        {/* Sections like #feature, #pricing, etc */}
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
+        <section className="bg-[#F9FAFB] py-24 px-4 md:px-8" id="hero">
+          <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 items-center gap-8">
+            {/* Textual content */}
+            <div>
+              <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">
+                Solusi HRIS Modern untuk Manajemen SDM yang Efisien
+              </h1>
+              <p className="text-lg text-gray-600 mb-8">
+                Kelola absensi, cuti, payroll, dan semua kebutuhan SDM dalam satu platform yang mudah digunakan dan hemat waktu.
+              </p>
+              <Link href="/signup">
+                <Button size="lg" className="text-lg px-6 py-4">
+                  Coba Gratis Sekarang
+                </Button>
+              </Link>
+            </div>
+
+            {/* Illustration or Image */}
+            <div className="flex justify-center">
+              <Image
+                src="/images/hris-illustration.png"
+                alt="Ilustrasi HRIS"
+                width={500}
+                height={400}
+                className="rounded-xl shadow-lg"
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* Feature Section */}
+
+        <section id="feature" className="py-24 bg-white px-4 md:px-8">
+          <div className="max-w-7xl mx-auto text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Fitur Unggulan HRIS Kami
+            </h2>
+            <p className="text-gray-600 text-lg mb-12">
+              Solusi lengkap untuk mengelola seluruh kebutuhan sumber daya manusia dalam satu platform.
+            </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-10">
+              <Card className="p-6 text-center transition-shadow hover:shadow-lg">
+                <div className="mb-4 text-[#1E3A5F]">
+                  <svg className="w-10 h-10 mx-auto" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                    <path d="M5.121 17.804A4 4 0 0 1 3 14.618V11a9 9 0 1 1 18 0v3.618a4 4 0 0 1-2.121 3.186l-4.379 2.19a4 4 0 0 1-3.999 0l-4.38-2.19z" />
+                  </svg>
+                </div>
+                <CardContent>
+                  <h3 className="text-xl font-semibold text-gray-800 mb-2">Employee Management</h3>
+                  <p className="text-gray-600 text-sm">
+                    Kelola data karyawan secara terpusat, mulai dari biodata hingga riwayat jabatan dan status aktif.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="p-6 text-center transition-shadow hover:shadow-lg">
+                <div className="mb-4 text-[#1E3A5F]">
+                  <svg className="w-10 h-10 mx-auto" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                    <path d="M8 7V3m8 4V3M3 11h18M5 19h14a2 2 0 0 0 2-2v-6H3v6a2 2 0 0 0 2 2z" />
+                  </svg>
+                </div>
+                <CardContent>
+                  <h3 className="text-xl font-semibold text-gray-800 mb-2">Attendance</h3>
+                  <p className="text-gray-600 text-sm">
+                    Rekam kehadiran karyawan dengan sistem check-in/out online, terintegrasi dengan lokasi dan waktu.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="p-6 text-center transition-shadow hover:shadow-lg">
+                <div className="mb-4 text-[#1E3A5F]">
+                  <svg className="w-10 h-10 mx-auto" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                    <path d="M4 4h16v16H4zM4 8h16M8 4v16" />
+                  </svg>
+                </div>
+                <CardContent>
+                  <h3 className="text-xl font-semibold text-gray-800 mb-2">Document Management</h3>
+                  <p className="text-gray-600 text-sm">
+                    Unggah, arsipkan, dan kelola dokumen penting seperti kontrak kerja, surat cuti, dan lainnya.
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="flex justify-center flex-wrap gap-8">
+              <Card className="p-6 text-center w-full max-w-sm transition-shadow hover:shadow-lg">
+                <div className="mb-4 text-[#1E3A5F]">
+                  <svg className="w-10 h-10 mx-auto" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                    <path d="M17 9V7a5 5 0 0 0-10 0v2M5 11h14v10H5z" />
+                  </svg>
+                </div>
+                <CardContent>
+                  <h3 className="text-xl font-semibold text-gray-800 mb-2">Subscription & Payments</h3>
+                  <p className="text-gray-600 text-sm">
+                    Kelola paket berlangganan perusahaan dan lakukan pembayaran dengan sistem yang aman dan transparan.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="p-6 text-center w-full max-w-sm transition-shadow hover:shadow-lg">
+                <div className="mb-4 text-[#1E3A5F]">
+                  <svg className="w-10 h-10 mx-auto" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                    <path d="M3 3v18h18M9 17V9m4 8V5m4 12v-6" />
+                  </svg>
+                </div>
+                <CardContent>
+                  <h3 className="text-xl font-semibold text-gray-800 mb-2">Employee Statistics</h3>
+                  <p className="text-gray-600 text-sm">
+                    Visualisasi data karyawan seperti performa, absensi, dan distribusi jabatan dalam grafik yang informatif.
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </section>
+
+
+        {/*Pricing Section*/}
+
+        <section id="pricing" className="py-24 px-4 md:px-8 bg-[#F9FAFB]">
+          <PricingSection />
+        </section>
+
+
+        {/* How It Works Section */}
+        <section id="how-it-works" className="py-24 px-4 md:px-8 bg-white">
+          <HowToUseSection />
+        </section>
+
+        {/* Testimonial Section */}
+        <section id="testimonials" className="py-24 px-4 md:px-8 bg-[#F9FAFB]">
+          <TestimonialSection />
+        </section>
+
+        {/* FAQ Section */}
+        <section id="faq" className="py-24 px-4 md:px-8 bg-white">
+          <FaqSection />
+        </section>
+
+        <Footer />
+
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
+    </>
+  )
 }
