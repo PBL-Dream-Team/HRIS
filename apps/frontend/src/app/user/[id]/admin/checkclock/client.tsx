@@ -32,6 +32,8 @@ import PaginationFooter from '@/components/pagination';
 import { Button } from '@/components/ui/button';
 import { CheckClockForm } from '@/components/checkclock-form';
 import CheckClockDetails from '@/components/checkclock-details';
+import { WorkshemeForm } from '@/components/workscheme/workscheme-form';
+import { WorkschemeOverviewContent } from '@/components/workscheme/workscheme-overview';
 
 import {
   DropdownMenu,
@@ -139,6 +141,7 @@ export default function CheckClockClient({
 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isWorkschemeOverviewOpen, setIsWorkschemeOverviewOpen] = useState(false);
 
   async function fetchData() {
       setIsLoading(true);
@@ -302,19 +305,42 @@ export default function CheckClockClient({
                 <Button variant="outline" className="w-full md:w-auto">
                   <VscSettings className="h-4 w-4 mr-1" /> Filter
                 </Button>
-                {/* <Dialog>
+                <Dialog
+                  open={isWorkschemeOverviewOpen}
+                  onOpenChange={setIsWorkschemeOverviewOpen}
+                >
                   <DialogTrigger asChild>
                     <Button>
-                      <IoMdAdd /> Add Check Clock
+                      Workscheme Overview
                     </Button>
                   </DialogTrigger>
                   <DialogContent className="max-w-4xl">
                     <DialogHeader>
-                      <DialogTitle>Add Check Clock</DialogTitle>
-                    </DialogHeader> */}
-                    {/* <CheckClockForm/> */}
-                  {/* </DialogContent>
-                </Dialog> */}
+                      <DialogTitle>Workscheme Data</DialogTitle>
+                    </DialogHeader>
+                    <WorkschemeOverviewContent
+                      companyId={companyId}
+                      isVisible={isWorkschemeOverviewOpen}
+                    />
+                  </DialogContent>
+                </Dialog>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button>
+                      <IoMdAdd /> Add Workscheme
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-4xl">
+                    <DialogHeader>
+                      <DialogTitle>Add Workscheme</DialogTitle>
+                    </DialogHeader>
+                    <WorkshemeForm
+                      companyId={companyId}
+                      mode='create'
+                      onSuccess={handleOperationSuccess}                
+                    />
+                  </DialogContent>
+                </Dialog>
               </div>
             </div>
               <Table>

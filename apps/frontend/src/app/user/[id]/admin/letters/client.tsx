@@ -238,7 +238,8 @@ export default function LettersClient({
                         isVisible={isLetterTypesOverviewOpen}
                       />
                     </DialogContent>
-                  </Dialog>
+                  </Dialog> 
+                  {/* Zsada */}
 
                   {/* Add Letter Type Dialog */}
                   <Dialog>

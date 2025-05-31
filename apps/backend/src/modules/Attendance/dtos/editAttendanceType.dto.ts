@@ -33,15 +33,15 @@ export class editAttendanceTypeDto {
     @ApiPropertyOptional()
     @IsString()
     @IsOptional()
-    workplace_address: string;
+    workspace_address: string;
 
     @ApiPropertyOptional()
     @IsLatitude()
     @IsOptional()
-    workplace_lat: number;
+    workspace_lat: number;
     
     @ApiPropertyOptional()
     @IsLongitude()
     @IsOptional()
-    workplace_long: number;
+    workspace_long: number;
 }
