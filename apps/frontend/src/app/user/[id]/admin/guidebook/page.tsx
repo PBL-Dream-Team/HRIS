@@ -1,5 +1,5 @@
 import { validateAccess } from '@/lib/validateAccess';
-import GuidebookClient from './client';
+import GuideBookClient from './client';
 
 export default async function Page(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
@@ -12,7 +12,7 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
   });
 
   return (
-    <GuidebookClient
+    <GuideBookClient
       isAdmin={is_admin}
       userId={sub}
       companyId={company_id}
