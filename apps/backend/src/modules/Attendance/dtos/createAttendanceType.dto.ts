@@ -1,5 +1,6 @@
 import { IsDate, IsLatitude, IsLongitude, IsNotEmpty, IsString, IsUUID, Matches } from "@nestjs/class-validator";
 import { ApiProperty } from "@nestjs/swagger";
+import { Transform } from "class-transformer";
 
 export class createAttendanceTypeDto {
     @ApiProperty()

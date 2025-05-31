@@ -19,7 +19,7 @@ export class editAttendanceTypeDto {
            message: 'Timestamp must be in ISO 8601 format (with Z or timezone offset)',
          })
     @IsNotEmpty()
-    check_in: string;
+    check_in: Date;
 
     @ApiPropertyOptional({example:"1970-01-01T08:57:24.123Z or 1970-01-01T08:57:24.123+07:00. Z for UTC +0 Zulu and +7 for Indonesia"})
            @Matches(
@@ -28,7 +28,7 @@ export class editAttendanceTypeDto {
            message: 'Timestamp must be in ISO 8601 format (with Z or timezone offset)',
          })
     @IsNotEmpty()
-    check_out: string;
+    check_out: Date;
 
     @ApiPropertyOptional()
     @IsString()
