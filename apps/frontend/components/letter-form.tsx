@@ -11,22 +11,15 @@ import {
   SelectItem,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-} from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
+
 import { DialogFooter } from '@/components/ui/dialog';
 
 // Libraries & Utilities
 import api from '@/lib/axios';
 import { format, parse, isValid } from 'date-fns';
-import { id as dateFnsLocaleId } from 'date-fns/locale'; // Renamed to avoid conflict
 import { toast } from 'sonner';
 
 // Icons
-import { CalendarIcon } from 'lucide-react';
 import { FaFile } from 'react-icons/fa6';
 
 // Type Definitions
@@ -125,17 +118,9 @@ export function LetterForm({
       let parsedDate: Date | undefined = undefined;
       if (initialData.valid_until) {
         try {
-          // Ensure the parsing format matches the incoming string format
-          const dateValue = parse(
-            initialData.valid_until,
-            DATE_PARSE_FORMAT,
-            new Date(),
-            { locale: dateFnsLocaleId },
-          );
+          const dateValue = new Date(initialData.valid_until);
           if (isValid(dateValue)) {
             parsedDate = dateValue;
-          } else {
-            console.warn(`Invalid date string received: ${initialData.valid_until}`);
           }
         } catch (e) {
           console.error('Error parsing date:', e);
@@ -167,6 +152,16 @@ export function LetterForm({
     formData.append('desc', letterDesc);
     formData.append('valid_until', validUntilDate.toISOString());
     formData.append('is_active', status === 'active' ? 'true' : 'false');
+
+    console.log('Submitting form data:', {
+      company_id: companyId,
+      employee_id: employeeId,
+      lettertype_id: letterTypeId,
+      name: letterName,
+      desc: letterDesc,
+      valid_until: validUntilDate.toISOString(),
+      is_active: status,
+    });
 
     if (selectedFile) {
       formData.append('file', selectedFile);
@@ -305,9 +300,9 @@ export function LetterForm({
               className="absolute inset-0 opacity-0 w-full h-full cursor-pointer"
             />
           </div>
-            {mode === 'edit' && initialData?.file_url && !selectedFile && (
-                <p className="text-xs text-gray-500 mt-1">Leave empty to keep the existing file.</p>
-            )}
+          {mode === 'edit' && initialData?.file_url && !selectedFile && (
+            <p className="text-xs text-gray-500 mt-1">Leave empty to keep the existing file.</p>
+          )}
         </div>
 
         {/* Status and Valid Until */}
@@ -329,36 +324,25 @@ export function LetterForm({
           {/* Valid Until Date Picker */}
           <div className="space-y-1">
             <Label htmlFor="validUntil">Valid Until *</Label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  id="validUntil"
-                  variant="outline"
-                  className="w-full justify-start text-left font-normal"
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {validUntilDate ? format(validUntilDate, DATE_DISPLAY_FORMAT) : <span>Select date</span>}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  mode="single"
-                  selected={validUntilDate}
-                  onSelect={setValidUntilDate}
-                  initialFocus
-                  disabled={(date) => date < new Date(new Date().setHours(0,0,0,0))}
-                />
-              </PopoverContent>
-            </Popover>
+            <Input
+              id="validUntil"
+              type="date"
+              value={validUntilDate ? format(validUntilDate, 'yyyy-MM-dd') : ''}
+              onChange={(e) => {
+                const selected = e.target.value ? new Date(e.target.value) : undefined;
+                setValidUntilDate(selected);
+              }}
+              required
+            />
           </div>
         </div>
       </div>
 
       <DialogFooter className="pt-4">
-        {onClose && ( 
-             <Button type="button" variant="outline" onClick={onClose} className="w-full sm:w-auto">
-                 Cancel
-             </Button>
+        {onClose && (
+          <Button type="button" variant="outline" onClick={onClose} className="w-full sm:w-auto">
+            Cancel
+          </Button>
         )}
         <Button type="submit" className="w-full sm:w-auto">
           {mode === 'create' ? 'Submit Letter' : 'Update Letter'}

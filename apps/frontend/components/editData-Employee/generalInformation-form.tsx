@@ -11,14 +11,8 @@ import {
   SelectItem,
   SelectValue,
 } from '@/components/ui/select';
-import { CalendarIcon, Upload } from 'lucide-react';
+import { Upload } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
-import {
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-} from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
 import { DialogFooter } from '@/components/ui/dialog';
 import api from '@/lib/axios';
 import { useRouter } from 'next/navigation';
@@ -92,7 +86,7 @@ export function EmployeeEditGeneralDataForm({
       if (initialData.birth_date) {
         try {
           // Handle both ISO strings and other formats
-          const parsedDate = new Date(initialData.birth_date + 'T00:00:00'); 
+          const parsedDate = new Date(initialData.birth_date + 'T00:00:00');
           if (!isNaN(parsedDate.getTime())) {
             setBirthDate(parsedDate);
             console.log('Successfully parsed date:', parsedDate); // Debug log
@@ -345,29 +339,19 @@ export function EmployeeEditGeneralDataForm({
 
         {/* Birth Date */}
         <div>
-          <Label>Date of Birth*</Label>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                className={`w-full justify-start text-left font-normal ${!birth_date && "text-muted-foreground"
-                  }`}
-              >
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                {birth_date ? format(birth_date, "dd/MM/yyyy") : initialData?.birth_date || "Select date"}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <Calendar
-                mode="single"
-                selected={birth_date}
-                onSelect={setBirthDate}
-                initialFocus
-                disabled={(date) => date > new Date() || date < new Date('1900-01-01')}
-                defaultMonth={birth_date || new Date()}
-              />
-            </PopoverContent>
-          </Popover>
+          <Label htmlFor="birth_date">Date of Birth*</Label>
+          <Input
+            id="birth_date"
+            type="date"
+            value={birth_date ? format(birth_date, 'yyyy-MM-dd') : ''}
+            onChange={(e) => {
+              const selectedDate = e.target.value ? new Date(e.target.value) : undefined;
+              setBirthDate(selectedDate);
+            }}
+            max={format(new Date(), 'yyyy-MM-dd')}
+            min="1900-01-01"
+            required
+          />
         </div>
 
         {/* Error message */}
