@@ -1,5 +1,7 @@
-import {IsInt, IsNumber, IsOptional, IsUUID, Min } from '@nestjs/class-validator'
-import { ApiProperty} from '@nestjs/swagger';
+import {IsDecimal, IsInt, IsNumber, IsOptional, IsUUID, Min } from '@nestjs/class-validator'
+import { ApiProperty, ApiPropertyOptional} from '@nestjs/swagger';
+import { Decimal } from '@prisma/client/runtime/library';
+import { Transform } from 'class-transformer';
 
 export class editTransactionDto {
     @ApiProperty()
@@ -18,4 +20,10 @@ export class editTransactionDto {
     @Min(0)
     @IsOptional()
     total: number;
+
+    @ApiPropertyOptional()
+    @IsDecimal({ decimal_digits: '0,2' })
+    @Transform(({value})=> new Decimal(value), { toClassOnly: true })
+    @IsOptional()
+    taxrate?: Decimal;
 }

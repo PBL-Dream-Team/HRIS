@@ -123,6 +123,7 @@ export default function SubscriptionClient({
   }, [userId]);
   const [openSheet, setOpenSheet] = useState(false);
   const [selectedSubscription, setSelectedSubscription] = useState<any>(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const handleViewDetails = (subscription: any) => {
     setSelectedSubscription(subscription);
@@ -248,6 +249,8 @@ export default function SubscriptionClient({
             <PaginationFooter
               totalItems={subscriptions.length}
               itemsPerPage={10}
+              currentPage={currentPage}
+              onPageChange={setCurrentPage}
             />
           </div>
         </div>
