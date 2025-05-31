@@ -57,7 +57,9 @@ export default function EmployeeDetails({
             {/* Header Info */}
             <div className="flex items-center gap-3 border rounded-md p-4">
               <Avatar className="h-8 w-8 rounded-lg">
-                <AvatarImage src={selectedEmployee.pict_dir} />
+                <AvatarImage
+                  src={`/storage/employee/${selectedEmployee.pict_dir}`}
+                />
                 <AvatarFallback className="rounded-lg">
                   {`${selectedEmployee.first_name} ${selectedEmployee.last_name}`
                     .split(' ')

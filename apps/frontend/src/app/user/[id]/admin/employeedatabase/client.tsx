@@ -171,6 +171,9 @@ export default function EmployeeDatabaseClient({
     fetchEmployees(); // hanya fetch data baru, dialog tetap terbuka
   };
 
+  const [openEditDialog, setOpenEditDialog] = useState(false);
+  const [employeeToEdit, setEmployeeToEdit] = useState<any>(null);
+
   return (
     <SidebarProvider>
       <AppSidebar isAdmin={isAdmin} />
@@ -335,23 +338,17 @@ export default function EmployeeDatabaseClient({
                         <Eye className="h-4 w-4" />
                       </Button>
 
-                      {/* <Dialog>
-                        <DialogTrigger asChild>
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            className="hover:text-white hover:bg-yellow-500"
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
-                          <DialogHeader>
-                            <DialogTitle>Edit Employee</DialogTitle>
-                          </DialogHeader>
-                          <EmployeeForm />
-                        </DialogContent>
-                      </Dialog> */}
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="hover:text-white hover:bg-yellow-500"
+                        onClick={() => {
+                          setEmployeeToEdit(emp);
+                          setOpenEditDialog(true);
+                        }}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
 
                       <Button
                         variant="outline"
@@ -404,6 +401,24 @@ export default function EmployeeDatabaseClient({
               Delete
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={openEditDialog} onOpenChange={setOpenEditDialog}>
+        <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Employee</DialogTitle>
+          </DialogHeader>
+          <EmployeeForm
+            companyId={companyId}
+            initialData={employeeToEdit}
+            mode="edit"
+            onSuccess={() => {
+              fetchEmployees();
+              setOpenEditDialog(false);
+            }}
+            onClose={() => setOpenEditDialog(false)}
+          />
         </DialogContent>
       </Dialog>
     </SidebarProvider>
