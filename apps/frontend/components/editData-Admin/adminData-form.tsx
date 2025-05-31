@@ -22,11 +22,11 @@ type AdminEditDataFormProps = {
   userId: string;
   initialData?: {
     id: string;
-    first_name: string; 
+    first_name: string;
     last_name: string;
     email: string;
     phone: string;
-    pict_dir?: string; // Optional, in case the user doesn't have an avatar
+    pict_dir?: string;
   };
   onSuccess?: () => void;
   onClose?: () => void;
@@ -48,35 +48,40 @@ export function AdminEditDataForm({
 
   useEffect(() => {
     if (initialData) {
-        setFirstName(initialData.first_name || '');
-        setLastName(initialData.last_name || '');
-        setEmail(initialData.email || '');
-        setPhone(initialData.phone || '');
+      setAvatar(null); // Reset avatar if initialData is provided
+      setFirstName(initialData.first_name || '');
+      setLastName(initialData.last_name || '');
+      setEmail(initialData.email || '');
+      setPhone(initialData.phone || '');
     }
   }, [initialData]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     try {
       const formData = new FormData();
+      if (avatar) {
+        formData.append('file', avatar);
+      }
       formData.append('first_name', first_name);
       formData.append('last_name', last_name);
       formData.append('email', email);
       formData.append('phone', phone);
 
-      await api.patch(`/api/employee/${userId}`, formData); // Gunakan endpoint dan method yang sesuai
+      await api.patch(`/api/employee/${userId}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
 
-      toast.success('Work data updated successfully!');
+      toast.success('Data updated successfully!');
 
       if (onClose) onClose();
 
       router.refresh();
 
       if (onSuccess) onSuccess();
-
-      // onSuccess?.();
-      // onClose?.();
     } catch (error: any) {
       console.error('Error updating data:', error);
       const errorMessage = error.response?.data?.message || 'An error occurred while updating data.';
@@ -85,97 +90,128 @@ export function AdminEditDataForm({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">     
-       {/* Avatar Upload */}
-        <div className="col-span-full flex items-center gap-4">
-          <label htmlFor="avatar-upload" className="cursor-pointer">
-            {avatar ? (
-              <img
-                src={URL.createObjectURL(avatar)}
-                alt="Avatar Preview"
-                className="w-20 h-20 rounded-full object-cover"
-              />
-            ) : (
-              <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center">
-                {initialData?.pict_dir ? (
-                  <img 
-                    src={initialData.pict_dir} 
-                    alt="Current Avatar" 
-                    className="w-full h-full rounded-full object-cover"
-                  />
-                ) : (
-                  <Upload className="h-6 w-6 text-muted-foreground" />
-                )}
-              </div>
-            )}
-          </label>
-          <div>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => document.getElementById('avatar-upload')?.click()}
-            >
-              Change Avatar
-            </Button>
-            <input
-              id="avatar-upload"
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) setAvatar(file);
-              }}
+    <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Avatar Upload */}
+      <div className="col-span-full flex items-center gap-4">
+        <label htmlFor="avatar-upload" className="cursor-pointer">
+          {avatar ? (
+            // Preview gambar yang baru dipilih
+            <img
+              src={URL.createObjectURL(avatar)}
+              alt="Avatar Preview"
+              className="w-20 h-20 rounded-full object-cover border-2 border-gray-200"
             />
-          </div>
+          ) : (
+            <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center border-2 border-gray-200">
+              {initialData?.pict_dir && initialData.pict_dir !== '[null]' ? (
+                <img
+                  src={`/storage/employee/${initialData.pict_dir}`}
+                  alt="Current Avatar"
+                  className="w-full h-full rounded-full object-cover"
+                  onError={(e) => {
+                    console.log('Error loading avatar:', initialData.pict_dir);
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = 'none';
+                    if (target.parentElement) {
+                      const div = document.createElement('div');
+                      div.innerHTML = '<Upload className="h-6 w-6 text-muted-foreground" />';
+                      target.parentElement.appendChild(div);
+                    }
+                  }}
+                  onLoad={() => {
+                    console.log('Avatar loaded successfully');
+                  }}
+                />
+              ) : (
+                <Upload className="h-6 w-6 text-muted-foreground" />
+              )}
+            </div>
+          )}
+        </label>
+        <div>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => document.getElementById('avatar-upload')?.click()}
+          >
+            {initialData?.pict_dir && initialData.pict_dir !== '[null]' ? 'Change Avatar' : 'Upload Avatar'}
+          </Button>
+          <input
+            id="avatar-upload"
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) {
+                // Validasi ukuran file (maksimal 5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                  toast.error('File size should not exceed 5MB');
+                  return;
+                }
+
+                // Validasi tipe file
+                if (!file.type.startsWith('image/')) {
+                  toast.error('Please select an image file');
+                  return;
+                }
+
+                setAvatar(file);
+              }
+            }}
+          />
+          <p className="text-xs text-muted-foreground mt-1">
+            Max file size: 5MB. Supported formats: JPG, PNG, JPEG
+          </p>
         </div>
+      </div>
       <div>
         <Label>First Name</Label>
-        <Input 
+        <Input
           id="first_name"
           value={first_name}
           onChange={(e) => setFirstName(e.target.value)}
           placeholder="Enter your first name"
-          required 
+          required
         />
       </div>
       <div>
         <Label>Last Name</Label>
-        <Input 
+        <Input
           id='last_name'
           value={last_name}
           onChange={(e) => setLastName(e.target.value)}
           placeholder="Enter your last name"
-          required 
+          required
         />
       </div>
       <div>
         <Label>Email</Label>
-        <Input 
+        <Input
           id="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Enter your email"
-          required 
+          required
         />
       </div>
       <div>
         <Label>Mobile Number</Label>
-        <Input 
+        <Input
           id='phone'
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
           placeholder="Enter account number"
-          required 
+          required
         />
       </div>
 
       {/* Form Buttons */}
       <DialogFooter className="gap-2 sm:justify-end mt-4 col-span-full">
-        {onClose && ( 
-             <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
-                 Cancel
-             </Button>
+        {onClose && (
+          <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
+            Cancel
+          </Button>
         )}
         <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? 'Saving...' : 'Save'}

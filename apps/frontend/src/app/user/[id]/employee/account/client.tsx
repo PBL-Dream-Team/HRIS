@@ -402,7 +402,6 @@ export default function AccountClient({
                       <DialogTitle>Edit Profile</DialogTitle>
                     </DialogHeader>
                     <EmployeeEditGeneralDataForm
-                      mode='edit'
                       companyId={companyId}
                       employeeId={employeeData.id}
                       initialData={{

@@ -22,7 +22,7 @@ import api from '@/lib/axios';
 import { useRouter } from 'next/navigation';
 import { format } from 'date-fns/format';
 import { enUS } from 'date-fns/locale';
-import MapPicker from '@/components/map-picker';
+import MapDisplay from '@/components/readonly-map/map-display';
 
 import {
   Breadcrumb,
@@ -70,6 +70,7 @@ type AccountClientProps = {
     last_name: string;
     email: string;
     phone: string;
+    pict_dir: string;
     subscription_id: string;
     subscription_type: string;
     subs_date_start: string;
@@ -100,6 +101,7 @@ export default function AccountClient({
     last_name: '',
     email: '',
     phone: '',
+    pict_dir: ''
   });
 
   const [subsData, setSubsData] = useState({
@@ -169,6 +171,7 @@ export default function AccountClient({
         last_name: admin.last_name,
         email: admin.email,
         phone: admin.phone,
+        pict_dir: admin.pict_dir || '',
       });
 
       setSubsData({
@@ -256,18 +259,22 @@ export default function AccountClient({
 
         {/* Content */}
         <div className="flex flex-col md:flex-row gap-4 p-4 relative">
-          {/* Profile Data */}
           <form className="w-full h-fit md:w-2/3 grid grid-cols-1 md:grid-cols-2 gap-4 border-2 p-4 bg-white rounded-lg shadow">
             <h1 className="text-lg font-semibold mb-2">
               Account Information
             </h1>
+
+            {/* Profile Data */}
             <div className="col-span-full flex items-center gap-4">
               <Avatar className="w-25 h-25">
                 <AvatarImage
-                  src="https://github.com/shadcn.png"
-                  alt="@shadcn"
+                  src={'/storage/employee/' + adminData.pict_dir}
+                  alt={adminData.first_name || 'Avatar'}
                 />
-                <AvatarFallback>CN</AvatarFallback>
+                <AvatarFallback>
+                  {adminData.first_name?.[0]}
+                  {adminData.last_name?.[0]}
+                </AvatarFallback>
               </Avatar>
             </div>
             <div>
@@ -388,7 +395,19 @@ export default function AccountClient({
                 {isMapLoading && (
                   <div className="text-gray-500 text-sm text-center">Loading map...</div>
                 )}
-                <MapPicker onLocationSelect={handleLocationSelect} onLoad={handleMapLoad} />
+                {companyData.loc_lat && companyData.loc_long ? (
+                  <MapDisplay
+                    position={{
+                      lat: parseFloat(companyData.loc_lat),
+                      lng: parseFloat(companyData.loc_long)
+                    }}
+                    onLoad={handleMapLoad}
+                  />
+                ) : (
+                  <div className="h-64 w-full rounded-lg bg-gray-100 flex items-center justify-center">
+                    <p className="text-gray-500">No location set</p>
+                  </div>
+                )}
               </div>
               <div className='grid grid-cols-1'>
                 <div>
@@ -444,7 +463,6 @@ export default function AccountClient({
                       <EditCompany
                         companyId={companyData.id}
                         initialData={{
-                          id: companyData.id,
                           name: companyData.name,
                           address: companyData.address,
                           loc_lat: Number(companyData.loc_lat) || 0,
@@ -486,7 +504,7 @@ export default function AccountClient({
                   <Dialog>
                     <DialogTrigger asChild>
                       <Button className="w-full md:w-auto">
-                        <Pencil className="h-4 w-4 mr-1" /> Edit 
+                        <Pencil className="h-4 w-4 mr-1" /> Edit
                       </Button>
                     </DialogTrigger>
 
