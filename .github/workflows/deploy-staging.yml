@@ -1,0 +1,23 @@
+name: Deploy to VM (staging)
+
+on:
+  push:
+    branches:
+      - staging
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: SSH into Azure VM and deploy
+      uses: appleboy/ssh-action@v0.1.6
+      with:
+        host: ${{ secrets.AZURE_HOST }}
+        username: ${{ secrets.AZURE_USER }}
+        key: ${{ secrets.AZURE_KEY }}
+        script: |
+          cd HRIS
+          git pull
+          npm install
+          pm2 restart all

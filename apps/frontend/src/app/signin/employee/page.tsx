@@ -7,10 +7,10 @@ import { useRouter } from 'next/navigation';
 import type { FormEvent } from 'react';
 import { useState } from 'react';
 import { Input } from '@/components/ui/input';
-import { AlertDestructive } from '@/components/alert/error';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { toast } from 'sonner';
 
 export default function HrLoginPage() {
   const [checked, setChecked] = useState(false);
@@ -34,20 +34,24 @@ export default function HrLoginPage() {
       router.push('/redirect');
     } catch (error) {
       console.error(error);
-      <AlertDestructive />;
+      toast.error('Login failed. Please check your credentials and try again.');
     }
   }
 
   return (
     <div className="flex min-h-screen">
       {/* Left Side - Image */}
-      <div className="hidden md:flex w-1/2 bg-blue-100 items-center justify-center">
-        <img
-          src="/signup-image.png"
-          alt="Signup"
-          className="object-cover h-full"
+      <div className="hidden md:flex w-1/2 bg-blue-600 items-center justify-center relative">
+        <Image
+          src="https://images.unsplash.com/photo-1631193816258-28b44b21e78b?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+          alt="Office"
+          fill
+          className="object-cover"
         />
+        {/* Overlay transparan biru */}
+        <div className="absolute inset-0 bg-[#1E3A5F] opacity-60 z-10" />
       </div>
+
 
       {/* Right Side - Form */}
       <div className="bg-white flex flex-col justify-center w-full md:w-1/2 p-8">
@@ -83,7 +87,7 @@ export default function HrLoginPage() {
                 type="email"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Enter your ID Employee"
+                placeholder="Enter your email"
                 className="text-gray-700 border-[#1E3A5F]"
               />
             </div>
@@ -132,13 +136,13 @@ export default function HrLoginPage() {
             </Button>
 
             <Link href="/signin" passHref>
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full flex items-center justify-center gap-2"
-            >
-              Sign in with Another Method
-            </Button>
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full flex items-center justify-center gap-2"
+              >
+                Sign in with Another Method
+              </Button>
             </Link>
 
             {/* <p className="text-center text-sm text-gray-600 mt-4">

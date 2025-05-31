@@ -1,4 +1,4 @@
-import {Controller,Get,Post,Body,Param,Delete,Patch, UseGuards,} from '@nestjs/common';
+import {Controller,Get,Post,Body,Param,Delete,Patch, UseGuards, Query,} from '@nestjs/common';
 import { createLetterTypeDto } from './dtos/createLetterType.dto';
 import { editLetterTypeDto } from './dtos/editLetterType.dto';
 import { LetterTypeService } from './lettertype.service';
@@ -18,9 +18,12 @@ export class LetterTypeController {
   }
 
   @Get()
-  getLetterTypes() {
-    return this.LetterTypeService.getLetterTypes();
-  }
+  getLetterTypes(@Query() query: Record<string,any>) {
+      if(Object.keys(query).length >0){
+          return this.LetterTypeService.findFilters(query);
+      }
+      return this.LetterTypeService.getLetterTypes();
+    }
 
   @Get(':id')
   getLetterType(@Param('id') letterTypeId: string) {

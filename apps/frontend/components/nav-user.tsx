@@ -1,6 +1,6 @@
 'use client';
 
-import { BadgeCheck, Bell, CreditCard, LogOut, Sparkles } from 'lucide-react';
+import { CircleUserRound, Bell, CreditCard, LogOut, Sparkles } from 'lucide-react';
 
 import { useRouter } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -15,6 +15,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { toast } from 'sonner';
 
 export function NavUser({
   user,
@@ -34,7 +35,7 @@ export function NavUser({
       const res = await api.post('/api/auth/logout', {
         withCredentials: true,
       });
-      alert(res.data.message);
+      toast.success(res.data.message);
       router.push('/signin');
     } catch (error) {
       console.error('Logout error:', error);
@@ -85,12 +86,12 @@ export function NavUser({
         <DropdownMenuGroup>
           <Link href="account" className="w-full">
             <DropdownMenuItem>
-              <BadgeCheck className="mr-2 h-4 w-4" />
+              <CircleUserRound className="mr-2 h-4 w-4" />
               Account
             </DropdownMenuItem>
           </Link>
           {isAdmin && (
-            <Link href="/subscription" className="w-full">
+            <Link href="subscription" className="w-full">
               <DropdownMenuItem asChild>
                 <div className="flex items-center w-full">
                   <CreditCard className="mr-2 h-4 w-4" />

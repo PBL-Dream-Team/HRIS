@@ -1,18 +1,19 @@
 import React from 'react';
 
-{/* Import Components */}
+{/* Import Components */ }
 
 import SelectMonthFilter from './ui/SelectMonthFilter';
 
-import { 
-    Bar, 
-    BarChart, 
+import {
+    Bar,
+    BarChart,
     CartesianGrid,
-    XAxis, 
+    Cell,
+    XAxis,
     YAxis,
 } from "recharts";
 
-import { 
+import {
     Card,
     CardDescription,
     CardHeader,
@@ -27,40 +28,54 @@ import {
     ChartTooltipContent,
 } from "@/components/ui/chart";
 
-{/* Data */}
+{/* Data */ }
 
 const employeeDataStatus = [
-    { name: "Permanent", total: 200 },
-    { name: "Trial", total: 186 },
-    { name: "Contract", total: 50 },
-    { name: "Intern", total: 30 },
+    { name: "Permanent", total: 200, color: "#257047" },
+    { name: "Contract", total: 50, color: "#FFAB00" },
+    { name: "Intern", total: 30, color: "#2D8EFF" },
 ];
 
 const chartConfig = {
     Permanent: {
         label: "Permanent Employees",
-    },
-    Trial: {
-        label: "Trial Employees",
+        color: "#257047",
     },
     Contract: {
         label: "Contract Employees",
+        color: "#FFAB00",
     },
     Intern: {
         label: "Intern Employees",
+        color: "#2D8EFF",
     },
 } satisfies ChartConfig;
 
-{/* Content */}
+{/* Content */ }
+type Props = {
+    data: {
+        name: string;
+        total: number;
+        color: string;
+    }[];
+};
 
-export default function EmployeeStatusCard() {
+export default function EmployeeStatusCard({ data }: Props) {
+    const chartConfig = data.reduce((acc, curr) => {
+        acc[curr.name] = {
+            label: `${curr.name} Employees`,
+            color: curr.color,
+        };
+        return acc;
+    }, {} as ChartConfig);
+
     return (
         <Card>
             <CardHeader className="relative pb-4">
                 <div className="flex items-center gap-2">
                     <div>
-                        <CardTitle className='text-xl'>Employee Statistics</CardTitle>
-                        <CardDescription className='text-lg'>Current Number of Employees</CardDescription>
+                        <CardTitle className="text-xl">Employee Status</CardTitle>
+                        <CardDescription className="text-md">Current Number of Employees</CardDescription>
                     </div>
                     <div className="absolute right-4 top-4 pr-1">
                         <SelectMonthFilter />
@@ -69,32 +84,20 @@ export default function EmployeeStatusCard() {
             </CardHeader>
             <CardContent>
                 <ChartContainer config={chartConfig}>
-                    <BarChart 
-                        accessibilityLayer 
-                        data={employeeDataStatus} 
+                    <BarChart
+                        accessibilityLayer
+                        data={data}
                         margin={{ top: 15, right: 0, left: -25, bottom: 5 }}
                     >
                         <CartesianGrid vertical={false} />
-                        <XAxis
-                            dataKey="name"
-                            tickLine={false}
-                            tickMargin={10}
-                            axisLine={false}
-                        />
-                        <YAxis  
-                            axisLine={false} 
-                            tickLine={false}
-                            domain={[0, 200]}
-                        />
-                        <ChartTooltip
-                            cursor={false}
-                            content={<ChartTooltipContent />}
-                        />
-                        <Bar 
-                            dataKey="total" 
-                            fill="#1E3A5F" 
-                            radius={[10, 10, 0, 0]} 
-                        />
+                        <XAxis dataKey="name" tickLine={false} tickMargin={10} axisLine={false} />
+                        <YAxis axisLine={false} tickLine={false} />
+                        <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
+                        <Bar dataKey="total" radius={[10, 10, 0, 0]}>
+                            {data.map((entry, index) => (
+                                <Cell key={`cell-${index}`} fill={entry.color} />
+                            ))}
+                        </Bar>
                     </BarChart>
                 </ChartContainer>
             </CardContent>

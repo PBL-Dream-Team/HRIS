@@ -1,7 +1,8 @@
-import { IsEnum, IsLatitude, IsLongitude, IsNotEmpty, IsOptional, IsString, IsUUID, Matches } from "@nestjs/class-validator";
+import { IsDate, IsEnum, IsLatitude, IsLongitude, IsNotEmpty, IsOptional, IsString, IsUUID, Matches } from "@nestjs/class-validator";
 import { checkinstatus } from "./checkinstatus.enum";
 import { checkoutstatus } from "./checkoutstatus.enum";
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { attendanceapproval } from "./attendanceapproval.enum";
 
 export class createAttendanceDto {
     @ApiProperty()
@@ -15,16 +16,28 @@ export class createAttendanceDto {
     employee_id:string;
 
     @ApiProperty()
-    @Matches(/^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/, {
-        message: 'must be in HH:mm:ss format',
-    })
+    @IsUUID()
     @IsNotEmpty()
-    check_in: string;
+    type_id:string;
+
+    @ApiProperty({example:"1970-01-01T08:57:24.123Z or 1970-01-01T08:57:24.123+07:00. Z for UTC +0 Zulu and +7 for Indonesia"})
+    @Matches(
+  /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}(Z|[+-]\d{2}:\d{2})$/,
+  {
+    message: 'Timestamp must be in ISO 8601 format (with Z or timezone offset)',
+  })
+    @IsNotEmpty()
+    check_in: Date;
+
+//     @ApiProperty()
+//     @IsEnum(checkinstatus)
+//     @IsNotEmpty()
+//     check_in_status: checkinstatus;
 
     @ApiProperty()
-    @IsEnum(checkinstatus)
+    @IsString()
     @IsNotEmpty()
-    check_in_status: checkinstatus;
+    check_in_address: string;
 
     @ApiProperty()
     @IsLatitude()
@@ -36,17 +49,25 @@ export class createAttendanceDto {
     @IsNotEmpty()
     check_in_long: number;
     
-    @ApiPropertyOptional()
-    @Matches(/^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/, {
-        message: 'must be in HH:mm:ss format',
-    })
+    @ApiProperty({example:"1970-01-01T08:57:24.123Z or 1970-01-01T08:57:24.123+07:00. Z for UTC +0 Zulu and +7 for Indonesia"})
+    @Matches(
+  /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}(Z|[+-]\d{2}:\d{2})$/,
+  {
+    message: 'Timestamp must be in ISO 8601 format (with Z or timezone offset)',
+  }
+)
     @IsOptional()
-    check_out: string;
+    check_out: Date;
 
-    @ApiPropertyOptional()
-    @IsEnum(checkoutstatus)
+//     @ApiPropertyOptional()
+//     @IsEnum(checkoutstatus)
+//     @IsOptional()
+//     check_out_status: checkoutstatus;
+
+    @ApiProperty()
+    @IsString()
     @IsOptional()
-    check_out_status: checkoutstatus;
+    check_out_address: string;
 
     @ApiPropertyOptional()
     @IsLatitude()
@@ -58,8 +79,8 @@ export class createAttendanceDto {
     @IsOptional()
     check_out_long: number;
 
-    @ApiProperty()
-    @IsString()
-    @IsNotEmpty()
-    workpict_dir: string;
+    @ApiPropertyOptional()
+    @IsEnum(attendanceapproval)
+    @IsOptional()
+    approval: string;
 }

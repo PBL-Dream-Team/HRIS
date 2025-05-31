@@ -2,6 +2,9 @@
 
 import { AppSidebar } from '@/components/app-sidebar';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+
+import EmployeeInformation from '@/components/employee-information';
 
 import {
   Breadcrumb,
@@ -20,8 +23,6 @@ import { Input } from '@/components/ui/input';
 import { Bell } from 'lucide-react';
 import { NavUser } from '@/components/nav-user';
 
-import { Card, CardContent } from '@/components/ui/card';
-
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 import {
@@ -30,6 +31,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from '@/components/ui/dialog';
 
 import {
@@ -59,77 +61,119 @@ import { BiImport, BiExport } from 'react-icons/bi';
 import { EmployeeForm } from '@/components/employee-form';
 import PaginationFooter from '@/components/pagination';
 import EmployeeDetails from '@/components/employee-details';
+import api from '@/lib/axios';
+import { useEffect } from 'react';
 
-const data = {
-  user: {
-    name: 'shadcn',
-    email: 'm@example.com',
-    avatar: '/avatars/shadcn.jpg',
-  },
-};
+import { toast } from 'sonner'; // atau dari 'react-toastify'
 
-const employees = [
-  {
-    id: 1,
-    name: 'John Doe',
-    gender: 'Male',
-    mobile: '081221211122',
-    branch: 'Jakarta',
-    position: 'Head of HR',
-    grade: 'Management',
-    avatar: '/avatars/shadcn.jpg',
-    status: true,
-  },
-  {
-    id: 2,
-    name: 'Jane Smith',
-    gender: 'Female',
-    mobile: '082233344455',
-    branch: 'Bandung',
-    position: 'Finance Analyst',
-    grade: 'Staff',
-    avatar: '/avatars/user2.jpg',
-    status: false,
-  },
-  {
-    id: 3,
-    name: 'Michael Chen',
-    gender: 'Male',
-    mobile: '081334455667',
-    branch: 'Surabaya',
-    position: 'Software Engineer',
-    grade: 'Senior',
-    avatar: '/avatars/user3.jpg',
-    status: true,
-  },
-  {
-    id: 4,
-    name: 'Ayu Lestari',
-    gender: 'Female',
-    mobile: '085566778899',
-    branch: 'Bali',
-    position: 'Marketing Lead',
-    grade: 'Supervisor',
-    avatar: '/avatars/user4.jpg',
-    status: true,
-  },
-];
 type EmployeeDatabaseClientProps = {
   isAdmin: boolean;
+  userId: string;
+  companyId: string;
 };
 
-export default function EmployeeDatabaseClient({ isAdmin }: EmployeeDatabaseClientProps) {
+export default function EmployeeDatabaseClient({
+  isAdmin,
+  userId,
+  companyId,
+}: EmployeeDatabaseClientProps) {
+  const router = useRouter();
+
+  const [user, setUser] = useState({
+    name: '',
+    email: '',
+    avatar: '',
+  });
+
+  useEffect(() => {
+    async function fetchUser() {
+      try {
+        const res = await api.get(`/api/employee/${userId}`);
+        const { first_name, last_name, email, pict_dir } = res.data.data;
+
+        setUser({
+          name: `${first_name} ${last_name}`,
+          email: email,
+          avatar: pict_dir || '/avatars/default.jpg',
+        });
+      } catch (err: any) {
+        console.error(
+          'Error fetching user:',
+          err.response?.data || err.message,
+        );
+      }
+    }
+
+    fetchUser();
+  }, [userId]);
+
+  const [employees, setEmployees] = useState<any[]>([]);
+
+  const fetchEmployees = async () => {
+    try {
+      const res = await api.get('/api/employee');
+      setEmployees(res.data);
+    } catch (err: any) {
+      console.error(
+        'Error fetching employees:',
+        err.response?.data || err.message,
+      );
+    }
+  };
+
+  useEffect(() => {
+    fetchEmployees();
+  }, []);
+
   const [openSheet, setOpenSheet] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<any>(null);
 
-  const handleViewDetails = (employee: any) => {
-    setSelectedEmployee(employee);
-    setOpenSheet(true);
+  const handleViewDetails = async (employee: any) => {
+    try {
+      const res = await api.get(`/api/employee/${employee.id}`);
+      setSelectedEmployee(res.data.data); // Update dengan data detail dari server
+      setOpenSheet(true);
+    } catch (err: any) {
+      console.error(
+        'Error fetching employee details:',
+        err.response?.data || err.message,
+      );
+    }
+  };
+
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [employeeToDelete, setEmployeeToDelete] = useState<any>(null);
+
+  const handleDeleteConfirmed = async () => {
+    if (!employeeToDelete) return;
+
+    try {
+      await api.delete(`/api/employee/${employeeToDelete.id}`);
+      toast.success('Employee deleted successfully.');
+      setEmployees((prev) =>
+        prev.filter((emp) => emp.id !== employeeToDelete.id),
+      );
+    } catch (err: any) {
+      console.error(
+        'Error deleting employee:',
+        err.response?.data || err.message,
+      );
+      toast.error('Failed to delete employee. Please try again.');
+    } finally {
+      setIsDeleteDialogOpen(false);
+      setEmployeeToDelete(null);
+    }
+  };
+
+  const [openAddDialog, setOpenAddDialog] = useState(false);
+
+  const handleAddEmployeeSuccess = () => {
+    fetchEmployees(); // hanya fetch data baru, dialog tetap terbuka
   };
 
   return (
     <SidebarProvider>
-      <AppSidebar isAdmin={ isAdmin }/>
+      <AppSidebar isAdmin={isAdmin} />
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center justify-between px-4 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
           <div className="flex items-center gap-2">
@@ -148,12 +192,6 @@ export default function EmployeeDatabaseClient({ isAdmin }: EmployeeDatabaseClie
           </div>
 
           <div className="flex items-center gap-4">
-            {/* Search */}
-            <div className="relative w-80 hidden lg:block">
-              <IoMdSearch className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-500" />
-              <Input type="search" placeholder="Search" className="pl-10" />
-            </div>
-
             {/* Notification */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -181,43 +219,18 @@ export default function EmployeeDatabaseClient({ isAdmin }: EmployeeDatabaseClie
             </DropdownMenu>
 
             {/* Nav-user */}
-            <NavUser user={data.user} isAdmin={isAdmin} />
+            <NavUser user={user} isAdmin={isAdmin} />
           </div>
         </header>
         <div className="flex flex-1 flex-col gap-4 p-10 pt-5">
-          <div className="grid auto-rows-min gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <Card>
-              <CardContent className="p-4">
-                <p className="text-sm text-muted-foreground">Total Revenue</p>
-                <h2 className="text-2xl font-bold">$1,250.00</h2>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4">
-                <p className="text-sm text-muted-foreground">New Customers</p>
-                <h2 className="text-2xl font-bold">320</h2>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4">
-                <p className="text-sm text-muted-foreground">
-                  Orders Completed
-                </p>
-                <h2 className="text-2xl font-bold">842</h2>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4">
-                <p className="text-sm text-muted-foreground">Refund Requests</p>
-                <h2 className="text-2xl font-bold">17</h2>
-              </CardContent>
-            </Card>
-          </div>
+          <EmployeeInformation employees={employees} />
 
           <div className="border border-gray-300 rounded-md p-4">
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b">
-              <div className="text-lg font-semibold">Employee Database Overview</div>
+              <div className="text-lg font-semibold">
+                Employee Database Overview
+              </div>
               {/* Search Input */}
               <div className="relative w-96 hidden lg:block">
                 <IoMdSearch className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-500" />
@@ -235,18 +248,21 @@ export default function EmployeeDatabaseClient({ isAdmin }: EmployeeDatabaseClie
                 <Button variant="outline" className="w-full md:w-auto">
                   <BiImport className="h-4 w-4 mr-1" /> Import
                 </Button>
-                <Dialog>
+                <Dialog open={openAddDialog} onOpenChange={setOpenAddDialog}>
                   <DialogTrigger asChild>
                     <Button className="w-full md:w-auto">
                       <Plus className="h-4 w-4 mr-1" /> Add Employee
                     </Button>
                   </DialogTrigger>
-
                   <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
                       <DialogTitle>Add New Employee</DialogTitle>
                     </DialogHeader>
-                    <EmployeeForm />
+                    <EmployeeForm
+                      companyId={companyId}
+                      onSuccess={handleAddEmployeeSuccess}
+                      onClose={() => setOpenAddDialog(false)}
+                    />
                   </DialogContent>
                 </Dialog>
               </div>
@@ -263,8 +279,8 @@ export default function EmployeeDatabaseClient({ isAdmin }: EmployeeDatabaseClie
                   <TableHead className="text-white">Mobile Number</TableHead>
                   <TableHead className="text-white">Branch</TableHead>
                   <TableHead className="text-white">Position</TableHead>
-                  <TableHead className="text-white">Grade</TableHead>
-                  <TableHead className="text-white">Status</TableHead>
+                  {/* <TableHead className="text-white">Grade</TableHead> */}
+                  {/* <TableHead className="text-white">Status</TableHead> */}
                   <TableHead className="text-white">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -274,24 +290,41 @@ export default function EmployeeDatabaseClient({ isAdmin }: EmployeeDatabaseClie
                     <TableCell>{i + 1}</TableCell>
                     <TableCell>
                       <Avatar className="h-8 w-8 rounded-lg">
-                        <AvatarImage src={emp.avatar} alt={emp.name} />
+                        <AvatarImage
+                          src={`/storage/employee/${emp.pict_dir}`}
+                          alt={`${emp.first_name} ${emp.last_name}`}
+                        />
                         <AvatarFallback className="rounded-lg">
-                          {emp.name
+                          {`${emp.first_name} ${emp.last_name}`
                             .split(' ')
-                            .map((n) => n[0])
+                            .map((n: string) => n[0])
                             .join('')}
                         </AvatarFallback>
                       </Avatar>
                     </TableCell>
-                    <TableCell>{emp.name}</TableCell>
-                    <TableCell>{emp.gender}</TableCell>
-                    <TableCell>{emp.mobile}</TableCell>
+                    <TableCell>{`${emp.first_name} ${emp.last_name}`}</TableCell>
+                    <TableCell>
+                      {emp.gender === 'M'
+                        ? 'Male'
+                        : emp.gender === 'F'
+                          ? 'Female'
+                          : 'Other'}
+                    </TableCell>
+                    <TableCell>{emp.phone}</TableCell>
                     <TableCell>{emp.branch}</TableCell>
                     <TableCell>{emp.position}</TableCell>
-                    <TableCell>{emp.grade}</TableCell>
-                    <TableCell>
-                      <Switch defaultChecked={emp.status} />
-                    </TableCell>
+                    {/* <TableCell>{emp.grade}</TableCell> */}
+                    {/* <TableCell>
+                      <div className="flex items-center">
+                        <span
+                          className={`px-2 py-1 rounded text-xs text-white ${
+                            emp.status ? 'bg-green-600' : 'bg-gray-400'
+                          }`}
+                        >
+                          {emp.status ? 'Active' : 'Not Active'}
+                        </span>
+                      </div>
+                    </TableCell> */}
                     <TableCell className="flex gap-2">
                       <Button
                         variant="outline"
@@ -302,7 +335,7 @@ export default function EmployeeDatabaseClient({ isAdmin }: EmployeeDatabaseClie
                         <Eye className="h-4 w-4" />
                       </Button>
 
-                      <Dialog>
+                      {/* <Dialog>
                         <DialogTrigger asChild>
                           <Button
                             variant="outline"
@@ -318,12 +351,16 @@ export default function EmployeeDatabaseClient({ isAdmin }: EmployeeDatabaseClie
                           </DialogHeader>
                           <EmployeeForm />
                         </DialogContent>
-                      </Dialog>
+                      </Dialog> */}
 
                       <Button
                         variant="outline"
                         size="icon"
                         className="hover:text-white hover:bg-red-600"
+                        onClick={() => {
+                          setEmployeeToDelete(emp);
+                          setIsDeleteDialogOpen(true);
+                        }}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -334,7 +371,7 @@ export default function EmployeeDatabaseClient({ isAdmin }: EmployeeDatabaseClie
             </Table>
 
             {/* Pagination */}
-            <PaginationFooter totalItems={employees.length} itemsPerPage={10} />
+            {/* <PaginationFooter totalItems={employees.length} itemsPerPage={10} /> */}
           </div>
         </div>
       </SidebarInset>
@@ -343,6 +380,32 @@ export default function EmployeeDatabaseClient({ isAdmin }: EmployeeDatabaseClie
         onOpenChange={setOpenSheet}
         selectedEmployee={selectedEmployee}
       />
+
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Employee</DialogTitle>
+          </DialogHeader>
+          <div>
+            Are you sure you want to delete{' '}
+            <strong>
+              {employeeToDelete?.first_name} {employeeToDelete?.last_name}
+            </strong>
+            ? This action cannot be undone.
+          </div>
+          <DialogFooter className="gap-2 pt-4">
+            <Button
+              variant="outline"
+              onClick={() => setIsDeleteDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleDeleteConfirmed}>
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </SidebarProvider>
   );
 }

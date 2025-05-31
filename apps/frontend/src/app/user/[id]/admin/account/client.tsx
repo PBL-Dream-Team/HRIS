@@ -4,17 +4,25 @@ import { AppSidebar } from '@/components/app-sidebar';
 import { Input } from '@/components/ui/input';
 import {
   Bell,
-  Upload,
-  CreditCardIcon,
   CalendarIcon,
   Pencil,
 } from 'lucide-react';
 import { NavUser } from '@/components/nav-user';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
-import { useState } from 'react';
 import { Label } from '@/components/ui/label';
-import { AdminForm } from '@/components/admin-form';
+import { AdminEditDataForm } from '@/components/editData-Admin/adminData-form';
+import { EditPassword } from '@/components/editData-Admin/editPass-form';
+import { EditCompany } from '@/components/editData-Admin/compData-form';
+import { EditWfo } from '@/components/editData-Admin/wfoEdit-form';
+import { EditWfa } from '@/components/editData-Admin/wfaEdit-form';
+import { EditHybrid } from '@/components/editData-Admin/hybridEdit-form';
+import { useEffect, useCallback, useState } from 'react';
+import api from '@/lib/axios';
+import { useRouter } from 'next/navigation';
+import { format } from 'date-fns/format';
+import { enUS } from 'date-fns/locale';
+import MapPicker from '@/components/map-picker';
 
 import {
   Breadcrumb,
@@ -49,26 +57,154 @@ import {
 import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-
-import { IoMdSearch } from 'react-icons/io';
-
-const data = {
-  user: {
-    name: 'Admin',
-    email: 'admin@hris.com',
-    avatar: '/avatars/shadcn.jpg',
-  },
-};
+import { use } from 'chai';
+import { id } from 'date-fns/locale';
 
 type AccountClientProps = {
   isAdmin: boolean;
+  userId: string;
+  companyId: string;
+  initialData?: {
+    id: string;
+    first_name: string;
+    last_name: string;
+    email: string;
+    phone: string;
+    subscription_id: string;
+    subscription_type: string;
+    subs_date_start: string;
+    subs_date_end: string;
+    company_name: string;
+    company_address: string;
+    loc_lat: string;
+    loc_long: string;
+  }
 };
 
-export default function AccountClient({ isAdmin }: AccountClientProps) {
+export default function AccountClient({
+  isAdmin,
+  userId,
+  companyId,
+  initialData
+}: AccountClientProps) {
+  const [user, setUser] = useState({
+    name: '',
+    email: '',
+    avatar: '',
+  });
+  const router = useRouter();
+
+  const [adminData, setAdminData] = useState({
+    id: '',
+    first_name: '',
+    last_name: '',
+    email: '',
+    phone: '',
+  });
+
+  const [subsData, setSubsData] = useState({
+    companyId: '',
+    subscription_id: '',
+    subscription_type: '',
+    subs_date_start: '',
+    subs_date_end: '',
+  });
+
+  const [companyData, setCompanyData] = useState({
+    id: '',
+    name: '',
+    address: '',
+    loc_lat: '',
+    loc_long: '',
+  })
+
+  const [lat, setLat] = useState('');
+  const [lng, setLng] = useState('');
+  const [addressDetail, setAddressDetail] = useState('');
+  const [isMapLoading, setIsMapLoading] = useState(true);
+
+  const handleLocationSelect = (lat: number, lng: number, address: string) => {
+    setLat(lat.toFixed(6));
+    setLng(lng.toFixed(6));
+    setAddressDetail(address);
+  };
+
+  const handleMapLoad = () => {
+    setIsMapLoading(false);
+  };
+
+  const formatDate = (dateString: string) => {
+    if (!dateString) return 'No date';
+
+    try {
+      // Konversi string ke Date object
+      const date = new Date(dateString);
+      return format(date, 'PPP', { locale: enUS });
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return dateString; // Fallback ke string asli jika error
+    }
+  };
+
+  // Data Fetching 
+  const fetchData = useCallback(async () => {
+    try {
+      const resUser = await api.get(`/api/employee/${userId}`);
+      const resCompany = await api.get(`/api/company/${companyId}`);
+      const admin = resUser.data.data;
+      const company = resCompany.data.data;
+
+      const resSubs = await api.get(`/api/subscription/${company.subscription_id}`);
+      const subscription = resSubs.data.data;
+
+      setUser({
+        name: `${admin.first_name} ${admin.last_name}`,
+        email: admin.email,
+        avatar: admin.pict_dir || '/avatars/default.jpg',
+      });
+
+      setAdminData({
+        id: admin.id,
+        first_name: admin.first_name,
+        last_name: admin.last_name,
+        email: admin.email,
+        phone: admin.phone,
+      });
+
+      setSubsData({
+        companyId: company.id || '',
+        subscription_id: company.subscription_id || '',
+        subscription_type: subscription.name || '',
+        subs_date_start: company.subs_date_start || '',
+        subs_date_end: company.subs_date_end || '',
+      });
+
+      setCompanyData({
+        id: company.id || '',
+        name: company.name || '',
+        address: company.address || '',
+        loc_lat: company.loc_lat || '',
+        loc_long: company.loc_long || '',
+      })
+    } catch (err: any) {
+      console.error(
+        'Error fetching user data:',
+        err.response?.data || err.message);
+    }
+  }, [userId, companyId]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  const handleOperationSuccess = useCallback(async () => {
+    await fetchData();
+  }, [fetchData])
+
   const [avatar, setAvatar] = useState<File | null>(null);
   return (
     <SidebarProvider>
-      <AppSidebar isAdmin={isAdmin}/>
+      <AppSidebar isAdmin={isAdmin} />
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center justify-between px-4 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
           <div className="flex items-center gap-2">
@@ -80,19 +216,13 @@ export default function AccountClient({ isAdmin }: AccountClientProps) {
             <Breadcrumb>
               <BreadcrumbList>
                 <BreadcrumbItem>
-                  <BreadcrumbPage>Dashboard</BreadcrumbPage>
+                  <BreadcrumbPage>Account</BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
           </div>
 
           <div className="flex items-center gap-4">
-            {/* Search */}
-            <div className="relative w-80 hidden lg:block">
-              <IoMdSearch className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-500" />
-              <Input type="search" placeholder="Search" className="pl-10" />
-            </div>
-
             {/* Notification */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -120,7 +250,7 @@ export default function AccountClient({ isAdmin }: AccountClientProps) {
             </DropdownMenu>
 
             {/* Nav-user */}
-            <NavUser user={data.user} isAdmin={isAdmin} />
+            <NavUser user={user} isAdmin={isAdmin} />
           </div>
         </header>
 
@@ -128,6 +258,9 @@ export default function AccountClient({ isAdmin }: AccountClientProps) {
         <div className="flex flex-col md:flex-row gap-4 p-4 relative">
           {/* Profile Data */}
           <form className="w-full h-fit md:w-2/3 grid grid-cols-1 md:grid-cols-2 gap-4 border-2 p-4 bg-white rounded-lg shadow">
+            <h1 className="text-lg font-semibold mb-2">
+              Account Information
+            </h1>
             <div className="col-span-full flex items-center gap-4">
               <Avatar className="w-25 h-25">
                 <AvatarImage
@@ -139,25 +272,41 @@ export default function AccountClient({ isAdmin }: AccountClientProps) {
             </div>
             <div>
               <Label>First Name</Label>
-              <Input placeholder="Your first name" readOnly />
+              <Input
+                id='first_name'
+                value={adminData.first_name || ''}
+                readOnly
+                placeholder="Your first name"
+              />
             </div>
             <div>
               <Label>Last Name</Label>
-              <Input placeholder="Your last name" readOnly />
+              <Input
+                id='last_name'
+                value={adminData.last_name || ''}
+                readOnly
+                placeholder="Your last name"
+              />
             </div>
             <div>
               <Label>Email</Label>
-              <Input placeholder="Your email" readOnly />
+              <Input
+                id='email'
+                value={adminData.email || ''}
+                readOnly
+                placeholder="Your email"
+              />
             </div>
             <div>
               <Label>Mobile Number</Label>
-              <Input placeholder="Your phone number" readOnly />
+              <Input
+                id='phone'
+                value={adminData.phone || ''}
+                readOnly
+                placeholder="Your phone number"
+              />
             </div>
-            <div className="col-span-full">
-              <Label>Password</Label>
-              <Input placeholder="Your password" readOnly />
-            </div>
-            <div className="col-span-full flex justify-end">
+            <div className="col-span-full flex justify-end gap-2">
               <Dialog>
                 <DialogTrigger asChild>
                   <Button className="w-full md:w-auto">
@@ -169,7 +318,28 @@ export default function AccountClient({ isAdmin }: AccountClientProps) {
                   <DialogHeader>
                     <DialogTitle>Edit Profile</DialogTitle>
                   </DialogHeader>
-                  <AdminForm />
+                  <AdminEditDataForm
+                    userId={adminData.id}
+                    initialData={adminData}
+                    onSuccess={handleOperationSuccess}
+                  />
+                </DialogContent>
+              </Dialog>
+
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button className="w-full md:w-auto">
+                    <Pencil className="h-4 w-4 mr-1" /> Change Password
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle>Change Password</DialogTitle>
+                  </DialogHeader>
+                  <EditPassword
+                    userId={adminData.id}
+                    onSuccess={handleOperationSuccess}
+                  />
                 </DialogContent>
               </Dialog>
             </div>
@@ -182,12 +352,12 @@ export default function AccountClient({ isAdmin }: AccountClientProps) {
             </h1>
             <Card>
               <CardHeader className="pb-2">
-                <p className="text-sm">Joined on 31 December 2025</p>
-                <CardTitle className="text-xl">Pay As You Go</CardTitle>
+                <p className="text-sm">Joined at : {formatDate(subsData.subs_date_start)}</p>
+                <CardTitle className="text-xl">{subsData.subscription_type}</CardTitle>
                 <div className="flex items-center gap-2">
                   <CalendarIcon className="w-4 h-4 text-muted-foreground" />
                   <p className="text-muted-foreground text-xs">
-                    Next payment is on 28 January 2026
+                    Next payment is on {formatDate(subsData.subs_date_end)}
                   </p>
                 </div>
                 <hr className="my-2" />
@@ -203,8 +373,219 @@ export default function AccountClient({ isAdmin }: AccountClientProps) {
             </Card>
             <div className="flex justify-end pt-4">
               <Button>
-                <a href="/user/[id]/admin/subscription">Subscription History</a>
+                <a href="subscription">Subscription History</a>
               </Button>
+            </div>
+          </div>
+        </div>
+        <div className='flex flex-col md:flex-row gap-4 p-4 relative'>
+          <div className='w-full h-fit gap-4 border-2 p-4 bg-white rounded-lg shadow'>
+            <h1 className="text-lg font-semibold mb-2">
+              Company Information
+            </h1>
+            <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+              <div className="w-full space-y-2">
+                {isMapLoading && (
+                  <div className="text-gray-500 text-sm text-center">Loading map...</div>
+                )}
+                <MapPicker onLocationSelect={handleLocationSelect} onLoad={handleMapLoad} />
+              </div>
+              <div className='grid grid-cols-1'>
+                <div>
+                  <Label>Company Name</Label>
+                  <Input
+                    id='first_name'
+                    value={companyData.name || ''}
+                    readOnly
+                    placeholder="Company name"
+                  />
+                </div>
+                <div>
+                  <Label>Company Address</Label>
+                  <Input
+                    id='last_name'
+                    value={companyData.address || ''}
+                    readOnly
+                    placeholder="Address detail of your company"
+                  />
+                </div>
+                <div className='grid grid-cols-2 gap-4'>
+                  <div>
+                    <Label>Langtitude</Label>
+                    <Input
+                      id='first_name'
+                      value={companyData.loc_lat || ''}
+                      readOnly
+                      placeholder="Langtitude of your company"
+                    />
+                  </div>
+                  <div>
+                    <Label>Longtitude</Label>
+                    <Input
+                      id='last_name'
+                      value={companyData.loc_long || ''}
+                      readOnly
+                      placeholder="Longtitude of your company"
+                    />
+                  </div>
+                </div>
+                <div className='col-span-full flex justify-end mt-2'>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button className="w-full md:w-auto">
+                        <Pencil className="h-4 w-4 mr-1" /> Edit Data
+                      </Button>
+                    </DialogTrigger>
+
+                    <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+                      <DialogHeader>
+                        <DialogTitle>Edit Data Company</DialogTitle>
+                      </DialogHeader>
+                      <EditCompany
+                        companyId={companyData.id}
+                        initialData={{
+                          id: companyData.id,
+                          name: companyData.name,
+                          address: companyData.address,
+                          loc_lat: Number(companyData.loc_lat) || 0,
+                          loc_long: Number(companyData.loc_long) || 0,
+                        }}
+                        onSuccess={handleOperationSuccess}
+                      />
+                    </DialogContent>
+                  </Dialog>
+                </div>
+              </div>
+            </div>
+
+            {/* Workscheme clock in/out information */}
+            <div className='grid grid-cols-1 md:grid-cols-3 gap-4 mt-4'>
+              <Card className='p-4'>
+                <h1 className='text-lg font-semibold mb-2'>WFO</h1>
+                <div className='grid grid-cols-1 gap-2'>
+                  <div>
+                    <Label>Clock In Default</Label>
+                    <Input
+                      id='wfo_clock_in'
+                      // value={}
+                      readOnly
+                      placeholder="Clock In Default"
+                    />
+                  </div>
+                  <div>
+                    <Label>Clock Out Default</Label>
+                    <Input
+                      id='wfo_clock_out'
+                      // value={}
+                      readOnly
+                      placeholder="Clock Out Default"
+                    />
+                  </div>
+                </div>
+                <div className='col-span-full flex justify-end mt-4'>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button className="w-full md:w-auto">
+                        <Pencil className="h-4 w-4 mr-1" /> Edit 
+                      </Button>
+                    </DialogTrigger>
+
+                    <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+                      <DialogHeader>
+                        <DialogTitle>Setting Check In/Out</DialogTitle>
+                      </DialogHeader>
+                      <EditWfo
+                        companyId={companyData.id}
+                        onSuccess={handleOperationSuccess}
+                      />
+                    </DialogContent>
+                  </Dialog>
+                </div>
+              </Card>
+              <Card className='p-4'>
+                <h1 className='text-lg font-semibold mb-2'>WFA</h1>
+                <div className='grid grid-cols-1 gap-2'>
+                  <div>
+                    <Label>Clock In Default</Label>
+                    <Input
+                      id='wfa_clock_in'
+                      // value={}
+                      readOnly
+                      placeholder="Clock In Default"
+                    />
+                  </div>
+                  <div>
+                    <Label>Clock Out Default</Label>
+                    <Input
+                      id='wfa_clock_out'
+                      // value={}
+                      readOnly
+                      placeholder="Clock Out Default"
+                    />
+                  </div>
+                </div>
+                <div className='col-span-full flex justify-end mt-4'>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button className="w-full md:w-auto">
+                        <Pencil className="h-4 w-4 mr-1" /> Edit
+                      </Button>
+                    </DialogTrigger>
+
+                    <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+                      <DialogHeader>
+                        <DialogTitle>Setting Check In/Out</DialogTitle>
+                      </DialogHeader>
+                      <EditWfa
+                        companyId={companyData.id}
+                        onSuccess={handleOperationSuccess}
+                      />
+                    </DialogContent>
+                  </Dialog>
+                </div>
+              </Card>
+              <Card className='p-4'>
+                <h1 className='text-lg font-semibold mb-2'>Hybrid</h1>
+                <div className='grid grid-cols-1 gap-2'>
+                  <div>
+                    <Label>Clock In Default</Label>
+                    <Input
+                      id='hybrid_clock_in'
+                      // value={}
+                      readOnly
+                      placeholder="Clock In Default"
+                    />
+                  </div>
+                  <div>
+                    <Label>Clock Out Default</Label>
+                    <Input
+                      id='hybrid_clock_out'
+                      // value={}
+                      readOnly
+                      placeholder="Clock Out Default"
+                    />
+                  </div>
+                </div>
+                <div className='col-span-full flex justify-end mt-4'>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button className="w-full md:w-auto">
+                        <Pencil className="h-4 w-4 mr-1" /> Edit
+                      </Button>
+                    </DialogTrigger>
+
+                    <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+                      <DialogHeader>
+                        <DialogTitle>Setting Check In/Out</DialogTitle>
+                      </DialogHeader>
+                      <EditHybrid
+                        companyId={companyData.id}
+                        onSuccess={handleOperationSuccess}
+                      />
+                    </DialogContent>
+                  </Dialog>
+                </div>
+              </Card>
             </div>
           </div>
         </div>

@@ -68,21 +68,21 @@ export function AdminForm() {
       </div>
       <div className='col-span-full'>
         <Label>Password</Label>
-              <div className="relative">
-        <Input
-          type={showPassword ? 'text' : 'password'}
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="Enter password"
-        />
-        <button
-          type="button"
-          onClick={() => setShowPassword(!showPassword)}
-          className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-        >
-          {showPassword ? <Eye size={16} /> : <EyeOff size={16} />}
-        </button>
-      </div>
+        <div className="relative">
+            <Input
+            type={showPassword ? 'text' : 'password'}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Enter password"
+            />
+            <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+            >
+            {showPassword ? <Eye size={16} /> : <EyeOff size={16} />}
+            </button>
+        </div>
       </div>
 
       {/* Form Buttons */}

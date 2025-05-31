@@ -1,4 +1,4 @@
-import {Controller,Get,Post,Body,Param,Delete,Patch, UseGuards,} from '@nestjs/common';
+import {Controller,Get,Post,Body,Param,Delete,Patch, UseGuards, Query,} from '@nestjs/common';
 import { createTransactionDto } from './dtos/createTransaction.dto';
 import { editTransactionDto } from './dtos/editTransaction.dto';
 import { TransactionService } from './transaction.service';
@@ -18,9 +18,12 @@ export class TransactionController {
   }
 
   @Get()
-  getTransactions() {
-    return this.TransactionService.getTransactions();
-  }
+  getTransactions(@Query() query: Record<string,any>) {
+      if(Object.keys(query).length >0){
+          return this.TransactionService.findFilters(query);
+      }
+      return this.TransactionService.getTransactions();
+    }
 
   @Get(':id')
   getTransaction(@Param('id') transactionId: string) {

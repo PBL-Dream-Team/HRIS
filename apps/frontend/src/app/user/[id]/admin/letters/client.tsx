@@ -1,8 +1,12 @@
 'use client';
 
-import Link from 'next/link';
+// React & Next.js Core
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
+
+// UI Components (Shadcn/ui & Custom)
 import { AppSidebar } from '@/components/app-sidebar';
-import { Pencil, Trash2 } from 'lucide-react';
+import { DataTable } from '@/components/data-table';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -15,7 +19,6 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from '@/components/ui/sidebar';
-
 import {
   Dialog,
   DialogTrigger,
@@ -24,94 +27,167 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
-
-import { Input } from '@/components/ui/input';
-import { Bell } from 'lucide-react';
-import { NavUser } from '@/components/nav-user';
 import { Button } from '@/components/ui/button';
+
+// Custom Components
+import { NavUser } from '@/components/nav-user';
 import { LetterForm } from '@/components/letter-form';
-import PaginationFooter from '@/components/pagination';
-import { useState } from 'react';
+import { LetterTypeForm } from '@/components/lettertype-form';
 import LetterDetails from '@/components/letter-details';
-import { Eye } from 'lucide-react';
+import { LetterTypesOverviewContent } from '@/components/lettertype-overview';
+import { letterColumns, Letter } from '@/components/columns/letters-admin';
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-} from '@/components/ui/dropdown-menu';
+// Libraries & Utilities
+import api from '@/lib/axios';
+import { toast } from 'sonner';
 
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+// Icons
+import { MailPlus } from 'lucide-react';
+import { IoMdAdd } from 'react-icons/io';
+import { MdOutlineAttachEmail } from 'react-icons/md';
 
-import { VscSettings } from 'react-icons/vsc';
-import { IoMdAdd, IoMdSearch } from 'react-icons/io';
-import { Download } from 'lucide-react';
+// Constants
+const ITEMS_PER_PAGE = 10;
 
-const data = {
-  user: {
-    name: 'Admin',
-    email: 'admin@hris.com',
-    avatar: '/avatars/shadcn.jpg',
-  },
-};
-
-const letters = [
-  {
-    id: 1,
-    employeeName: 'John Doe',
-    position: 'Software Engineer',
-    letterName: 'Employee of the Month',
-    letterType: 'Award',
-    validUntil: '01 Desember 2025',
-    status: 'Active',
-  },
-  {
-    id: 2,
-    employeeName: 'Jane Smith',
-    position: 'Project Manager',
-    letterName: 'Work From Home Approval',
-    letterType: 'Permission',
-    validUntil: '01 Januari 2023',
-    status: 'Not Active',
-  },
-  {
-    id: 3,
-    employeeName: 'Alice Johnson',
-    position: 'UX Designer',
-    letterName: 'Training Completion Certificate',
-    letterType: 'Certificate',
-    validUntil: '15 Maret 2024',
-    status: 'Not Active',
-  },
-];
-
+// Types
 type LettersClientProps = {
   isAdmin: boolean;
+  userId: string;
+  companyId: string;
 };
 
-export default function LettersClient({ isAdmin }: LettersClientProps) {
-    const [openSheet, setOpenSheet] = useState(false);
-    const [selectedLetter, setselectedLetter] = useState<any>(null);
-  
-    const handleViewDetails = (checkclock: any) => {
-      setselectedLetter(checkclock);
-      setOpenSheet(true);
-    };
+type UserState = {
+  name: string;
+  email: string;
+  avatar: string;
+};
+
+export default function LettersClient({
+  isAdmin,
+  userId,
+  companyId,
+}: LettersClientProps) {
+  const router = useRouter();
+
+  // State Hooks
+  const [user, setUser] = useState<UserState>({
+    name: '',
+    email: '',
+    avatar: '',
+  });
+  const [employees, setEmployees] = useState<Record<string, any>>({});
+  const [letterTypeMap, setLetterTypeMap] = useState<Record<string, any>>({});
+  const [letters, setLetters] = useState<Letter[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const [selectedLetter, setSelectedLetter] = useState<Letter | null>(null);
+  const [letterToDelete, setLetterToDelete] = useState<Letter | null>(null);
+
+  const [isLetterDetailsSheetOpen, setIsLetterDetailsSheetOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isLetterTypesOverviewOpen, setIsLetterTypesOverviewOpen] = useState(false);
+
+  // Data Fetching
+  const fetchData = useCallback(async () => {
+    try {
+      const userRes = await api.get(`/api/employee/${userId}`);
+      const { first_name, last_name, email, pict_dir } = userRes.data.data;
+      setUser({
+        name: `${first_name} ${last_name}`,
+        email: email,
+        avatar: pict_dir || '/avatars/default.jpg',
+      });
+
+      const [lettersRes, employeesRes, typesRes] = await Promise.all([
+        api.get(`/api/letter?company_id=${companyId}`),
+        api.get(`/api/employee?company_id=${companyId}`),
+        api.get(`/api/letterType?company_id=${companyId}`),
+      ]);
+
+      const employeeMap: Record<string, any> = {};
+      (employeesRes.data ?? []).forEach((emp: any) => {
+        employeeMap[emp.id] = emp;
+      });
+      setEmployees(employeeMap);
+
+      const typeMap: Record<string, any> = {};
+      (typesRes.data ?? []).forEach((type: any) => {
+        typeMap[type.id] = type;
+      });
+      setLetterTypeMap(typeMap);
+
+      setLetters(lettersRes.data ?? []);
+    } catch (err: any) {
+      console.error(
+        'Error fetching data:',
+        err.response?.data || err.message,
+      );
+      toast.error(
+        'Failed to load data. Please check the console for more details.',
+      );
+    }
+  }, [userId, companyId]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  // Data Transformation
+  const transformedLetters = useMemo((): Letter[] => {
+    return letters.map((letter) => ({
+      ...letter,
+      employee_name: employees[letter.employee_id]
+        ? `${employees[letter.employee_id].first_name} ${employees[letter.employee_id].last_name}`
+        : 'Unknown',
+      letter_type: letterTypeMap[letter.lettertype_id]?.name || 'Unknown',
+      valid_until: new Date(letter.valid_until).toLocaleDateString('id-ID', {
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric',
+      }),
+    }));
+  }, [letters, employees, letterTypeMap]);
+
+  // Event Handlers
+  const handleViewDetails = useCallback((letter: Letter) => {
+    setSelectedLetter(letter);
+    setIsLetterDetailsSheetOpen(true);
+  }, []);
+
+  const handleDeleteConfirmed = async () => {
+    if (!letterToDelete) return;
+
+    try {
+      await api.delete(`/api/letter/${letterToDelete.id}`);
+      toast.success('Letter deleted successfully.');
+      await fetchData();
+    } catch (err: any) {
+      console.error(
+        'Error deleting letter:',
+        err.response?.data || err.message,
+      );
+      toast.error('Failed to delete letter. Please try again.');
+    } finally {
+      setIsDeleteDialogOpen(false);
+      setLetterToDelete(null);
+    }
+  };
+
+  const handleOperationSuccess = useCallback(async () => {
+    await fetchData();
+  }, [fetchData]);
+
+  // Column Definition for DataTable
+  const columns = useMemo(
+    () => letterColumns(handleViewDetails, setLetterToDelete, setIsDeleteDialogOpen, companyId, router),
+    [handleViewDetails, companyId, router]
+  );
 
   return (
     <SidebarProvider>
-      <AppSidebar isAdmin={isAdmin}/>
+      <AppSidebar isAdmin={isAdmin} />
       <SidebarInset>
+        {/* Header Section */}
         <header className="flex h-16 shrink-0 items-center justify-between px-4 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
           <div className="flex items-center gap-2">
             <SidebarTrigger className="-ml-1" />
@@ -127,164 +203,123 @@ export default function LettersClient({ isAdmin }: LettersClientProps) {
               </BreadcrumbList>
             </Breadcrumb>
           </div>
-
           <div className="flex items-center gap-4">
-            <div className="relative w-80 hidden lg:block">
-              <IoMdSearch className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-500" />
-              <Input type="search" placeholder="Search" className="pl-10" />
-            </div>
-
-            {/* Notification */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="relative p-2 rounded-md hover:bg-muted focus:outline-none">
-                  <Bell className="h-5 w-5" />
-                  <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-red-500" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                className="min-w-56 rounded-lg"
-                side="bottom"
-                sideOffset={8}
-                align="end"
-              >
-                <DropdownMenuLabel>Notifications</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>New user registered</DropdownMenuItem>
-                <DropdownMenuItem>Monthly report is ready</DropdownMenuItem>
-                <DropdownMenuItem>Server restarted</DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-center text-blue-600 hover:text-blue-700">
-                  View all
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            {/* Nav-user */}
-            <NavUser user={data.user} isAdmin={isAdmin} />
+            <NavUser user={user} isAdmin={isAdmin} />
           </div>
         </header>
 
-        <div className="flex flex-1 flex-col gap-4 p-10 pt-5">
+        {/* Main Content Area */}
+        <main className="flex flex-1 flex-col gap-4 p-10 pt-5">
           <div className="border border-gray-300 rounded-md p-4">
-            {/* Title and Search */}
-            <div className="flex items-center justify-between p-4 border-b">
-              <div className="text-lg font-semibold">Letter Overview</div>
-              <div className="relative w-96 hidden lg:block">
-                <IoMdSearch className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-500" />
-                <Input type="search" placeholder="Search" className="pl-10" />
-              </div>
-              <div className="flex flex-col gap-2 lg:flex-row lg:items-center lg:gap-4">
-                <Button className="bg-gray-100 text-black shadow-xs hover:bg-gray-200">
-                  <VscSettings /> Filter
-                </Button>
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button>
-                      <IoMdAdd /> Add Letter
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-2xl">
-                    <DialogHeader>
-                      <DialogTitle>Add Letter</DialogTitle>
-                    </DialogHeader>
-                    <LetterForm />
-                  </DialogContent>
-                </Dialog>
-              </div>
-            </div>
-
-            {/* Table */}
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Employee Name</TableHead>
-                  <TableHead>Letter Name</TableHead>
-                  <TableHead>Letter Type</TableHead>
-                  <TableHead>Valid Until</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {letters.map((letter) => (
-                  <TableRow key={letter.id}>
-                    <TableCell>{letter.employeeName}</TableCell>
-                    <TableCell>{letter.letterName}</TableCell>
-                    <TableCell>{letter.letterType}</TableCell>
-                    <TableCell>{letter.validUntil}</TableCell>
-                    <TableCell>
-                      <div className="flex items-center">
-                        <span
-                          className={`px-2 py-1 rounded text-xs text-white ${
-                            letter.status === 'Active'
-                              ? 'bg-green-600'
-                              : 'bg-gray-400'
-                          }`}
-                        >
-                          {letter.status}
-                        </span>
-                      </div>
-                    </TableCell>
-                    <TableCell className="flex gap-2">
-                      <Link href={`download/${letter.id}`}>
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="hover:text-white hover:bg-green-600"
-                        >
-                          <Download />
-                        </Button>
-                      </Link>
-
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        className="hover:text-white hover:bg-blue-600"
-                        onClick={() => handleViewDetails(letter)}
-                      >
-                        <Eye className="h-4 w-4" />
+            <DataTable
+              columns={columns}
+              data={transformedLetters}
+              searchableColumn="name"
+              title="Letter Overview"
+              actions={
+                <>
+                  {/* Letter Types Overview Dialog */}
+                  <Dialog
+                    open={isLetterTypesOverviewOpen}
+                    onOpenChange={setIsLetterTypesOverviewOpen}
+                  >
+                    <DialogTrigger asChild>
+                      <Button>
+                        <MdOutlineAttachEmail className="mr-2 h-4 w-4" />
+                        Letter Type Overview
                       </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-2xl">
+                      <DialogHeader>
+                        <DialogTitle>Letter Types</DialogTitle>
+                      </DialogHeader>
+                      <LetterTypesOverviewContent
+                        companyId={companyId}
+                        isVisible={isLetterTypesOverviewOpen}
+                      />
+                    </DialogContent>
+                  </Dialog>
 
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            className="hover:text-white hover:bg-yellow-500"
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="max-w-2xl">
-                          <DialogHeader>
-                            <DialogTitle>Edit Letter</DialogTitle>
-                          </DialogHeader>
-                          <LetterForm />
-                        </DialogContent>
-                      </Dialog>
-
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        className="hover:text-white hover:bg-red-600"
-                      >
-                        <Trash2 className="h-4 w-4" />
+                  {/* Add Letter Type Dialog */}
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button>
+                        <MailPlus className="mr-2 h-4 w-4" /> Add Letter Type
                       </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-2xl">
+                      <DialogHeader>
+                        <DialogTitle>Add Letter Type</DialogTitle>
+                      </DialogHeader>
+                      <LetterTypeForm
+                        companyId={companyId}
+                        mode="create"
+                        onSuccess={handleOperationSuccess}
+                      />
+                    </DialogContent>
+                  </Dialog>
 
-            {/* Pagination */}
-            <PaginationFooter totalItems={letters.length} itemsPerPage={10} />
+                  {/* Add Letter Dialog */}
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button>
+                        <IoMdAdd className="mr-2 h-4 w-4" /> Add Letter
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-2xl">
+                      <DialogHeader>
+                        <DialogTitle>Add Letter</DialogTitle>
+                      </DialogHeader>
+                      <LetterForm
+                        mode="create"
+                        companyId={companyId}
+                        onSuccess={handleOperationSuccess}
+                      />
+                    </DialogContent>
+                  </Dialog>
+                </>
+              }
+              pagination={{
+                currentPage,
+                itemsPerPage: ITEMS_PER_PAGE,
+                onPageChange: setCurrentPage,
+              }}
+            />
           </div>
-        </div>
+        </main>
+
+        {/* Delete Confirmation Dialog */}
+        <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Delete Letter</DialogTitle>
+            </DialogHeader>
+            <div>
+              Are you sure you want to delete this letter? This action cannot be
+              undone.
+            </div>
+            <DialogFooter className="gap-2 pt-4">
+              <Button
+                variant="outline"
+                onClick={() => setIsDeleteDialogOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={handleDeleteConfirmed}
+              >
+                Delete
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </SidebarInset>
+
+      {/* Letter Details Sheet/Side Panel */}
       <LetterDetails
-        open={openSheet}
-        onOpenChange={setOpenSheet}
+        open={isLetterDetailsSheetOpen}
+        onOpenChange={setIsLetterDetailsSheetOpen}
         selectedLetter={selectedLetter}
       />
     </SidebarProvider>

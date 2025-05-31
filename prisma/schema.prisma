@@ -22,8 +22,8 @@ model Subscription {
   type SubscriptionType
   day_length Int @db.Integer
 
-  created_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
-  updated_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
+  created_at DateTime @db.Timestamptz() @default(now())
+  updated_at DateTime @db.Timestamptz() @updatedAt
   deleted_at DateTime? @db.Timestamptz() 
   is_deleted Boolean @db.Boolean @default(false) 
 
@@ -51,10 +51,9 @@ model Company {
   max_employee Int @db.Integer
   subs_date_start DateTime @db.Timestamptz()
   subs_date_end DateTime @db.Timestamptz()
-  status CompanySubscriptionStatus
 
-  created_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
-  updated_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
+  created_at DateTime @db.Timestamptz() @default(now())
+  updated_at DateTime @db.Timestamptz() @updatedAt
   deleted_at DateTime? @db.Timestamptz() 
   is_deleted Boolean @db.Boolean @default(false) 
 
@@ -68,11 +67,6 @@ model Company {
 
 
   @@map("Company")
-}
-
-enum CompanySubscriptionStatus {
-  ACTIVE
-  INACTIVE
 }
 
 model Employee {
@@ -112,25 +106,60 @@ model Employee {
 
   branch String? @db.VarChar(50)
 
+  contract ContractType?
+
   last_education EducationType?
 
   pict_dir String?
+
+  account_bank BankCode?
+  account_number String? @db.VarChar()
+  account_name String? @db.VarChar()
 
   //Oauth
   google_id String? @db.VarChar(100) @unique
   access_token String? @db.Text @unique
   refresh_token String? @db.Text @unique
 
-  created_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
-  updated_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
+  created_at DateTime @db.Timestamptz() @default(now())
+  updated_at DateTime @db.Timestamptz() @updatedAt
   deleted_at DateTime? @db.Timestamptz() 
   is_deleted Boolean @db.Boolean @default(false)
 
   letters Letter[]
   attendances Attendance[]
   absences AbsenceLeave[]
+  passwordResets PasswordReset[]
 
   @@map("Employee")
+}
+
+enum BankCode {
+  BRI       // 002
+  Mandiri   // 008
+  BNI       // 009
+  Danamon   // 011
+  Permata   // 013
+  BCA       // 014
+  Maybank   // 016
+  Panin     // 019
+  Bukopin   // 020
+  CIMB      // 022
+  UOB       // 023
+  OCBC      // 028
+  BJB       // 110
+  Muamalat  // 147
+  BTN       // 200
+  BTPN      // 213
+  Mega      // 426
+  SyariahMandiri // 451
+  Commonwealth   // 950
+}
+
+enum ContractType{
+  PERMANENT
+  CONTRACT
+  INTERN
 }
 
 enum WorkSchemeType{
@@ -159,10 +188,8 @@ model LetterType{
   company_id String @db.Uuid
   company Company @relation(fields: [company_id],references: [id])
 
-  created_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
-  updated_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
-  deleted_at DateTime? @db.Timestamptz() 
-  is_deleted Boolean @db.Boolean @default(false)
+  created_at DateTime @db.Timestamptz() @default(now())
+  updated_at DateTime @db.Timestamptz() @updatedAt
 
   letters Letter[]
 
@@ -189,6 +216,8 @@ model Letter {
 
   valid_until DateTime @db.Date
 
+  is_active Boolean @db.Boolean @default(true) 
+
   created_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
   updated_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
   deleted_at DateTime? @db.Timestamptz() 
@@ -206,12 +235,17 @@ model AttendanceType {
   check_in DateTime @db.Time()
   check_out DateTime @db.Time()
 
-  created_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
-  updated_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
+  workspace_address String? @db.VarChar()
+  workspace_long Float? @db.DoublePrecision
+  workspace_lat Float? @db.DoublePrecision
+
+  created_at DateTime @db.Timestamptz() @default(now())
+  updated_at DateTime @db.Timestamptz() @updatedAt
   deleted_at DateTime? @db.Timestamptz() 
   is_deleted Boolean @db.Boolean @default(false)
 
   employees Employee[]
+  attendances Attendance[]
 }
 
 model Attendance {
@@ -223,22 +257,36 @@ model Attendance {
   employee_id String @db.Uuid
   employee Employee @relation(fields: [employee_id], references: [id])
 
+  type_id String @db.Uuid
+  type AttendanceType @relation(fields: [type_id], references: [id])
+
   check_in DateTime @db.Time()
   check_in_status CheckInStatus
+  check_in_address String @db.VarChar()
   check_in_long Float @db.DoublePrecision
   check_in_lat Float @db.DoublePrecision
 
   check_out DateTime? @db.Time()
-  check_out_status CheckInStatus?
+  check_out_status CheckOutStatus?
+  check_out_address String? @db.VarChar()
   check_out_long Float? @db.DoublePrecision
   check_out_lat Float? @db.DoublePrecision
 
-  workpict_dir String
+  filedir String?
 
-  created_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
-  updated_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
+  approval AttendanceApproval @default(APPROVED)
+
+  created_at DateTime @db.Timestamptz() @default(now())
+  updated_at DateTime @db.Timestamptz() @updatedAt
   deleted_at DateTime? @db.Timestamptz() 
   is_deleted Boolean @db.Boolean @default(false)
+
+}
+
+enum AttendanceApproval {
+  APPROVED
+  DISAPPROVED
+  PENDING
 }
 
 enum CheckInStatus {
@@ -260,17 +308,26 @@ model AbsenceLeave {
   company_id String @db.Uuid
   company Company @relation(fields: [company_id], references: [id])
 
+  type AbsentType
+
   reason String? @db.Text
   
   date DateTime @db.Date @default(now())
 
   status leaveStatus @default(PENDING)
-  status_change_at DateTime? @db.Timestamptz()
 
-  created_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
-  updated_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
+  filedir String?
+
+  created_at DateTime @db.Timestamptz() @default(now())
+  updated_at DateTime @db.Timestamptz() @updatedAt
   deleted_at DateTime? @db.Timestamptz() 
   is_deleted Boolean @db.Boolean @default(false)
+}
+
+enum AbsentType{
+  SICK
+  PERMIT
+  LEAVE
 }
 
 enum leaveStatus {
@@ -288,10 +345,38 @@ model Transaction {
   subscription_id String @db.Uuid
   subscription Subscription @relation(fields: [subscription_id],references: [id])
 
+  merchantRef String @unique
+  tripayRef String?
+  paymentMethod String?
+  expiresAt DateTime? @db.Timestamptz()
+  paidAt DateTime? @db.Timestamptz()
+  
+
+  status TransactionStatus @default(UNPAID)
+  
+
   total Int @db.Integer
 
-  created_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
-  updated_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
+  created_at DateTime @db.Timestamptz() @default(now())
+  updated_at DateTime @db.Timestamptz() @updatedAt
   deleted_at DateTime? @db.Timestamptz() 
   is_deleted Boolean @db.Boolean @default(false)
 }
+
+enum TransactionStatus{
+  PAID
+  UNPAID
+}
+
+model PasswordReset {
+  id String   @id @default(uuid())
+
+  token String   @unique
+  
+  employee_id String @db.Uuid
+  employee Employee @relation(fields: [employee_id], references: [id])
+  
+  created_at DateTime @default(now())
+  expires_at DateTime
+}
+

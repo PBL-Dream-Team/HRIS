@@ -1,9 +1,10 @@
-import React from 'react';
+'use client'
+import React, { useEffect, useState } from 'react';
 
-{/* Import Components */}
+{/* Import Components */ }
 
 import { User, UserPlus, UserCheck, UserMinus } from 'lucide-react';
-import { 
+import {
   Card,
   CardDescription,
   CardFooter,
@@ -11,76 +12,98 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 
-{/* Content */}
+{/* Content */ }
 
-export default function EmployeeInformation() {
+type EmployeeInformationProps = {
+  totalEmployees: number;
+};
+
+export default function EmployeeInformation({ totalEmployees }: EmployeeInformationProps) {
+  const [formattedDate, setFormattedDate] = useState('');
+
+  useEffect(() => {
+    const date = new Date();
+    const options: Intl.DateTimeFormatOptions = {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric',
+    };
+
+    // Format ke '25 May 2025'
+    const localDate = date.toLocaleDateString('en-US', options);
+    setFormattedDate(localDate);
+  }, []);
+
+
   return (
     <div className="grid auto-rows-min gap-4 md:grid-cols-4 sm:grid-cols-2">
-      <Card className="@container/card bg-[#1E3A5F] text-white">
+      <Card className="@container/card">
         <CardHeader className="relative">
           <CardTitle>
             <div className="flex items-center gap-2">
               <User className="h-8 w-8" />
-              <h1 className="text-xl">Total Employee</h1>
+              <h1 className="text-xl">Total Employees</h1>
             </div>
           </CardTitle>
-          <CardDescription className="text-white text-5xl font-semibold">
-            24
+          <CardDescription className="text-black text-5xl font-semibold">
+            {totalEmployees}
           </CardDescription>
         </CardHeader>
         <CardFooter>
-          <div>Update: March 16, 2025</div>
+          <div className="text-muted-foreground">Update: {formattedDate}</div>
         </CardFooter>
       </Card>
 
-      <Card className="@container/card bg-[#1E3A5F] text-white">
+
+
+      <Card className="@container/card">
         <CardHeader className="relative">
           <CardTitle>
             <div className="flex items-center gap-2">
               <UserPlus className="h-8 w-8" />
-              <h1 className="text-xl">New Employee</h1>
+              <h1 className="text-xl">New Employees</h1>
             </div>
           </CardTitle>
-          <CardDescription className="text-white text-5xl font-semibold">
+          <CardDescription className="text-black text-5xl font-semibold">
             24
           </CardDescription>
         </CardHeader>
         <CardFooter>
-          <div>Update: March 16, 2025</div>
+          <div className='text-muted-foreground'>Update: March 16, 2025</div>
         </CardFooter>
       </Card>
 
-      <Card className="@container/card bg-[#1E3A5F] text-white">
+      <Card className="@container/card">
         <CardHeader className="relative">
           <CardTitle>
             <div className="flex items-center gap-2">
               <UserCheck className="h-8 w-8" />
-              <h1 className="text-xl">Active Employee</h1>
+              <h1 className="text-xl">Active Employees</h1>
             </div>
           </CardTitle>
-          <CardDescription className="text-white text-5xl font-semibold">
+          <CardDescription className="text-black text-5xl font-semibold">
             24
           </CardDescription>
         </CardHeader>
         <CardFooter>
-          <div>Update: March 16, 2025</div>
+          <div className='text-muted-foreground'>Update: March 16, 2025</div>
         </CardFooter>
       </Card>
 
-      <Card className="@container/card bg-[#1E3A5F] text-white">
+      <Card className="@container/card">
         <CardHeader className="relative">
           <CardTitle>
             <div className="flex items-center gap-2">
               <UserMinus className="h-8 w-8" />
-              <h1 className="text-xl">Resigned Employee</h1>
+              <h1 className="text-xl">Resigned Employees</h1>
             </div>
           </CardTitle>
-          <CardDescription className="text-white text-5xl font-semibold">
+          <CardDescription className="text-black text-5xl font-semibold">
             24
           </CardDescription>
         </CardHeader>
         <CardFooter>
-          <div>Update: March 16, 2025</div>
+          <div className='text-muted-foreground'>Update: March 16, 2025</div>
         </CardFooter>
       </Card>
     </div>

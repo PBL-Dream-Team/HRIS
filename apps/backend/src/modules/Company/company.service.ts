@@ -42,7 +42,7 @@ export class CompanyService {
     }
   }
 
-  async getCompanys() {
+  async getCompanies() {
     return await this.prisma.company.findMany();
   }
 
@@ -79,5 +79,14 @@ export class CompanyService {
         message: error.message,
       };
     }
+  }
+  async findFilters(filters: Record< string, any>){
+    const where: Record<string , any> = {}
+
+    for (const [key,value] of Object.entries(filters)){
+      where[key] = { equals: value};
+    }
+
+    return await this.prisma.company.findMany({where});
   }
 }

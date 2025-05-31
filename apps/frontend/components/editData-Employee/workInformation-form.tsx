@@ -9,45 +9,164 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { useEffect, useState } from 'react';
+import api from '@/lib/axios';
+import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 
-export function EmployeeEditWorkDataForm() {
+type Bank = 'BRI' | 'Mandiri' | 'BNI' | 'Danamon' | 'Permata' | 'BCA' | 'Maybank' | 'Panin' | 'Bukopin' | 'CIMB' | 'UOB' | 'OCBC' | 'BJB' | 'Muamalat' | 'BTN' | 'BTPN' | 'Mega' | 'SyariahMandiri' | 'Commonwealth';
+
+type EmployeeEditWorkDataFormProps = {
+  mode: 'edit';
+  companyId: string;
+  employeeId: string;
+  initialData?: {
+    id: string;
+    account_bank: Bank; 
+    account_name: string;
+    account_number: string;
+  };
+  onSuccess?: () => void;
+  onClose?: () => void;
+};
+
+export function EmployeeEditWorkDataForm({
+  employeeId,
+  initialData,
+  onSuccess,
+  onClose
+}: EmployeeEditWorkDataFormProps) {
+  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  const [account_bank, setAccountBank] = useState<string>('');
+  const [account_name, setAccountName] = useState<string>('');
+  const [account_number, setAccountNumber] = useState<string>('');
+
+  useEffect(() => {
+    if (initialData) {
+      setAccountBank(initialData.account_bank || '');
+      setAccountName(initialData.account_name || '');
+      setAccountNumber(initialData.account_number || '');
+    }
+  }, [initialData]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    
+    try {
+      const formPayload = new FormData();
+      formPayload.append('account_bank', account_bank);
+      formPayload.append('account_name', account_name);
+      formPayload.append('account_number', account_number);
+
+      await api.patch(`/api/employee/${employeeId}`, formPayload);
+
+      toast.success('Work data updated successfully!');
+      
+      if (onClose) onClose();
+      router.refresh();
+      if (onSuccess) onSuccess();
+      
+    } catch (error: any) {
+      console.error('Error updating work data:', error);
+      const errorMessage = error.response?.data?.message || 'Failed to update work data';
+      toast.error(errorMessage);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleBankChange = (value: string) => {
+    setAccountBank(value);
+  }
+
+  // Bank options
+  const bankOptions = [
+    { value: 'BRI', label: 'BRI' },
+    { value: 'Mandiri', label: 'Mandiri' },
+    { value: 'BNI', label: 'BNI' },
+    { value: 'Danamon', label: 'Danamon' },
+    { value: 'Permata', label: 'Permata' },
+    { value: 'BCA', label: 'BCA' },
+    { value: 'Maybank', label: 'Maybank' },
+    { value: 'Panin', label: 'Panin' },
+    { value: 'Bukopin', label: 'Bukopin' },
+    { value: 'CIMB', label: 'CIMB' },
+    { value: 'UOB', label: 'UOB' },
+    { value: 'OCBC', label: 'OCBC' },
+    { value: 'BJB', label: 'BJB' },
+    { value: 'Muamalat', label: 'Muamalat' },
+    { value: 'BTN', label: 'BTN' },
+    { value: 'BTPN', label: 'BTPN' },
+    { value: 'Mega', label: 'Mega' },
+    { value: 'SyariahMandiri', label: 'Syariah Mandiri' },
+    { value: 'Commonwealth', label: 'Commonwealth Bank' }
+  ];
+
   return (
-    <form className="grid grid-cols-1 md:grid-cols-2 gap-4"> 
-      {/* Bank and Account Info */}
+    <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Bank Selection */}
       <div>
-        <Label>Bank</Label>
-        <Select>
-          <SelectTrigger>
-            <SelectValue placeholder="Choose Bank" />
+        <Label htmlFor="bank-select">Bank</Label>
+        <Select
+          value={account_bank}
+          onValueChange={handleBankChange}
+          key={`account_bank-${account_bank}`}
+        >
+          <SelectTrigger id="bank-select">
+            <SelectValue placeholder="Choose Bank">
+              {bankOptions.find(option => option.value === account_bank)?.label || 'Choose Bank'}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="bca">BCA</SelectItem>
-            <SelectItem value="bni">BNI</SelectItem>
-            <SelectItem value="bri">BRI</SelectItem>
-            <SelectItem value="mandiri">Mandiri</SelectItem>
+            {bankOptions.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
       
+      {/* Account Name */}
       <div>
-        <Label>Account Holder Name</Label>
-        <Input placeholder="Enter account holder name" />
+        <Label htmlFor="account_name">Account Holder Name</Label>
+        <Input 
+          id="account_name"
+          value={account_name}
+          onChange={(e) => setAccountName(e.target.value)}
+          placeholder="Enter account holder name"
+          // required 
+        />
       </div>
 
+      {/* Account Number */}
       <div className='col-span-full'>
-        <Label>Account Number</Label>
-        <Input placeholder="Enter account number" />
+        <Label htmlFor="account_number">Account Number</Label>
+        <Input 
+          id='account_number'
+          value={account_number}
+          onChange={(e) => setAccountNumber(e.target.value)}
+          placeholder="Enter account number"
+          required 
+        />
       </div>
-
 
       {/* Form Buttons */}
-      <div className="col-span-full flex justify-end gap-2 mt-4">
-        <Button variant="outline" type="reset">
-          Cancel
+      <DialogFooter className="gap-2 sm:justify-end mt-4 col-span-full">
+        {onClose && ( 
+          <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
+            Cancel
+          </Button>
+        )}
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? 'Saving...' : 'Save'}
         </Button>
-        <Button type="submit">Add</Button>
-      </div>
+      </DialogFooter>
     </form>
   );
 }

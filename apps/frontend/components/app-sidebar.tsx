@@ -13,6 +13,7 @@ import {
   FileTextIcon,
   FolderIcon,
   GalleryVerticalEnd,
+  Mails,
   Headset,
   HelpCircleIcon,
   LayoutDashboardIcon,
@@ -21,6 +22,8 @@ import {
   SettingsIcon,
   BookMarked,
   UsersIcon,
+  UserCheck,
+  User
 } from 'lucide-react';
 
 import { NavMain } from '@/components/nav-main';
@@ -59,28 +62,44 @@ export function AppSidebar({ isAdmin = false, ...props }: { isAdmin?: boolean } 
       },
       ...(isAdmin
         ? [
-            {
-              title: 'Employee',
-              url: 'employeedatabase',
-              icon: UsersIcon,
-            },
-          ]
+          {
+            title: 'Employee',
+            url: 'employeedatabase',
+            icon: UsersIcon,
+          },
+        ]
         : []),
       {
         title: 'Checkclock',
         url: 'checkclock',
         icon: Clock4,
       },
+
+      {
+        title: 'Absence',
+        url: 'absence',
+        icon: UserCheck,
+      },
+
       {
         title: 'Letters',
         url: 'letters',
         icon: ClipboardList,
       },
+      // ...(isAdmin
+      //   ? [
+      //     {
+      //       title: 'Letter Types',
+      //       url: 'lettertypes',
+      //       icon: Mails,
+      //     },
+      //   ]
+      //   : []),
     ],
     navSecondary: [
       {
         title: 'Guidebook',
-        url: '#',
+        url: 'guidebook',
         icon: BookMarked,
       },
       {

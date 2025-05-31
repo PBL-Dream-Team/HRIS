@@ -80,4 +80,13 @@ export class SubscriptionService {
       };
     }
   }
+  async findFilters(filters: Record< string, any>){
+    const where: Record<string , any> = {}
+
+    for (const [key,value] of Object.entries(filters)){
+      where[key] = { equals: value};
+    }
+
+    return await this.prisma.subscription.findMany({where});
+  }
 }

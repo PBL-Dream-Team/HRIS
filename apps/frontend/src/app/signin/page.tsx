@@ -5,12 +5,12 @@ import Image from 'next/image';
 import api from '@/lib/axios';
 import { useState } from 'react';
 import type { FormEvent } from 'react';
-import { AlertDestructive } from '@/components/alert/error';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 
 export default function HrLoginPage() {
   const [checked, setChecked] = useState(false);
@@ -30,24 +30,28 @@ export default function HrLoginPage() {
         },
         { withCredentials: true },
       );
-
+      toast.success('Login successful!');
       router.push('/redirect');
     } catch (error) {
       console.error(error);
-      <AlertDestructive />;
+      toast.error('Login failed. Please check your credentials and try again.');
     }
   }
 
   return (
     <div className="flex min-h-screen">
       {/* Left Side - Image */}
-      <div className="hidden md:flex w-1/2 bg-blue-100 items-center justify-center">
-        <img
-          src="/signup-image.png"
-          alt="Signup"
-          className="object-cover h-full"
+      <div className="hidden md:flex w-1/2 bg-blue-600 items-center justify-center relative">
+        <Image
+          src="https://images.unsplash.com/photo-1606857521015-7f9fcf423740?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+          alt="Office"
+          fill
+          className="object-cover"
         />
+        {/* Overlay transparan biru */}
+        <div className="absolute inset-0 bg-[#1E3A5F] opacity-60 z-10" />
       </div>
+
 
       {/* Right Side - Form */}
       <div className="bg-white flex flex-col justify-center w-full md:w-1/2 p-8">
@@ -75,13 +79,13 @@ export default function HrLoginPage() {
           <form className="space-y-4" onSubmit={handleSubmit}>
             {/* Email */}
             <div className="space-y-2">
-              <Label htmlFor="input" className="text-blue-900">
-                Email or Phone Number
+              <Label htmlFor="input" className="text-[#1E3A5F]">
+                Email
               </Label>
               <Input
                 id="input"
                 type="email"
-                placeholder="Enter your email or phone number"
+                placeholder="Enter your email"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 className="text-gray-700 border-zinc-600"
@@ -142,18 +146,18 @@ export default function HrLoginPage() {
                 height={20}
                 className="object-contain"
               />
-              <span>Sign up with Google</span>
+              <span>Sign in with Google</span>
             </Button>
 
-                <Link href="/signin/employee" passHref>
-                    <Button
-                        type="button"
-                        variant="outline"
-                        className="w-full flex items-center justify-center gap-2"
-                    >
-                        Sign in with ID Employee
-                    </Button>
-                </Link>
+            <Link href="/signin/employee" passHref>
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full flex items-center justify-center gap-2"
+              >
+                Sign in as Employee
+              </Button>
+            </Link>
 
             <p className="text-center text-sm text-gray-600 mt-4">
               Don’t have an account yet?{' '}

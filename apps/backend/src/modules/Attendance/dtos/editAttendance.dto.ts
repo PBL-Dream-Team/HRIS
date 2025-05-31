@@ -2,6 +2,7 @@ import { IsEnum, IsLatitude, IsLongitude, IsNotEmpty, IsOptional, IsString, IsUU
 import { checkinstatus } from "./checkinstatus.enum";
 import { checkoutstatus } from "./checkoutstatus.enum";
 import { ApiPropertyOptional } from "@nestjs/swagger";
+import { attendanceapproval } from "./attendanceapproval.enum";
 
 export class editAttendanceDto {
     @ApiPropertyOptional()
@@ -15,16 +16,28 @@ export class editAttendanceDto {
     employee_id:string;
 
     @ApiPropertyOptional()
-    @Matches(/^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/, {
-        message: 'must be in HH:mm:ss format',
-    })
+    @IsUUID()
     @IsOptional()
-    check_in: string;
+    type_id:string;
+
+    @ApiPropertyOptional({example:"1970-01-01T08:57:24.123Z or 1970-01-01T08:57:24.123+07:00. Z for UTC +0 Zulu and +7 for Indonesia"})
+        @Matches(
+      /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}(Z|[+-]\d{2}:\d{2})$/,
+      {
+        message: 'Timestamp must be in ISO 8601 format (with Z or timezone offset)',
+      })
+    @IsOptional()
+    check_in: Date;
+
+    // @ApiPropertyOptional()
+    // @IsEnum(checkinstatus)
+    // @IsOptional()
+    // check_in_status: checkinstatus;
 
     @ApiPropertyOptional()
-    @IsEnum(checkinstatus)
+    @IsString()
     @IsOptional()
-    check_in_status: checkinstatus;
+    check_in_address: string;
 
     @ApiPropertyOptional()
     @IsLatitude()
@@ -36,26 +49,36 @@ export class editAttendanceDto {
     @IsOptional()
     check_in_long: number;
     
-    @ApiPropertyOptional()
-    @Matches(/^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/, {
-        message: 'must be in HH:mm:ss format',
-    })
+     @ApiPropertyOptional({example:"1970-01-01T08:57:24.123Z or 1970-01-01T08:57:24.123+07:00. Z for UTC +0 Zulu and +7 for Indonesia"})
+        @Matches(
+      /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}(Z|[+-]\d{2}:\d{2})$/,
+      {
+        message: 'Timestamp must be in ISO 8601 format (with Z or timezone offset)',
+      })
     @IsOptional()
     check_out: string;
 
-    @IsEnum(checkoutstatus)
-    @IsOptional()
-    check_out_status: checkoutstatus;
+    // @IsEnum(checkoutstatus)
+    // @IsOptional()
+    // check_out_status: checkoutstatus;
 
+    @ApiPropertyOptional()
+    @IsString()
+    @IsOptional()
+    check_out_address: string;
+
+    @ApiPropertyOptional()
     @IsLatitude()
     @IsOptional()
     check_out_lat: number;
     
+    @ApiPropertyOptional()
     @IsLongitude()
     @IsOptional()
     check_out_long: number;
 
-    @IsString()
+    @ApiPropertyOptional()
+    @IsEnum(attendanceapproval)
     @IsOptional()
-    workpict_dir: string;
+    approval: string;
 }

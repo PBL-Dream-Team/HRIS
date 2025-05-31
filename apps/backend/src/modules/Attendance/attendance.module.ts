@@ -3,7 +3,7 @@ import { AttendanceService } from "./attendance.service";
 import { AttendanceController } from "./attendance.controller";
 
 @Module({
-    providers:[],
-    controllers:[]
+    providers:[AttendanceService],
+    controllers:[AttendanceController]
 })
 export class AttendanceModule {}

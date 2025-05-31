@@ -5,6 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Bell } from 'lucide-react';
 import { NavUser } from '@/components/nav-user';
 import { Separator } from '@/components/ui/separator';
+import { useEffect, useState } from 'react';
+import api from '@/lib/axios';
 
 import EmployeeInformation from '@/components/dashboard-admin/EmployeeInformation';
 import EmployeeStatisticsCard from '@/components/dashboard-admin/EmployeeStatisticsCard';
@@ -46,12 +48,91 @@ const data = {
 
 type DashboardClientProps = {
   isAdmin: boolean;
+  userId: string;
+  companyId: string;
 };
 
-export default function DashboardClient({ isAdmin }: DashboardClientProps) {
+export default function DashboardClient({
+  isAdmin,
+  userId,
+  companyId,
+}: DashboardClientProps) {
+  const [user, setUser] = useState({
+    name: '',
+    email: '',
+    avatar: '',
+  });
+
+  useEffect(() => {
+    async function fetchUser() {
+      try {
+        const res = await api.get(`/api/employee/${userId}`);
+        const { first_name, last_name, email, pict_dir } = res.data.data;
+
+        setUser({
+          name: `${first_name} ${last_name}`,
+          email: email,
+          avatar: pict_dir || '/avatars/default.jpg',
+        });
+      } catch (err: any) {
+        console.error(
+          'Error fetching user:',
+          err.response?.data || err.message,
+        );
+      }
+    }
+
+    fetchUser();
+  }, [userId]);
+
+  const [employeeCount, setEmployeeCount] = useState<number>(0);
+
+  useEffect(() => {
+    async function fetchEmployeeCount() {
+      try {
+        const res = await api.get(`/api/employee/count/${companyId}`);
+        setEmployeeCount(res.data.total);
+      } catch (err: any) {
+        console.error('Error fetching employee count:', err.response?.data || err.message);
+      }
+    }
+
+    fetchEmployeeCount();
+  }, [companyId]);
+
+  const [employeeStatusData, setEmployeeStatusData] = useState<
+    { name: string; total: number; color: string }[]
+  >([]);
+
+  useEffect(() => {
+    async function fetchEmployeeStatus() {
+      try {
+        const res = await api.get(`/api/employee/status-count/${companyId}`);
+        const data = res.data;
+
+        const colorMap: Record<string, string> = {
+          PERMANENT: '#257047',
+          CONTRACT : '#FFAB00',
+          INTERN: '#2D8EFF',
+        };
+
+        const formatted = data.map((item: any) => ({
+          ...item,
+          color: colorMap[item.name] || '#8884d8',
+        }));
+
+        setEmployeeStatusData(formatted);
+      } catch (err: any) {
+        console.error('Error fetching employee status:', err.response?.data || err.message);
+      }
+    }
+
+    fetchEmployeeStatus();
+  }, [companyId]);
+
   return (
     <SidebarProvider>
-      <AppSidebar isAdmin={isAdmin}/>
+      <AppSidebar isAdmin={isAdmin} />
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center justify-between px-4 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
           <div className="flex items-center gap-2">
@@ -70,12 +151,6 @@ export default function DashboardClient({ isAdmin }: DashboardClientProps) {
           </div>
 
           <div className="flex items-center gap-4">
-            {/* Search */}
-            <div className="relative w-80 hidden lg:block">
-              <IoMdSearch className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-500" />
-              <Input type="search" placeholder="Search" className="pl-10" />
-            </div>
-
             {/* Notification */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -103,16 +178,16 @@ export default function DashboardClient({ isAdmin }: DashboardClientProps) {
             </DropdownMenu>
 
             {/* Nav-user */}
-            <NavUser user={data.user} isAdmin={isAdmin} />
+            <NavUser user={user} isAdmin={isAdmin} />
           </div>
         </header>
 
         {/* Content */}
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-          <EmployeeInformation />
-          <div className="grid auto-rows-min gap-4 md:grid-cols-2 sm:grid-cols-2">
+          <EmployeeInformation totalEmployees={employeeCount} />
+          <div className="grid auto-rows-min gap-4 md:grid-cols-2 sm:grid-cols-1">
             <EmployeeStatisticsCard />
-            <EmployeeStatusCard />
+            <EmployeeStatusCard data={employeeStatusData} />
             <AttendanceOverviewCard />
             <AttendanceTableCard />
           </div>
