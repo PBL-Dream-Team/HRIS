@@ -30,13 +30,14 @@ export class PaymentService{
           const newStart = new Date(transactionData.paidAt);
           const newEnd = new Date(newStart);
           newEnd.setDate(newStart.getDate() + subs.day_length);
+          const new_emp = subs.max_employee ? subs.max_employee : (transac.total / (subs.price_per_employee * (100) / 100))  ;
 
 
           await this.prisma.company.update({
             data:{
                 subs_date_start: newStart.toISOString(),
                 subs_date_end: newEnd.toISOString(),
-                max_employee: subs.max_employee
+                max_employee: new_emp
             },
             where:{
                 id:company.id
@@ -44,15 +45,18 @@ export class PaymentService{
           })
 
           return {
-
+            success: true
           }
         }
         return {
-
+          success: false
         }
       }
       catch(error){
-
+        return {
+          success: false,
+          message: error.message
+        }
       }
   }
 }

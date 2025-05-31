@@ -356,6 +356,7 @@ model Transaction {
   
 
   total Int @db.Integer
+  taxRate Decimal @db.Decimal(5,2) @default(10.00)
 
   created_at DateTime @db.Timestamptz() @default(now())
   updated_at DateTime @db.Timestamptz() @updatedAt
