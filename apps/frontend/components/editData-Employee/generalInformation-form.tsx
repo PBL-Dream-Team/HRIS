@@ -23,7 +23,6 @@ type Gender = 'M' | 'F';
 type EducationType = 'HIGH_SCHOOL' | 'BACHELOR' | 'MASTER' | 'DOCTOR';
 
 type EmployeeEditGeneralDataFormProps = {
-  mode: 'edit';
   companyId: string;
   employeeId: string;
   initialData?: {

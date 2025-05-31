@@ -2,63 +2,63 @@
 import { useState } from 'react'
 import { Check, X } from 'lucide-react'
 
-import { 
+import {
   Card,
   CardHeader,
   CardContent,
   CardTitle,
   CardDescription,
 } from '@/components/ui/card';
+import { useRouter } from 'next/navigation'
 
 import { Button } from '@/components/ui/button'
 
+// List fitur
+const featureLabels = ['Employee Management', 'Checkclock', 'Absence', 'Letter'];
+
 const singlePayment = [
-    {
-        title: 'Silver',
-        description: 'An ideal package for startups and small businesses looking to digitize their HR management with essential yet powerful features.',
-        price: 'Rp. 100.000',
-        range: '25 Employee',
-        features: [
-        true, true, true, true, true,
-        true, true, false, false, false,
-        ],
-    },
-    {
-        title: 'Gold',
-        description: 'Perfect for growing businesses that require more flexibility and additional advanced features to manage their workforce efficiently.',
-        price: 'Rp. 100.000',
-        range: '50 Employee',
-        features: [
-        true, true, true, true, true,
-        true, false, false, false, false,
-        ],
-    },
-    {
-        title: 'Diamond',
-        description: 'The best choice for medium to large enterprises aiming for maximum efficiency and full utilization of HRIS capabilities.',
-        price: 'Rp. 100.000',
-        range: '100 Employee',
-        features: [
-        true, true, true, true, true,
-        false, false, false, false, false,
-        ],
-    },
+  {
+    title: 'Silver',
+    description: 'An ideal package for startups and small businesses looking to digitize their HR management with essential yet powerful features.',
+    price: 'Rp. 25.000',
+    range: '25 Employee',
+    features: [true, true, true, true],
+  },
+  {
+    title: 'Gold',
+    description: 'Perfect for growing businesses that require more flexibility and additional advanced features to manage their workforce efficiently.',
+    price: 'Rp. 50.000',
+    range: '50 Employee',
+    features: [true, true, true, true],
+  },
+  {
+    title: 'Diamond',
+    description: 'The best choice for medium to large enterprises aiming for maximum efficiency and full utilization of HRIS capabilities.',
+    price: 'Rp. 100.000',
+    range: '100 Employee',
+    features: [true, true, true, true],
+  },
 ]
 
-const payAsYouGo = [
-    {
-        title: 'Pay As You Go',
-        description: 'Ideal for small teams or short-term projects, this plan allows you to pay only for the users you need.',
-        price: 'Rp. 100.000',
-        features: [
-        true, true, true, true, true,
-        false, false, false, false, false,
-        ],
-    },
-]
+const baseEmployeePrice = 2000;
 
 export default function PricingPage() {
-  const [activeTab, setActiveTab] = useState<'singlePayment' | 'payAsYouGo'>('singlePayment')
+  const router = useRouter();
+  const [activeTab, setActiveTab] = useState<'singlePayment' | 'payAsYouGo'>('singlePayment');
+  const [employeeCount, setEmployeeCount] = useState(1);
+
+  const payAsYouGo = [
+    {
+      title: 'Pay As You Go',
+      description: 'Ideal for small teams or short-term projects, this plan allows you to pay only for the users you need.',
+      price: employeeCount * baseEmployeePrice,
+      features: [true, true, true, true],
+    },
+  ];
+
+  const handleEmployeeChange = (delta: number) => {
+    setEmployeeCount((prev) => Math.max(1, prev + delta));
+  }
 
   return (
     <div className="max-w-6xl mx-auto py-12 px-4 bg-white">
@@ -92,25 +92,27 @@ export default function PricingPage() {
                 <p className="text-black text-sm mt-1">This Package Include {plan.range}</p>
                 <p className="text-black text-2xl font-bold mt-2">{plan.price} <span className="text-sm font-normal">/user/28 days</span></p>
                 <CardDescription>{plan.description}</CardDescription>
-                <Button className='w-full mt-4'>
+                <Button
+                  className='w-full mt-4'
+                  onClick={() => {
+                    // Untuk Single Payment
+                    router.push(`/payment?title=${plan.title}&price=${plan.price}&range=${plan.range}&type=single`)
+                  }}
+                >
                   Get Started
                 </Button>
-              <hr className="my-2" />
+                <hr className="my-2" />
               </CardHeader>
               <CardContent>
-                  <CardTitle className='text-lg mb-2'>Feature</CardTitle>
-                  <ul className="space-y-1 text-black text-sm">
-                    {plan.features.map((enabled, i) => (
-                      <li key={i} className="flex gap-2 items-center">
-                        {enabled ? (
-                          <Check className="text-[#257047] w-4 h-4" />
-                        ) : (
-                          <X className="text-[#C11106] w-4 h-4" />
-                        )}
-                        <span>Fitur {i + 1}</span>
-                      </li>
-                    ))}
-                  </ul>
+                <CardTitle className='text-lg mb-2'>Feature</CardTitle>
+                <ul className="space-y-1 text-black text-sm">
+                  {featureLabels.map((label, i) => (
+                    <li key={i} className="flex gap-2 items-center">
+                      <Check className="text-[#257047] w-4 h-4" />
+                      <span>{label}</span>
+                    </li>
+                  ))}
+                </ul>
               </CardContent>
             </Card>
           ))}
@@ -121,28 +123,52 @@ export default function PricingPage() {
             <Card key={idx} className="border rounded-lg p-0 max-w-md mx-auto">
               <CardHeader className='pb-0'>
                 <CardTitle className='text-xl'>{plan.title}</CardTitle>
-                <p className="text-black text-sm mt-1">You can choose how many employee that you needed</p>
-                <p className="text-black text-2xl font-bold mt-2">{plan.price} <span className="text-sm font-normal">/user/28 days</span></p>
+                <p className="text-black text-sm mt-1">You can choose how many employees you need</p>
+
+                {/* Kalkulator Jumlah Karyawan */}
+                <div className="flex items-center mt-3 space-x-2">
+                  <Button size="sm" onClick={() => handleEmployeeChange(-1)}>-</Button>
+
+                  <input
+                    type="number"
+                    min={1}
+                    value={employeeCount}
+                    onChange={(e) => {
+                      const value = parseInt(e.target.value, 10);
+                      if (!isNaN(value) && value >= 1) {
+                        setEmployeeCount(value);
+                      }
+                    }}
+                    className="w-16 text-center border rounded px-2 py-1"
+                  />
+
+                  <Button size="sm" onClick={() => handleEmployeeChange(1)}>+</Button>
+                </div>
+
+
+                <p className="text-black text-2xl font-bold mt-2">Rp. {plan.price.toLocaleString()} <span className="text-sm font-normal">/28 days</span></p>
                 <CardDescription>{plan.description}</CardDescription>
-                <Button className='w-full mt-4'>
+                <Button
+                  className='w-full mt-4'
+                  onClick={() => {
+                    // Untuk Pay As You Go
+                    router.push(`/payment?title=${plan.title}&price=${baseEmployeePrice}&range=${employeeCount}&type=payg`)
+                  }}
+                >
                   Get Started
                 </Button>
-              <hr className="my-2" />
+                <hr className="my-2" />
               </CardHeader>
               <CardContent>
-                  <CardTitle className='text-lg mb-2'>Feature</CardTitle>
-                  <ul className="space-y-1 text-black text-sm">
-                    {plan.features.map((enabled, i) => (
-                      <li key={i} className="flex gap-2 items-center">
-                        {enabled ? (
-                          <Check className="text-[#257047] w-4 h-4" />
-                        ) : (
-                          <X className="text-[#C11106] w-4 h-4" />
-                        )}
-                        <span>Fitur {i + 1}</span>
-                      </li>
-                    ))}
-                  </ul>
+                <CardTitle className='text-lg mb-2'>Feature</CardTitle>
+                <ul className="space-y-1 text-black text-sm">
+                  {featureLabels.map((label, i) => (
+                    <li key={i} className="flex gap-2 items-center">
+                      <Check className="text-[#257047] w-4 h-4" />
+                      <span>{label}</span>
+                    </li>
+                  ))}
+                </ul>
               </CardContent>
             </Card>
           ))}

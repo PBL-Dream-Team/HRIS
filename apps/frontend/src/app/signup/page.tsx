@@ -28,6 +28,7 @@ export default function HrSignUpPage() {
     first_name: '',
     last_name: '',
     email: '',
+    phone: '',
     password: '',
     confirmPassword: '',
   });
@@ -48,6 +49,7 @@ export default function HrSignUpPage() {
         name: formData.name,
         first_name: formData.first_name,
         last_name: formData.last_name,
+        phone: formData.phone,
         email: formData.email,
         password: formData.password,
       });
@@ -148,6 +150,21 @@ export default function HrSignUpPage() {
                 onChange={handleChange}
                 type="email"
                 placeholder="Enter your email address"
+                className="text-gray-700 border-zinc-600"
+              />
+            </div>
+
+            {/* Phone */}
+            <div className="w-full">
+              <Label htmlFor="phone" className="text-[#1E3A5F] mb-2">
+                Phone Number
+              </Label>
+              <Input
+                id="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                type="tel"
+                placeholder="Enter your phone number"
                 className="text-gray-700 border-zinc-600"
               />
             </div>

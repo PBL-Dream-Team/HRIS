@@ -7,7 +7,7 @@ import {
   useMap,
   useMapEvents,
 } from 'react-leaflet';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import L from 'leaflet';
 
 const markerIcon = new L.Icon({
@@ -31,19 +31,18 @@ export default function LeafletMap({
   const [mapCenter, setMapCenter] = useState<[number, number]>(
     initialPosition ? [initialPosition.lat, initialPosition.lng] : [-6.2, 106.8]
   );
+  
+  // Flag untuk mencegah auto-centering setelah user klik
+  const hasUserInteracted = useRef(false);
+  const isInitialized = useRef(false);
 
   const LocationMarker = () => {
     const map = useMap();
 
-    useEffect(() => {
-      if (position) {
-        map.setView([position.lat, position.lng], 15);
-      }
-    }, [position, map]);
-
     useMapEvents({
       click(e) {
         const { lat, lng } = e.latlng;
+        hasUserInteracted.current = true; // Set flag bahwa user sudah berinteraksi
         setPosition({ lat, lng });
 
         // Fetch address from coordinates
@@ -62,11 +61,24 @@ export default function LeafletMap({
       },
     });
 
+    // Hanya auto-center jika user belum berinteraksi dan ini adalah inisialisasi pertama
+    useEffect(() => {
+      if (position && !hasUserInteracted.current && !isInitialized.current) {
+        map.setView([position.lat, position.lng], 15);
+        isInitialized.current = true;
+      }
+    }, [position, map]);
+
     return position ? <Marker position={position} icon={markerIcon} /> : null;
   };
 
   // Effect untuk menginisialisasi posisi
   useEffect(() => {
+    // Jika sudah diinisialisasi, jangan lakukan apapun
+    if (isInitialized.current) {
+      return;
+    }
+
     // Jika ada initialPosition, set posisi dan panggil onLocationSelect
     if (initialPosition) {
       setPosition(initialPosition);
@@ -120,7 +132,7 @@ export default function LeafletMap({
         if (onLoad) onLoad();
       }
     }
-  }, [initialPosition, onLocationSelect, onLoad]);
+  }, []); // Hapus dependency initialPosition, onLocationSelect, onLoad
 
   return (
     <MapContainer
