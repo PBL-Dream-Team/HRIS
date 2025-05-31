@@ -1,16 +1,13 @@
 import { validateAccess } from '@/lib/validateAccess';
 import CheckClockClient from './client';
 
-interface PageProps {
-  params: {
-    id: string;
-  };
-}
+export default async function Page(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+  const id = params.id;
 
-export default async function Page({ params }: PageProps) {
   const { sub, is_admin, company_id } = await validateAccess({
     requireAdmin: false,
-    currentPathId: params.id,
+    currentPathId: id,
     section: 'checkclock',
   });
 

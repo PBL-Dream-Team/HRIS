@@ -1,18 +1,19 @@
 import { validateAccess } from '@/lib/validateAccess';
 import SubscriptionEndedClient from './client';
 
-interface PageProps {
-  params: {
-    id: string;
-  };
-}
+export default async function Page(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
+  const id = params.id;
 
-export default async function Page({ params }: PageProps) {
   const { is_admin } = await validateAccess({
     requireAdmin: false,
-    currentPathId: params.id,
-    section: 'subscriptionended',
+    currentPathId: id,
+    section: 'letters',
   });
 
-  return <SubscriptionEndedClient isAdmin={is_admin} />;
+  return (
+    <SubscriptionEndedClient
+      isAdmin={is_admin}
+    />
+  );
 }
