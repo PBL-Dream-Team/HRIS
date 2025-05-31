@@ -52,7 +52,6 @@ async function main(){
             max_employee: 10,
             subs_date_start: "2025-05-29T14:25:30.123+08:00",
             subs_date_end:"2025-06-12T14:25:30.123+08:00",
-            status: "ACTIVE",
             loc_lat: -7.946270,
             loc_long: 112.619786,
             address: "Jalan Pinangsia, Jatimulyo, Malang, Kota Malang, East Java, Java, 65113, Indonesia"

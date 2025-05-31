@@ -22,8 +22,8 @@ model Subscription {
   type SubscriptionType
   day_length Int @db.Integer
 
-  created_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
-  updated_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
+  created_at DateTime @db.Timestamptz() @default(now())
+  updated_at DateTime @db.Timestamptz() @updatedAt
   deleted_at DateTime? @db.Timestamptz() 
   is_deleted Boolean @db.Boolean @default(false) 
 
@@ -51,10 +51,9 @@ model Company {
   max_employee Int @db.Integer
   subs_date_start DateTime @db.Timestamptz()
   subs_date_end DateTime @db.Timestamptz()
-  status CompanySubscriptionStatus
 
-  created_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
-  updated_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
+  created_at DateTime @db.Timestamptz() @default(now())
+  updated_at DateTime @db.Timestamptz() @updatedAt
   deleted_at DateTime? @db.Timestamptz() 
   is_deleted Boolean @db.Boolean @default(false) 
 
@@ -68,11 +67,6 @@ model Company {
 
 
   @@map("Company")
-}
-
-enum CompanySubscriptionStatus {
-  ACTIVE
-  INACTIVE
 }
 
 model Employee {
@@ -127,8 +121,8 @@ model Employee {
   access_token String? @db.Text @unique
   refresh_token String? @db.Text @unique
 
-  created_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
-  updated_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
+  created_at DateTime @db.Timestamptz() @default(now())
+  updated_at DateTime @db.Timestamptz() @updatedAt
   deleted_at DateTime? @db.Timestamptz() 
   is_deleted Boolean @db.Boolean @default(false)
 
@@ -194,10 +188,8 @@ model LetterType{
   company_id String @db.Uuid
   company Company @relation(fields: [company_id],references: [id])
 
-  created_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
-  updated_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
-  deleted_at DateTime? @db.Timestamptz() 
-  is_deleted Boolean @db.Boolean @default(false)
+  created_at DateTime @db.Timestamptz() @default(now())
+  updated_at DateTime @db.Timestamptz() @updatedAt
 
   letters Letter[]
 
@@ -247,8 +239,8 @@ model AttendanceType {
   workspace_long Float? @db.DoublePrecision
   workspace_lat Float? @db.DoublePrecision
 
-  created_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
-  updated_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
+  created_at DateTime @db.Timestamptz() @default(now())
+  updated_at DateTime @db.Timestamptz() @updatedAt
   deleted_at DateTime? @db.Timestamptz() 
   is_deleted Boolean @db.Boolean @default(false)
 
@@ -284,8 +276,8 @@ model Attendance {
 
   approval AttendanceApproval @default(APPROVED)
 
-  created_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
-  updated_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
+  created_at DateTime @db.Timestamptz() @default(now())
+  updated_at DateTime @db.Timestamptz() @updatedAt
   deleted_at DateTime? @db.Timestamptz() 
   is_deleted Boolean @db.Boolean @default(false)
 
@@ -326,8 +318,8 @@ model AbsenceLeave {
 
   filedir String?
 
-  created_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
-  updated_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
+  created_at DateTime @db.Timestamptz() @default(now())
+  updated_at DateTime @db.Timestamptz() @updatedAt
   deleted_at DateTime? @db.Timestamptz() 
   is_deleted Boolean @db.Boolean @default(false)
 }
@@ -365,8 +357,8 @@ model Transaction {
 
   total Int @db.Integer
 
-  created_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
-  updated_at DateTime @db.Timestamptz() @default(dbgenerated("CURRENT_TIMESTAMP"))
+  created_at DateTime @db.Timestamptz() @default(now())
+  updated_at DateTime @db.Timestamptz() @updatedAt
   deleted_at DateTime? @db.Timestamptz() 
   is_deleted Boolean @db.Boolean @default(false)
 }
@@ -374,7 +366,6 @@ model Transaction {
 enum TransactionStatus{
   PAID
   UNPAID
-  EXPIRED
 }
 
 model PasswordReset {

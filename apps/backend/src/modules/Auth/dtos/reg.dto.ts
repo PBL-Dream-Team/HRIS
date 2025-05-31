@@ -1,6 +1,5 @@
-import { IsDate, IsDateString, IsEmail, IsEnum, IsInt, IsISO8601, IsLatitude, IsLongitude, IsNotEmpty, IsOptional, IsPositive, IsString, IsUUID, Matches } from "@nestjs/class-validator";
+import { IsEmail, IsNotEmpty, IsNumberString, IsString} from "@nestjs/class-validator";
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import { CompanySubscriptionStatus } from "@prisma/client";
 
 export class RegDto{
     // Company Fields
@@ -25,4 +24,7 @@ export class RegDto{
     @IsNotEmpty()
     password:string;
 
+    @IsNumberString()
+    @IsNotEmpty()
+    phone: string;
 }

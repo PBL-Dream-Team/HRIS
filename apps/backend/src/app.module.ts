@@ -15,6 +15,7 @@ import { AuthModule } from './modules/Auth/auth.module';
 import { TransactionModule } from './modules/Company/transaction.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
+import { PaymentModule } from './modules/Company/payment.module';
 
 @Module({
   imports: [
@@ -54,6 +55,7 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
     LetterTypeModule,
     AuthModule,
     TransactionModule,
+    PaymentModule
   ],
 })
 export class AppModule {}
