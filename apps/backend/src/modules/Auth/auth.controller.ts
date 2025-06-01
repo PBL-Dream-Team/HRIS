@@ -117,7 +117,7 @@ export class AuthController {
   }
 
   @HttpCode(HttpStatus.OK)
-  @Post('signin/google')
+  @Post('google')
   async googleSignin(
     @Body() dto: GoogleDto,
     @Res({ passthrough: true }) res: Response,

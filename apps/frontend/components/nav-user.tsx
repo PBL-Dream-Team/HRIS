@@ -2,10 +2,8 @@
 
 import {
   CircleUserRound,
-  Bell,
   CreditCard,
   LogOut,
-  Sparkles,
 } from 'lucide-react';
 
 import { useRouter } from 'next/navigation';
