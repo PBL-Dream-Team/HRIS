@@ -3,13 +3,12 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Bell, Eye, X, Check } from 'lucide-react';
-import { IoMdAdd, IoMdSearch } from 'react-icons/io';
+import { IoMdSearch } from 'react-icons/io';
 import { VscSettings } from 'react-icons/vsc';
 
 import api from '@/lib/axios';
 import { AppSidebar } from '@/components/app-sidebar';
 import { NavUser } from '@/components/nav-user';
-import { AbsenceForm } from '@/components/absence-form';
 import PaginationFooter from '@/components/pagination';
 
 import {
@@ -24,13 +23,6 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from '@/components/ui/sidebar';
-import {
-  Dialog,
-  DialogTrigger,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -50,7 +42,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import AbsenceDetails from '@/components/absence-details';
+import AbsenceDetails from '@/components/absence/absence-details';
 
 type Absence = {
   id: string;

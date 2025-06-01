@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
-import SetNewPasswordForm from '@/components/set-password';
+import SetNewPasswordForm from '@/components/forgotpassword/set-password';
 import api from '@/lib/axios';
 import { Loader } from 'lucide-react';
-import LinkExpired from '@/components/link-expired';
+import LinkExpired from '@/components/forgotpassword/link-expired';
 
 export default function ResetPasswordPage() {
   const [status, setStatus] = useState<'checking' | 'valid' | 'invalid'>(

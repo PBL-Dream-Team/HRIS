@@ -4,7 +4,7 @@ import { AppSidebar } from '@/components/app-sidebar';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import EmployeeInformation from '@/components/employee-information';
+import EmployeeInformation from '@/components/employeedatabase/employee-information';
 
 import {
   Breadcrumb,
@@ -58,9 +58,9 @@ import { VscSettings } from 'react-icons/vsc';
 import { IoMdSearch } from 'react-icons/io';
 import { BiImport, BiExport } from 'react-icons/bi';
 
-import { EmployeeForm } from '@/components/employee-form';
+import { EmployeeForm } from '@/components/employeedatabase/employee-form';
 import PaginationFooter from '@/components/pagination';
-import EmployeeDetails from '@/components/employee-details';
+import EmployeeDetails from '@/components/employeedatabase/employee-details';
 import api from '@/lib/axios';
 import { useEffect } from 'react';
 

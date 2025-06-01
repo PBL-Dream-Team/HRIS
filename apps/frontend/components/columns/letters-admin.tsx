@@ -9,7 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { LetterForm } from '@/components/letter-form';
+import { LetterForm } from '@/components/letter/letter-form';
 import { parse } from 'date-fns';
 import { id } from 'date-fns/locale';
 

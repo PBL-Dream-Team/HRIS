@@ -3,7 +3,7 @@
 import { AppSidebar } from '@/components/app-sidebar';
 import { useState } from 'react';
 
-import EmployeeInformation from '@/components/employee-information';
+import EmployeeInformation from '@/components/employeedatabase/employee-information';
 
 import {
   Breadcrumb,

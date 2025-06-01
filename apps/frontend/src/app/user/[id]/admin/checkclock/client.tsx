@@ -30,8 +30,8 @@ import { Bell, Check, Eye, X } from 'lucide-react';
 import { NavUser } from '@/components/nav-user';
 import PaginationFooter from '@/components/pagination';
 import { Button } from '@/components/ui/button';
-import { CheckClockForm } from '@/components/checkclock-form';
-import CheckClockDetails from '@/components/checkclock-details';
+import { CheckClockForm } from '@/components/checkclock/checkclock-form';
+import CheckClockDetails from '@/components/checkclock/checkclock-details';
 import { WorkshemeForm } from '@/components/workscheme/workscheme-form';
 import { WorkschemeOverviewContent } from '@/components/workscheme/workscheme-overview';
 

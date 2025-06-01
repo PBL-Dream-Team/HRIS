@@ -18,7 +18,7 @@ import {
 import { DataTable } from '@/components/data-table';
 import { NavUser } from '@/components/nav-user';
 
-import LetterDetails from '@/components/letter-details';
+import LetterDetails from '@/components/letter/letter-details';
 import { useEffect } from 'react';
 import api from '@/lib/axios';
 

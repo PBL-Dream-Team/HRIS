@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
 import api from '@/lib/axios';
 import { toast } from 'sonner';
-import ResetSuccess from '@/components/reset-success';
+import ResetSuccess from '@/components/forgotpassword/reset-success';
 import Image from 'next/image';
 
 export default function SetNewPasswordForm({ token }: { token: string }) {

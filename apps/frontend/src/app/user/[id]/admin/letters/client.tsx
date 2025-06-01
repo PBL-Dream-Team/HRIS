@@ -31,9 +31,9 @@ import { Button } from '@/components/ui/button';
 
 // Custom Components
 import { NavUser } from '@/components/nav-user';
-import { LetterForm } from '@/components/letter-form';
+import { LetterForm } from '@/components/letter/letter-form';
 import { LetterTypeForm } from '@/components/lettertype-form';
-import LetterDetails from '@/components/letter-details';
+import LetterDetails from '@/components/letter/letter-details';
 import { LetterTypesOverviewContent } from '@/components/lettertype-overview';
 import { letterColumns, Letter } from '@/components/columns/letters-admin';
 

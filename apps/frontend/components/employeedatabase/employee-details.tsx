@@ -7,8 +7,6 @@ import {
   SheetTitle,
 } from '@/components/ui/sheet';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Eye, DownloadIcon } from 'lucide-react';
-import { on } from 'events';
 
 type Employee = {
   id: string;

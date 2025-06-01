@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { MdImage } from 'react-icons/md';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -13,12 +14,12 @@ import {
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { DialogFooter } from '@/components/ui/dialog';
-import api from '@/lib/axios'; // assuming you have axios instance here
+import api from '@/lib/axios';
 
 interface AbsenceFormProps {
   employeeId: string;
   companyId: string;
-  onSuccess?: () => void; // optional callback after successful submit
+  onSuccess?: () => void;
 }
 
 export function AbsenceForm({
@@ -58,36 +59,49 @@ export function AbsenceForm({
     setLoading(true);
 
     try {
-      // Build the POST body matching your API sample
-      const postData = {
-        company_id: companyId,
-        employee_id: employeeId,
-        date: new Date(date).toISOString(), // Convert date input to ISO string
-        type: absentType.toUpperCase(), // Uppercase to match API ("SICK")
-        reason, // Optional, depends on your API, remove if not needed
-        // file upload is ignored here, add multipart/form-data if needed
-      };
+      const formData = new FormData();
+      formData.append('company_id', companyId);
+      formData.append('employee_id', employeeId);
+      formData.append('date', new Date(date).toISOString());
+      formData.append('type', absentType.toUpperCase());
+      if (reason) formData.append('reason', reason);
+      if (file) formData.append('file', file);
 
-      await api.post('/api/absence', postData);
+      await api.post('/api/absence', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
 
-      setLoading(false);
       setAbsentType('');
       setDate('');
       setReason('');
       setFile(null);
       setPreviewUrl(null);
-
       if (onSuccess) onSuccess();
-    } catch (err: any) {
+    } catch (err: unknown) {
+      if (
+        err &&
+        typeof err === 'object' &&
+        'response' in err &&
+        (err as any).response?.data?.message
+      ) {
+        setError((err as any).response.data.message);
+      } else {
+        setError('Failed to submit absence');
+      }
+    } finally {
       setLoading(false);
-      setError(err.response?.data?.message || 'Failed to submit absence');
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="w-full max-w-4xl mx-auto p-4">
+    <form
+      onSubmit={(e) => {
+        void handleSubmit(e);
+      }}
+      className="w-full max-w-4xl mx-auto p-4"
+    >
       <div className="flex flex-col md:flex-row gap-6">
-        {/* Left Column: Form Fields */}
+        {/* Left Column */}
         <div className="flex-1 space-y-4">
           <div>
             <Label htmlFor="absentType">Absent Type</Label>
@@ -125,15 +139,17 @@ export function AbsenceForm({
           </div>
         </div>
 
-        {/* Right Column: Upload Picture */}
+        {/* Right Column */}
         <div className="flex-1 space-y-2">
           <Label htmlFor="letterPicture">Upload Evidence Picture</Label>
-          <div className="relative w-full aspect-[8/5] border rounded-lg shadow-sm flex items-center justify-center hover:bg-gray-100 transition cursor-pointer">
+          <div className="relative w-full aspect-[8/5] border rounded-lg shadow-sm flex items-center justify-center hover:bg-gray-100 transition cursor-pointer overflow-hidden">
             {previewUrl ? (
-              <img
+              <Image
                 src={previewUrl}
                 alt="Preview"
-                className="w-full h-full object-cover rounded-lg"
+                fill
+                unoptimized
+                className="object-cover rounded-lg"
               />
             ) : (
               <span className="flex flex-col items-center justify-center text-black text-sm">
@@ -154,7 +170,6 @@ export function AbsenceForm({
 
       {error && <p className="text-red-600 mt-2">{error}</p>}
 
-      {/* Submit Button */}
       <DialogFooter className="mt-6 sm:justify-end">
         <Button type="submit" className="w-full sm:w-24" disabled={loading}>
           {loading ? 'Submitting...' : 'Submit'}

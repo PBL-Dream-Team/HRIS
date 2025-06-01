@@ -1,11 +1,7 @@
 'use client';
 
-import Link from 'next/link';
 import Image from 'next/image';
-import { Button } from '@/components/ui/button';
-// import { FiMail } from "react-icons/fi";
-import { LuMailX } from 'react-icons/lu';
-import { ForgotPwrdEmailForm } from '@/components/forgotpwrd-askemail';
+import { ForgotPwrdEmailForm } from '@/components/forgotpassword/forgotpwrd-askemail';
 
 export default function ForgotPassword() {
   return (

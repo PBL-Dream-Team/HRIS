@@ -2,38 +2,20 @@
 
 import * as React from 'react';
 import {
-  ArrowUpCircleIcon,
-  BarChartIcon,
-  CameraIcon,
   ClipboardList,
   Clock4,
-  DatabaseIcon,
-  FileCodeIcon,
-  FileIcon,
-  FileTextIcon,
-  FolderIcon,
-  GalleryVerticalEnd,
-  Mails,
   Headset,
-  HelpCircleIcon,
   LayoutDashboardIcon,
-  ListIcon,
-  SearchIcon,
-  SettingsIcon,
   BookMarked,
   UsersIcon,
   UserCheck,
-  User,
 } from 'lucide-react';
 
 import { NavMain } from '@/components/nav-main';
-import { NavProjects } from '@/components/nav-projects';
-import { NavUser } from '@/components/nav-user';
 import { TeamSwitcher } from '@/components/team-switcher';
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarHeader,
   SidebarRail,
 } from '@/components/ui/sidebar';

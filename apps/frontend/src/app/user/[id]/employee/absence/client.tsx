@@ -9,7 +9,7 @@ import { VscSettings } from 'react-icons/vsc';
 import api from '@/lib/axios';
 import { AppSidebar } from '@/components/app-sidebar';
 import { NavUser } from '@/components/nav-user';
-import { AbsenceForm } from '@/components/absence-form';
+import { AbsenceForm } from '@/components/absence/absence-form';
 import PaginationFooter from '@/components/pagination';
 
 import {
@@ -50,7 +50,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import AbsenceDetails from '@/components/absence-details';
+import AbsenceDetails from '@/components/absence/absence-details';
 
 type Absence = {
   id: string;

@@ -1,27 +1,41 @@
 'use client';
 
+import { useState } from 'react';
+import Image from 'next/image';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Upload, Eye, EyeOff } from 'lucide-react';
-import { useState } from 'react';
 
 export function AdminForm() {
   const [avatar, setAvatar] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setAvatar(file);
+      setPreviewUrl(URL.createObjectURL(file));
+    }
+  };
 
   return (
     <form className="grid grid-cols-1 md:grid-cols-2 gap-4">
       {/* Avatar Upload */}
       <div className="col-span-full flex items-center gap-4">
         <label htmlFor="avatar-upload" className="cursor-pointer">
-          {avatar ? (
-            <img
-              src={URL.createObjectURL(avatar)}
-              alt="Avatar Preview"
-              className="w-20 h-20 rounded object-cover"
-            />
+          {previewUrl ? (
+            <div className="relative w-20 h-20 rounded overflow-hidden">
+              <Image
+                src={previewUrl}
+                alt="Avatar Preview"
+                fill
+                unoptimized // required because it's a local blob url
+                className="object-cover rounded"
+              />
+            </div>
           ) : (
             <div className="w-20 h-20 rounded bg-muted flex items-center justify-center">
               <Upload className="h-6 w-6 text-muted-foreground" />
@@ -41,10 +55,7 @@ export function AdminForm() {
             type="file"
             accept="image/*"
             className="hidden"
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) setAvatar(file);
-            }}
+            onChange={handleAvatarChange}
           />
         </div>
       </div>
