@@ -29,7 +29,7 @@ export default function HrLoginPage() {
           const res = await api.post('/api/auth/google', { idToken });
 
           toast.success(res.data.message || 'Sign in with Google successful!');
-          router.push('/dashboard'); // sesuaikan dengan tujuan redirect login
+          router.push('/redirect');
         } catch (error) {
           console.error('Google sign-in error:', error);
           toast.error('Sign in with Google failed');

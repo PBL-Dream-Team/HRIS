@@ -75,7 +75,7 @@ export default function HrSignUpPage() {
           const res = await api.post('/api/auth/google', { idToken });
 
           toast.success(res.data.message || 'Sign up with Google successful!');
-          router.push('/dashboard'); // atau halaman lain setelah sign up
+          router.push('/redirect');
         } catch (error) {
           console.error('Google sign-up error:', error);
           toast.error('Sign up with Google failed');
