@@ -20,12 +20,13 @@ import { UploadExtensionInterceptor } from '../../multer/image_upload.intercepto
 import { FileInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('attendance')
-@UseGuards(JwtGuard, SubscriptionGuard)
+@UseGuards(JwtGuard)
 @Controller('api/attendance')
 export class AttendanceController {
   constructor(private readonly AttendanceService: AttendanceService) {}
 
   @Post()
+  @UseGuards(SubscriptionGuard)
   @ApiBody({ type: createAttendanceDto })
   createAttendance(@Body() createAttendanceDto: createAttendanceDto) {
     return this.AttendanceService.createAttendance(createAttendanceDto);
@@ -45,6 +46,7 @@ export class AttendanceController {
   }
 
   @Patch(':id')
+  @UseGuards(SubscriptionGuard)
   @ApiBody({ type: editAttendanceDto })
   updateAttendance(
     @Param('id') attendanceId: string,
@@ -57,6 +59,7 @@ export class AttendanceController {
   }
 
   @Delete(':id')
+  @UseGuards(SubscriptionGuard)
   deleteAttendance(@Param('id') attendanceId: string) {
     return this.AttendanceService.deleteAttendance(attendanceId);
   }

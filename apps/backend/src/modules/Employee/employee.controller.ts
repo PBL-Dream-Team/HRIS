@@ -26,12 +26,13 @@ import { join } from 'path';
 import {} from 'multer';
 
 @ApiTags('employee')
-@UseGuards(JwtGuard, SubscriptionGuard)
+@UseGuards(JwtGuard)
 @Controller('api/employee')
 export class EmployeeController {
   constructor(private readonly employeeService: EmployeeService) {}
 
   @Post()
+  @UseGuards(SubscriptionGuard)
   @ApiBody({ type: createEmployeeDto })
   @UseInterceptors(
     FileInterceptor('file', {
@@ -103,6 +104,7 @@ export class EmployeeController {
   }
 
   @Patch(':id')
+  @UseGuards(SubscriptionGuard)
   @ApiBody({ type: editEmployeeDto })
   @UseInterceptors(
     FileInterceptor('file', {
@@ -123,6 +125,7 @@ export class EmployeeController {
   }
 
   @Delete(':id')
+  @UseGuards(SubscriptionGuard)
   deleteEmployee(@Param('id') employeeId: string) {
     return this.employeeService.deleteEmployee(employeeId);
   }

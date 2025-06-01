@@ -20,12 +20,13 @@ import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { UploadExtensionInterceptor } from '../../multer/image_upload.interceptor';
 
 @ApiTags('absence')
-@UseGuards(JwtGuard, SubscriptionGuard)
+@UseGuards(JwtGuard)
 @Controller('api/absence')
 export class AbsenceController {
   constructor(private readonly AbsenceService: AbsenceService) {}
 
   @Post()
+  @UseGuards(SubscriptionGuard)
   @ApiBody({ type: createAbsenceDto })
   @UseInterceptors(
     FileInterceptor('file', {
@@ -54,6 +55,7 @@ export class AbsenceController {
   }
 
   @Patch(':id')
+  @UseGuards(SubscriptionGuard)
   @ApiBody({ type: editAbsenceDto })
   @UseInterceptors(
     FileInterceptor('file', {
@@ -70,6 +72,7 @@ export class AbsenceController {
   }
 
   @Delete(':id')
+  @UseGuards(SubscriptionGuard)
   deleteAbsence(@Param('id') absenceId: string) {
     return this.AbsenceService.deleteAbsence(absenceId);
   }

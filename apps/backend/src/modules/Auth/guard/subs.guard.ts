@@ -35,6 +35,6 @@ export class SubscriptionGuard implements CanActivate {
       return true;
     }
 
-    return false;
+    throw new ForbiddenException("Subscription ran out");
   }
 }

@@ -20,12 +20,13 @@ import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { UploadExtensionInterceptor } from '../../multer/image_upload.interceptor';
 
 @ApiTags('letter')
-@UseGuards(JwtGuard, SubscriptionGuard)
+@UseGuards(JwtGuard)
 @Controller('api/letter')
 export class LetterController {
   constructor(private readonly LetterService: LetterService) {}
 
   @Post()
+  @UseGuards(SubscriptionGuard)
   @ApiBody({ type: createLetterDto })
   @UseInterceptors(
     FileInterceptor('file', {
@@ -54,6 +55,7 @@ export class LetterController {
   }
 
   @Patch(':id')
+  @UseGuards(SubscriptionGuard)
   @ApiBody({ type: editLetterDto })
   @UseInterceptors(
     FileInterceptor('file', {
@@ -70,6 +72,7 @@ export class LetterController {
   }
 
   @Delete(':id')
+  @UseGuards(SubscriptionGuard)
   deleteLetter(@Param('id') letterId: string) {
     return this.LetterService.deleteLetter(letterId);
   }

@@ -16,12 +16,13 @@ import { JwtGuard, SubscriptionGuard } from '../Auth/guard';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('lettertype')
-@UseGuards(JwtGuard, SubscriptionGuard)
+@UseGuards(JwtGuard)
 @Controller('api/letterType')
 export class LetterTypeController {
   constructor(private readonly LetterTypeService: LetterTypeService) {}
 
   @Post()
+  @UseGuards(SubscriptionGuard)
   @ApiBody({ type: createLetterTypeDto })
   createLetterType(@Body() createLetterTypeDto: createLetterTypeDto) {
     return this.LetterTypeService.createLetterType(createLetterTypeDto);
@@ -41,6 +42,7 @@ export class LetterTypeController {
   }
 
   @Patch(':id')
+  @UseGuards(SubscriptionGuard)
   @ApiBody({ type: editLetterTypeDto })
   updateLetterType(
     @Param('id') letterTypeId: string,
@@ -53,6 +55,7 @@ export class LetterTypeController {
   }
 
   @Delete(':id')
+  @UseGuards(SubscriptionGuard)
   deleteLetterType(@Param('id') letterTypeId: string) {
     return this.LetterTypeService.deleteLetterType(letterTypeId);
   }
