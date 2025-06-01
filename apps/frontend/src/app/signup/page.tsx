@@ -56,12 +56,35 @@ export default function HrSignUpPage() {
 
       toast.success(res.data.message || 'Sign up successful!');
       router.push('/signin');
-      
+
     } catch (error: any) {
       console.error(error);
       toast.error("Sign up failed. Please check your credentials and try again.");
     }
   };
+
+  const handleGoogleSignup = () => {
+    /* global google */
+    google.accounts.id.initialize({
+      client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!,
+      callback: async (response: any) => {
+        const idToken = response.credential;
+
+        try {
+          const res = await api.post('/api/auth/google', { idToken });
+
+          toast.success(res.data.message || 'Sign up with Google successful!');
+          router.push('/dashboard'); // atau halaman lain setelah sign up
+        } catch (error) {
+          console.error('Google sign-up error:', error);
+          toast.error('Sign up with Google failed');
+        }
+      },
+    });
+
+    google.accounts.id.prompt(); // Menampilkan popup Google login
+  };
+
 
   return (
     <div className="flex min-h-screen">
@@ -157,7 +180,7 @@ export default function HrSignUpPage() {
             {/* Phone */}
             <div className="w-full">
               <Label htmlFor="phone" className="text-[#1E3A5F] mb-2">
-                Phone Number
+                Phone
               </Label>
               <Input
                 id="phone"
@@ -208,7 +231,7 @@ export default function HrSignUpPage() {
                 className="data-[state=checked]:bg-[#1E3A5F] data-[state=checked]:border-[#1E3A5F]"
               />{' '}
               <span>I agree with the</span>
-                            <Dialog>
+              <Dialog>
                 <DialogTrigger asChild>
                   <button type="button" className="text-sm text-gray-700 underline">terms of use of HRIS</button>
                 </DialogTrigger>
@@ -229,8 +252,10 @@ export default function HrSignUpPage() {
             </Button>
 
             <Button
+              type="button"
               variant="outline"
-              className="w-full flex items-center gap-2 "
+              className="w-full flex items-center gap-2"
+              onClick={handleGoogleSignup}
             >
               <Image
                 src="/images/google.png"
@@ -241,6 +266,7 @@ export default function HrSignUpPage() {
               />
               <span>Sign up with Google</span>
             </Button>
+
 
             {/* Link to Sign In */}
             <p className="text-center text-sm text-gray-600 mt-4">

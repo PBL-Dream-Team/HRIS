@@ -18,6 +18,29 @@ export default function HrLoginPage() {
   const [password, setPassword] = useState('');
   const router = useRouter();
 
+  const handleGoogleSignin = () => {
+    /* global google */
+    google.accounts.id.initialize({
+      client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!,
+      callback: async (response: any) => {
+        const idToken = response.credential;
+
+        try {
+          const res = await api.post('/api/auth/google', { idToken });
+
+          toast.success(res.data.message || 'Sign in with Google successful!');
+          router.push('/dashboard'); // sesuaikan dengan tujuan redirect login
+        } catch (error) {
+          console.error('Google sign-in error:', error);
+          toast.error('Sign in with Google failed');
+        }
+      },
+    });
+
+    google.accounts.id.prompt(); // tampilkan popup login Google
+  };
+
+
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
@@ -138,6 +161,7 @@ export default function HrLoginPage() {
               type="button"
               variant="outline"
               className="w-full flex items-center justify-center gap-2"
+              onClick={handleGoogleSignin}
             >
               <Image
                 src="/images/google.png"
@@ -148,6 +172,7 @@ export default function HrLoginPage() {
               />
               <span>Sign in with Google</span>
             </Button>
+
 
             <Link href="/signin/employee" passHref>
               <Button

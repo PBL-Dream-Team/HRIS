@@ -1,4 +1,9 @@
-import { ForbiddenException, Injectable, Res } from '@nestjs/common';
+import {
+  ForbiddenException,
+  UnauthorizedException,
+  Injectable,
+  Res,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -11,9 +16,12 @@ import { CompanySubscriptionStatus } from './dtos/CompanySubscriptionStatus.enum
 import { randomBytes } from 'crypto';
 import * as bcrypt from 'bcrypt';
 import { CustomMailService } from '../../common/mail/mail.service';
+import { OAuth2Client } from 'google-auth-library';
 
 @Injectable()
 export class AuthService {
+  private client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
   constructor(
     private prisma: PrismaService,
     private jwt: JwtService,
@@ -212,5 +220,62 @@ export class AuthService {
     }
 
     return true;
+  }
+
+  // src/auth/auth.service.ts
+  async googleLogin(idToken: string) {
+    const ticket = await this.client.verifyIdToken({
+      idToken,
+      audience: this.config.get('GOOGLE_CLIENT_ID'),
+    });
+
+    const payload = ticket.getPayload();
+
+    if (!payload) throw new UnauthorizedException('Invalid Google token');
+
+    const { email, given_name, family_name } = payload;
+
+    // Cek apakah user sudah terdaftar
+    let employee = await this.prisma.employee.findUnique({
+      where: { email },
+    });
+
+    // Jika belum, buat user dan company baru
+    if (!employee) {
+      const trial = await this.prisma.subscription.findFirst({
+        where: { name: 'Trial' },
+      });
+
+      const company = await this.prisma.company.create({
+        data: {
+          name: email.split('@')[0],
+          max_employee: 10,
+          subscription_id: trial?.id,
+          subs_date_start: new Date().toISOString(),
+          subs_date_end: new Date(
+            new Date().setDate(new Date().getDate() + 14),
+          ).toISOString(),
+        },
+      });
+
+      employee = await this.prisma.employee.create({
+        data: {
+          email,
+          first_name: given_name || '',
+          last_name: family_name || '',
+          company_id: company.id,
+          is_admin: true,
+          password: '', // kosong karena login via Google
+        },
+      });
+    }
+
+    // Buat JWT
+    const token = await this.signToken(
+      employee.id,
+      employee.company_id,
+      employee.is_admin,
+    );
+    return token;
   }
 }
