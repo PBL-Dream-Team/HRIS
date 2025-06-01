@@ -85,11 +85,6 @@ export default function HrLoginPage() {
               height={48}
               className="object-contain"
             />
-            <Link href="/pricing">
-              <span className="text-sm font-medium text-blue-900 hover:underline">
-                Try For Free!
-              </span>
-            </Link>
           </div>
 
           <h2 className="text-2xl font-bold mb-2 text-zinc-950">Sign In</h2>
