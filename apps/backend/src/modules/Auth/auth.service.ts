@@ -31,11 +31,13 @@ export class AuthService {
     userId: string,
     company_id: string,
     is_admin: boolean,
+    company_subs_id?: string | null
   ): Promise<{ access_token: string }> {
     const payload = {
       sub: userId,
       company_id,
       is_admin,
+      company_subs_id
     };
 
     const secret = this.config.get('JWT_SECRET');
@@ -110,10 +112,12 @@ export class AuthService {
           message: 'Credentials Incorrect',
         };
       } else {
+        const company = await this.prisma.company.findFirst({where:{id:employee.company_id}});
         const token = await this.signToken(
           employee.id,
           employee.company_id,
           employee.is_admin,
+          company.subscription_id
         );
 
         return token;
@@ -140,10 +144,12 @@ export class AuthService {
       ) {
         throw new ForbiddenException('Credentials Incorrect');
       } else {
+        const company = await this.prisma.company.findFirst({where:{id:employee.company_id}});
         const token = await this.signToken(
           employee.id,
           employee.company_id,
           employee.is_admin,
+          company.subscription_id
         );
         return token;
       }
@@ -268,11 +274,14 @@ export class AuthService {
       });
     }
 
+    const company = await this.prisma.company.findFirst({where:{id:employee.company_id}});
+
     // Buat JWT
     const token = await this.signToken(
       employee.id,
       employee.company_id,
       employee.is_admin,
+      company.subscription_id
     );
     return token;
   }
