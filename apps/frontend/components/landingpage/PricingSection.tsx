@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Check, X } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Check } from 'lucide-react';
 
 import {
   Card,
@@ -10,25 +11,33 @@ import {
   CardTitle,
   CardDescription,
 } from '@/components/ui/card';
-
 import { Button } from '@/components/ui/button';
 
+// Label fitur
+const featureLabels = [
+  'Employee Management',
+  'Checkclock',
+  'Absence',
+  'Letter',
+];
+
+// Paket Single Payment
 const singlePayment = [
   {
     title: 'Silver',
     description:
       'An ideal package for startups and small businesses looking to digitize their HR management with essential yet powerful features.',
-    price: 'Rp. 100.000',
+    price: 'Rp. 25.000',
     range: '25 Employee',
-    features: [true, true, true, true, true, true, true, false, false, false],
+    features: [true, true, true, true],
   },
   {
     title: 'Gold',
     description:
       'Perfect for growing businesses that require more flexibility and additional advanced features to manage their workforce efficiently.',
-    price: 'Rp. 100.000',
+    price: 'Rp. 50.000',
     range: '50 Employee',
-    features: [true, true, true, true, true, true, false, false, false, false],
+    features: [true, true, true, true],
   },
   {
     title: 'Diamond',
@@ -36,54 +45,55 @@ const singlePayment = [
       'The best choice for medium to large enterprises aiming for maximum efficiency and full utilization of HRIS capabilities.',
     price: 'Rp. 100.000',
     range: '100 Employee',
-    features: [true, true, true, true, true, false, false, false, false, false],
+    features: [true, true, true, true],
   },
 ];
 
-const payAsYouGo = [
-  {
-    title: 'Pay As You Go',
-    description:
-      'Ideal for small teams or short-term projects, this plan allows you to pay only for the users you need.',
-    price: 'Rp. 100.000',
-    features: [true, true, true, true, true, false, false, false, false, false],
-  },
-];
+const baseEmployeePrice = 2000;
 
-export function PricingSection() {
+export default function PricingSection() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<'singlePayment' | 'payAsYouGo'>(
     'singlePayment',
   );
+  const [employeeCount, setEmployeeCount] = useState(1);
+
+  const payAsYouGo = [
+    {
+      title: 'Pay As You Go',
+      description:
+        'Ideal for small teams or short-term projects, this plan allows you to pay only for the users you need.',
+      price: employeeCount * baseEmployeePrice,
+      features: [true, true, true, true],
+    },
+  ];
+
+  const handleEmployeeChange = (delta: number) => {
+    setEmployeeCount((prev) => Math.max(1, prev + delta));
+  };
 
   return (
-    <div className="max-w-6xl mx-auto">
-      <h2 className="text-3xl md:text-4xl font-bold text-center text-black">
-        Pricing Plans
-      </h2>
+    <div className="max-w-6xl mx-auto py-12 px-4 bg-white">
+      <h1 className="text-black text-3xl font-bold text-center">
+        HRIS Pricing Plans
+      </h1>
       <p className="text-center mt-2 max-w-2xl mx-auto text-gray-600">
-        Choose the plan that best suits your business. Available in Single
-        Payment or Pay-As-You-Go options.
+        Choose The Plan That Best Suits Your Business! This HRIS Offers Both
+        Subscription And Pay-As-You-Go Payment Options, Available In The
+        Following Packages:
       </p>
 
       {/* Tabs */}
       <div className="flex justify-center my-6">
         <button
           onClick={() => setActiveTab('singlePayment')}
-          className={`px-4 py-2 border rounded-l-lg ${
-            activeTab === 'singlePayment'
-              ? 'bg-[#1E3A5F] text-white'
-              : 'border-[#1E3A5F] text-black'
-          }`}
+          className={`px-4 py-2 border rounded-l-lg ${activeTab === 'singlePayment' ? 'bg-[#1E3A5F] text-white' : 'border-[#1E3A5F] text-black'}`}
         >
           Single Payment
         </button>
         <button
           onClick={() => setActiveTab('payAsYouGo')}
-          className={`px-4 py-2 border rounded-r-lg ${
-            activeTab === 'payAsYouGo'
-              ? 'bg-[#1E3A5F] text-white'
-              : 'border-[#1E3A5F] text-black'
-          }`}
+          className={`px-4 py-2 border rounded-r-lg ${activeTab === 'payAsYouGo' ? 'bg-[#1E3A5F] text-white' : 'border-[#1E3A5F] text-black'}`}
         >
           Pay As You Go
         </button>
@@ -92,31 +102,39 @@ export function PricingSection() {
       {activeTab === 'singlePayment' ? (
         <div className="grid md:grid-cols-3 gap-6">
           {singlePayment.map((plan, idx) => (
-            <Card key={idx} className="border rounded-lg p-0">
+            <Card
+              key={idx}
+              className="border rounded-lg p-0 transition-shadow duration-300 hover:shadow-lg"
+            >
               <CardHeader className="pb-0">
                 <CardTitle className="text-xl">{plan.title}</CardTitle>
                 <p className="text-black text-sm mt-1">
-                  This Package Includes {plan.range}
+                  This Package Include {plan.range}
                 </p>
                 <p className="text-black text-2xl font-bold mt-2">
                   {plan.price}{' '}
                   <span className="text-sm font-normal">/user/28 days</span>
                 </p>
                 <CardDescription>{plan.description}</CardDescription>
-                <Button className="w-full mt-4">Get Started</Button>
+                <Button
+                  className="w-full mt-4"
+                  onClick={() => {
+                    router.push(
+                      `/payment?title=${plan.title}&price=${plan.price}&range=${plan.range}&type=single`,
+                    );
+                  }}
+                >
+                  Get Started
+                </Button>
                 <hr className="my-2" />
               </CardHeader>
               <CardContent>
-                <CardTitle className="text-lg mb-2">Features</CardTitle>
+                <CardTitle className="text-lg mb-2">Feature</CardTitle>
                 <ul className="space-y-1 text-black text-sm">
-                  {plan.features.map((enabled, i) => (
+                  {featureLabels.map((label, i) => (
                     <li key={i} className="flex gap-2 items-center">
-                      {enabled ? (
-                        <Check className="text-[#257047] w-4 h-4" />
-                      ) : (
-                        <X className="text-[#C11106] w-4 h-4" />
-                      )}
-                      <span>Fitur {i + 1}</span>
+                      <Check className="text-[#257047] w-4 h-4" />
+                      <span>{label}</span>
                     </li>
                   ))}
                 </ul>
@@ -127,31 +145,61 @@ export function PricingSection() {
       ) : (
         <div className="grid">
           {payAsYouGo.map((plan, idx) => (
-            <Card key={idx} className="border rounded-lg p-0 max-w-md mx-auto">
+            <Card
+              key={idx}
+              className="border rounded-lg p-0 max-w-md mx-auto transition-shadow duration-300 hover:shadow-lg"
+            >
               <CardHeader className="pb-0">
                 <CardTitle className="text-xl">{plan.title}</CardTitle>
                 <p className="text-black text-sm mt-1">
                   You can choose how many employees you need
                 </p>
+
+                <div className="flex items-center mt-3 space-x-2">
+                  <Button size="sm" onClick={() => handleEmployeeChange(-1)}>
+                    -
+                  </Button>
+                  <input
+                    type="number"
+                    min={1}
+                    value={employeeCount}
+                    onChange={(e) => {
+                      const value = parseInt(e.target.value, 10);
+                      if (!isNaN(value) && value >= 1) {
+                        setEmployeeCount(value);
+                      }
+                    }}
+                    className="w-16 text-center border rounded px-2 py-1"
+                  />
+                  <Button size="sm" onClick={() => handleEmployeeChange(1)}>
+                    +
+                  </Button>
+                </div>
+
                 <p className="text-black text-2xl font-bold mt-2">
-                  {plan.price}{' '}
-                  <span className="text-sm font-normal">/user/28 days</span>
+                  Rp. {plan.price.toLocaleString()}{' '}
+                  <span className="text-sm font-normal">/28 days</span>
                 </p>
                 <CardDescription>{plan.description}</CardDescription>
-                <Button className="w-full mt-4">Get Started</Button>
+                <Button
+                  className="w-full mt-4"
+                  onClick={() => {
+                    router.push(
+                      `/payment?title=${plan.title}&price=${baseEmployeePrice}&range=${employeeCount}&type=payg`,
+                    );
+                  }}
+                >
+                  Get Started
+                </Button>
                 <hr className="my-2" />
               </CardHeader>
               <CardContent>
-                <CardTitle className="text-lg mb-2">Features</CardTitle>
+                <CardTitle className="text-lg mb-2">Feature</CardTitle>
                 <ul className="space-y-1 text-black text-sm">
-                  {plan.features.map((enabled, i) => (
+                  {featureLabels.map((label, i) => (
                     <li key={i} className="flex gap-2 items-center">
-                      {enabled ? (
-                        <Check className="text-[#257047] w-4 h-4" />
-                      ) : (
-                        <X className="text-[#C11106] w-4 h-4" />
-                      )}
-                      <span>Fitur {i + 1}</span>
+                      <Check className="text-[#257047] w-4 h-4" />
+                      <span>{label}</span>
                     </li>
                   ))}
                 </ul>

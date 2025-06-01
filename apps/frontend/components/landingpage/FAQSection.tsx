@@ -13,13 +13,14 @@ export function FaqSection() {
     <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
       {/* Left: Image */}
       <div className="flex justify-center">
-        <Image
-          src="/images/faq-illustration.png" // Ganti sesuai gambar kamu
-          alt="FAQ Illustration"
-          width={500}
-          height={400}
-          className="rounded-xl shadow-lg"
-        />
+        <div className="relative w-full max-w-xl aspect-[16/9]">
+          <Image
+            src="https://images.pexels.com/photos/5428833/pexels-photo-5428833.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
+            alt="FAQ Illustration"
+            fill
+            className="rounded-xl object-cover shadow-lg"
+          />
+        </div>
       </div>
 
       {/* Right: FAQ Content */}
