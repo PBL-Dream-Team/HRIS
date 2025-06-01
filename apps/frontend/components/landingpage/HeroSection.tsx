@@ -13,7 +13,7 @@ export const HeroSection = () => {
                     Solusi HRIS Modern untuk Manajemen SDM yang Efisien
                 </h1>
                 <p className="text-lg text-gray-600 mb-8">
-                    Kelola absensi, cuti, payroll, dan semua kebutuhan SDM dalam satu platform yang mudah digunakan dan hemat waktu.
+                    Kelola Karyawan, absensi, dokumen, dan semua kebutuhan SDM dalam satu platform yang mudah digunakan dan hemat waktu.
                 </p>
                 <Link href="/signup">
                     <Button size="lg" className="text-lg px-6 py-4">
