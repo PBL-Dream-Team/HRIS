@@ -247,12 +247,12 @@ export class AuthService {
       const company = await this.prisma.company.create({
         data: {
           name: email.split('@')[0],
-          max_employee: 10,
-          subscription_id: trial?.id,
-          subs_date_start: new Date().toISOString(),
-          subs_date_end: new Date(
-            new Date().setDate(new Date().getDate() + 14),
-          ).toISOString(),
+          // max_employee: 10,
+          // subscription_id: trial?.id,
+          // subs_date_start: new Date().toISOString(),
+          // subs_date_end: new Date(
+          //   new Date().setDate(new Date().getDate() + 14),
+          // ).toISOString(),
         },
       });
 

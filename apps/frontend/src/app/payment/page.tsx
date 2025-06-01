@@ -1,8 +1,10 @@
 'use client';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
 
 export default function PaymentPage() {
   const searchParams = useSearchParams();
+  const router = useRouter();
 
   const title = searchParams.get('title') || 'Unknown Package';
   const priceString = searchParams.get('price') || '0';
@@ -14,13 +16,17 @@ export default function PaymentPage() {
 
   const taxRate = 0.1;
 
-  // Hitung berdasarkan jenis paket
   const subtotal =
     type === 'payg'
-      ? parsedPrice * employeeCount // pay-as-you-go dihitung per user
-      : parsedPrice; // single payment sudah total
+      ? parsedPrice * employeeCount
+      : parsedPrice;
 
   const total = subtotal + subtotal * taxRate;
+
+  const handleContinue = () => {
+    // Simulasi sukses (ganti dengan real redirection dari payment gateway jika sudah diintegrasi)
+    router.push('/payment/callback?status=success');
+  };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-white px-4">
@@ -66,9 +72,9 @@ export default function PaymentPage() {
           <span>Rp {total.toLocaleString()}</span>
         </div>
 
-        <button className="mt-6 w-full bg-[#1E3A5F] text-white py-3 rounded">
-          Confirm and upgrade
-        </button>
+        <Button className="mt-6 w-full" onClick={handleContinue}>
+          Continue to Payment
+        </Button>
       </div>
     </div>
   );
