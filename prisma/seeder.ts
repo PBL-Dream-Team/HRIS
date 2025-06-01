@@ -47,8 +47,8 @@ async function main() {
     ],
   });
 
-  await prisma.company.create({
-    data: {
+  await prisma.company.createMany({
+    data: [{
       id: '9be1d801-23af-4727-ae39-a2bf74ec00e0',
       name: 'PBL 2',
       subscription_id: 'bcf1b2a6-bdc2-4b66-98b1-e8a2c0ea2e95',
@@ -60,6 +60,15 @@ async function main() {
       address:
         'Jalan Pinangsia, Jatimulyo, Malang, Kota Malang, East Java, Java, 65113, Indonesia',
     },
+    {
+      id: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+      name: 'HRIS Testing co.',
+      loc_lat: -7.94627,
+      loc_long: 112.619786,
+      address:
+        'Jalan Pinangsia, Jatimulyo, Malang, Kota Malang, East Java, Java, 65113, Indonesia',
+    }
+  ]
   });
 
   await prisma.attendanceType.createMany({
@@ -126,6 +135,14 @@ async function main() {
         attendance_id: '7b6fc280-61fc-4e61-96f1-c41de52d7b8b',
         workscheme: 'HYBRID',
       },
+      {
+        first_name: 'HRIS',
+        last_name: 'Admin',
+        email: 'hris-admin@gmail.com',
+        password: await hash('hrisadmin123'),
+        company_id: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+        is_admin: true,
+      }
     ],
   });
 
