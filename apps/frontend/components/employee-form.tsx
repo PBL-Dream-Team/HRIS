@@ -9,17 +9,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Button } from '@/components/ui/button';
 import { CalendarIcon, Upload } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { format } from 'date-fns';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
 import { toast } from 'sonner';
 
 import api from '@/lib/axios';
@@ -215,7 +207,7 @@ export function EmployeeForm({
       {/* Work Scheme */}
       <div>
         <Label>Work Scheme</Label>
-        <Select value={workScheme} onValueChange={setWorkScheme}>
+        <Select value={workScheme} onValueChange={(value) => setWorkScheme(value as 'WFO' | 'WFA' | 'HYBRID')}>
           <SelectTrigger>
             <SelectValue placeholder="Choose work scheme" />
           </SelectTrigger>
@@ -250,7 +242,7 @@ export function EmployeeForm({
       {/* Gender */}
       <div>
         <Label>Gender</Label>
-        <Select value={gender} onValueChange={setGender}>
+        <Select value={gender} onValueChange={(value) => setGender(value as 'M' | 'F' | 'O')}>
           <SelectTrigger>
             <SelectValue placeholder="Choose gender" />
           </SelectTrigger>
@@ -379,7 +371,7 @@ export function EmployeeForm({
       {/* Contract */}
       <div>
         <Label>Contract</Label>
-        <Select value={contract} onValueChange={setContract}>
+        <Select value={contract} onValueChange={(value) => setContract(value as 'PERMANENT' | 'CONTRACT' | 'INTERN')}>
           <SelectTrigger>
             <SelectValue placeholder="Choose Contract" />
           </SelectTrigger>
@@ -394,7 +386,7 @@ export function EmployeeForm({
       {/* Last Education */}
       <div>
         <Label>Last Education</Label>
-        <Select value={education} onValueChange={setEducation}>
+        <Select value={education} onValueChange={(value) => setEducation(value as 'HIGH_SCHOOL' | 'BACHELOR' | 'MASTER' | 'DOCTOR')}>
           <SelectTrigger>
             <SelectValue placeholder="Choose Last Education" />
           </SelectTrigger>
@@ -410,7 +402,7 @@ export function EmployeeForm({
       {/* Bank */}
       <div>
         <Label>Bank</Label>
-        <Select value={bank} onValueChange={setBank}>
+        <Select value={bank} onValueChange={(value) => setBank(value as 'BRI' | 'Mandiri' | 'BNI' | 'Danamon' | 'Permata' | 'BCA' | 'Maybank' | 'Panin' | 'Bukopin' | 'CIMB' | 'UOB' | 'OCBC' | 'BJB' | 'Muamalat' | 'BTN' | 'BTPN' | 'Mega' | 'SyariahMandiri' | 'Commonwealth')}>
           <SelectTrigger>
             <SelectValue placeholder="Choose Bank" />
           </SelectTrigger>
