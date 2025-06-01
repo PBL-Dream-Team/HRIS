@@ -1,19 +1,25 @@
-import { ForbiddenException, Injectable, Res } from '@nestjs/common';
+import {
+  ForbiddenException,
+  UnauthorizedException,
+  Injectable,
+  Res,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AuthEmailDto } from './dtos/authEmail.dto';
 import { hash, verify } from 'argon2';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { RegDto } from './dtos/reg.dto';
 import { AuthIdDto } from './dtos';
 import { CompanySubscriptionStatus } from './dtos/CompanySubscriptionStatus.enum';
 import { randomBytes } from 'crypto';
-import * as bcrypt from 'bcrypt';
 import { CustomMailService } from '../../common/mail/mail.service';
+import { OAuth2Client } from 'google-auth-library';
 
 @Injectable()
 export class AuthService {
+  private client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
   constructor(
     private prisma: PrismaService,
     private jwt: JwtService,
@@ -25,11 +31,13 @@ export class AuthService {
     userId: string,
     company_id: string,
     is_admin: boolean,
+    company_subs_id?: string | null,
   ): Promise<{ access_token: string }> {
     const payload = {
       sub: userId,
       company_id,
       is_admin,
+      company_subs_id,
     };
 
     const secret = this.config.get('JWT_SECRET');
@@ -49,16 +57,16 @@ export class AuthService {
 
     //Company
     if (dto.name) companyData.name = dto.name;
-    companyData.max_employee = 10;
-    const trial = await this.prisma.subscription.findFirst({
-      where: { name: 'Trial' },
-    });
-    companyData.subscription_id = trial.id;
-    companyData.subs_date_start = new Date().toISOString();
-    companyData.subs_date_end = new Date(
-      new Date().setDate(new Date().getDate() + 14),
-    ).toISOString(); //wtf??
-    companyData.status = CompanySubscriptionStatus.ACTIVE;
+    // companyData.max_employee = 10;
+    // const trial = await this.prisma.subscription.findFirst({
+    //   where: { name: 'Trial' },
+    // });
+    // companyData.subscription_id = trial.id;
+    // companyData.subs_date_start = new Date().toISOString();
+    // companyData.subs_date_end = new Date(
+    //   new Date().setDate(new Date().getDate() + 14),
+    // ).toISOString();
+
     //Employee
     if (dto.first_name) userData.first_name = dto.first_name;
     if (dto.last_name) userData.last_name = dto.last_name;
@@ -104,10 +112,14 @@ export class AuthService {
           message: 'Credentials Incorrect',
         };
       } else {
+        const company = await this.prisma.company.findFirst({
+          where: { id: employee.company_id },
+        });
         const token = await this.signToken(
           employee.id,
           employee.company_id,
           employee.is_admin,
+          company.subscription_id,
         );
 
         return token;
@@ -134,10 +146,14 @@ export class AuthService {
       ) {
         throw new ForbiddenException('Credentials Incorrect');
       } else {
+        const company = await this.prisma.company.findFirst({
+          where: { id: employee.company_id },
+        });
         const token = await this.signToken(
           employee.id,
           employee.company_id,
           employee.is_admin,
+          company.subscription_id,
         );
         return token;
       }
@@ -212,5 +228,67 @@ export class AuthService {
     }
 
     return true;
+  }
+
+  // src/auth/auth.service.ts
+  async googleLogin(idToken: string) {
+    const ticket = await this.client.verifyIdToken({
+      idToken,
+      audience: this.config.get('GOOGLE_CLIENT_ID'),
+    });
+
+    const payload = ticket.getPayload();
+
+    if (!payload) throw new UnauthorizedException('Invalid Google token');
+
+    const { email, given_name, family_name } = payload;
+
+    // Cek apakah user sudah terdaftar
+    let employee = await this.prisma.employee.findUnique({
+      where: { email },
+    });
+
+    // Jika belum, buat user dan company baru
+    if (!employee) {
+      const trial = await this.prisma.subscription.findFirst({
+        where: { name: 'Trial' },
+      });
+
+      const company = await this.prisma.company.create({
+        data: {
+          name: email.split('@')[0],
+          // max_employee: 10,
+          // subscription_id: trial?.id,
+          // subs_date_start: new Date().toISOString(),
+          // subs_date_end: new Date(
+          //   new Date().setDate(new Date().getDate() + 14),
+          // ).toISOString(),
+        },
+      });
+
+      employee = await this.prisma.employee.create({
+        data: {
+          email,
+          first_name: given_name || '',
+          last_name: family_name || '',
+          company_id: company.id,
+          is_admin: true,
+          password: '', // kosong karena login via Google
+        },
+      });
+    }
+
+    const company = await this.prisma.company.findFirst({
+      where: { id: employee.company_id },
+    });
+
+    // Buat JWT
+    const token = await this.signToken(
+      employee.id,
+      employee.company_id,
+      employee.is_admin,
+      company.subscription_id,
+    );
+    return token;
   }
 }

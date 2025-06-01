@@ -11,7 +11,7 @@ async function bootstrap() {
   app.enableCors({
     origin: process.env.FRONTEND_URL,
     credentials: true,
-  })
+  });
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -19,7 +19,7 @@ async function bootstrap() {
       transform: true,
     }),
   );
-  
+
   const SwaggerConfig = new DocumentBuilder()
     .setTitle('HRIS API')
     .setDescription('HRIS API documentation')

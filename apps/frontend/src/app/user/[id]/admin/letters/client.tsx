@@ -31,9 +31,9 @@ import { Button } from '@/components/ui/button';
 
 // Custom Components
 import { NavUser } from '@/components/nav-user';
-import { LetterForm } from '@/components/letter-form';
+import { LetterForm } from '@/components/letter/letter-form';
 import { LetterTypeForm } from '@/components/lettertype-form';
-import LetterDetails from '@/components/letter-details';
+import LetterDetails from '@/components/letter/letter-details';
 import { LetterTypesOverviewContent } from '@/components/lettertype-overview';
 import { letterColumns, Letter } from '@/components/columns/letters-admin';
 
@@ -83,9 +83,11 @@ export default function LettersClient({
   const [selectedLetter, setSelectedLetter] = useState<Letter | null>(null);
   const [letterToDelete, setLetterToDelete] = useState<Letter | null>(null);
 
-  const [isLetterDetailsSheetOpen, setIsLetterDetailsSheetOpen] = useState(false);
+  const [isLetterDetailsSheetOpen, setIsLetterDetailsSheetOpen] =
+    useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [isLetterTypesOverviewOpen, setIsLetterTypesOverviewOpen] = useState(false);
+  const [isLetterTypesOverviewOpen, setIsLetterTypesOverviewOpen] =
+    useState(false);
 
   // Data Fetching
   const fetchData = useCallback(async () => {
@@ -118,10 +120,7 @@ export default function LettersClient({
 
       setLetters(lettersRes.data ?? []);
     } catch (err: any) {
-      console.error(
-        'Error fetching data:',
-        err.response?.data || err.message,
-      );
+      console.error('Error fetching data:', err.response?.data || err.message);
       toast.error(
         'Failed to load data. Please check the console for more details.',
       );
@@ -179,8 +178,15 @@ export default function LettersClient({
 
   // Column Definition for DataTable
   const columns = useMemo(
-    () => letterColumns(handleViewDetails, setLetterToDelete, setIsDeleteDialogOpen, companyId, router),
-    [handleViewDetails, companyId, router]
+    () =>
+      letterColumns(
+        handleViewDetails,
+        setLetterToDelete,
+        setIsDeleteDialogOpen,
+        companyId,
+        router,
+      ),
+    [handleViewDetails, companyId, router],
   );
 
   return (
@@ -239,6 +245,7 @@ export default function LettersClient({
                       />
                     </DialogContent>
                   </Dialog>
+                  {/* Zsada */}
 
                   {/* Add Letter Type Dialog */}
                   <Dialog>
@@ -305,10 +312,7 @@ export default function LettersClient({
               >
                 Cancel
               </Button>
-              <Button
-                variant="destructive"
-                onClick={handleDeleteConfirmed}
-              >
+              <Button variant="destructive" onClick={handleDeleteConfirmed}>
                 Delete
               </Button>
             </DialogFooter>

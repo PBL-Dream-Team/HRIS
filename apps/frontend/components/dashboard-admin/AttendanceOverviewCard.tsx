@@ -1,60 +1,59 @@
 import React from 'react';
 
-{/* Import Components */}
+{
+  /* Import Components */
+}
 
-import { 
-  Pie, 
-  PieChart, 
-  Cell,
-} from "recharts";
+import { Pie, PieChart, Cell } from 'recharts';
 
-import { 
-  Card,
-  CardContent,
-} from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 
 import {
   ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-} from "@/components/ui/chart";
+} from '@/components/ui/chart';
 
-{/* Data */}
+{
+  /* Data */
+}
 
 const attendancesData = [
-  { attendance: "onTime", total: 200, fill: "hsl(var(--chart-1))" },
-  { attendance: "late", total: 186, fill: "hsl(var(--chart-2))" },
-  { attendance: "leave", total: 50, fill: "hsl(var(--chart-3))" },
+  { attendance: 'onTime', total: 200, fill: 'hsl(var(--chart-1))' },
+  { attendance: 'late', total: 186, fill: 'hsl(var(--chart-2))' },
+  { attendance: 'leave', total: 50, fill: 'hsl(var(--chart-3))' },
 ];
 
 const chartConfig = {
   total: {
-    label: "Total",
-    color: "#000000",
+    label: 'Total',
+    color: '#000000',
   },
   onTime: {
-    label: "On Time",
-    color: "#257047",
+    label: 'On Time',
+    color: '#257047',
   },
   late: {
-    label: "Late",
-    color: "#FFAB00",
+    label: 'Late',
+    color: '#FFAB00',
   },
   leave: {
-    label: "Leave",
-    color: "#C11106",
+    label: 'Leave',
+    color: '#C11106',
   },
 } satisfies ChartConfig;
 
-{/* Content */}
+{
+  /* Content */
+}
 
 export default function AttendanceOverviewCard() {
   return (
-    <Card className='@container/card'>
-      <div className='grid grid-cols-10 h-full items-center p-0'>
-        <div className='col-span-4 p-0'>
-          <CardContent className='flex-1 pt-0 pb-0 pl-6 pr-0 h-full'> 
+    <Card className="@container/card">
+      <div className="grid grid-cols-10 h-full items-center p-0">
+        <div className="col-span-4 p-0">
+          <CardContent className="flex-1 pt-0 pb-0 pl-6 pr-0 h-full">
             <ChartContainer
               config={chartConfig}
               className="mx-auto w-full h-full min-h-[300px] [&_.recharts-text]:fill-background"
@@ -64,15 +63,15 @@ export default function AttendanceOverviewCard() {
                 height={300}
                 margin={{ top: 0, right: 0, left: 0, bottom: 0 }}
               >
-                <Pie 
-                  data={attendancesData} 
-                  dataKey="total"
-                  outerRadius={80} 
-                >
+                <Pie data={attendancesData} dataKey="total" outerRadius={80}>
                   {attendancesData.map((entry, index) => (
                     <Cell
                       key={`cell-${index}`}
-                      fill={chartConfig[entry.attendance as keyof typeof chartConfig]?.color}
+                      fill={
+                        chartConfig[
+                          entry.attendance as keyof typeof chartConfig
+                        ]?.color
+                      }
                     />
                   ))}
                 </Pie>
@@ -80,7 +79,7 @@ export default function AttendanceOverviewCard() {
             </ChartContainer>
           </CardContent>
         </div>
-        <div className='col-span-6'>
+        <div className="col-span-6">
           <CardContent className="flex flex-col gap-4 pt-0 pb-0 pl-6 pr-6">
             <div className="flex justify-between text-lg">
               <span className="font-semibold">Statistic</span>
@@ -97,15 +96,23 @@ export default function AttendanceOverviewCard() {
                   <div className="flex items-center gap-2">
                     <span
                       className="w-3 h-3 rounded-full flex-shrink-0"
-                      style={{ 
-                        backgroundColor: chartConfig[item.attendance as keyof typeof chartConfig]?.color,
+                      style={{
+                        backgroundColor:
+                          chartConfig[
+                            item.attendance as keyof typeof chartConfig
+                          ]?.color,
                       }}
                     ></span>
                     <span className="text-sm text-black font-medium">
-                      {chartConfig[item.attendance as keyof typeof chartConfig]?.label}
+                      {
+                        chartConfig[item.attendance as keyof typeof chartConfig]
+                          ?.label
+                      }
                     </span>
                   </div>
-                  <span className="text-sm font-medium text-muted-foreground">{item.total}</span>
+                  <span className="text-sm font-medium text-muted-foreground">
+                    {item.total}
+                  </span>
                 </div>
               ))}
             </div>

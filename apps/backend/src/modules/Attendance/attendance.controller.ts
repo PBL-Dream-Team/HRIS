@@ -1,4 +1,16 @@
-import { Controller, Get, Post, Body, Param, Delete, Patch, UseGuards, Query, UploadedFile, UseInterceptors, } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+  Patch,
+  UseGuards,
+  Query,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
 import { createAttendanceDto } from './dtos/createAttendance.dto';
 import { editAttendanceDto } from './dtos/editAttendance.dto';
 import { AttendanceService } from './attendance.service';
@@ -7,13 +19,14 @@ import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { UploadExtensionInterceptor } from '../../multer/image_upload.interceptor';
 import { FileInterceptor } from '@nestjs/platform-express';
 
-@ApiTags("attendance")
-@UseGuards(JwtGuard, SubscriptionGuard)
+@ApiTags('attendance')
+@UseGuards(JwtGuard)
 @Controller('api/attendance')
 export class AttendanceController {
-  constructor(private readonly AttendanceService: AttendanceService) { }
+  constructor(private readonly AttendanceService: AttendanceService) {}
 
   @Post()
+  @UseGuards(SubscriptionGuard)
   @ApiBody({ type: createAttendanceDto })
   createAttendance(@Body() createAttendanceDto: createAttendanceDto) {
     return this.AttendanceService.createAttendance(createAttendanceDto);
@@ -33,15 +46,20 @@ export class AttendanceController {
   }
 
   @Patch(':id')
+  @UseGuards(SubscriptionGuard)
   @ApiBody({ type: editAttendanceDto })
   updateAttendance(
     @Param('id') attendanceId: string,
-    @Body() updateAttendanceDto: editAttendanceDto
+    @Body() updateAttendanceDto: editAttendanceDto,
   ) {
-    return this.AttendanceService.updateAttendance(attendanceId, updateAttendanceDto);
+    return this.AttendanceService.updateAttendance(
+      attendanceId,
+      updateAttendanceDto,
+    );
   }
 
   @Delete(':id')
+  @UseGuards(SubscriptionGuard)
   deleteAttendance(@Param('id') attendanceId: string) {
     return this.AttendanceService.deleteAttendance(attendanceId);
   }

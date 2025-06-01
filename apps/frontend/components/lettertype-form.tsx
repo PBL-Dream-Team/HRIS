@@ -49,7 +49,8 @@ export function LetterTypeForm({
     e.preventDefault();
     setIsLoading(true);
 
-    if (!name || !content) { // companyId sudah pasti ada dari props
+    if (!name || !content) {
+      // companyId sudah pasti ada dari props
       toast.error('Name and content fields are required.');
       setIsLoading(false);
       return;
@@ -69,7 +70,7 @@ export function LetterTypeForm({
         await api.patch(`/api/letterType/${initialData.id}`, payload);
         toast.success('Letter type updated successfully!');
       }
-      
+
       if (mode === 'create') {
         setName('');
         setContent('');
@@ -77,16 +78,19 @@ export function LetterTypeForm({
       onSuccess?.();
       onClose?.(); // Panggil onClose untuk menutup dialog jika disediakan
     } catch (error: any) {
-      console.error("Error processing letter type:", error);
-      const errorMessage = error.response?.data?.message || 
-                           (mode === 'create' ? 'Failed to create letter type.' : 'Failed to update letter type.');
+      console.error('Error processing letter type:', error);
+      const errorMessage =
+        error.response?.data?.message ||
+        (mode === 'create'
+          ? 'Failed to create letter type.'
+          : 'Failed to update letter type.');
       toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
   };
 
-return (
+  return (
     <form onSubmit={handleSubmit}>
       <div className="space-y-4">
         <div>
@@ -113,12 +117,23 @@ return (
       </div>
       <DialogFooter className="gap-2 pt-6 sm:justify-end">
         {onClose && ( // Tombol cancel jika onClose disediakan
-            <Button type="button" variant="outline" onClick={onClose} disabled={isLoading}>
-                Cancel
-            </Button>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onClose}
+            disabled={isLoading}
+          >
+            Cancel
+          </Button>
         )}
         <Button type="submit" className="w-24" disabled={isLoading}>
-          {isLoading ? (mode === 'create' ? 'Creating...' : 'Updating...') : (mode === 'create' ? 'Submit' : 'Update')}
+          {isLoading
+            ? mode === 'create'
+              ? 'Creating...'
+              : 'Updating...'
+            : mode === 'create'
+              ? 'Submit'
+              : 'Update'}
         </Button>
       </DialogFooter>
     </form>

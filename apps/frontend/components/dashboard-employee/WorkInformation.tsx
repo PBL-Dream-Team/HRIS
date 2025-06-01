@@ -1,12 +1,14 @@
-import React from 'react'
+import React from 'react';
 
-{/* Import Components */ }
+{
+  /* Import Components */
+}
 
 import {
   AlarmClock,
   AlarmClockCheck,
   AlarmClockMinus,
-  AlarmClockOff
+  AlarmClockOff,
 } from 'lucide-react';
 
 import {
@@ -25,7 +27,7 @@ type WorkStats = {
 
 export default function WorkInformation({ stats }: { stats: WorkStats }) {
   return (
-    <div className='grid auto-rows-min gap-4 md:grid-cols-4 sm:grid-cols-2'>
+    <div className="grid auto-rows-min gap-4 md:grid-cols-4 sm:grid-cols-2">
       <Card className="@container/card border-black border-3">
         <CardHeader className="relative">
           <CardTitle>
@@ -35,7 +37,7 @@ export default function WorkInformation({ stats }: { stats: WorkStats }) {
             </div>
           </CardTitle>
           <CardDescription className="text-black text-4xl font-semibold">
-             {stats.workHours}
+            {stats.workHours}
           </CardDescription>
         </CardHeader>
       </Card>
@@ -63,7 +65,7 @@ export default function WorkInformation({ stats }: { stats: WorkStats }) {
             </div>
           </CardTitle>
           <CardDescription className="text-[#FFAB00] text-4xl font-semibold">
-             {stats.lateDays} days
+            {stats.lateDays} days
           </CardDescription>
         </CardHeader>
       </Card>
@@ -77,10 +79,10 @@ export default function WorkInformation({ stats }: { stats: WorkStats }) {
             </div>
           </CardTitle>
           <CardDescription className="text-[#C11106] text-4xl font-semibold">
-             {stats.lateDays} days
+            {stats.lateDays} days
           </CardDescription>
         </CardHeader>
       </Card>
     </div>
-  )
+  );
 }

@@ -18,6 +18,28 @@ export default function HrLoginPage() {
   const [password, setPassword] = useState('');
   const router = useRouter();
 
+  const handleGoogleSignin = () => {
+    /* global google */
+    google.accounts.id.initialize({
+      client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!,
+      callback: async (response: any) => {
+        const idToken = response.credential;
+
+        try {
+          const res = await api.post('/api/auth/google', { idToken });
+
+          toast.success(res.data.message || 'Sign in with Google successful!');
+          router.push('/redirect');
+        } catch (error) {
+          console.error('Google sign-in error:', error);
+          toast.error('Sign in with Google failed');
+        }
+      },
+    });
+
+    google.accounts.id.prompt(); // tampilkan popup login Google
+  };
+
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
@@ -51,7 +73,6 @@ export default function HrLoginPage() {
         {/* Overlay transparan biru */}
         <div className="absolute inset-0 bg-[#1E3A5F] opacity-60 z-10" />
       </div>
-
 
       {/* Right Side - Form */}
       <div className="bg-white flex flex-col justify-center w-full md:w-1/2 p-8">
@@ -138,6 +159,7 @@ export default function HrLoginPage() {
               type="button"
               variant="outline"
               className="w-full flex items-center justify-center gap-2"
+              onClick={handleGoogleSignin}
             >
               <Image
                 src="/images/google.png"

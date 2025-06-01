@@ -9,7 +9,9 @@ type SubscriptionEndedClientProps = {
   isAdmin: boolean;
 };
 
-export default function SubscriptionEndedClient({ isAdmin }: SubscriptionEndedClientProps) {
+export default function SubscriptionEndedClient({
+  isAdmin,
+}: SubscriptionEndedClientProps) {
   const router = useRouter();
 
   const handleLogout = async () => {
@@ -29,14 +31,15 @@ export default function SubscriptionEndedClient({ isAdmin }: SubscriptionEndedCl
       {/* Icon alert di atas judul */}
       <AlertCircle className="h-16 w-16 text-[#1E3A5F] mb-4" />
 
-      <h1 className="text-3xl font-bold text-[#1E3A5F] mb-4">Subscription Ended</h1>
+      <h1 className="text-3xl font-bold text-[#1E3A5F] mb-4">
+        Subscription Ended
+      </h1>
       <p className="text-lg text-gray-700 max-w-lg ">
         Masa aktif sistem HR Anda telah berakhir.
       </p>
       <p className="text-lg text-gray-700 max-w-lg mb-6">
         Silakan hubungi administrator untuk memperpanjang langganan.
       </p>
-        
 
       {/* Tombol logout berwarna biru kustom */}
       <Button

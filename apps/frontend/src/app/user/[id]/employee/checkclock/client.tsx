@@ -28,10 +28,10 @@ import { Input } from '@/components/ui/input';
 import { Bell, CalendarArrowUp } from 'lucide-react';
 import { NavUser } from '@/components/nav-user';
 import { Button } from '@/components/ui/button';
-import { CheckClockForm } from '@/components/checkclock-form';
+import { CheckClockForm } from '@/components/checkclock/checkclock-form';
 import { useState } from 'react';
 import PaginationFooter from '@/components/pagination';
-import CheckClockDetails from '@/components/checkclock-details';
+import CheckClockDetails from '@/components/checkclock/checkclock-details';
 import { Eye } from 'lucide-react';
 import api from '@/lib/axios';
 import { useEffect } from 'react';
@@ -61,8 +61,10 @@ import { CheckOutForm } from '@/components/checkout-form';
 
 let checkclocks;
 
-
-export function getTimeRangeInHours(startTime: string | Date, endTime: string | Date): number {
+export function getTimeRangeInHours(
+  startTime: string | Date,
+  endTime: string | Date,
+): number {
   const parseTime = (time: string | Date): Date => {
     if (typeof time === 'string') {
       const [h, m, s] = time.split(':').map(Number);
@@ -89,8 +91,8 @@ export function formatTimeOnly(input: Date | string): string {
   if (typeof input === 'string') {
     const timePart = input.split('.')[0];
     if (timePart.includes('T')) {
-        const dateObj = new Date(input);
-        return `${pad(dateObj.getHours())}:${pad(dateObj.getMinutes())}:${pad(dateObj.getSeconds())}`;
+      const dateObj = new Date(input);
+      return `${pad(dateObj.getHours())}:${pad(dateObj.getMinutes())}:${pad(dateObj.getSeconds())}`;
     }
     return timePart;
   }
@@ -111,7 +113,6 @@ export function isSameDate(d1: Date, d2: Date): boolean {
   );
 }
 
-
 export default function CheckClockClient({
   isAdmin,
   userId,
@@ -124,44 +125,41 @@ export default function CheckClockClient({
     typeId: '',
   });
 
-  
-
-const router = useRouter();
-const [employees,setEmployee] = useState<any[]>([]);
-const [company,setCompany] = useState<any[]>([]);
-const [attendanceType,setAttendanceType] = useState<Record<string,any>>(); 
-const [attendances,setAttendance] = useState<any[]>([]);
-let dailyLimit = 1;
-const [currentPage, setCurrentPage] = useState(1)
-const itemsPerPage = 10
-
+  const router = useRouter();
+  const [employees, setEmployee] = useState<any[]>([]);
+  const [company, setCompany] = useState<any[]>([]);
+  const [attendanceType, setAttendanceType] = useState<Record<string, any>>();
+  const [attendances, setAttendance] = useState<any[]>([]);
+  let dailyLimit = 1;
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   useEffect(() => {
     async function fetchUser() {
       try {
         const res = await api.get(`/api/employee/${userId}`);
-        const { first_name, last_name, email, attendance_id , pict_dir } = res.data.data;
+        const { first_name, last_name, email, attendance_id, pict_dir } =
+          res.data.data;
 
         setUser({
           name: `${first_name} ${last_name}`,
           email: email,
           avatar: pict_dir || '/avatars/default.jpg',
-          typeId : attendance_id
+          typeId: attendance_id,
         });
 
-         const [attendanceRes, employeeRes, typeRes, companyRes] = await Promise.all([
-          api.get(`api/attendance?employee_id=${userId}`),
-          api.get(`api/employee?id=${userId}`),
-          api.get(`api/attendanceType?company_id=${companyId}`),
-          api.get(`api/company?id=${companyId}`)
-        ]);
+        const [attendanceRes, employeeRes, typeRes, companyRes] =
+          await Promise.all([
+            api.get(`api/attendance?employee_id=${userId}`),
+            api.get(`api/employee?id=${userId}`),
+            api.get(`api/attendanceType?company_id=${companyId}`),
+            api.get(`api/company?id=${companyId}`),
+          ]);
 
-
-        
         setEmployee(employeeRes.data ?? []);
 
-        const typeMap: Record<string,any> = {};
-        for (const typ of typeRes.data ?? []){
+        const typeMap: Record<string, any> = {};
+        for (const typ of typeRes.data ?? []) {
           typeMap[typ.id] = typ;
         }
         setAttendanceType(typeMap);
@@ -169,7 +167,6 @@ const itemsPerPage = 10
         setAttendance(attendanceRes.data ?? []);
 
         setCompany(companyRes.data ?? []);
-
       } catch (err: any) {
         console.error(
           'Error fetching user:',
@@ -184,28 +181,40 @@ const itemsPerPage = 10
     fetchUser();
   }, [userId]);
 
-  checkclocks = attendances.map((attendance) => 
-    {
-      if(isSameDate(new Date(attendance.created_at),new Date())){
-        dailyLimit = 0;
-      }
-      return {id: attendance.id,
+  checkclocks = attendances.map((attendance) => {
+    if (isSameDate(new Date(attendance.created_at), new Date())) {
+      dailyLimit = 0;
+    }
+    return {
+      id: attendance.id,
       date: attendance.created_at,
       name: `${employees[0].first_name} ${employees[0].last_name}`,
       clockIn: formatTimeOnly(attendance.check_in),
-      clockOut:attendance.check_out ? formatTimeOnly(attendance.check_out) : '-',
-      workHours: (attendance.check_out) ?  `${getTimeRangeInHours(formatTimeOnly(attendance.check_in),formatTimeOnly(attendance.check_out)).toFixed(2)}h` : '0h',
+      clockOut: attendance.check_out
+        ? formatTimeOnly(attendance.check_out)
+        : '-',
+      workHours: attendance.check_out
+        ? `${getTimeRangeInHours(formatTimeOnly(attendance.check_in), formatTimeOnly(attendance.check_out)).toFixed(2)}h`
+        : '0h',
       status: attendance.check_in_status,
-      address: (attendance.check_out) ? attendance.check_out_address : attendance.check_in_address,
-      lat: (attendance.check_out) ? attendance.check_out_lat : attendance.check_in_lat,
-      long: (attendance.check_out) ? attendance.check_out_long : attendance.check_in_long,
-      location: (attendance.check_in_address == company[0].address)
-        ? "Office"
-        : (employees[0].workscheme != "WFO") ? "Outside Office (WFA/Hybrid)" : "Outside Office (WFO)",}
-    }
-  );
+      address: attendance.check_out
+        ? attendance.check_out_address
+        : attendance.check_in_address,
+      lat: attendance.check_out
+        ? attendance.check_out_lat
+        : attendance.check_in_lat,
+      long: attendance.check_out
+        ? attendance.check_out_long
+        : attendance.check_in_long,
+      location:
+        attendance.check_in_address == company[0].address
+          ? 'Office'
+          : employees[0].workscheme != 'WFO'
+            ? 'Outside Office (WFA/Hybrid)'
+            : 'Outside Office (WFO)',
+    };
+  });
 
-  
   const [openSheet, setOpenSheet] = useState(false);
   const [selectedCheckClock, setselectedCheckClock] = useState<any>(null);
 
@@ -215,11 +224,11 @@ const itemsPerPage = 10
   };
 
   const [openCheckOutDialog, setOpenCheckOutDialog] = useState(false);
-const [checkOutId, setCheckOutId] = useState<string | null>(null);
+  const [checkOutId, setCheckOutId] = useState<string | null>(null);
   const handleCheckOut = (id: string) => {
-  setCheckOutId(id);
-  setOpenCheckOutDialog(true);
-};
+    setCheckOutId(id);
+    setOpenCheckOutDialog(true);
+  };
 
   return (
     <SidebarProvider>
@@ -288,23 +297,29 @@ const [checkOutId, setCheckOutId] = useState<string | null>(null);
                 </Button>
                 <Dialog>
                   <DialogTrigger asChild>
-                    <Button disabled={dailyLimit === 0} variant="outline" className={dailyLimit === 0 ? "opacity-50 cursor-not-allowed" : ""}>
+                    <Button
+                      disabled={dailyLimit === 0}
+                      variant="outline"
+                      className={
+                        dailyLimit === 0 ? 'opacity-50 cursor-not-allowed' : ''
+                      }
+                    >
                       <IoMdAdd /> Add Check Clock
                     </Button>
                   </DialogTrigger>
-                    <DialogContent className="max-w-4xl">
-                  <DialogHeader>
-                    <DialogTitle>Add Check Clock</DialogTitle>
-                  </DialogHeader>
-                  <CheckClockForm
-                    employeeId={userId}
-                    companyId={companyId}
-                    typeId={user.typeId}
-                    onSuccess={() => {
-                      setOpenSheet; 
-                    }}
-                  />
-                </DialogContent>
+                  <DialogContent className="max-w-4xl">
+                    <DialogHeader>
+                      <DialogTitle>Add Check Clock</DialogTitle>
+                    </DialogHeader>
+                    <CheckClockForm
+                      employeeId={userId}
+                      companyId={companyId}
+                      typeId={user.typeId}
+                      onSuccess={() => {
+                        setOpenSheet(false);
+                      }}
+                    />
+                  </DialogContent>
                 </Dialog>
               </div>
             </div>
@@ -324,9 +339,13 @@ const [checkOutId, setCheckOutId] = useState<string | null>(null);
               <TableBody>
                 {checkclocks.map((checkclock) => (
                   <TableRow key={checkclock.id}>
-                    <TableCell>{checkclock.date.replace(/T.*/, "")}</TableCell>
-                    <TableCell>{checkclock.clockIn.replace(/.*T/,"")}</TableCell>
-                    <TableCell>{checkclock.clockOut.replace(/.*T/,"")}</TableCell>
+                    <TableCell>{checkclock.date.replace(/T.*/, '')}</TableCell>
+                    <TableCell>
+                      {checkclock.clockIn.replace(/.*T/, '')}
+                    </TableCell>
+                    <TableCell>
+                      {checkclock.clockOut.replace(/.*T/, '')}
+                    </TableCell>
                     <TableCell>{checkclock.workHours}</TableCell>
                     <TableCell>
                       <div>
@@ -337,12 +356,11 @@ const [checkOutId, setCheckOutId] = useState<string | null>(null);
                                 ${checkclock.status === 'EARLY' ? 'bg-yellow-600' : ''}
                                 `}
                         >
-                          {
-                      checkclock.status === 'ON_TIME'
-                      ? 'ON TIME'
-                      : checkclock.status === 'LATE'
-                      ? 'LATE'
-                      : 'EARLY'}
+                          {checkclock.status === 'ON_TIME'
+                            ? 'ON TIME'
+                            : checkclock.status === 'LATE'
+                              ? 'LATE'
+                              : 'EARLY'}
                         </span>
                       </div>
                     </TableCell>
@@ -356,32 +374,35 @@ const [checkOutId, setCheckOutId] = useState<string | null>(null);
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
-                        {checkclock.clockOut === "-" && (
-                        <Dialog open={openCheckOutDialog} onOpenChange={setOpenCheckOutDialog}>
-                          <DialogTrigger asChild>
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              className="hover:bg-white-600 bg-green-600 hover:text-white"
-                              onClick={() => handleCheckOut(checkclock.id)}
-                            >
-                              <CalendarArrowUp className="h-4 w-4 text-white" />
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent className="max-w-2xl">
-                            <DialogHeader>
-                              <DialogTitle>Clock Out</DialogTitle>
-                            </DialogHeader>
-                            <CheckOutForm
-                              attendanceId={checkOutId}
-                              onSuccess={() => {
-                                setOpenCheckOutDialog(false);
-                                // Optionally refetch attendance data here
-                              }}
-                            />
-                          </DialogContent>
-                        </Dialog>
-                      )}
+                        {checkclock.clockOut === '-' && (
+                          <Dialog
+                            open={openCheckOutDialog}
+                            onOpenChange={setOpenCheckOutDialog}
+                          >
+                            <DialogTrigger asChild>
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                className="hover:bg-white-600 bg-green-600 hover:text-white"
+                                onClick={() => handleCheckOut(checkclock.id)}
+                              >
+                                <CalendarArrowUp className="h-4 w-4 text-white" />
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-2xl">
+                              <DialogHeader>
+                                <DialogTitle>Clock Out</DialogTitle>
+                              </DialogHeader>
+                              <CheckOutForm
+                                attendanceId={checkOutId ?? ''}
+                                onSuccess={() => {
+                                  setOpenCheckOutDialog(false);
+                                  // Optionally refetch attendance data here
+                                }}
+                              />
+                            </DialogContent>
+                          </Dialog>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>

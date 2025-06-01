@@ -9,7 +9,9 @@ export class AttendanceTypeService {
 
   async createAttendanceType(dto: createAttendanceTypeDto) {
     try {
-      const attendanceType = await this.prisma.attendanceType.create({ data: dto });
+      const attendanceType = await this.prisma.attendanceType.create({
+        data: dto,
+      });
       return {
         statusCode: 201,
         message: 'AttendanceType created successfully',
@@ -46,7 +48,10 @@ export class AttendanceTypeService {
     return await this.prisma.attendanceType.findMany();
   }
 
-  async updateAttendanceType(attendanceTypeId: string, dto: editAttendanceTypeDto) {
+  async updateAttendanceType(
+    attendanceTypeId: string,
+    dto: editAttendanceTypeDto,
+  ) {
     try {
       const attendanceType = await this.prisma.attendanceType.update({
         where: { id: attendanceTypeId },
@@ -68,7 +73,9 @@ export class AttendanceTypeService {
 
   async deleteAttendanceType(attendanceTypeId: string) {
     try {
-      await this.prisma.attendanceType.delete({ where: { id: attendanceTypeId } });
+      await this.prisma.attendanceType.delete({
+        where: { id: attendanceTypeId },
+      });
       return {
         statusCode: 200,
         message: 'AttendanceType deleted successfully',
@@ -80,13 +87,13 @@ export class AttendanceTypeService {
       };
     }
   }
-  async findFilters(filters: Record< string, any>){
-    const where: Record<string , any> = {}
+  async findFilters(filters: Record<string, any>) {
+    const where: Record<string, any> = {};
 
-    for (const [key,value] of Object.entries(filters)){
-      where[key] = { equals: value};
+    for (const [key, value] of Object.entries(filters)) {
+      where[key] = { equals: value };
     }
 
-    return await this.prisma.attendanceType.findMany({where});
+    return await this.prisma.attendanceType.findMany({ where });
   }
 }

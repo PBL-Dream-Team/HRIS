@@ -17,6 +17,7 @@ import { AuthIdDto } from './dtos';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { ForgotPasswordDto } from './dtos/forgotPassword.dto';
 import { ResetPasswordDto } from './dtos/resetPassword.dto';
+import { GoogleDto } from './dtos/google.dto';
 
 @ApiTags('Auth')
 @Controller('api/auth')
@@ -113,5 +114,34 @@ export class AuthController {
   @Post('reset-password')
   async resetPassword(@Body() dto: ResetPasswordDto) {
     return this.authService.resetPassword(dto.token, dto.new_password);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('google')
+  async googleSignin(
+    @Body() dto: GoogleDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const token = await this.authService.googleLogin(dto.idToken);
+
+    if (token['access_token'] != null) {
+      res.cookie('jwt', token['access_token'], {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none',
+        domain: process.env.COOKIE_DOMAIN || 'localhost',
+        maxAge: 1000 * 60 * 60 * 24 * 7,
+      });
+
+      return {
+        statusCode: 200,
+        message: 'Login successfully',
+      };
+    } else {
+      throw {
+        statusCode: token['statusCode'],
+        message: token['message'],
+      };
+    }
   }
 }

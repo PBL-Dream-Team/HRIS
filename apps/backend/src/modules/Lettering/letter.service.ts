@@ -10,21 +10,29 @@ export class LetterService {
   constructor(private prisma: PrismaService) {}
 
   async createLetter(dto: createLetterDto, file?: Express.Multer.File) {
-    const data : any = {...dto};
+    const data: any = { ...dto };
 
-    if(file){
+    if (file) {
       const filename = `${Date.now()}_${file.originalname}`;
       data.file_dir = filename;
     }
-    
+
     try {
       const letter = await this.prisma.letter.create({ data: data });
 
-      if(file && data.file_dir){
-              const writePath = join(process.cwd(), 'apps', 'frontend', 'public' , 'storage','letter',data.file_dir);
-              const writeStream = createWriteStream(writePath);
-              writeStream.write(file.buffer);
-              writeStream.end();
+      if (file && data.file_dir) {
+        const writePath = join(
+          process.cwd(),
+          'apps',
+          'frontend',
+          'public',
+          'storage',
+          'letter',
+          data.file_dir,
+        );
+        const writeStream = createWriteStream(writePath);
+        writeStream.write(file.buffer);
+        writeStream.end();
       }
 
       return {
@@ -63,12 +71,16 @@ export class LetterService {
     return await this.prisma.letter.findMany();
   }
 
-  async updateLetter(letterId: string, dto: editLetterDto, file?: Express.Multer.File) {
-    const data : any = {...dto};
+  async updateLetter(
+    letterId: string,
+    dto: editLetterDto,
+    file?: Express.Multer.File,
+  ) {
+    const data: any = { ...dto };
 
-    const old = await this.prisma.letter.findFirst({where:{id:letterId}});
+    const old = await this.prisma.letter.findFirst({ where: { id: letterId } });
 
-    if(file){
+    if (file) {
       const filename = `${Date.now()}_${file.originalname}`;
       data.file_dir = filename;
     }
@@ -79,15 +91,31 @@ export class LetterService {
         data: dto,
       });
 
-      if(data.file_dir && file){
-        const writePath = join(process.cwd(), 'apps', 'frontend', 'public' , 'storage','letter',data.pict_dir);
+      if (data.file_dir && file) {
+        const writePath = join(
+          process.cwd(),
+          'apps',
+          'frontend',
+          'public',
+          'storage',
+          'letter',
+          data.pict_dir,
+        );
         const writeStream = createWriteStream(writePath);
         writeStream.write(file.buffer);
         writeStream.end();
 
-        if(old.file_dir){
-          const oldPath = join(process.cwd(), 'apps', 'frontend', 'public' , 'storage','letter',old.file_dir);
-          if(existsSync(oldPath)){
+        if (old.file_dir) {
+          const oldPath = join(
+            process.cwd(),
+            'apps',
+            'frontend',
+            'public',
+            'storage',
+            'letter',
+            old.file_dir,
+          );
+          if (existsSync(oldPath)) {
             unlinkSync(oldPath);
           }
         }
@@ -108,13 +136,23 @@ export class LetterService {
 
   async deleteLetter(letterId: string) {
     try {
-      const letter = await this.prisma.letter.findFirst({ where: { id: letterId}});
+      const letter = await this.prisma.letter.findFirst({
+        where: { id: letterId },
+      });
 
       await this.prisma.letter.delete({ where: { id: letterId } });
 
-      if(letter.file_dir){
-        const writeStream = join(process.cwd(), 'apps', 'frontend', 'public' , 'storage','letter',letter.file_dir);
-        if(existsSync(writeStream)){
+      if (letter.file_dir) {
+        const writeStream = join(
+          process.cwd(),
+          'apps',
+          'frontend',
+          'public',
+          'storage',
+          'letter',
+          letter.file_dir,
+        );
+        if (existsSync(writeStream)) {
           unlinkSync(writeStream);
         }
       }
@@ -130,13 +168,13 @@ export class LetterService {
       };
     }
   }
-  async findFilters(filters: Record< string, any>){
-    const where: Record<string , any> = {}
+  async findFilters(filters: Record<string, any>) {
+    const where: Record<string, any> = {};
 
-    for (const [key,value] of Object.entries(filters)){
-      where[key] = { equals: value};
+    for (const [key, value] of Object.entries(filters)) {
+      where[key] = { equals: value };
     }
 
-    return await this.prisma.letter.findMany({where});
+    return await this.prisma.letter.findMany({ where });
   }
 }

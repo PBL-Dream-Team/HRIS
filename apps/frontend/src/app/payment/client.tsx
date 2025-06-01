@@ -1,0 +1,116 @@
+'use client';
+
+import { useSearchParams, useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import api from '@/lib/axios';
+
+const SUBSCRIPTION_IDS: Record<string, string> = {
+  Trial: 'bcf1b2a6-bdc2-4b66-98b1-e8a2c0ea2e95',
+  'Pay as you go': 'd63b6982-048d-414e-92d4-50357234e010',
+  Bronze: 'd92d0e25-aefc-4732-94a7-5e8068fde7d9',
+  Silver: '5283975f-1e97-4e99-ab39-d316dce5abf0',
+  Gold: 'edd5b74d-2329-4e22-b720-a1801ab02939',
+};
+
+export default function PaymentClient({
+  company_id,
+}: {
+  company_id: string | null;
+}) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [loading, setLoading] = useState(false);
+
+  const title = searchParams.get('title') || 'Unknown Package';
+  const priceString = searchParams.get('price') || '0';
+  const range = searchParams.get('range') || '1';
+  const type = searchParams.get('type') || 'single';
+
+  const employeeCount = parseInt(range.replace(/[^\d]/g, ''), 10) || 1;
+  const parsedPrice = parseInt(priceString.replace(/[^\d]/g, ''), 10) || 0;
+
+  const taxRate = 0.1;
+  const subtotal = type === 'payg' ? parsedPrice * employeeCount : parsedPrice;
+  const total = subtotal + subtotal * taxRate;
+
+  const handleContinue = async () => {
+    if (!company_id) {
+      router.push('/signin'); // atau tampilkan error
+      return;
+    }
+
+    setLoading(true);
+    const subscription_id = SUBSCRIPTION_IDS[title] || '';
+
+    try {
+      await api.post('/api/transaction', {
+        company_id,
+        subscription_id,
+        total,
+      });
+
+      router.push('/payment/callback?status=success');
+    } catch (error) {
+      console.error('Transaction API error:', error);
+      router.push('/payment/callback?status=failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="flex items-center justify-center min-h-screen bg-white px-4">
+      <div className="max-w-md w-full text-black border rounded-lg p-6 shadow-sm space-y-2 text-sm">
+        <h2 className="text-xl font-bold text-black mb-4">Order Summary</h2>
+
+        <div className="flex justify-between">
+          <span>Package</span>
+          <span>: {title}</span>
+        </div>
+        <div className="flex justify-between">
+          <span>Total Users</span>
+          <span>: {employeeCount}</span>
+        </div>
+        {type === 'payg' && (
+          <div className="flex justify-between">
+            <span>Price per User</span>
+            <span>: Rp {parsedPrice.toLocaleString()}</span>
+          </div>
+        )}
+        {type === 'single' && (
+          <div className="flex justify-between">
+            <span>Total Package Price</span>
+            <span>: Rp {parsedPrice.toLocaleString()}</span>
+          </div>
+        )}
+
+        <hr className="my-4" />
+
+        <div className="flex justify-between text-sm">
+          <span>Subtotal</span>
+          <span>Rp {subtotal.toLocaleString()}</span>
+        </div>
+        <div className="flex justify-between text-sm">
+          <span>Tax (10%)</span>
+          <span>Rp {(subtotal * taxRate).toLocaleString()}</span>
+        </div>
+
+        <hr className="my-4" />
+
+        <div className="flex justify-between font-semibold text-base">
+          <span>Total</span>
+          <span>Rp {total.toLocaleString()}</span>
+        </div>
+
+        <Button
+          className="mt-6 w-full"
+          onClick={handleContinue}
+          disabled={loading}
+        >
+          {loading ? 'Processing...' : 'Continue to Payment'}
+        </Button>
+      </div>
+    </div>
+  );
+}

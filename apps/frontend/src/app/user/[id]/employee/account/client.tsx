@@ -1,10 +1,7 @@
 'use client';
 import { AppSidebar } from '@/components/app-sidebar';
 import { Input } from '@/components/ui/input';
-import {
-  Bell,
-  Pencil,
-} from 'lucide-react';
+import { Bell, Pencil } from 'lucide-react';
 import { NavUser } from '@/components/nav-user';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
@@ -54,7 +51,26 @@ import { use } from 'chai';
 
 type EducationType = 'HIGH_SCHOOL' | 'BACHELOR' | 'MASTER' | 'DOCTOR';
 type GenderType = 'M' | 'F';
-type Bank = 'BRI' | 'Mandiri' | 'BNI' | 'Danamon' | 'Permata' | 'BCA' | 'Maybank' | 'Panin' | 'Bukopin' | 'CIMB' | 'UOB' | 'OCBC' | 'BJB' | 'Muamalat' | 'BTN' | 'BTPN' | 'Mega' | 'SyariahMandiri' | 'Commonwealth';
+type Bank =
+  | 'BRI'
+  | 'Mandiri'
+  | 'BNI'
+  | 'Danamon'
+  | 'Permata'
+  | 'BCA'
+  | 'Maybank'
+  | 'Panin'
+  | 'Bukopin'
+  | 'CIMB'
+  | 'UOB'
+  | 'OCBC'
+  | 'BJB'
+  | 'Muamalat'
+  | 'BTN'
+  | 'BTPN'
+  | 'Mega'
+  | 'SyariahMandiri'
+  | 'Commonwealth';
 
 type AccountClientProps = {
   isAdmin: boolean;
@@ -87,7 +103,7 @@ export default function AccountClient({
   isAdmin,
   userId,
   companyId,
-  initialData
+  initialData,
 }: AccountClientProps) {
   const [user, setUser] = useState({
     name: '',
@@ -144,7 +160,7 @@ export default function AccountClient({
         id: employee.id || '',
         pict_dir: employee.pict_dir || '',
       });
-      
+
       setEmployeeWorkData({
         position: employee.position || '',
         branch: employee.branch || '',
@@ -155,11 +171,8 @@ export default function AccountClient({
         account_number: employee.account_number || '',
       });
     } catch (err: any) {
-      console.error(
-        'Error fetching user:',
-        err.response?.data || err.message,
-      );
-    } 
+      console.error('Error fetching user:', err.response?.data || err.message);
+    }
   }, [userId, companyId]);
 
   useEffect(() => {
@@ -167,8 +180,8 @@ export default function AccountClient({
   }, [fetchData]);
 
   const handleOperationSuccess = useCallback(async () => {
-      await fetchData();
-    }, [fetchData]);
+    await fetchData();
+  }, [fetchData]);
 
   const displayValue = (value: string | undefined | null) => {
     return value || '';
@@ -181,7 +194,7 @@ export default function AccountClient({
       case 'F':
         return 'Female';
       default:
-        return genderCode; 
+        return genderCode;
     }
   };
 
@@ -196,9 +209,9 @@ export default function AccountClient({
       case 'DOCTOR':
         return 'Doctor';
       default:
-        return education; 
+        return education;
     }
-  }
+  };
 
   const formatContractType = (contract: string) => {
     switch (contract) {
@@ -209,9 +222,9 @@ export default function AccountClient({
       case 'INTERN':
         return 'Intern';
       default:
-        return contract; 
+        return contract;
     }
-  }
+  };
 
   const formatWorkscheme = (workscheme: string) => {
     switch (workscheme) {
@@ -222,9 +235,9 @@ export default function AccountClient({
       case 'HYBRID':
         return 'Hybrid';
       default:
-        return workscheme; 
+        return workscheme;
     }
-  }
+  };
 
   const formatDate = (dateString: string) => {
     if (!dateString) return '';
@@ -297,7 +310,7 @@ export default function AccountClient({
           <div className="w-full h-fit md:w-2/3 grid grid-cols-1 md:grid-cols-2 gap-4 border-2 p-4 bg-white rounded-lg shadow">
             <h1 className="text-lg font-semibold mb-2">General Information</h1>
             <div className="col-span-full flex items-center gap-4">
-                <Avatar className="w-25 h-25">
+              <Avatar className="w-25 h-25">
                 <AvatarImage
                   src={'/storage/employee/' + employeeData.pict_dir}
                   alt={employeeData.first_name || 'Avatar'}
@@ -306,90 +319,90 @@ export default function AccountClient({
                   {employeeData.first_name?.[0]}
                   {employeeData.last_name?.[0]}
                 </AvatarFallback>
-                </Avatar>
+              </Avatar>
             </div>
             <div>
               <Label>First Name</Label>
-              <Input 
-                id='first_name'
-                value={employeeData.first_name || ''} 
-                readOnly 
-                placeholder="Your first name" 
+              <Input
+                id="first_name"
+                value={employeeData.first_name || ''}
+                readOnly
+                placeholder="Your first name"
               />
             </div>
             <div>
               <Label>Last Name</Label>
               <Input
-                id='last_name' 
+                id="last_name"
                 value={employeeData.last_name || ''}
                 readOnly
                 placeholder="Your last name"
-             />
+              />
             </div>
             <div>
               <Label>Gender</Label>
-              <Input 
-                id='gender'
-                value={formatGender(employeeData.gender) || ''} 
-                readOnly 
-                placeholder="Your gender" 
+              <Input
+                id="gender"
+                value={formatGender(employeeData.gender) || ''}
+                readOnly
+                placeholder="Your gender"
               />
             </div>
             <div>
               <Label>Last Education</Label>
-              <Input 
-                id='last_education'
-                value={formatLastEducation(employeeData.last_education) || ''} 
-                readOnly 
-                placeholder="Your last education" 
+              <Input
+                id="last_education"
+                value={formatLastEducation(employeeData.last_education) || ''}
+                readOnly
+                placeholder="Your last education"
               />
             </div>
             <div>
               <Label>Mobile Number</Label>
-              <Input 
-                id='phone'
+              <Input
+                id="phone"
                 value={employeeData.phone || ''}
-                readOnly 
-                placeholder="Your phone number" 
+                readOnly
+                placeholder="Your phone number"
               />
             </div>
             <div>
               <Label>Email</Label>
-              <Input 
-                id='email'
-                value={user.email || ''} 
-                readOnly 
-                placeholder="Your email" 
+              <Input
+                id="email"
+                value={user.email || ''}
+                readOnly
+                placeholder="Your email"
               />
             </div>
             <div>
               <Label>Place of Birth</Label>
-              <Input 
-                id='birth_place'
-                value={employeeData.birth_place || ''} 
-                readOnly 
-                placeholder="Your place of birth" 
+              <Input
+                id="birth_place"
+                value={employeeData.birth_place || ''}
+                readOnly
+                placeholder="Your place of birth"
               />
             </div>
             <div>
               <Label>Date of Birth</Label>
-              <Input 
-                id='birth_date'
+              <Input
+                id="birth_date"
                 value={formatDate(employeeData.birth_date) || ''}
-                readOnly 
-                placeholder="Your date of birth" 
+                readOnly
+                placeholder="Your date of birth"
               />
             </div>
-            <div className='col-span-full'>
+            <div className="col-span-full">
               <Label>NIK</Label>
-              <Input 
-                id='nik'
-                value={employeeData.nik || ''} 
-                readOnly 
-                placeholder="Your NIK" 
+              <Input
+                id="nik"
+                value={employeeData.nik || ''}
+                readOnly
+                placeholder="Your NIK"
               />
             </div>
-            <div className='col-span-full flex justify-end items-center mt-4'>
+            <div className="col-span-full flex justify-end items-center mt-4">
               <div className="flex items-center gap-2">
                 <Dialog>
                   <DialogTrigger asChild>
@@ -409,7 +422,8 @@ export default function AccountClient({
                         first_name: employeeData.first_name || '',
                         last_name: employeeData.last_name || '',
                         gender: employeeData.gender as GenderType,
-                        last_education: employeeData.last_education as EducationType,
+                        last_education:
+                          employeeData.last_education as EducationType,
                         phone: employeeData.phone || '',
                         nik: employeeData.nik || '',
                         birth_place: employeeData.birth_place || '',
@@ -421,7 +435,7 @@ export default function AccountClient({
                     />
                   </DialogContent>
                 </Dialog>
-              
+
                 <Dialog>
                   <DialogTrigger asChild>
                     <Button className="w-full md:w-auto">
@@ -434,7 +448,7 @@ export default function AccountClient({
                     </DialogHeader>
                     <EditPassword
                       userId={userId}
-                      onSuccess={handleOperationSuccess}  
+                      onSuccess={handleOperationSuccess}
                     />
                   </DialogContent>
                 </Dialog>
@@ -448,76 +462,76 @@ export default function AccountClient({
             <Card className="grid grid-cols-1 md:grid-cols-2 gap-2 p-4">
               <div>
                 <Label>Position</Label>
-                <Input 
-                  id='position'
+                <Input
+                  id="position"
                   value={employeeWorkData.position || ''}
-                  readOnly 
-                  placeholder="Your position" 
+                  readOnly
+                  placeholder="Your position"
                 />
               </div>
               <div>
                 <Label>Branch</Label>
-                <Input 
-                  id='branch'
+                <Input
+                  id="branch"
                   value={employeeWorkData.branch || ''}
-                  readOnly 
-                  placeholder="Your branch" 
+                  readOnly
+                  placeholder="Your branch"
                 />
               </div>
               <div>
                 <Label>Contract Type</Label>
-                <Input 
-                  id='contract'
+                <Input
+                  id="contract"
                   value={formatContractType(employeeWorkData.contract) || ''}
-                  readOnly 
-                  placeholder="Your contract type" 
+                  readOnly
+                  placeholder="Your contract type"
                 />
               </div>
               <div>
                 <Label>Workscheme</Label>
-                <Input 
-                  id='workscheme'
+                <Input
+                  id="workscheme"
                   value={formatWorkscheme(employeeWorkData.workscheme) || ''}
-                  readOnly 
+                  readOnly
                   placeholder="Your workscheme"
                 />
               </div>
-              <div className='col-span-full'>
+              <div className="col-span-full">
                 <Label>ID</Label>
-                <Input 
-                  id='id'
+                <Input
+                  id="id"
                   value={employeeData.id || ''}
-                  readOnly 
-                  placeholder="Your ID" 
+                  readOnly
+                  placeholder="Your ID"
                 />
               </div>
             </Card>
             <Card className="grid grid-cols-1 gap-2 p-4">
               <div className="col-span-full">
                 <Label>Bank</Label>
-                <Input 
-                  id='account_bank'
+                <Input
+                  id="account_bank"
                   value={employeeWorkData.account_bank || ''}
-                  readOnly 
-                  placeholder="Your bank" 
+                  readOnly
+                  placeholder="Your bank"
                 />
               </div>
               <div>
                 <Label>Account Number</Label>
-                <Input 
-                  id='account_number'
+                <Input
+                  id="account_number"
                   value={employeeWorkData.account_number || ''}
-                  readOnly 
-                  placeholder="Your account number" 
+                  readOnly
+                  placeholder="Your account number"
                 />
               </div>
               <div>
                 <Label>Account Holder Name</Label>
-                <Input 
-                  id='account_name'
+                <Input
+                  id="account_name"
                   value={employeeWorkData.account_name || ''}
-                  readOnly 
-                  placeholder="Your account holder name" 
+                  readOnly
+                  placeholder="Your account holder name"
                 />
               </div>
               <div className="col-span-full flex justify-end mt-2">
@@ -533,7 +547,7 @@ export default function AccountClient({
                       <DialogTitle>Edit Data</DialogTitle>
                     </DialogHeader>
                     <EmployeeEditWorkDataForm
-                      mode='edit'
+                      mode="edit"
                       companyId={companyId}
                       employeeId={employeeData.id}
                       initialData={{

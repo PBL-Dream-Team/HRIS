@@ -7,7 +7,6 @@ import {
   SheetTitle,
 } from '@/components/ui/sheet';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Eye, DownloadIcon } from 'lucide-react';
 
 type CheckClock = {
   date: string;
@@ -18,10 +17,10 @@ type CheckClock = {
   clockOut: string;
   workHours: string;
   address: string;
-  approval:string;
+  approval: string;
   lat: string;
   long: string;
-  location:string;
+  location: string;
 };
 
 interface CheckClockDetailsProps {
@@ -37,7 +36,10 @@ export default function CheckClockDetails({
 }: CheckClockDetailsProps) {
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-[400px] sm:w-[500px] overflow-y-auto">
+      <SheetContent
+        side="right"
+        className="w-[400px] sm:w-[500px] overflow-y-auto"
+      >
         <SheetHeader className="px-4">
           <SheetTitle>Attendance Details</SheetTitle>
         </SheetHeader>
@@ -49,7 +51,11 @@ export default function CheckClockDetails({
               <Avatar className="h-8 w-8 rounded-lg">
                 <AvatarImage src="/avatars/user.jpg" />
                 <AvatarFallback className="rounded-lg">
-                  {selectedCheckClock.name.split(' ').map((n) => n[0]).join('').toUpperCase()}
+                  {selectedCheckClock.name
+                    .split(' ')
+                    .map((n) => n[0])
+                    .join('')
+                    .toUpperCase()}
                 </AvatarFallback>
               </Avatar>
               <div>
@@ -61,22 +67,20 @@ export default function CheckClockDetails({
               <div className="ml-auto flex items-center gap-2">
                 <span
                   className={`h-2 w-2 rounded-full ${
-                      selectedCheckClock.status === 'ON_TIME'
+                    selectedCheckClock.status === 'ON_TIME'
                       ? 'bg-green-600'
-                      : selectedCheckClock.status != 'ON_TIME' && selectedCheckClock.approval === 'APPROVED'
-                      ? 'bg-green-600' :
-                      selectedCheckClock.approval === 'PENDING'
-                      ?'bg-yellow-500'
-                      : 'bg-red-600'
+                      : selectedCheckClock.status != 'ON_TIME' &&
+                          selectedCheckClock.approval === 'APPROVED'
+                        ? 'bg-green-600'
+                        : selectedCheckClock.approval === 'PENDING'
+                          ? 'bg-yellow-500'
+                          : 'bg-red-600'
                   }`}
-                >
-                  
-                </span>
+                ></span>
                 <span className="text-sm text-muted-foreground">
-                  {
-                      selectedCheckClock.status === 'ON_TIME'
-                      ? 'ON TIME'
-                      : selectedCheckClock.status === 'LATE'
+                  {selectedCheckClock.status === 'ON_TIME'
+                    ? 'ON TIME'
+                    : selectedCheckClock.status === 'LATE'
                       ? 'LATE'
                       : 'EARLY'}
                 </span>
@@ -89,15 +93,21 @@ export default function CheckClockDetails({
               <div className="grid grid-cols-2 gap-x-4 gap-y-3">
                 <div>
                   <p className="text-muted-foreground text-xs">Date</p>
-                  <p className="font-medium">{selectedCheckClock.date.replace(/T.*/,"")}</p>
+                  <p className="font-medium">
+                    {selectedCheckClock.date.replace(/T.*/, '')}
+                  </p>
                 </div>
                 <div>
                   <p className="text-muted-foreground text-xs">Clock In</p>
-                  <p className="font-medium">{selectedCheckClock.clockIn.replace(/.*T/,"")}</p>
+                  <p className="font-medium">
+                    {selectedCheckClock.clockIn.replace(/.*T/, '')}
+                  </p>
                 </div>
                 <div>
                   <p className="text-muted-foreground text-xs">Clock Out</p>
-                  <p className="font-medium">{selectedCheckClock.clockOut.replace(/.*T/,"")}</p>
+                  <p className="font-medium">
+                    {selectedCheckClock.clockOut.replace(/.*T/, '')}
+                  </p>
                 </div>
                 <div>
                   <p className="text-muted-foreground text-xs">Status</p>
@@ -105,17 +115,17 @@ export default function CheckClockDetails({
                     {selectedCheckClock.status === 'ON_TIME'
                       ? 'On Time'
                       : selectedCheckClock.status === 'LATE'
-                      ? 'Late'
-                      : 'Early' 
-                      }
+                        ? 'Late'
+                        : 'Early'}
                   </p>
                 </div>
                 <div>
                   <p className="text-muted-foreground text-xs">Work Hours</p>
-                  <p className="font-medium">{
-                  selectedCheckClock.workHours != '0h' ?
-                  selectedCheckClock.workHours : '-'
-                  }</p>
+                  <p className="font-medium">
+                    {selectedCheckClock.workHours != '0h'
+                      ? selectedCheckClock.workHours
+                      : '-'}
+                  </p>
                 </div>
               </div>
             </div>
@@ -129,7 +139,9 @@ export default function CheckClockDetails({
                   <p className="font-medium">{selectedCheckClock.location}</p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground text-xs">Detail Address</p>
+                  <p className="text-muted-foreground text-xs">
+                    Detail Address
+                  </p>
                   <p className="font-medium">{selectedCheckClock.address}</p>
                 </div>
                 <div>

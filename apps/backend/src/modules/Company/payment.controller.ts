@@ -1,12 +1,12 @@
-import { Body, Controller, Post } from "@nestjs/common";
-import { PaymentService } from "./payment.service";
+import { Body, Controller, Post } from '@nestjs/common';
+import { PaymentService } from './payment.service';
 
 @Controller('api/payment')
-export class PaymentController{
-    constructor(private readonly PaymentService: PaymentService){}
+export class PaymentController {
+  constructor(private readonly PaymentService: PaymentService) {}
 
-    @Post('/callback')
-    gatewayCallback(@Body() req: any){
-        return this.PaymentService.tripayCallbackHandler(req);
-    }
+  @Post('/callback')
+  gatewayCallback(@Body() req: any) {
+    return this.PaymentService.tripayCallbackHandler(req);
+  }
 }

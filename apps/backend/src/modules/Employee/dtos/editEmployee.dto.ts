@@ -1,107 +1,117 @@
-import { IsAlpha, IsBoolean, IsDate, IsEmail, IsEnum, IsNumberString, IsOptional, IsString, IsUUID } from "@nestjs/class-validator";
-import { workscheme } from "./workscheme.enum";
-import { educationtype } from "./educationtype.enum";
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import { contracttype } from "./contracttype.enum";
-import { BankCode } from "./bankcode.enum";
-import { Matches } from "class-validator";
-import { Transform } from "class-transformer";
+import {
+  IsAlpha,
+  IsBoolean,
+  IsDate,
+  IsEmail,
+  IsEnum,
+  IsNumberString,
+  IsOptional,
+  IsString,
+  IsUUID,
+} from '@nestjs/class-validator';
+import { workscheme } from './workscheme.enum';
+import { educationtype } from './educationtype.enum';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { contracttype } from './contracttype.enum';
+import { BankCode } from './bankcode.enum';
+import { Matches } from 'class-validator';
+import { Transform } from 'class-transformer';
 
 export class editEmployeeDto {
-    @ApiPropertyOptional()
-    @IsUUID()
-    @IsOptional()
-    company_id: string;
+  @ApiPropertyOptional()
+  @IsUUID()
+  @IsOptional()
+  company_id: string;
 
-	@ApiPropertyOptional()
-    @IsEnum(workscheme, {message:""})
-    @IsOptional()
-    workscheme: workscheme;
+  @ApiPropertyOptional()
+  @IsEnum(workscheme, { message: '' })
+  @IsOptional()
+  workscheme: workscheme;
 
-    @ApiPropertyOptional()
-    @IsString()
-    @IsOptional()
-    first_name: string;
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  first_name: string;
 
-	@ApiPropertyOptional()
-    @IsString()
-    @IsOptional()
-    last_name: string;
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  last_name: string;
 
-	@ApiPropertyOptional()
-    @IsAlpha()
-    @IsOptional()
-    gender: string;
+  @ApiPropertyOptional()
+  @IsAlpha()
+  @IsOptional()
+  gender: string;
 
-	@ApiPropertyOptional()
-    @IsString()
-    @IsOptional()
-    address: string;
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  address: string;
 
-	@ApiPropertyOptional()
-    @IsEmail()
-    @IsOptional()
-    email: string;
+  @ApiPropertyOptional()
+  @IsEmail()
+  @IsOptional()
+  email: string;
 
-	@ApiPropertyOptional()
-    @IsString()
-    @IsOptional()
-    password:string;
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  password: string;
 
-	@ApiPropertyOptional()
-    @IsNumberString()
-    @IsOptional()
-    phone:string;
+  @ApiPropertyOptional()
+  @IsNumberString()
+  @IsOptional()
+  phone: string;
 
-	@ApiPropertyOptional()
-    @IsBoolean()
-    @IsOptional()
-    is_admin: boolean;
+  @ApiPropertyOptional()
+  @IsBoolean()
+  @IsOptional()
+  is_admin: boolean;
 
-	@ApiPropertyOptional()
-    @IsUUID()
-    @IsOptional()
-    attendance_id: string;
+  @ApiPropertyOptional()
+  @IsUUID()
+  @IsOptional()
+  attendance_id: string;
 
-	@ApiProperty()
-    @IsDate()
-    @IsOptional()
-    @Transform(({ value }) => new Date(value))
-    birth_date: Date;
+  @ApiProperty()
+  @IsDate()
+  @IsOptional()
+  @Transform(({ value }) => new Date(value))
+  birth_date: Date;
 
-	@ApiPropertyOptional()
-    @IsString()
-    @IsOptional()
-    birth_place: string;
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  birth_place: string;
 
-	@ApiPropertyOptional()
-    @IsNumberString()
-    @IsOptional()
-    nik: string;
+  @ApiPropertyOptional()
+  @IsNumberString()
+  @IsOptional()
+  nik: string;
 
-	@ApiPropertyOptional()
-    @IsString()
-    @IsOptional()
-    position: string;
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  position: string;
 
-	@ApiPropertyOptional()
-    @IsString()
-    @IsOptional()
-    branch: string;
-    
-    @ApiPropertyOptional()
-    @IsEnum(contracttype)
-    @IsOptional()
-    contract: contracttype;   
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  branch: string;
 
-	@ApiPropertyOptional()
-    @IsEnum(educationtype, {message:""})
-    @IsOptional()
-    last_education: educationtype;
+  @ApiPropertyOptional()
+  @IsEnum(contracttype)
+  @IsOptional()
+  contract: contracttype;
 
-    @ApiPropertyOptional({
-        example:{
-            /*
+  @ApiPropertyOptional()
+  @IsEnum(educationtype, { message: '' })
+  @IsOptional()
+  last_education: educationtype;
+
+  @ApiPropertyOptional({
+    example: {
+      /*
             enum BankCode {
             BRI       // 002
             Mandiri   // 008
@@ -124,34 +134,34 @@ export class editEmployeeDto {
             Commonwealth   // 950
             }
             */
-        },
-    })
-    @IsEnum(BankCode)
-    @IsOptional()
-    account_bank: string;
+    },
+  })
+  @IsEnum(BankCode)
+  @IsOptional()
+  account_bank: string;
 
-    @ApiPropertyOptional()
-    @IsNumberString()
-    @IsOptional()
-    account_number: string;
+  @ApiPropertyOptional()
+  @IsNumberString()
+  @IsOptional()
+  account_number: string;
 
-    @ApiPropertyOptional()
-    @IsString()
-    @IsOptional()
-    account_name: string;
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  account_name: string;
 
-	@ApiPropertyOptional()
-    @IsString()
-    @IsOptional()
-    google_id: string;
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  google_id: string;
 
-	@ApiPropertyOptional()
-    @IsString()
-    @IsOptional()
-    access_token: string;
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  access_token: string;
 
-	@ApiPropertyOptional()
-    @IsString()
-    @IsOptional()
-    refresh_token: string;
+  @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  refresh_token: string;
 }

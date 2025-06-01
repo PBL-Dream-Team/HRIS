@@ -70,7 +70,9 @@ export function LetterForm({
   const [letterName, setLetterName] = useState<string>('');
   const [letterDesc, setLetterDesc] = useState<string>('');
   const [status, setStatus] = useState<string>('active');
-  const [validUntilDate, setValidUntilDate] = useState<Date | undefined>(undefined);
+  const [validUntilDate, setValidUntilDate] = useState<Date | undefined>(
+    undefined,
+  );
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   // Options for Select Inputs
@@ -139,7 +141,13 @@ export function LetterForm({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!employeeId || !letterTypeId || !letterName || !validUntilDate || !status) {
+    if (
+      !employeeId ||
+      !letterTypeId ||
+      !letterName ||
+      !validUntilDate ||
+      !status
+    ) {
       toast.error('Please fill in all required fields.');
       return;
     }
@@ -197,7 +205,8 @@ export function LetterForm({
       // for (const [key, value] of formData.entries()) {
       //   console.log(`FormData ${key}:`, value);
       // }
-      const errorMessage = error.response?.data?.message || 'Something went wrong.';
+      const errorMessage =
+        error.response?.data?.message || 'Something went wrong.';
       toast.error(errorMessage);
     }
   };
@@ -271,7 +280,8 @@ export function LetterForm({
         {/* File Upload */}
         <div className="space-y-1">
           <Label htmlFor="letterFile">
-            Upload Letter File {mode === 'create' ? '' : '(Optional: Overwrites existing)'}
+            Upload Letter File{' '}
+            {mode === 'create' ? '' : '(Optional: Overwrites existing)'}
           </Label>
           <div className="mt-1 relative w-full aspect-[3/1] border-2 border-dashed rounded-lg shadow-sm flex items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-700 transition cursor-pointer">
             {selectedFile ? (
@@ -301,7 +311,9 @@ export function LetterForm({
             />
           </div>
           {mode === 'edit' && initialData?.file_url && !selectedFile && (
-            <p className="text-xs text-gray-500 mt-1">Leave empty to keep the existing file.</p>
+            <p className="text-xs text-gray-500 mt-1">
+              Leave empty to keep the existing file.
+            </p>
           )}
         </div>
 
@@ -329,7 +341,9 @@ export function LetterForm({
               type="date"
               value={validUntilDate ? format(validUntilDate, 'yyyy-MM-dd') : ''}
               onChange={(e) => {
-                const selected = e.target.value ? new Date(e.target.value) : undefined;
+                const selected = e.target.value
+                  ? new Date(e.target.value)
+                  : undefined;
                 setValidUntilDate(selected);
               }}
               required
@@ -340,7 +354,12 @@ export function LetterForm({
 
       <DialogFooter className="pt-4">
         {onClose && (
-          <Button type="button" variant="outline" onClick={onClose} className="w-full sm:w-auto">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onClose}
+            className="w-full sm:w-auto"
+          >
             Cancel
           </Button>
         )}

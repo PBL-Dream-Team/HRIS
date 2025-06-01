@@ -1,26 +1,29 @@
 'use client';
 
-import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
-import SetNewPasswordForm from "@/components/set-password";
-import api from "@/lib/axios";
-import { Loader } from "lucide-react";
-import LinkExpired from "@/components/link-expired";
+import { useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+import SetNewPasswordForm from '@/components/forgotpassword/set-password';
+import api from '@/lib/axios';
+import { Loader } from 'lucide-react';
+import LinkExpired from '@/components/forgotpassword/link-expired';
 
 export default function ResetPasswordPage() {
-  const [status, setStatus] = useState<'checking' | 'valid' | 'invalid'>('checking');
+  const [status, setStatus] = useState<'checking' | 'valid' | 'invalid'>(
+    'checking',
+  );
   const searchParams = useSearchParams();
-  const token = searchParams.get("token");
+  const token = searchParams.get('token');
 
   useEffect(() => {
     if (!token) {
-      setStatus("invalid");
+      setStatus('invalid');
       return;
     }
 
-    api.get(`/api/auth/reset-password`, { params: { token } })
-      .then(() => setStatus("valid"))
-      .catch(() => setStatus("invalid"));
+    api
+      .get(`/api/auth/reset-password`, { params: { token } })
+      .then(() => setStatus('valid'))
+      .catch(() => setStatus('invalid'));
   }, [token]);
 
   if (status === 'checking') {

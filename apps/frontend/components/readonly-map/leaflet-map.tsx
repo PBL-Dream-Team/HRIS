@@ -1,11 +1,6 @@
 'use client';
 
-import {
-  MapContainer,
-  TileLayer,
-  Marker,
-  useMap,
-} from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
 import { useEffect } from 'react';
 import L from 'leaflet';
 
@@ -45,9 +40,7 @@ export default function LeafletMapDisplay({
       attributionControl={false}
       className="h-64 w-full rounded-lg z-0"
     >
-      <TileLayer
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
+      <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
       <Marker position={position} icon={markerIcon} />
       <MapController />
     </MapContainer>

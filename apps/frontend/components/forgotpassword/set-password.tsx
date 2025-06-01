@@ -1,18 +1,18 @@
 'use client';
 
-import { useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { FiEye, FiEyeOff } from "react-icons/fi";
-import api from "@/lib/axios";
-import { toast } from "sonner";
-import ResetSuccess from "@/components/reset-success";
-import Image from "next/image";
+import { useState } from 'react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { FiEye, FiEyeOff } from 'react-icons/fi';
+import api from '@/lib/axios';
+import { toast } from 'sonner';
+import ResetSuccess from '@/components/forgotpassword/reset-success';
+import Image from 'next/image';
 
 export default function SetNewPasswordForm({ token }: { token: string }) {
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -21,25 +21,25 @@ export default function SetNewPasswordForm({ token }: { token: string }) {
     e.preventDefault();
 
     if (password.length < 8) {
-      toast.error("Password must be at least 8 characters");
+      toast.error('Password must be at least 8 characters');
       return;
     }
 
     if (password !== confirmPassword) {
-      toast.error("Passwords do not match");
+      toast.error('Passwords do not match');
       return;
     }
 
     try {
       const res = await api.post('/api/auth/reset-password', {
         token,
-        new_password: password
+        new_password: password,
       });
 
-      toast.success(res.data.message || "Password reset successful!");
+      toast.success(res.data.message || 'Password reset successful!');
       setIsSuccess(true);
     } catch (err: any) {
-      toast.error(err.response?.data?.message || "Reset failed");
+      toast.error(err.response?.data?.message || 'Reset failed');
     }
   };
 
@@ -65,11 +65,13 @@ export default function SetNewPasswordForm({ token }: { token: string }) {
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* New Password */}
             <div className="space-y-2">
-              <Label htmlFor="new-password" className="text-[#1E3A5F]">New Password</Label>
+              <Label htmlFor="new-password" className="text-[#1E3A5F]">
+                New Password
+              </Label>
               <div className="relative">
                 <Input
                   id="new-password"
-                  type={showPassword ? "text" : "password"}
+                  type={showPassword ? 'text' : 'password'}
                   placeholder="Enter new password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -86,11 +88,13 @@ export default function SetNewPasswordForm({ token }: { token: string }) {
 
             {/* Confirm Password */}
             <div className="space-y-2">
-              <Label htmlFor="confirm-password" className="text-[#1E3A5F]">Confirm Password</Label>
+              <Label htmlFor="confirm-password" className="text-[#1E3A5F]">
+                Confirm Password
+              </Label>
               <div className="relative">
                 <Input
                   id="confirm-password"
-                  type={showConfirmPassword ? "text" : "password"}
+                  type={showConfirmPassword ? 'text' : 'password'}
                   placeholder="Re-enter new password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}

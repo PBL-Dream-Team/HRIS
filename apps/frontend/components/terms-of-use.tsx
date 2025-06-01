@@ -1,83 +1,83 @@
-import { DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+'use client';
+
+import {
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
 
 export default function TermsOfUse() {
-    return (
-        <DialogHeader>
-            <DialogTitle>Terms of Use</DialogTitle>
-            <DialogDescription className="text-gray-600">
-                Ini adalah isi Terms of Use HRIS.
-                <br />
-                <br />
-                Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                Molestias ut facere blanditiis. Dolor quidem accusamus
-                quos facilis? Maxime, dolorum! Nam quos ex voluptates
-                obcaecati, provident earum assumenda dolore, ut sequi
-                repudiandae ipsam suscipit! Repellendus ab temporibus
-                quam. Cum nihil voluptates vero, sequi maxime, reiciendis
-                natus eveniet quam itaque laborum doloribus a qui vel id
-                odio nobis expedita! Enim, culpa quod iste quidem aut
-                iusto aliquam nobis ullam veritatis libero mollitia.
-                Facere illo odit eaque consectetur quidem aperiam
-                voluptatibus molestiae, totam sint illum dolores vero
-                animi neque? Ratione adipisci, dicta impedit neque
-                expedita doloremque sequi consectetur similique vel
-                laudantium minus incidunt. Porro mollitia minima, eius
-                iure, dicta a, accusantium neque unde ducimus quas fugiat
-                ullam vitae! Perspiciatis dicta soluta est cum officia
-                illo ab facere, suscipit fugit illum. Labore, explicabo
-                deserunt? Blanditiis beatae, fugiat quas reiciendis quo
-                nisi, nostrum nobis consequatur ducimus iste a veritatis
-                corrupti provident alias quod tempora laborum veniam
-                cupiditate reprehenderit possimus dicta! Nemo, tempora
-                voluptas ex facere a nobis voluptatem quas vel ab
-                temporibus unde nihil laudantium tenetur ullam eius illum
-                iure, quis veritatis fugiat, voluptates commodi autem
-                dolores. Labore cum, nisi necessitatibus est, ipsam
-                veritatis porro aspernatur sunt eligendi similique
-                inventore quisquam itaque culpa odit molestias. Architecto
-                laboriosam tenetur, molestiae inventore aut delectus
-                pariatur repellendus, ad corporis veniam illo voluptatum,
-                repellat facere. Porro perspiciatis pariatur velit
-                deserunt ullam, amet autem molestias blanditiis ratione,
-                adipisci architecto? Reprehenderit nesciunt incidunt
-                voluptatem debitis vitae odio a doloremque temporibus
-                obcaecati odit molestias aliquid, officiis quam
-                consectetur ducimus dicta aliquam. Libero possimus numquam
-                qui, itaque necessitatibus ducimus quae impedit eum animi
-                cupiditate ab sequi? Necessitatibus exercitationem at,
-                repellat vitae et consequatur eius rem quaerat magni quasi
-                voluptatum mollitia deserunt praesentium, maiores fugit
-                nihil voluptates vero dolorem ipsa corrupti totam
-                possimus! Culpa odit alias fugit, in accusantium dolores,
-                laborum ea praesentium nesciunt ex reiciendis impedit
-                doloribus. Sapiente, ipsa. Accusamus explicabo blanditiis
-                pariatur dolor. Similique ab reiciendis neque nesciunt
-                temporibus quia, beatae facere ex corporis omnis maxime
-                minima libero aliquid hic tenetur, dolore molestias
-                cupiditate eos? Provident aliquid, natus voluptate iure
-                accusamus aspernatur, libero molestiae eveniet unde earum
-                eius perspiciatis. Sunt, magnam quaerat! In ipsum a
-                corrupti similique, deserunt tempore, harum id, deleniti
-                nisi nulla adipisci laborum laboriosam quaerat porro.
-                Laboriosam aliquam eum itaque similique delectus suscipit
-                necessitatibus sapiente illum culpa aspernatur a magni
-                vero eaque totam quibusdam rem, dolore fugiat esse modi
-                consequuntur corrupti! Dolor ad mollitia deserunt a
-                tempore expedita accusamus voluptas unde laborum commodi
-                beatae laudantium, deleniti eos aliquam. Facere a nam
-                temporibus voluptatibus. Autem assumenda eaque mollitia,
-                vitae pariatur perferendis maxime in velit tempore minus
-                deleniti consequatur quae blanditiis tempora nam.
-                Distinctio veritatis labore quos et quasi iusto voluptas
-                sit, perspiciatis laboriosam, itaque maiores explicabo
-                facere animi voluptatem ducimus cumque magni saepe, sint
-                molestias maxime enim culpa temporibus. Laudantium et nisi
-                cumque impedit. Rem, labore? Culpa dolores fuga harum
-                blanditiis sed aliquam, quod voluptatem magni nisi magnam
-                soluta a quibusdam quidem. Magnam, dicta rerum in, velit
-                optio delectus accusamus est sed corrupti placeat pariatur
-                sequi accusantium error at odit.
-            </DialogDescription>
-        </DialogHeader>
-    );
+  return (
+    <DialogHeader>
+      <DialogTitle>Terms of Use</DialogTitle>
+      <DialogDescription className="text-gray-600 space-y-2">
+        <p>
+          Welcome to the Human Resource Information System (HRIS). By accessing
+          and using this system, you agree to comply with the following Terms of
+          Use. Please read them carefully.
+        </p>
+
+        <p>
+          <strong>1. Authorized Use</strong>
+          <br />
+          This system is intended solely for use by authorized employees and
+          administrators of the company. Accessing HRIS using another person’s
+          credentials or sharing login details is strictly prohibited.
+        </p>
+
+        <p>
+          <strong>2. Data Accuracy</strong>
+          <br />
+          Users are responsible for ensuring the accuracy of the personal and
+          employment-related data they submit. Falsification of information may
+          lead to disciplinary action.
+        </p>
+
+        <p>
+          <strong>3. Confidentiality</strong>
+          <br />
+          All information contained in the HRIS, including employee data,
+          salaries, and performance records, must be kept confidential.
+          Unauthorized disclosure or misuse of this data is subject to company
+          policy and applicable laws.
+        </p>
+
+        <p>
+          <strong>4. System Availability</strong>
+          <br />
+          While we strive to maintain 24/7 access, system downtime may occur for
+          maintenance or due to unforeseen issues. The company is not liable for
+          any inconvenience caused by such downtime.
+        </p>
+
+        <p>
+          <strong>5. Monitoring</strong>
+          <br />
+          User activities within the HRIS may be logged and monitored to ensure
+          compliance with security and usage policies.
+        </p>
+
+        <p>
+          <strong>6. Security</strong>
+          <br />
+          Users must take necessary precautions to protect their login
+          credentials. If you suspect unauthorized access, report it to the HR
+          or IT department immediately.
+        </p>
+
+        <p>
+          <strong>7. Changes to Terms</strong>
+          <br />
+          The company reserves the right to update or modify these Terms of Use
+          at any time. Continued use of the system signifies acceptance of the
+          revised terms.
+        </p>
+
+        <p>
+          By using this system, you acknowledge that you have read, understood,
+          and agree to comply with these Terms of Use.
+        </p>
+      </DialogDescription>
+    </DialogHeader>
+  );
 }

@@ -66,7 +66,10 @@ export default function LetterDetails({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-[400px] sm:w-[500px] overflow-y-auto">
+      <SheetContent
+        side="right"
+        className="w-[400px] sm:w-[500px] overflow-y-auto"
+      >
         <SheetHeader className="px-4">
           <SheetTitle>Letter Details</SheetTitle>
         </SheetHeader>
@@ -86,7 +89,9 @@ export default function LetterDetails({
               </Avatar>
               <div>
                 <p className="font-medium">{letter.employeeName}</p>
-                <p className="text-sm text-muted-foreground">{letter.position}</p>
+                <p className="text-sm text-muted-foreground">
+                  {letter.position}
+                </p>
               </div>
             </div>
 

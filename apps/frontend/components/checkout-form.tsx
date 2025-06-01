@@ -64,9 +64,14 @@ export function CheckOutForm({ attendanceId, onSuccess }: CheckOutFormProps) {
     <form onSubmit={handleSubmit} className="flex flex-col space-y-6">
       <div className="w-full space-y-2">
         {isMapLoading && (
-          <div className="text-gray-500 text-sm text-center">Loading map...</div>
+          <div className="text-gray-500 text-sm text-center">
+            Loading map...
+          </div>
         )}
-        <MapPicker onLocationSelect={handleLocationSelect} onLoad={handleMapLoad} />
+        <MapPicker
+          onLocationSelect={handleLocationSelect}
+          onLoad={handleMapLoad}
+        />
       </div>
 
       <div className="w-full">
@@ -107,8 +112,16 @@ export function CheckOutForm({ attendanceId, onSuccess }: CheckOutFormProps) {
       {error && <p className="text-red-600 text-sm">{error}</p>}
 
       <DialogFooter className="gap-2 sm:justify-end w-full">
-        <Button type="submit" className="w-24" disabled={isMapLoading || isSubmitting}>
-          {isSubmitting ? 'Submitting...' : isMapLoading ? 'Loading...' : 'Submit'}
+        <Button
+          type="submit"
+          className="w-24"
+          disabled={isMapLoading || isSubmitting}
+        >
+          {isSubmitting
+            ? 'Submitting...'
+            : isMapLoading
+              ? 'Loading...'
+              : 'Submit'}
         </Button>
       </DialogFooter>
     </form>

@@ -18,13 +18,20 @@ export async function redirectAfterLogin() {
       sub: string;
       is_admin: boolean;
       company_id: string;
+      company_subs_id?: string | null;
     };
   } catch (err) {
     console.error('Invalid token during login redirect:', err);
     redirect('/signin');
   }
+  console.log('Decoded JWT:', decoded);
 
-  const { sub, is_admin } = decoded;
+  const { sub, is_admin, company_subs_id } = decoded;
+
+  if (!company_subs_id) {
+    redirect('/pricing');
+  }
+
   const role = is_admin ? 'admin' : 'employee';
   const target = `/user/${sub}/${role}/dashboard`;
 

@@ -11,7 +11,7 @@
       "*": ["node_modules/*"]
     },
     "rootDir": ".",
-    "types": ["cypress","node"]
+    "types": ["cypress", "node"]
   },
   "include": [
     "cypress/**/*.ts",

@@ -93,7 +93,10 @@ export default function DashboardClient({
         const res = await api.get(`/api/employee/count/${companyId}`);
         setEmployeeCount(res.data.total);
       } catch (err: any) {
-        console.error('Error fetching employee count:', err.response?.data || err.message);
+        console.error(
+          'Error fetching employee count:',
+          err.response?.data || err.message,
+        );
       }
     }
 
@@ -112,7 +115,7 @@ export default function DashboardClient({
 
         const colorMap: Record<string, string> = {
           PERMANENT: '#257047',
-          CONTRACT : '#FFAB00',
+          CONTRACT: '#FFAB00',
           INTERN: '#2D8EFF',
         };
 
@@ -123,7 +126,10 @@ export default function DashboardClient({
 
         setEmployeeStatusData(formatted);
       } catch (err: any) {
-        console.error('Error fetching employee status:', err.response?.data || err.message);
+        console.error(
+          'Error fetching employee status:',
+          err.response?.data || err.message,
+        );
       }
     }
 

@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { LuArrowLeft } from "react-icons/lu";
+import { LuArrowLeft } from 'react-icons/lu';
 import { useRouter } from 'next/navigation';
 import api from '@/lib/axios';
 import { toast } from 'sonner';
@@ -77,9 +77,7 @@ export function ForgotPwrdEmailForm({
       }
     } catch (err: any) {
       const msg =
-        err?.response?.data?.message ||
-        err?.message ||
-        'Unexpected error';
+        err?.response?.data?.message || err?.message || 'Unexpected error';
       toast.error(`Failed: ${msg}`);
     } finally {
       setLoading(false);
@@ -87,16 +85,23 @@ export function ForgotPwrdEmailForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className={cn('flex flex-col gap-6', className)} {...props}>
+    <form
+      onSubmit={handleSubmit}
+      className={cn('flex flex-col gap-6', className)}
+      {...props}
+    >
       <div className="flex flex-col items-center gap-2 text-center">
         <h1 className="text-2xl font-bold">Forgot Password</h1>
         <p className="text-muted-foreground text-sm">
-          No worries! Enter your email address below, and we'll send you a link to reset your password.
+          No worries! Enter your email address below, and we'll send you a link
+          to reset your password.
         </p>
       </div>
       <div className="grid gap-6">
         <div className="grid gap-3">
-          <Label htmlFor="email" className="text-[#1E3A5F]">Email</Label>
+          <Label htmlFor="email" className="text-[#1E3A5F]">
+            Email
+          </Label>
           <Input
             id="email"
             type="email"
@@ -107,7 +112,11 @@ export function ForgotPwrdEmailForm({
             className="text-gray-700 border-zinc-600"
           />
         </div>
-        <Button type="submit" className="w-full" disabled={loading || cooldown > 0}>
+        <Button
+          type="submit"
+          className="w-full"
+          disabled={loading || cooldown > 0}
+        >
           {loading
             ? 'Sending...'
             : cooldown > 0
@@ -120,8 +129,10 @@ export function ForgotPwrdEmailForm({
           onClick={() => router.push('/signin')}
           className="flex items-center justify-center text-sm text-blue-600 hover:underline"
         >
-          <LuArrowLeft className="text-[#1E3A5F]"/>
-          <span className="text-sm text-[#1E3A5F] hover:underline ml-2">Back to Sign-in</span>
+          <LuArrowLeft className="text-[#1E3A5F]" />
+          <span className="text-sm text-[#1E3A5F] hover:underline ml-2">
+            Back to Sign-in
+          </span>
         </button>
       </div>
     </form>

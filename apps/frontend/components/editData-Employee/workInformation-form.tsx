@@ -16,7 +16,26 @@ import api from '@/lib/axios';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 
-type Bank = 'BRI' | 'Mandiri' | 'BNI' | 'Danamon' | 'Permata' | 'BCA' | 'Maybank' | 'Panin' | 'Bukopin' | 'CIMB' | 'UOB' | 'OCBC' | 'BJB' | 'Muamalat' | 'BTN' | 'BTPN' | 'Mega' | 'SyariahMandiri' | 'Commonwealth';
+type Bank =
+  | 'BRI'
+  | 'Mandiri'
+  | 'BNI'
+  | 'Danamon'
+  | 'Permata'
+  | 'BCA'
+  | 'Maybank'
+  | 'Panin'
+  | 'Bukopin'
+  | 'CIMB'
+  | 'UOB'
+  | 'OCBC'
+  | 'BJB'
+  | 'Muamalat'
+  | 'BTN'
+  | 'BTPN'
+  | 'Mega'
+  | 'SyariahMandiri'
+  | 'Commonwealth';
 
 type EmployeeEditWorkDataFormProps = {
   mode: 'edit';
@@ -24,7 +43,7 @@ type EmployeeEditWorkDataFormProps = {
   employeeId: string;
   initialData?: {
     id: string;
-    account_bank: Bank; 
+    account_bank: Bank;
     account_name: string;
     account_number: string;
   };
@@ -36,11 +55,11 @@ export function EmployeeEditWorkDataForm({
   employeeId,
   initialData,
   onSuccess,
-  onClose
+  onClose,
 }: EmployeeEditWorkDataFormProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
   const [account_bank, setAccountBank] = useState<string>('');
   const [account_name, setAccountName] = useState<string>('');
   const [account_number, setAccountNumber] = useState<string>('');
@@ -56,7 +75,7 @@ export function EmployeeEditWorkDataForm({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
+
     try {
       const formPayload = new FormData();
       formPayload.append('account_bank', account_bank);
@@ -66,14 +85,14 @@ export function EmployeeEditWorkDataForm({
       await api.patch(`/api/employee/${employeeId}`, formPayload);
 
       toast.success('Work data updated successfully!');
-      
+
       if (onClose) onClose();
       router.refresh();
       if (onSuccess) onSuccess();
-      
     } catch (error: any) {
       console.error('Error updating work data:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to update work data';
+      const errorMessage =
+        error.response?.data?.message || 'Failed to update work data';
       toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
@@ -82,7 +101,7 @@ export function EmployeeEditWorkDataForm({
 
   const handleBankChange = (value: string) => {
     setAccountBank(value);
-  }
+  };
 
   // Bank options
   const bankOptions = [
@@ -104,11 +123,14 @@ export function EmployeeEditWorkDataForm({
     { value: 'BTPN', label: 'BTPN' },
     { value: 'Mega', label: 'Mega' },
     { value: 'SyariahMandiri', label: 'Syariah Mandiri' },
-    { value: 'Commonwealth', label: 'Commonwealth Bank' }
+    { value: 'Commonwealth', label: 'Commonwealth Bank' },
   ];
 
   return (
-    <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <form
+      onSubmit={handleSubmit}
+      className="grid grid-cols-1 md:grid-cols-2 gap-4"
+    >
       {/* Bank Selection */}
       <div>
         <Label htmlFor="bank-select">Bank</Label>
@@ -119,7 +141,8 @@ export function EmployeeEditWorkDataForm({
         >
           <SelectTrigger id="bank-select">
             <SelectValue placeholder="Choose Bank">
-              {bankOptions.find(option => option.value === account_bank)?.label || 'Choose Bank'}
+              {bankOptions.find((option) => option.value === account_bank)
+                ?.label || 'Choose Bank'}
             </SelectValue>
           </SelectTrigger>
           <SelectContent>
@@ -131,35 +154,40 @@ export function EmployeeEditWorkDataForm({
           </SelectContent>
         </Select>
       </div>
-      
+
       {/* Account Name */}
       <div>
         <Label htmlFor="account_name">Account Holder Name</Label>
-        <Input 
+        <Input
           id="account_name"
           value={account_name}
           onChange={(e) => setAccountName(e.target.value)}
           placeholder="Enter account holder name"
-          // required 
+          // required
         />
       </div>
 
       {/* Account Number */}
-      <div className='col-span-full'>
+      <div className="col-span-full">
         <Label htmlFor="account_number">Account Number</Label>
-        <Input 
-          id='account_number'
+        <Input
+          id="account_number"
           value={account_number}
           onChange={(e) => setAccountNumber(e.target.value)}
           placeholder="Enter account number"
-          required 
+          required
         />
       </div>
 
       {/* Form Buttons */}
       <DialogFooter className="gap-2 sm:justify-end mt-4 col-span-full">
-        {onClose && ( 
-          <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
+        {onClose && (
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onClose}
+            disabled={isSubmitting}
+          >
             Cancel
           </Button>
         )}

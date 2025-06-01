@@ -36,7 +36,7 @@ export function AdminEditDataForm({
   userId,
   initialData,
   onSuccess,
-  onClose
+  onClose,
 }: AdminEditDataFormProps) {
   const router = useRouter();
   const [avatar, setAvatar] = useState<File | null>(null);
@@ -84,13 +84,18 @@ export function AdminEditDataForm({
       if (onSuccess) onSuccess();
     } catch (error: any) {
       console.error('Error updating data:', error);
-      const errorMessage = error.response?.data?.message || 'An error occurred while updating data.';
+      const errorMessage =
+        error.response?.data?.message ||
+        'An error occurred while updating data.';
       toast.error(errorMessage);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <form
+      onSubmit={handleSubmit}
+      className="grid grid-cols-1 md:grid-cols-2 gap-4"
+    >
       {/* Avatar Upload */}
       <div className="col-span-full flex items-center gap-4">
         <label htmlFor="avatar-upload" className="cursor-pointer">
@@ -114,7 +119,8 @@ export function AdminEditDataForm({
                     target.style.display = 'none';
                     if (target.parentElement) {
                       const div = document.createElement('div');
-                      div.innerHTML = '<Upload className="h-6 w-6 text-muted-foreground" />';
+                      div.innerHTML =
+                        '<Upload className="h-6 w-6 text-muted-foreground" />';
                       target.parentElement.appendChild(div);
                     }
                   }}
@@ -134,7 +140,9 @@ export function AdminEditDataForm({
             variant="outline"
             onClick={() => document.getElementById('avatar-upload')?.click()}
           >
-            {initialData?.pict_dir && initialData.pict_dir !== '[null]' ? 'Change Avatar' : 'Upload Avatar'}
+            {initialData?.pict_dir && initialData.pict_dir !== '[null]'
+              ? 'Change Avatar'
+              : 'Upload Avatar'}
           </Button>
           <input
             id="avatar-upload"
@@ -178,7 +186,7 @@ export function AdminEditDataForm({
       <div>
         <Label>Last Name</Label>
         <Input
-          id='last_name'
+          id="last_name"
           value={last_name}
           onChange={(e) => setLastName(e.target.value)}
           placeholder="Enter your last name"
@@ -198,7 +206,7 @@ export function AdminEditDataForm({
       <div>
         <Label>Mobile Number</Label>
         <Input
-          id='phone'
+          id="phone"
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
           placeholder="Enter account number"
@@ -209,7 +217,12 @@ export function AdminEditDataForm({
       {/* Form Buttons */}
       <DialogFooter className="gap-2 sm:justify-end mt-4 col-span-full">
         {onClose && (
-          <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onClose}
+            disabled={isSubmitting}
+          >
             Cancel
           </Button>
         )}

@@ -4,7 +4,7 @@ import { AppSidebar } from '@/components/app-sidebar';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-import EmployeeInformation from '@/components/employee-information';
+import EmployeeInformation from '@/components/employeedatabase/employee-information';
 
 import {
   Breadcrumb,
@@ -58,9 +58,9 @@ import { VscSettings } from 'react-icons/vsc';
 import { IoMdSearch } from 'react-icons/io';
 import { BiImport, BiExport } from 'react-icons/bi';
 
-import { EmployeeForm } from '@/components/employee-form';
+import { EmployeeForm } from '@/components/employeedatabase/employee-form';
 import PaginationFooter from '@/components/pagination';
-import EmployeeDetails from '@/components/employee-details';
+import EmployeeDetails from '@/components/employeedatabase/employee-details';
 import api from '@/lib/axios';
 import { useEffect } from 'react';
 
@@ -170,6 +170,9 @@ export default function EmployeeDatabaseClient({
   const handleAddEmployeeSuccess = () => {
     fetchEmployees(); // hanya fetch data baru, dialog tetap terbuka
   };
+
+  const [openEditDialog, setOpenEditDialog] = useState(false);
+  const [employeeToEdit, setEmployeeToEdit] = useState<any>(null);
 
   return (
     <SidebarProvider>
@@ -335,23 +338,17 @@ export default function EmployeeDatabaseClient({
                         <Eye className="h-4 w-4" />
                       </Button>
 
-                      {/* <Dialog>
-                        <DialogTrigger asChild>
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            className="hover:text-white hover:bg-yellow-500"
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
-                          <DialogHeader>
-                            <DialogTitle>Edit Employee</DialogTitle>
-                          </DialogHeader>
-                          <EmployeeForm />
-                        </DialogContent>
-                      </Dialog> */}
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="hover:text-white hover:bg-yellow-500"
+                        onClick={() => {
+                          setEmployeeToEdit(emp);
+                          setOpenEditDialog(true);
+                        }}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
 
                       <Button
                         variant="outline"
@@ -404,6 +401,24 @@ export default function EmployeeDatabaseClient({
               Delete
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={openEditDialog} onOpenChange={setOpenEditDialog}>
+        <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Employee</DialogTitle>
+          </DialogHeader>
+          <EmployeeForm
+            companyId={companyId}
+            initialData={employeeToEdit}
+            mode="edit"
+            onSuccess={() => {
+              fetchEmployees();
+              setOpenEditDialog(false);
+            }}
+            onClose={() => setOpenEditDialog(false)}
+          />
         </DialogContent>
       </Dialog>
     </SidebarProvider>

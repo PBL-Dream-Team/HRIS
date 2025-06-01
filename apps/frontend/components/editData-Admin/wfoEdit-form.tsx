@@ -15,14 +15,9 @@ type EditWfoProps = {
   onClose?: () => void;
 };
 
-export function EditWfo({
-  companyId,
-  onSuccess,
-  onClose
-}: EditWfoProps) {
+export function EditWfo({ companyId, onSuccess, onClose }: EditWfoProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
-
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,8 +44,8 @@ export function EditWfo({
         <Label htmlFor="oldPassword">Clock In Default</Label>
         <Input
           id="clockIn"
-        //   value={}
-        //   onChange={handleChange}
+          //   value={}
+          //   onChange={handleChange}
           placeholder="Clock In Default"
           required
         />
@@ -60,8 +55,8 @@ export function EditWfo({
         <Label htmlFor="oldPassword">Clock In Default</Label>
         <Input
           id="clockIn"
-        //   value={}
-        //   onChange={handleChange}
+          //   value={}
+          //   onChange={handleChange}
           placeholder="Clock In Default"
           required
         />
@@ -69,18 +64,18 @@ export function EditWfo({
 
       <DialogFooter className="gap-2 sm:justify-end mt-4">
         {onClose && (
-          <Button 
-            type="button" 
-            variant="outline" 
-            onClick={onClose} 
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onClose}
             disabled={isSubmitting}
             className="border-zinc-600"
           >
             Cancel
           </Button>
         )}
-        <Button 
-          type="submit" 
+        <Button
+          type="submit"
           disabled={isSubmitting}
           className="bg-[#1E3A5F] hover:bg-[#1E3A5F]/90"
         >

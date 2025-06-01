@@ -5,8 +5,9 @@ describe('Signup Page', () => {
     cy.get('input[id="first_name"]').type('Muhammad');
     cy.get('input[id="last_name"]').type('Haris');
     cy.get('input[id="email"]').type('hrisdreamteam@gmail.com');
+    cy.get('input[id="phone"]').type('081234567890');
     cy.get('input[id="password"]').type('admin123');
-    cy.get('input[id="confirm_password"]').type('admin123');
+    cy.get('input[id="confirmPassword"]').type('admin123');
     cy.get('button[type="submit"]').click();
     cy.url().should('include', '/signin');
   });

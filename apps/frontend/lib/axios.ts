@@ -1,5 +1,4 @@
-import axios from "axios";
-
+import axios from 'axios';
 
 // change base URL to process.env.NEXT_PUBLIC_API_URL while production
 const api = axios.create({

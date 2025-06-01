@@ -28,6 +28,7 @@ export async function validateAccess({
     sub: string;
     is_admin: boolean;
     company_id: string;
+    company_subs_id?: string | null;
   };
 
   try {
@@ -37,21 +38,24 @@ export async function validateAccess({
     return redirect(redirectPath);
   }
 
-  const { sub, is_admin, company_id } = decoded;
+  const { sub, is_admin, company_id, company_subs_id } = decoded;
 
-  // console.log('Decoded JWT:' + JSON.stringify(decoded));
+  // Redirect to /pricing if subscription is missing
+  if (!company_subs_id) {
+    return redirect('/pricing');
+  }
 
   const expectedPath = section
     ? `/user/${sub}/${is_admin ? 'admin' : 'employee'}/${section}`
     : `/user/${sub}/${is_admin ? 'admin' : 'employee'}/dashboard`;
 
-  // Gabungkan validasi dalam satu blok untuk menghindari redirect ganda
   const isWrongUser = currentPathId !== sub;
-  const isRoleMismatch = (requireAdmin && !is_admin) || (!requireAdmin && is_admin);
+  const isRoleMismatch =
+    (requireAdmin && !is_admin) || (!requireAdmin && is_admin);
 
   if (isWrongUser || isRoleMismatch) {
     return redirect(expectedPath);
   }
 
-  return { sub, is_admin, company_id };
+  return { sub, is_admin, company_id, company_subs_id };
 }

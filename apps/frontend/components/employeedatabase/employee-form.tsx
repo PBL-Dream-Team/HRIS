@@ -9,23 +9,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Button } from '@/components/ui/button';
 import { CalendarIcon, Upload } from 'lucide-react';
-import { useState } from 'react';
-import { format } from 'date-fns';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 import api from '@/lib/axios';
 
 type EmployeeFormProps = {
   companyId: string;
+  mode?: 'create' | 'edit'; // default: create
+  initialData?: any;
   onSuccess?: () => void;
   onClose?: () => void;
 };
@@ -35,14 +29,18 @@ type EmployeeFormProps = {
 
 export function EmployeeForm({
   companyId,
+  mode = 'create',
+  initialData,
   onSuccess,
   onClose,
 }: EmployeeFormProps) {
   const [avatar, setAvatar] = useState<File | null>(null);
-  const [workScheme, setWorkScheme] = useState<'WFO' | 'WFA' | 'HYBRID'>();
+  const [workScheme, setWorkScheme] = useState<'WFO' | 'WFA' | 'HYBRID' | ''>(
+    '',
+  );
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [gender, setGender] = useState<'male' | 'female' | 'other'>();
+  const [gender, setGender] = useState<'M' | 'F' | 'O' | ''>('');
   const [address, setAddress] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -53,11 +51,11 @@ export function EmployeeForm({
   const [position, setPosition] = useState('');
   const [branch, setBranch] = useState('');
   const [contract, setContract] = useState<
-    'PERMANENT' | 'CONTRACT' | 'INTERN'
-  >();
+    'PERMANENT' | 'CONTRACT' | 'INTERN' | ''
+  >('');
   const [education, setEducation] = useState<
-    'HIGH_SCHOOL' | 'BACHELOR' | 'MASTER' | 'DOCTOR'
-  >();
+    'HIGH_SCHOOL' | 'BACHELOR' | 'MASTER' | 'DOCTOR' | ''
+  >('');
   const [bank, setBank] = useState<
     | 'BRI'
     | 'Mandiri'
@@ -78,20 +76,44 @@ export function EmployeeForm({
     | 'Mega'
     | 'SyariahMandiri'
     | 'Commonwealth'
+    | ''
   >();
   const [accountNumber, setAccountNumber] = useState('');
   const [accountName, setAccountName] = useState('');
 
+  // Isi data saat edit
+  useEffect(() => {
+    if (mode === 'edit' && initialData) {
+      setWorkScheme(initialData.workscheme || '');
+      setFirstName(initialData.first_name || '');
+      setLastName(initialData.last_name || '');
+      setGender(initialData.gender || '');
+      setAddress(initialData.address || '');
+      setEmail(initialData.email || '');
+      setPassword('');
+      setPhoneNumber(initialData.phone || '');
+      setBirthPlace(initialData.birth_place || '');
+      setNik(initialData.nik || '');
+      setPosition(initialData.position || '');
+      setBranch(initialData.branch || '');
+      setContract(initialData.contract || '');
+      setEducation(initialData.last_education || '');
+      setBank(initialData.account_bank || '');
+      setAccountNumber(initialData.account_number || '');
+      setAccountName(initialData.account_name || '');
+      setAvatar(null);
+    }
+  }, [mode, initialData]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!firstName || !lastName || !email || !password) {
+    if (!firstName || !lastName || !email || (mode === 'create' && !password)) {
       toast.error('Please fill out all required fields');
       return;
     }
 
     const formData = new FormData();
-
     if (avatar) {
       formData.append('file', avatar);
     }
@@ -102,11 +124,8 @@ export function EmployeeForm({
     if (gender) formData.append('gender', gender);
     formData.append('address', address);
     formData.append('email', email);
-    formData.append('password', password);
-    formData.append('phone', phoneNumber);
-    // if (birthDate) {
-    //   formData.append('birth_date', format(birthDate, 'yyyy-MM-dd'));
-    // }
+    if (mode === 'create') formData.append('password', password);
+    if (phoneNumber) formData.append('phone', phoneNumber);
     formData.append('birth_place', birthPlace);
     formData.append('nik', nik);
     formData.append('position', position);
@@ -118,30 +137,15 @@ export function EmployeeForm({
     formData.append('account_name', accountName);
 
     try {
-      await api.post('/api/employee', formData);
-      toast.success('Employee created successfully!');
-      // Reset form (opsional)
-      setAvatar(null);
-      setWorkScheme(undefined);
-      setFirstName('');
-      setLastName('');
-      setGender(undefined);
-      setAddress('');
-      setEmail('');
-      setPassword('');
-      setPhoneNumber('');
-      // setBirthDate(undefined);
-      setBirthPlace('');
-      setNik('');
-      setPosition('');
-      setBranch('');
-      setContract(undefined);
-      setEducation(undefined);
-      setBank(undefined);
-      setAccountName('');
-      setAccountNumber('');
-      onSuccess?.(); // hanya refresh data, JANGAN panggil onClose di sini!
-      // Hapus: onClose?.();
+      if (mode === 'create') {
+        await api.post('/api/employee', formData);
+        toast.success('Employee created successfully!');
+      } else if (mode === 'edit' && initialData?.id) {
+        await api.patch(`/api/employee/${initialData.id}`, formData);
+        toast.success('Employee updated successfully!');
+      }
+      onSuccess?.();
+      onClose?.();
     } catch (err: any) {
       console.error('Submit error:', err);
       const errorMessage =
@@ -159,12 +163,21 @@ export function EmployeeForm({
       <div className="col-span-full flex items-center gap-4">
         <label htmlFor="avatar-upload" className="cursor-pointer">
           {avatar ? (
+            // Preview avatar baru
             <img
               src={URL.createObjectURL(avatar)}
               alt="Avatar Preview"
               className="w-20 h-20 rounded object-cover"
             />
+          ) : initialData?.pict_dir ? (
+            // Tampilkan avatar lama jika ada
+            <img
+              src={`/storage/employee/${initialData.pict_dir}`}
+              alt="Current Avatar"
+              className="w-20 h-20 rounded object-cover"
+            />
           ) : (
+            // Placeholder jika tidak ada avatar
             <div className="w-20 h-20 rounded bg-muted flex items-center justify-center">
               <Upload className="h-6 w-6 text-muted-foreground" />
             </div>
@@ -194,7 +207,12 @@ export function EmployeeForm({
       {/* Work Scheme */}
       <div>
         <Label>Work Scheme</Label>
-        <Select value={workScheme} onValueChange={setWorkScheme}>
+        <Select
+          value={workScheme}
+          onValueChange={(value) =>
+            setWorkScheme(value as 'WFO' | 'WFA' | 'HYBRID')
+          }
+        >
           <SelectTrigger>
             <SelectValue placeholder="Choose work scheme" />
           </SelectTrigger>
@@ -229,7 +247,10 @@ export function EmployeeForm({
       {/* Gender */}
       <div>
         <Label>Gender</Label>
-        <Select value={gender} onValueChange={setGender}>
+        <Select
+          value={gender}
+          onValueChange={(value) => setGender(value as 'M' | 'F' | 'O')}
+        >
           <SelectTrigger>
             <SelectValue placeholder="Choose gender" />
           </SelectTrigger>
@@ -358,7 +379,12 @@ export function EmployeeForm({
       {/* Contract */}
       <div>
         <Label>Contract</Label>
-        <Select value={contract} onValueChange={setContract}>
+        <Select
+          value={contract}
+          onValueChange={(value) =>
+            setContract(value as 'PERMANENT' | 'CONTRACT' | 'INTERN')
+          }
+        >
           <SelectTrigger>
             <SelectValue placeholder="Choose Contract" />
           </SelectTrigger>
@@ -373,7 +399,14 @@ export function EmployeeForm({
       {/* Last Education */}
       <div>
         <Label>Last Education</Label>
-        <Select value={education} onValueChange={setEducation}>
+        <Select
+          value={education}
+          onValueChange={(value) =>
+            setEducation(
+              value as 'HIGH_SCHOOL' | 'BACHELOR' | 'MASTER' | 'DOCTOR',
+            )
+          }
+        >
           <SelectTrigger>
             <SelectValue placeholder="Choose Last Education" />
           </SelectTrigger>
@@ -389,7 +422,33 @@ export function EmployeeForm({
       {/* Bank */}
       <div>
         <Label>Bank</Label>
-        <Select value={bank} onValueChange={setBank}>
+        <Select
+          value={bank}
+          onValueChange={(value) =>
+            setBank(
+              value as
+                | 'BRI'
+                | 'Mandiri'
+                | 'BNI'
+                | 'Danamon'
+                | 'Permata'
+                | 'BCA'
+                | 'Maybank'
+                | 'Panin'
+                | 'Bukopin'
+                | 'CIMB'
+                | 'UOB'
+                | 'OCBC'
+                | 'BJB'
+                | 'Muamalat'
+                | 'BTN'
+                | 'BTPN'
+                | 'Mega'
+                | 'SyariahMandiri'
+                | 'Commonwealth',
+            )
+          }
+        >
           <SelectTrigger>
             <SelectValue placeholder="Choose Bank" />
           </SelectTrigger>
@@ -442,7 +501,7 @@ export function EmployeeForm({
         <Button type="button" variant="outline" onClick={onClose}>
           Cancel
         </Button>
-        <Button type="submit">Add</Button>
+        <Button type="submit">{mode === 'edit' ? 'Update' : 'Add'}</Button>
       </div>
     </form>
   );

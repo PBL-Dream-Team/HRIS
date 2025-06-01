@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import Image from "next/image";
-import { Button } from "@/components/ui/button";
+import Link from 'next/link';
+import Image from 'next/image';
+import { Button } from '@/components/ui/button';
 // import { FiMail } from "react-icons/fi";
-import { LuMailX } from "react-icons/lu";
+import { LuMailX } from 'react-icons/lu';
 
 export default function LinkExpired() {
   return (
@@ -22,7 +22,9 @@ export default function LinkExpired() {
 
           {/* Title & Description */}
           <div className="text-center">
-            <h2 className="text-2xl font-semibold text-zinc-950">Link Expired</h2>
+            <h2 className="text-2xl font-semibold text-zinc-950">
+              Link Expired
+            </h2>
             <p className="text-sm text-gray-600 mt-2">
               The password reset link has expired. <br />
               Please request a new link to reset your password.

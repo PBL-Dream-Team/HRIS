@@ -45,12 +45,12 @@ model Company {
   loc_lat Float? @db.DoublePrecision
   loc_long Float? @db.DoublePrecision
   
-  subscription_id String @db.Uuid
-  Subscription Subscription @relation(fields: [subscription_id],references: [id])
+  subscription_id String? @db.Uuid
+  Subscription Subscription? @relation(fields: [subscription_id],references: [id])
 
-  max_employee Int @db.Integer
-  subs_date_start DateTime @db.Timestamptz()
-  subs_date_end DateTime @db.Timestamptz()
+  max_employee Int? @db.Integer
+  subs_date_start DateTime? @db.Timestamptz()
+  subs_date_end DateTime? @db.Timestamptz()
 
   created_at DateTime @db.Timestamptz() @default(now())
   updated_at DateTime @db.Timestamptz() @updatedAt
@@ -84,11 +84,11 @@ model Employee {
 
   address String? @db.Text
 
-  email String @db.VarChar(100)
+  email String @db.VarChar(100) @unique
 
   password String 
 
-  phone String? @db.VarChar(100)
+  phone String? @db.VarChar(100) @unique
 
   is_admin Boolean @db.Boolean @default(false)
 
@@ -345,7 +345,7 @@ model Transaction {
   subscription_id String @db.Uuid
   subscription Subscription @relation(fields: [subscription_id],references: [id])
 
-  merchantRef String @unique
+  merchantRef String? @unique
   tripayRef String?
   paymentMethod String?
   expiresAt DateTime? @db.Timestamptz()

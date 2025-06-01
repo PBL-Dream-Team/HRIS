@@ -80,13 +80,13 @@ export class CompanyService {
       };
     }
   }
-  async findFilters(filters: Record< string, any>){
-    const where: Record<string , any> = {}
+  async findFilters(filters: Record<string, any>) {
+    const where: Record<string, any> = {};
 
-    for (const [key,value] of Object.entries(filters)){
-      where[key] = { equals: value};
+    for (const [key, value] of Object.entries(filters)) {
+      where[key] = { equals: value };
     }
 
-    return await this.prisma.company.findMany({where});
+    return await this.prisma.company.findMany({ where });
   }
 }

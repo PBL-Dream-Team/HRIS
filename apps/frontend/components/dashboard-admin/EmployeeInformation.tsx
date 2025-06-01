@@ -1,7 +1,9 @@
-'use client'
+'use client';
 import React, { useEffect, useState } from 'react';
 
-{/* Import Components */ }
+{
+  /* Import Components */
+}
 
 import { User, UserPlus, UserCheck, UserMinus } from 'lucide-react';
 import {
@@ -12,13 +14,17 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 
-{/* Content */ }
+{
+  /* Content */
+}
 
 type EmployeeInformationProps = {
   totalEmployees: number;
 };
 
-export default function EmployeeInformation({ totalEmployees }: EmployeeInformationProps) {
+export default function EmployeeInformation({
+  totalEmployees,
+}: EmployeeInformationProps) {
   const [formattedDate, setFormattedDate] = useState('');
 
   useEffect(() => {
@@ -33,7 +39,6 @@ export default function EmployeeInformation({ totalEmployees }: EmployeeInformat
     const localDate = date.toLocaleDateString('en-US', options);
     setFormattedDate(localDate);
   }, []);
-
 
   return (
     <div className="grid auto-rows-min gap-4 md:grid-cols-4 sm:grid-cols-2">
@@ -54,8 +59,6 @@ export default function EmployeeInformation({ totalEmployees }: EmployeeInformat
         </CardFooter>
       </Card>
 
-
-
       <Card className="@container/card">
         <CardHeader className="relative">
           <CardTitle>
@@ -69,7 +72,7 @@ export default function EmployeeInformation({ totalEmployees }: EmployeeInformat
           </CardDescription>
         </CardHeader>
         <CardFooter>
-          <div className='text-muted-foreground'>Update: March 16, 2025</div>
+          <div className="text-muted-foreground">Update: March 16, 2025</div>
         </CardFooter>
       </Card>
 
@@ -86,7 +89,7 @@ export default function EmployeeInformation({ totalEmployees }: EmployeeInformat
           </CardDescription>
         </CardHeader>
         <CardFooter>
-          <div className='text-muted-foreground'>Update: March 16, 2025</div>
+          <div className="text-muted-foreground">Update: March 16, 2025</div>
         </CardFooter>
       </Card>
 
@@ -103,7 +106,7 @@ export default function EmployeeInformation({ totalEmployees }: EmployeeInformat
           </CardDescription>
         </CardHeader>
         <CardFooter>
-          <div className='text-muted-foreground'>Update: March 16, 2025</div>
+          <div className="text-muted-foreground">Update: March 16, 2025</div>
         </CardFooter>
       </Card>
     </div>

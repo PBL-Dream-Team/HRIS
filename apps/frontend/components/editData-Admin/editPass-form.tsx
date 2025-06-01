@@ -18,21 +18,21 @@ type EditPasswordProps = {
 export function EditPassword({
   userId,
   onSuccess,
-  onClose
+  onClose,
 }: EditPasswordProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     oldPassword: '',
     newPassword: '',
-    confirmPassword: ''
+    confirmPassword: '',
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [id]: value
+      [id]: value,
     }));
   };
 
@@ -50,16 +50,16 @@ export function EditPassword({
       // Kirim data ke API endpoint
       const res = await api.patch(`/api/employee/${userId}/password`, {
         old_password: formData.oldPassword,
-        new_password: formData.newPassword
+        new_password: formData.newPassword,
       });
 
       toast.success('Password updated successfully!');
-      
+
       // Reset form
       setFormData({
         oldPassword: '',
         newPassword: '',
-        confirmPassword: ''
+        confirmPassword: '',
       });
 
       // Panggil callback functions
@@ -118,18 +118,18 @@ export function EditPassword({
 
       <DialogFooter className="gap-2 sm:justify-end mt-4">
         {onClose && (
-          <Button 
-            type="button" 
-            variant="outline" 
-            onClick={onClose} 
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onClose}
             disabled={isSubmitting}
             className="border-zinc-600"
           >
             Cancel
           </Button>
         )}
-        <Button 
-          type="submit" 
+        <Button
+          type="submit"
           disabled={isSubmitting}
           className="bg-[#1E3A5F] hover:bg-[#1E3A5F]/90"
         >
