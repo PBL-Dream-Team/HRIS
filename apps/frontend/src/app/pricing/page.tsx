@@ -23,6 +23,14 @@ const featureLabels = [
 
 const singlePayment = [
   {
+    title: 'Trial',
+    description:
+      'Try out all features of our HRIS platform free for up to 10 employees. No credit card required!',
+    price: 'Rp. 0',
+    range: '10 Employee',
+    features: [true, true, true, true],
+  },
+  {
     title: 'Silver',
     description:
       'An ideal package for startups and small businesses looking to digitize their HR management with essential yet powerful features.',
