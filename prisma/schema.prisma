@@ -84,11 +84,11 @@ model Employee {
 
   address String? @db.Text
 
-  email String @db.VarChar(100)
+  email String @db.VarChar(100) @unique
 
   password String 
 
-  phone String? @db.VarChar(100)
+  phone String? @db.VarChar(100) @unique
 
   is_admin Boolean @db.Boolean @default(false)
 
