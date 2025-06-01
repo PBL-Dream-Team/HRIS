@@ -1,10 +1,6 @@
 'use client';
 
-import {
-  CircleUserRound,
-  CreditCard,
-  LogOut,
-} from 'lucide-react';
+import { CircleUserRound, CreditCard, LogOut } from 'lucide-react';
 
 import { useRouter } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';

@@ -345,7 +345,7 @@ model Transaction {
   subscription_id String @db.Uuid
   subscription Subscription @relation(fields: [subscription_id],references: [id])
 
-  merchantRef String @unique
+  merchantRef String? @unique
   tripayRef String?
   paymentMethod String?
   expiresAt DateTime? @db.Timestamptz()

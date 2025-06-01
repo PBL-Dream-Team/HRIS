@@ -12,11 +12,13 @@ export class TransactionService {
     const data: any = { ...dto };
 
     //Temporary
-    const company = await this.prisma.company.findFirst({where:{id:dto.company_id}});
-    const subs = await this.prisma.subscription.findFirst({where:{id:dto.subscription_id}})
+    const company = await this.prisma.company.findFirst({
+      where: { id: dto.company_id },
+    });
+    const subs = await this.prisma.subscription.findFirst({
+      where: { id: dto.subscription_id },
+    });
 
-
-    
     const newStart = new Date();
     const newEnd = new Date(newStart);
     newEnd.setDate(newStart.getDate() + subs.day_length);
@@ -24,7 +26,8 @@ export class TransactionService {
       ? subs.max_employee
       : dto.total /
         Math.round(
-          (subs.price_per_employee * (100.0 + (dto.taxrate ?? new Decimal(10.00)).toNumber())) /
+          (subs.price_per_employee *
+            (100.0 + (dto.taxrate ?? new Decimal(10.0)).toNumber())) /
             100,
         );
 
@@ -32,17 +35,18 @@ export class TransactionService {
       const transaction = await this.prisma.transaction.create({ data: data });
 
       //Temporary
-      
-        await this.prisma.company.update({
-          data: {
-            subs_date_start: newStart.toISOString(),
-            subs_date_end: newEnd.toISOString(),
-            max_employee: new_emp,
-          },
-          where: {
-            id: company.id,
-          },
-        });
+
+      await this.prisma.company.update({
+        data: {
+          subscription_id: transaction.subscription_id,
+          subs_date_start: newStart.toISOString(),
+          subs_date_end: newEnd.toISOString(),
+          max_employee: new_emp,
+        },
+        where: {
+          id: company.id,
+        },
+      });
 
       return {
         statusCode: 201,

@@ -48,17 +48,23 @@ export const FeatureSection = () => {
           Fitur Unggulan HRIS Kami
         </h2>
         <p className="text-gray-600 text-lg mb-12">
-          Solusi lengkap untuk mengelola seluruh kebutuhan sumber daya manusia dalam satu platform.
+          Solusi lengkap untuk mengelola seluruh kebutuhan sumber daya manusia
+          dalam satu platform.
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-10">
           {features.map(({ title, desc, icon: Icon }, i) => (
-            <Card key={i} className="p-6 text-center transition-shadow hover:shadow-lg">
+            <Card
+              key={i}
+              className="p-6 text-center transition-shadow hover:shadow-lg"
+            >
               <div className="mb-4 text-[#1E3A5F]">
                 <Icon className="w-10 h-10 mx-auto" />
               </div>
               <CardContent>
-                <h3 className="text-xl font-semibold text-gray-800 mb-2">{title}</h3>
+                <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                  {title}
+                </h3>
                 <p className="text-gray-600 text-sm">{desc}</p>
               </CardContent>
             </Card>
@@ -67,12 +73,17 @@ export const FeatureSection = () => {
 
         <div className="flex justify-center flex-wrap gap-8">
           {additionalFeatures.map(({ title, desc, icon: Icon }, i) => (
-            <Card key={i} className="p-6 text-center w-full max-w-sm transition-shadow hover:shadow-lg">
+            <Card
+              key={i}
+              className="p-6 text-center w-full max-w-sm transition-shadow hover:shadow-lg"
+            >
               <div className="mb-4 text-[#1E3A5F]">
                 <Icon className="w-10 h-10 mx-auto" />
               </div>
               <CardContent>
-                <h3 className="text-xl font-semibold text-gray-800 mb-2">{title}</h3>
+                <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                  {title}
+                </h3>
                 <p className="text-gray-600 text-sm">{desc}</p>
               </CardContent>
             </Card>

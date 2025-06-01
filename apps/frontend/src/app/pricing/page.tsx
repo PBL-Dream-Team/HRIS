@@ -67,7 +67,7 @@ export default function PricingPage() {
 
   const payAsYouGo = [
     {
-      title: 'Pay As You Go',
+      title: 'Pay as you go',
       description:
         'Ideal for small teams or short-term projects, this plan allows you to pay only for the users you need.',
       price: employeeCount * baseEmployeePrice,
