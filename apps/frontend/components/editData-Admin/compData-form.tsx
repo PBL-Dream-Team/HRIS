@@ -18,7 +18,7 @@ type EditCompanyProps = {
     address: string;
     loc_lat: number | string;
     loc_long: number | string;
-  }
+  };
   onSuccess?: () => void;
   onClose?: () => void;
 };
@@ -27,7 +27,7 @@ export function EditCompany({
   companyId,
   initialData,
   onSuccess,
-  onClose
+  onClose,
 }: EditCompanyProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -71,33 +71,37 @@ export function EditCompany({
     setIsGeocoding(true);
     try {
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(addressText)}&format=json&addressdetails=1&limit=1`
+        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(addressText)}&format=json&addressdetails=1&limit=1`,
       );
-      
+
       if (!response.ok) {
         throw new Error('Geocoding service unavailable');
       }
 
       const data = await response.json();
-      
+
       if (data && data.length > 0) {
         const result = data[0];
         const lat = parseFloat(result.lat);
         const lng = parseFloat(result.lon);
-        
+
         setLocLat(lat.toFixed(6));
         setLocLong(lng.toFixed(6));
-        
+
         // Force re-render map dengan posisi baru
-        setMapKey(prev => prev + 1);
-        
+        setMapKey((prev) => prev + 1);
+
         toast.success('Location found and updated on map');
       } else {
-        toast.error('Address not found. Please try a more specific address or click on the map manually.');
+        toast.error(
+          'Address not found. Please try a more specific address or click on the map manually.',
+        );
       }
     } catch (error) {
       console.error('Geocoding error:', error);
-      toast.error('Failed to find location. Please try again or click on the map manually.');
+      toast.error(
+        'Failed to find location. Please try again or click on the map manually.',
+      );
     } finally {
       setIsGeocoding(false);
     }
@@ -125,7 +129,9 @@ export function EditCompany({
   const validateCoordinates = (): boolean => {
     // Validasi bahwa latitude dan longitude tidak kosong
     if (!loc_lat || !loc_long) {
-      toast.error('Please select a location on the map or search for an address');
+      toast.error(
+        'Please select a location on the map or search for an address',
+      );
       return false;
     }
 
@@ -163,7 +169,7 @@ export function EditCompany({
         name,
         address,
         loc_lat: parseFloat(loc_lat),
-        loc_long: parseFloat(loc_long)
+        loc_long: parseFloat(loc_long),
       });
 
       toast.success('Company Data updated successfully');
@@ -180,10 +186,12 @@ export function EditCompany({
 
   return (
     <form onSubmit={handleSubmit} className="grid gap-4">
-      <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="w-full space-y-2">
           {isMapLoading && (
-            <div className="text-gray-500 text-sm text-center">Loading map...</div>
+            <div className="text-gray-500 text-sm text-center">
+              Loading map...
+            </div>
           )}
           <MapPicker
             key={mapKey} // Force re-render when coordinates change
@@ -192,30 +200,30 @@ export function EditCompany({
             initialPosition={
               loc_lat && loc_long
                 ? {
-                  lat: parseFloat(loc_lat),
-                  lng: parseFloat(loc_long)
-                }
+                    lat: parseFloat(loc_lat),
+                    lng: parseFloat(loc_long),
+                  }
                 : initialData && initialData.loc_lat && initialData.loc_long
-                ? {
-                  lat: parseFloat(initialData.loc_lat.toString()),
-                  lng: parseFloat(initialData.loc_long.toString())
-                }
-                : undefined
+                  ? {
+                      lat: parseFloat(initialData.loc_lat.toString()),
+                      lng: parseFloat(initialData.loc_long.toString()),
+                    }
+                  : undefined
             }
           />
         </div>
 
-        <div className='grid grid-cols-1 gap-4'>
+        <div className="grid grid-cols-1 gap-4">
           <div>
             <Label>Company Name</Label>
             <Input
-              id='name'
+              id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Company name"
             />
           </div>
-          
+
           <div>
             <Label>Company Address</Label>
             <div className="flex gap-2">
@@ -233,15 +241,18 @@ export function EditCompany({
                 disabled={isGeocoding || !address.trim()}
                 title="Search location for this address"
               >
-                <Search className={`h-4 w-4 ${isGeocoding ? 'animate-spin' : ''}`} />
+                <Search
+                  className={`h-4 w-4 ${isGeocoding ? 'animate-spin' : ''}`}
+                />
               </Button>
             </div>
             <p className="text-xs text-gray-500 mt-1">
-              Enter address and click search, or the map will auto-update after you stop typing
+              Enter address and click search, or the map will auto-update after
+              you stop typing
             </p>
           </div>
 
-          <div className='grid grid-cols-2 gap-4'>
+          <div className="grid grid-cols-2 gap-4">
             <div>
               <Label>Latitude</Label>
               <Input
@@ -266,7 +277,12 @@ export function EditCompany({
 
       <DialogFooter className="gap-2 sm:justify-end mt-4 col-span-full">
         {onClose && (
-          <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onClose}
+            disabled={isSubmitting}
+          >
             Cancel
           </Button>
         )}

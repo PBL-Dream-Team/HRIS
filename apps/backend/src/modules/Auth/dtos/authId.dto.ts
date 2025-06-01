@@ -1,18 +1,25 @@
-import { IsEmail, IsNotEmpty, IsNumberString, IsOptional, IsString, IsUUID } from "@nestjs/class-validator";
-import { ApiProperty } from "@nestjs/swagger";
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsNumberString,
+  IsOptional,
+  IsString,
+  IsUUID,
+} from '@nestjs/class-validator';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class AuthIdDto {
-    @ApiProperty()
-    @IsUUID()
-    @IsNotEmpty()
-    id: string;
+  @ApiProperty()
+  @IsUUID()
+  @IsNotEmpty()
+  id: string;
 
-    // @IsString()
-    // @IsNotEmpty()
-    // name: string;
+  // @IsString()
+  // @IsNotEmpty()
+  // name: string;
 
-    @ApiProperty()
-    @IsString()
-    @IsNotEmpty()
-    password:string;
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  password: string;
 }

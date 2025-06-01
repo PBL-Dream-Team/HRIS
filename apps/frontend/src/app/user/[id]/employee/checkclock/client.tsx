@@ -61,8 +61,10 @@ import { CheckOutForm } from '@/components/checkout-form';
 
 let checkclocks;
 
-
-export function getTimeRangeInHours(startTime: string | Date, endTime: string | Date): number {
+export function getTimeRangeInHours(
+  startTime: string | Date,
+  endTime: string | Date,
+): number {
   const parseTime = (time: string | Date): Date => {
     if (typeof time === 'string') {
       const [h, m, s] = time.split(':').map(Number);
@@ -111,7 +113,6 @@ export function isSameDate(d1: Date, d2: Date): boolean {
   );
 }
 
-
 export default function CheckClockClient({
   isAdmin,
   userId,
@@ -124,39 +125,36 @@ export default function CheckClockClient({
     typeId: '',
   });
 
-
-
   const router = useRouter();
   const [employees, setEmployee] = useState<any[]>([]);
   const [company, setCompany] = useState<any[]>([]);
   const [attendanceType, setAttendanceType] = useState<Record<string, any>>();
   const [attendances, setAttendance] = useState<any[]>([]);
   let dailyLimit = 1;
-  const [currentPage, setCurrentPage] = useState(1)
-  const itemsPerPage = 10
-
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   useEffect(() => {
     async function fetchUser() {
       try {
         const res = await api.get(`/api/employee/${userId}`);
-        const { first_name, last_name, email, attendance_id, pict_dir } = res.data.data;
+        const { first_name, last_name, email, attendance_id, pict_dir } =
+          res.data.data;
 
         setUser({
           name: `${first_name} ${last_name}`,
           email: email,
           avatar: pict_dir || '/avatars/default.jpg',
-          typeId: attendance_id
+          typeId: attendance_id,
         });
 
-        const [attendanceRes, employeeRes, typeRes, companyRes] = await Promise.all([
-          api.get(`api/attendance?employee_id=${userId}`),
-          api.get(`api/employee?id=${userId}`),
-          api.get(`api/attendanceType?company_id=${companyId}`),
-          api.get(`api/company?id=${companyId}`)
-        ]);
-
-
+        const [attendanceRes, employeeRes, typeRes, companyRes] =
+          await Promise.all([
+            api.get(`api/attendance?employee_id=${userId}`),
+            api.get(`api/employee?id=${userId}`),
+            api.get(`api/attendanceType?company_id=${companyId}`),
+            api.get(`api/company?id=${companyId}`),
+          ]);
 
         setEmployee(employeeRes.data ?? []);
 
@@ -169,7 +167,6 @@ export default function CheckClockClient({
         setAttendance(attendanceRes.data ?? []);
 
         setCompany(companyRes.data ?? []);
-
       } catch (err: any) {
         console.error(
           'Error fetching user:',
@@ -193,19 +190,30 @@ export default function CheckClockClient({
       date: attendance.created_at,
       name: `${employees[0].first_name} ${employees[0].last_name}`,
       clockIn: formatTimeOnly(attendance.check_in),
-      clockOut: attendance.check_out ? formatTimeOnly(attendance.check_out) : '-',
-      workHours: (attendance.check_out) ? `${getTimeRangeInHours(formatTimeOnly(attendance.check_in), formatTimeOnly(attendance.check_out)).toFixed(2)}h` : '0h',
+      clockOut: attendance.check_out
+        ? formatTimeOnly(attendance.check_out)
+        : '-',
+      workHours: attendance.check_out
+        ? `${getTimeRangeInHours(formatTimeOnly(attendance.check_in), formatTimeOnly(attendance.check_out)).toFixed(2)}h`
+        : '0h',
       status: attendance.check_in_status,
-      address: (attendance.check_out) ? attendance.check_out_address : attendance.check_in_address,
-      lat: (attendance.check_out) ? attendance.check_out_lat : attendance.check_in_lat,
-      long: (attendance.check_out) ? attendance.check_out_long : attendance.check_in_long,
-      location: (attendance.check_in_address == company[0].address)
-        ? "Office"
-        : (employees[0].workscheme != "WFO") ? "Outside Office (WFA/Hybrid)" : "Outside Office (WFO)",
-    }
-  }
-  );
-
+      address: attendance.check_out
+        ? attendance.check_out_address
+        : attendance.check_in_address,
+      lat: attendance.check_out
+        ? attendance.check_out_lat
+        : attendance.check_in_lat,
+      long: attendance.check_out
+        ? attendance.check_out_long
+        : attendance.check_in_long,
+      location:
+        attendance.check_in_address == company[0].address
+          ? 'Office'
+          : employees[0].workscheme != 'WFO'
+            ? 'Outside Office (WFA/Hybrid)'
+            : 'Outside Office (WFO)',
+    };
+  });
 
   const [openSheet, setOpenSheet] = useState(false);
   const [selectedCheckClock, setselectedCheckClock] = useState<any>(null);
@@ -289,7 +297,13 @@ export default function CheckClockClient({
                 </Button>
                 <Dialog>
                   <DialogTrigger asChild>
-                    <Button disabled={dailyLimit === 0} variant="outline" className={dailyLimit === 0 ? "opacity-50 cursor-not-allowed" : ""}>
+                    <Button
+                      disabled={dailyLimit === 0}
+                      variant="outline"
+                      className={
+                        dailyLimit === 0 ? 'opacity-50 cursor-not-allowed' : ''
+                      }
+                    >
                       <IoMdAdd /> Add Check Clock
                     </Button>
                   </DialogTrigger>
@@ -325,9 +339,13 @@ export default function CheckClockClient({
               <TableBody>
                 {checkclocks.map((checkclock) => (
                   <TableRow key={checkclock.id}>
-                    <TableCell>{checkclock.date.replace(/T.*/, "")}</TableCell>
-                    <TableCell>{checkclock.clockIn.replace(/.*T/, "")}</TableCell>
-                    <TableCell>{checkclock.clockOut.replace(/.*T/, "")}</TableCell>
+                    <TableCell>{checkclock.date.replace(/T.*/, '')}</TableCell>
+                    <TableCell>
+                      {checkclock.clockIn.replace(/.*T/, '')}
+                    </TableCell>
+                    <TableCell>
+                      {checkclock.clockOut.replace(/.*T/, '')}
+                    </TableCell>
                     <TableCell>{checkclock.workHours}</TableCell>
                     <TableCell>
                       <div>
@@ -338,12 +356,11 @@ export default function CheckClockClient({
                                 ${checkclock.status === 'EARLY' ? 'bg-yellow-600' : ''}
                                 `}
                         >
-                          {
-                            checkclock.status === 'ON_TIME'
-                              ? 'ON TIME'
-                              : checkclock.status === 'LATE'
-                                ? 'LATE'
-                                : 'EARLY'}
+                          {checkclock.status === 'ON_TIME'
+                            ? 'ON TIME'
+                            : checkclock.status === 'LATE'
+                              ? 'LATE'
+                              : 'EARLY'}
                         </span>
                       </div>
                     </TableCell>
@@ -357,8 +374,11 @@ export default function CheckClockClient({
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
-                        {checkclock.clockOut === "-" && (
-                          <Dialog open={openCheckOutDialog} onOpenChange={setOpenCheckOutDialog}>
+                        {checkclock.clockOut === '-' && (
+                          <Dialog
+                            open={openCheckOutDialog}
+                            onOpenChange={setOpenCheckOutDialog}
+                          >
                             <DialogTrigger asChild>
                               <Button
                                 variant="outline"

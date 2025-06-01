@@ -56,10 +56,11 @@ export default function HrSignUpPage() {
 
       toast.success(res.data.message || 'Sign up successful!');
       router.push('/signin');
-
     } catch (error: any) {
       console.error(error);
-      toast.error("Sign up failed. Please check your credentials and try again.");
+      toast.error(
+        'Sign up failed. Please check your credentials and try again.',
+      );
     }
   };
 
@@ -85,7 +86,6 @@ export default function HrSignUpPage() {
     google.accounts.id.prompt(); // Menampilkan popup Google login
   };
 
-
   return (
     <div className="flex min-h-screen">
       {/* Left Side - Image */}
@@ -99,8 +99,6 @@ export default function HrSignUpPage() {
         {/* Overlay transparan biru */}
         <div className="absolute inset-0 bg-[#1E3A5F] opacity-60 z-10" />
       </div>
-
-
 
       {/* Right Side - Form */}
       <div className="bg-white flex flex-col justify-center w-full md:w-1/2 p-8">
@@ -233,7 +231,12 @@ export default function HrSignUpPage() {
               <span>I agree with the</span>
               <Dialog>
                 <DialogTrigger asChild>
-                  <button type="button" className="text-sm text-gray-700 underline">terms of use of HRIS</button>
+                  <button
+                    type="button"
+                    className="text-sm text-gray-700 underline"
+                  >
+                    terms of use of HRIS
+                  </button>
                 </DialogTrigger>
                 <DialogContent className="max-h-[80vh] overflow-y-scroll">
                   <TermsOfUse />
@@ -266,7 +269,6 @@ export default function HrSignUpPage() {
               />
               <span>Sign up with Google</span>
             </Button>
-
 
             {/* Link to Sign In */}
             <p className="text-center text-sm text-gray-600 mt-4">

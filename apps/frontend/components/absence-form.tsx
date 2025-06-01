@@ -13,15 +13,19 @@ import {
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { DialogFooter } from '@/components/ui/dialog';
-import api from '@/lib/axios';  // assuming you have axios instance here
+import api from '@/lib/axios'; // assuming you have axios instance here
 
 interface AbsenceFormProps {
   employeeId: string;
   companyId: string;
-  onSuccess?: () => void;  // optional callback after successful submit
+  onSuccess?: () => void; // optional callback after successful submit
 }
 
-export function AbsenceForm({ employeeId, companyId, onSuccess }: AbsenceFormProps) {
+export function AbsenceForm({
+  employeeId,
+  companyId,
+  onSuccess,
+}: AbsenceFormProps) {
   const [absentType, setAbsentType] = useState('');
   const [date, setDate] = useState('');
   const [reason, setReason] = useState('');
@@ -59,8 +63,8 @@ export function AbsenceForm({ employeeId, companyId, onSuccess }: AbsenceFormPro
         company_id: companyId,
         employee_id: employeeId,
         date: new Date(date).toISOString(), // Convert date input to ISO string
-        type: absentType.toUpperCase(),     // Uppercase to match API ("SICK")
-        reason,                             // Optional, depends on your API, remove if not needed
+        type: absentType.toUpperCase(), // Uppercase to match API ("SICK")
+        reason, // Optional, depends on your API, remove if not needed
         // file upload is ignored here, add multipart/form-data if needed
       };
 

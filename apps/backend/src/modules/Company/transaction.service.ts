@@ -8,9 +8,8 @@ export class TransactionService {
   constructor(private prisma: PrismaService) {}
 
   async createTransaction(dto: createTransactionDto) {
-    const data : any = {...dto};
+    const data: any = { ...dto };
 
-    
     try {
       const transaction = await this.prisma.transaction.create({ data: data });
       return {
@@ -83,13 +82,13 @@ export class TransactionService {
       };
     }
   }
-  async findFilters(filters: Record< string, any>){
-    const where: Record<string , any> = {}
+  async findFilters(filters: Record<string, any>) {
+    const where: Record<string, any> = {};
 
-    for (const [key,value] of Object.entries(filters)){
-      where[key] = { equals: value};
+    for (const [key, value] of Object.entries(filters)) {
+      where[key] = { equals: value };
     }
 
-    return await this.prisma.transaction.findMany({where});
+    return await this.prisma.transaction.findMany({ where });
   }
 }

@@ -2,7 +2,7 @@
 
 ### Cloud Architecture
 
-![alt text](clouddiagram.png) 
+![alt text](clouddiagram.png)
 
 ## Setup
 

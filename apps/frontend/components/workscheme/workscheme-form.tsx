@@ -62,19 +62,20 @@ export function WorkshemeForm({
   // Helper function to convert HH:MM:SS to ISO timestamp format
   const timeStringToTimestamp = (timeString: string): string => {
     if (!timeString) return '';
-    
+
     // Ensure HH:MM:SS format
     let formattedTime = timeString;
-    if (timeString.length === 5) { // HH:MM
+    if (timeString.length === 5) {
+      // HH:MM
       formattedTime = `${timeString}:00`;
     }
-    
+
     // Validate HH:MM:SS format
     const timeRegex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$/;
     if (!timeRegex.test(formattedTime)) {
       throw new Error('Invalid time format');
     }
-    
+
     // Create ISO timestamp with Indonesia timezone (+07:00)
     // Using 1970-01-01 as base date as specified in DTO
     const baseDate = '1970-01-01';
@@ -123,33 +124,37 @@ export function WorkshemeForm({
     setIsGeocoding(true);
     try {
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(addressText)}&format=json&addressdetails=1&limit=1`
+        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(addressText)}&format=json&addressdetails=1&limit=1`,
       );
-      
+
       if (!response.ok) {
         throw new Error('Geocoding service unavailable');
       }
 
       const data = await response.json();
-      
+
       if (data && data.length > 0) {
         const result = data[0];
         const lat = parseFloat(result.lat);
         const lng = parseFloat(result.lon);
-        
+
         setWorkspaceLat(lat.toFixed(6));
         setWorkspaceLong(lng.toFixed(6));
-        
+
         // Force re-render map dengan posisi baru
-        setMapKey(prev => prev + 1);
-        
+        setMapKey((prev) => prev + 1);
+
         toast.success('Location found and updated on map');
       } else {
-        toast.error('Address not found. Please try a more specific address or click on the map manually.');
+        toast.error(
+          'Address not found. Please try a more specific address or click on the map manually.',
+        );
       }
     } catch (error) {
       console.error('Geocoding error:', error);
-      toast.error('Failed to find location. Please try again or click on the map manually.');
+      toast.error(
+        'Failed to find location. Please try again or click on the map manually.',
+      );
     } finally {
       setIsGeocoding(false);
     }
@@ -177,7 +182,9 @@ export function WorkshemeForm({
   const validateCoordinates = (): boolean => {
     // Validasi bahwa latitude dan longitude tidak kosong (opsional untuk workspace)
     if (workspaceAddress && (!workspaceLat || !workspaceLong)) {
-      toast.error('Please select a location on the map or search for the workspace address');
+      toast.error(
+        'Please select a location on the map or search for the workspace address',
+      );
       return false;
     }
 
@@ -219,8 +226,12 @@ export function WorkshemeForm({
     }
 
     // Convert HH:MM to HH:MM:SS format if needed
-    const checkInTime = checkIn.includes(':') && checkIn.length === 5 ? `${checkIn}:00` : checkIn;
-    const checkOutTime = checkOut.includes(':') && checkOut.length === 5 ? `${checkOut}:00` : checkOut;
+    const checkInTime =
+      checkIn.includes(':') && checkIn.length === 5 ? `${checkIn}:00` : checkIn;
+    const checkOutTime =
+      checkOut.includes(':') && checkOut.length === 5
+        ? `${checkOut}:00`
+        : checkOut;
 
     // Validasi format waktu
     if (!validateTimeFormat(checkInTime)) {
@@ -265,7 +276,7 @@ export function WorkshemeForm({
         await api.patch(`/api/attendanceType/${initialData.id}`, payload);
         toast.success('Attendance type updated successfully!');
       }
-      
+
       if (mode === 'create') {
         // Reset form
         setName('');
@@ -274,14 +285,17 @@ export function WorkshemeForm({
         setWorkspaceAddress('');
         setWorkspaceLat('');
         setWorkspaceLong('');
-        setMapKey(prev => prev + 1);
+        setMapKey((prev) => prev + 1);
       }
       onSuccess?.();
       onClose?.();
     } catch (error: any) {
-      console.error("Error processing attendance type:", error);
-      const errorMessage = error.response?.data?.message || 
-                           (mode === 'create' ? 'Failed to create attendance type.' : 'Failed to update attendance type.');
+      console.error('Error processing attendance type:', error);
+      const errorMessage =
+        error.response?.data?.message ||
+        (mode === 'create'
+          ? 'Failed to create attendance type.'
+          : 'Failed to update attendance type.');
       toast.error(errorMessage);
     } finally {
       setIsLoading(false);
@@ -296,7 +310,9 @@ export function WorkshemeForm({
           <div>
             <Label>Workspace Location (Optional)</Label>
             {isMapLoading && (
-              <div className="text-gray-500 text-sm text-center">Loading map...</div>
+              <div className="text-gray-500 text-sm text-center">
+                Loading map...
+              </div>
             )}
             <MapPicker
               key={mapKey}
@@ -305,15 +321,17 @@ export function WorkshemeForm({
               initialPosition={
                 workspaceLat && workspaceLong
                   ? {
-                    lat: parseFloat(workspaceLat),
-                    lng: parseFloat(workspaceLong)
-                  }
-                  : initialData && initialData.workspace_lat && initialData.workspace_long
-                  ? {
-                    lat: parseFloat(initialData.workspace_lat.toString()),
-                    lng: parseFloat(initialData.workspace_long.toString())
-                  }
-                  : undefined
+                      lat: parseFloat(workspaceLat),
+                      lng: parseFloat(workspaceLong),
+                    }
+                  : initialData &&
+                      initialData.workspace_lat &&
+                      initialData.workspace_long
+                    ? {
+                        lat: parseFloat(initialData.workspace_lat.toString()),
+                        lng: parseFloat(initialData.workspace_long.toString()),
+                      }
+                    : undefined
               }
             />
           </div>
@@ -336,11 +354,14 @@ export function WorkshemeForm({
                 disabled={isGeocoding || !workspaceAddress.trim() || isLoading}
                 title="Search location for this address"
               >
-                <Search className={`h-4 w-4 ${isGeocoding ? 'animate-spin' : ''}`} />
+                <Search
+                  className={`h-4 w-4 ${isGeocoding ? 'animate-spin' : ''}`}
+                />
               </Button>
             </div>
             <p className="text-xs text-gray-500 mt-1">
-              Enter address and click search, or the map will auto-update after you stop typing
+              Enter address and click search, or the map will auto-update after
+              you stop typing
             </p>
           </div>
 
@@ -400,7 +421,8 @@ export function WorkshemeForm({
               className="w-full"
             />
             <p className="text-xs text-gray-500 mt-1">
-              Set the standard check-in time for this workscheme (HH:MM:SS format)
+              Set the standard check-in time for this workscheme (HH:MM:SS
+              format)
             </p>
           </div>
 
@@ -424,27 +446,50 @@ export function WorkshemeForm({
               className="w-full"
             />
             <p className="text-xs text-gray-500 mt-1">
-              Set the standard check-out time for this workscheme (HH:MM:SS format)
+              Set the standard check-out time for this workscheme (HH:MM:SS
+              format)
             </p>
           </div>
 
           <div className="p-4 bg-gray-50 rounded-lg">
             <h4 className="font-medium text-sm mb-2">Workscheme Info</h4>
             <ul className="text-xs text-gray-600 space-y-1">
-              <li>• <strong>WFO:</strong> Work From Office - requires office location</li>
-              <li>• <strong>WFA:</strong> Work From Anywhere - flexible location</li>
-              <li>• <strong>Hybrid:</strong> Mixed work arrangement</li>
-              <li>• Workspace location is optional for flexible arrangements</li>
-              <li>• Time format will be converted to ISO 8601 timestamp for backend</li>
+              <li>
+                • <strong>WFO:</strong> Work From Office - requires office
+                location
+              </li>
+              <li>
+                • <strong>WFA:</strong> Work From Anywhere - flexible location
+              </li>
+              <li>
+                • <strong>Hybrid:</strong> Mixed work arrangement
+              </li>
+              <li>
+                • Workspace location is optional for flexible arrangements
+              </li>
+              <li>
+                • Time format will be converted to ISO 8601 timestamp for
+                backend
+              </li>
             </ul>
           </div>
 
           {/* Debug info - Remove in production */}
           {(checkIn || checkOut) && (
             <div className="p-2 bg-blue-50 rounded text-xs">
-              <p><strong>Preview:</strong></p>
-              {checkIn && <p>Check In: {checkIn} → {timeStringToTimestamp(checkIn)}</p>}
-              {checkOut && <p>Check Out: {checkOut} → {timeStringToTimestamp(checkOut)}</p>}
+              <p>
+                <strong>Preview:</strong>
+              </p>
+              {checkIn && (
+                <p>
+                  Check In: {checkIn} → {timeStringToTimestamp(checkIn)}
+                </p>
+              )}
+              {checkOut && (
+                <p>
+                  Check Out: {checkOut} → {timeStringToTimestamp(checkOut)}
+                </p>
+              )}
             </div>
           )}
         </div>
@@ -452,12 +497,27 @@ export function WorkshemeForm({
 
       <DialogFooter className="gap-2 pt-6 sm:justify-end">
         {onClose && (
-          <Button type="button" variant="outline" onClick={onClose} disabled={isLoading}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onClose}
+            disabled={isLoading}
+          >
             Cancel
           </Button>
         )}
-        <Button type="submit" className="w-24" disabled={isLoading || isGeocoding}>
-          {isLoading ? (mode === 'create' ? 'Creating...' : 'Updating...') : (mode === 'create' ? 'Submit' : 'Update')}
+        <Button
+          type="submit"
+          className="w-24"
+          disabled={isLoading || isGeocoding}
+        >
+          {isLoading
+            ? mode === 'create'
+              ? 'Creating...'
+              : 'Updating...'
+            : mode === 'create'
+              ? 'Submit'
+              : 'Update'}
         </Button>
       </DialogFooter>
     </form>

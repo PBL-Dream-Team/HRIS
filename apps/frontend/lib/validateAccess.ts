@@ -47,7 +47,8 @@ export async function validateAccess({
 
   // Gabungkan validasi dalam satu blok untuk menghindari redirect ganda
   const isWrongUser = currentPathId !== sub;
-  const isRoleMismatch = (requireAdmin && !is_admin) || (!requireAdmin && is_admin);
+  const isRoleMismatch =
+    (requireAdmin && !is_admin) || (!requireAdmin && is_admin);
 
   if (isWrongUser || isRoleMismatch) {
     return redirect(expectedPath);

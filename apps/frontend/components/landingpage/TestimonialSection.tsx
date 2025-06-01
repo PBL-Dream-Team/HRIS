@@ -1,28 +1,31 @@
-'use client'
+'use client';
 
-import { Card, CardContent } from "@/components/ui/card"
-import Image from "next/image"
+import { Card, CardContent } from '@/components/ui/card';
+import Image from 'next/image';
 
 const testimonials = [
   {
-    name: "Andi Pratama",
-    position: "HR Manager di PT. Maju Sejahtera",
-    message: "Sistem HRIS ini benar-benar memudahkan pekerjaan saya dalam mengelola absensi dan data karyawan. UI-nya intuitif dan tim support sangat responsif!",
-    image: "/images/testi1.jpg",
+    name: 'Andi Pratama',
+    position: 'HR Manager di PT. Maju Sejahtera',
+    message:
+      'Sistem HRIS ini benar-benar memudahkan pekerjaan saya dalam mengelola absensi dan data karyawan. UI-nya intuitif dan tim support sangat responsif!',
+    image: '/images/testi1.jpg',
   },
   {
-    name: "Sinta Wulandari",
-    position: "CEO Startup Tech",
-    message: "Kami menghemat banyak waktu dan biaya operasional sejak menggunakan platform ini. Sangat recommended untuk perusahaan berkembang.",
-    image: "/images/testi2.jpg",
+    name: 'Sinta Wulandari',
+    position: 'CEO Startup Tech',
+    message:
+      'Kami menghemat banyak waktu dan biaya operasional sejak menggunakan platform ini. Sangat recommended untuk perusahaan berkembang.',
+    image: '/images/testi2.jpg',
   },
   {
-    name: "Budi Santoso",
-    position: "Staff HR di CV Kreatif",
-    message: "Fitur payroll dan dokumentasi karyawan sangat membantu dan terintegrasi dengan baik. Keren banget!",
-    image: "/images/testi3.jpg",
+    name: 'Budi Santoso',
+    position: 'Staff HR di CV Kreatif',
+    message:
+      'Fitur payroll dan dokumentasi karyawan sangat membantu dan terintegrasi dengan baik. Keren banget!',
+    image: '/images/testi3.jpg',
   },
-]
+];
 
 export function TestimonialSection() {
   return (
@@ -36,7 +39,10 @@ export function TestimonialSection() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {testimonials.map((t, index) => (
-          <Card key={index} className="p-6 text-left hover:shadow-lg transition-shadow">
+          <Card
+            key={index}
+            className="p-6 text-left hover:shadow-lg transition-shadow"
+          >
             <div className="flex items-center gap-4 mb-4">
               <Image
                 src={t.image}
@@ -57,5 +63,5 @@ export function TestimonialSection() {
         ))}
       </div>
     </div>
-  )
+  );
 }

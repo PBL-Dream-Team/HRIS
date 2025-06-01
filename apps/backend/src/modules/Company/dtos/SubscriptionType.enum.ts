@@ -1,4 +1,4 @@
-export enum SubscriptionType{
-    TRIAL = "TRIAL",
-    PAID = "PAID"
+export enum SubscriptionType {
+  TRIAL = 'TRIAL',
+  PAID = 'PAID',
 }

@@ -1,9 +1,9 @@
-        "use client";
-import React from 'react'
-import CheckEmail from '@/components/check-email'
-import Link from "next/link";
-import Image from "next/image";
-import { Button } from "@/components/ui/button";
+'use client';
+import React from 'react';
+import CheckEmail from '@/components/check-email';
+import Link from 'next/link';
+import Image from 'next/image';
+import { Button } from '@/components/ui/button';
 
 export default function LinkExpiredPage() {
   return (

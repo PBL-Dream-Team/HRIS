@@ -1,12 +1,12 @@
-'use client'
+'use client';
 
-import Image from "next/image"
+import Image from 'next/image';
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion"
+} from '@/components/ui/accordion';
 
 export function FaqSection() {
   return (
@@ -74,5 +74,5 @@ export function FaqSection() {
         </Accordion>
       </div>
     </div>
-  )
+  );
 }

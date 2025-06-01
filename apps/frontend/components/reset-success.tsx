@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import Image from "next/image";
-import { Button } from "@/components/ui/button";
+import Link from 'next/link';
+import Image from 'next/image';
+import { Button } from '@/components/ui/button';
 // import { FiCheckCircle } from "react-icons/fi";
-import { FaCheck } from "react-icons/fa";
+import { FaCheck } from 'react-icons/fa';
 
 export default function ResetSuccess() {
   return (
@@ -25,7 +25,8 @@ export default function ResetSuccess() {
               Your password has been successfully reset
             </h2>
             <p className="text-sm text-gray-600 mt-2">
-              You can log in with your new password. If you encounter any issues, please contact support!
+              You can log in with your new password. If you encounter any
+              issues, please contact support!
             </p>
           </div>
 
@@ -47,7 +48,6 @@ export default function ResetSuccess() {
         {/* Overlay transparan biru */}
         <div className="absolute inset-0 bg-[#1E3A5F] opacity-60 z-10" />
       </div>
-
     </div>
   );
 }

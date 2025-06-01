@@ -46,7 +46,7 @@ export function EmployeeEditGeneralDataForm({
   employeeId,
   initialData,
   onSuccess,
-  onClose
+  onClose,
 }: EmployeeEditGeneralDataFormProps) {
   const router = useRouter();
   const [avatar, setAvatar] = useState<File | null>(null);
@@ -131,7 +131,9 @@ export function EmployeeEditGeneralDataForm({
       if (onSuccess) onSuccess();
     } catch (error: any) {
       console.error('Error updating general data:', error);
-      const errorMessage = error.response?.data?.message || 'An error occurred while updating general data.';
+      const errorMessage =
+        error.response?.data?.message ||
+        'An error occurred while updating general data.';
       toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
@@ -178,12 +180,16 @@ export function EmployeeEditGeneralDataForm({
                     alt="Current Avatar"
                     className="w-full h-full rounded-full object-cover"
                     onError={(e) => {
-                      console.log('Error loading avatar:', initialData.pict_dir);
+                      console.log(
+                        'Error loading avatar:',
+                        initialData.pict_dir,
+                      );
                       const target = e.target as HTMLImageElement;
                       target.style.display = 'none';
                       if (target.parentElement) {
                         const div = document.createElement('div');
-                        div.innerHTML = '<Upload className="h-6 w-6 text-muted-foreground" />';
+                        div.innerHTML =
+                          '<Upload className="h-6 w-6 text-muted-foreground" />';
                         target.parentElement.appendChild(div);
                       }
                     }}
@@ -203,7 +209,9 @@ export function EmployeeEditGeneralDataForm({
               variant="outline"
               onClick={() => document.getElementById('avatar-upload')?.click()}
             >
-              {initialData?.pict_dir && initialData.pict_dir !== '[null]' ? 'Change Avatar' : 'Upload Avatar'}
+              {initialData?.pict_dir && initialData.pict_dir !== '[null]'
+                ? 'Change Avatar'
+                : 'Upload Avatar'}
             </Button>
             <input
               id="avatar-upload"
@@ -269,7 +277,11 @@ export function EmployeeEditGeneralDataForm({
           >
             <SelectTrigger>
               <SelectValue placeholder="Select gender">
-                {gender === 'M' ? 'Male' : gender === 'F' ? 'Female' : 'Select gender'}
+                {gender === 'M'
+                  ? 'Male'
+                  : gender === 'F'
+                    ? 'Female'
+                    : 'Select gender'}
               </SelectValue>
             </SelectTrigger>
             <SelectContent>
@@ -289,7 +301,8 @@ export function EmployeeEditGeneralDataForm({
           >
             <SelectTrigger>
               <SelectValue placeholder="Select education">
-                {educationOptions.find(opt => opt.value === last_education)?.label || 'Select education'}
+                {educationOptions.find((opt) => opt.value === last_education)
+                  ?.label || 'Select education'}
               </SelectValue>
             </SelectTrigger>
             <SelectContent>
@@ -344,7 +357,9 @@ export function EmployeeEditGeneralDataForm({
             type="date"
             value={birth_date ? format(birth_date, 'yyyy-MM-dd') : ''}
             onChange={(e) => {
-              const selectedDate = e.target.value ? new Date(e.target.value) : undefined;
+              const selectedDate = e.target.value
+                ? new Date(e.target.value)
+                : undefined;
               setBirthDate(selectedDate);
             }}
             max={format(new Date(), 'yyyy-MM-dd')}
@@ -355,16 +370,19 @@ export function EmployeeEditGeneralDataForm({
 
         {/* Error message */}
         {error && (
-          <div className="col-span-full text-red-500 text-sm">
-            {error}
-          </div>
+          <div className="col-span-full text-red-500 text-sm">{error}</div>
         )}
       </div>
 
       {/* Form Buttons */}
       <DialogFooter className="gap-2 sm:justify-end mt-4 col-span-full">
         {onClose && (
-          <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onClose}
+            disabled={isSubmitting}
+          >
             Cancel
           </Button>
         )}

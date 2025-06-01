@@ -1,5 +1,5 @@
-export enum AbsentType{
+export enum AbsentType {
   SICK = 'SICK',
   PERMIT = 'PERMIT',
-  LEAVE = 'LEAVE'
+  LEAVE = 'LEAVE',
 }

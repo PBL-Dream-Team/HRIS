@@ -66,22 +66,22 @@ export function AdminForm() {
         <Label>Mobile Number</Label>
         <Input placeholder="Enter phone number" />
       </div>
-      <div className='col-span-full'>
+      <div className="col-span-full">
         <Label>Password</Label>
         <div className="relative">
-            <Input
+          <Input
             type={showPassword ? 'text' : 'password'}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Enter password"
-            />
-            <button
+          />
+          <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
             className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-            >
+          >
             {showPassword ? <Eye size={16} /> : <EyeOff size={16} />}
-            </button>
+          </button>
         </div>
       </div>
 

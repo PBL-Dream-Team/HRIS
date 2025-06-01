@@ -35,7 +35,10 @@ export default function AbsenceDetails({
 }: AbsenceDetailsProps) {
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-[400px] sm:w-[500px] overflow-y-auto">
+      <SheetContent
+        side="right"
+        className="w-[400px] sm:w-[500px] overflow-y-auto"
+      >
         <SheetHeader className="px-4">
           <SheetTitle>Absence Details</SheetTitle>
         </SheetHeader>
@@ -56,7 +59,9 @@ export default function AbsenceDetails({
               </Avatar>
               <div>
                 <p className="font-medium">{selectedAbsence.name}</p>
-                <p className="text-sm text-muted-foreground">{selectedAbsence.position}</p>
+                <p className="text-sm text-muted-foreground">
+                  {selectedAbsence.position}
+                </p>
               </div>
               <div className="ml-auto text-sm text-muted-foreground">
                 {selectedAbsence.status}
@@ -69,7 +74,9 @@ export default function AbsenceDetails({
               <div className="grid grid-cols-2 gap-x-4 gap-y-3">
                 <div>
                   <p className="text-muted-foreground text-xs">Date</p>
-                  <p className="font-medium">{selectedAbsence.date.replace(/T.*/, '')}</p>
+                  <p className="font-medium">
+                    {selectedAbsence.date.replace(/T.*/, '')}
+                  </p>
                 </div>
                 <div>
                   <p className="text-muted-foreground text-xs">Type</p>

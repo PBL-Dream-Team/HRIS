@@ -1,3 +1,4 @@
-import { SetMetadata } from "@nestjs/common";
+import { SetMetadata } from '@nestjs/common';
 
-export const RequireSubscription = () => SetMetadata('requireSubscrption',true);
+export const RequireSubscription = () =>
+  SetMetadata('requireSubscrption', true);

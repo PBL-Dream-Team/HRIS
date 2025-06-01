@@ -23,7 +23,7 @@ import {
   BookMarked,
   UsersIcon,
   UserCheck,
-  User
+  User,
 } from 'lucide-react';
 
 import { NavMain } from '@/components/nav-main';
@@ -40,7 +40,10 @@ import {
 import { NavSecondary } from './nav-secondary';
 
 // This is sample data
-export function AppSidebar({ isAdmin = false, ...props }: { isAdmin?: boolean } & React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar({
+  isAdmin = false,
+  ...props
+}: { isAdmin?: boolean } & React.ComponentProps<typeof Sidebar>) {
   const data = {
     user: {
       name: 'shadcn',
@@ -62,12 +65,12 @@ export function AppSidebar({ isAdmin = false, ...props }: { isAdmin?: boolean } 
       },
       ...(isAdmin
         ? [
-          {
-            title: 'Employee',
-            url: 'employeedatabase',
-            icon: UsersIcon,
-          },
-        ]
+            {
+              title: 'Employee',
+              url: 'employeedatabase',
+              icon: UsersIcon,
+            },
+          ]
         : []),
       {
         title: 'Checkclock',

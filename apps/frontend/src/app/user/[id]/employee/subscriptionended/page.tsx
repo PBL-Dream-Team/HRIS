@@ -11,9 +11,5 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
     section: 'letters',
   });
 
-  return (
-    <SubscriptionEndedClient
-      isAdmin={is_admin}
-    />
-  );
+  return <SubscriptionEndedClient isAdmin={is_admin} />;
 }

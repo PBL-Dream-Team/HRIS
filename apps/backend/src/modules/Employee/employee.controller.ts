@@ -1,4 +1,18 @@
-import { Controller, Get, Post, Body, Param, Delete, Patch, UseGuards, Query, UploadedFile, UseInterceptors, UploadedFiles, Res } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+  Patch,
+  UseGuards,
+  Query,
+  UploadedFile,
+  UseInterceptors,
+  UploadedFiles,
+  Res,
+} from '@nestjs/common';
 import { EmployeeService } from './employee.service';
 import { createEmployeeDto } from './dtos/createEmployee.dto';
 import { editEmployeeDto } from './dtos/editEmployee.dto';
@@ -9,13 +23,13 @@ import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { UpdatePasswordDto } from './dtos/updatePassword.dto';
 import { Response } from 'express';
 import { join } from 'path';
-import { } from 'multer';
+import {} from 'multer';
 
-@ApiTags("employee")
+@ApiTags('employee')
 @UseGuards(JwtGuard, SubscriptionGuard)
 @Controller('api/employee')
 export class EmployeeController {
-  constructor(private readonly employeeService: EmployeeService) { }
+  constructor(private readonly employeeService: EmployeeService) {}
 
   @Post()
   @ApiBody({ type: createEmployeeDto })
@@ -23,11 +37,11 @@ export class EmployeeController {
     FileInterceptor('file', {
       limits: { fileSize: 50 * 1024 * 1024 },
     }),
-    new UploadExtensionInterceptor(['jpg', 'jpeg', 'png'])
+    new UploadExtensionInterceptor(['jpg', 'jpeg', 'png']),
   )
   createEmployee(
     @Body() createEmployeeDto: createEmployeeDto,
-    @UploadedFile() file: Express.Multer.File
+    @UploadedFile() file: Express.Multer.File,
   ) {
     return this.employeeService.createEmployee(createEmployeeDto, file);
   }
@@ -49,7 +63,7 @@ export class EmployeeController {
   @Get(':id/avatar')
   async getDefaultAvatar(
     @Param('id') employeeId: string,
-    @Res() res: Response
+    @Res() res: Response,
   ) {
     try {
       // Logic untuk default avatar atau redirect ke filename yang ada
@@ -64,7 +78,7 @@ export class EmployeeController {
   async getAvatar(
     @Param('id') employeeId: string,
     @Param('filename') filename: string,
-    @Res() res: Response
+    @Res() res: Response,
   ) {
     try {
       if (!filename || filename === 'undefined' || filename === 'null') {
@@ -94,14 +108,18 @@ export class EmployeeController {
     FileInterceptor('file', {
       limits: { fileSize: 50 * 1024 * 1024 },
     }),
-    new UploadExtensionInterceptor(['jpg', 'jpeg', 'png'])
+    new UploadExtensionInterceptor(['jpg', 'jpeg', 'png']),
   )
   updateEmployee(
     @Param('id') employeeId: string,
     @Body() updateEmployeeDto: editEmployeeDto,
-    @UploadedFile() file: Express.Multer.File
+    @UploadedFile() file: Express.Multer.File,
   ) {
-    return this.employeeService.updateEmployee(employeeId, updateEmployeeDto, file);
+    return this.employeeService.updateEmployee(
+      employeeId,
+      updateEmployeeDto,
+      file,
+    );
   }
 
   @Delete(':id')
@@ -131,5 +149,4 @@ export class EmployeeController {
   async getStatusCount(@Param('companyId') companyId: string) {
     return this.employeeService.getStatusCountByCompany(companyId);
   }
-
 }

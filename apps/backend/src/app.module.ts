@@ -55,7 +55,7 @@ import { PaymentModule } from './modules/Company/payment.module';
     LetterTypeModule,
     AuthModule,
     TransactionModule,
-    PaymentModule
+    PaymentModule,
   ],
 })
 export class AppModule {}

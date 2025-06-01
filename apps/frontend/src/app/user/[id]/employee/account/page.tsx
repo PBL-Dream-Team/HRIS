@@ -12,8 +12,9 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
   });
 
   // Fetch employee data di server side
-  const employeeData = await api.get(`/api/employee/${sub}`)
-    .then(res => res.data)
+  const employeeData = await api
+    .get(`/api/employee/${sub}`)
+    .then((res) => res.data)
     .catch(() => null);
 
   return (

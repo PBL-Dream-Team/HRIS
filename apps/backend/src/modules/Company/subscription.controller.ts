@@ -1,28 +1,38 @@
-import {Controller,Get,Post,Body,Param,Delete,Patch, UseGuards, Query,} from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+  Patch,
+  UseGuards,
+  Query,
+} from '@nestjs/common';
 import { createSubscriptionDto } from './dtos/createSubscription.dto';
 import { editSubscriptionDto } from './dtos/editSubscription.dto';
 import { SubscriptionService } from './subscription.service';
 import { JwtGuard } from '../Auth/guard';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
 
-@ApiTags("subscription")
+@ApiTags('subscription')
 @UseGuards(JwtGuard)
 @Controller('api/subscription')
 export class SubscriptionController {
   constructor(private readonly SubscriptionService: SubscriptionService) {}
 
   @Post()
-  @ApiBody({type:createSubscriptionDto})
+  @ApiBody({ type: createSubscriptionDto })
   createSubscription(@Body() createSubscriptionDto: createSubscriptionDto) {
     return this.SubscriptionService.createSubscription(createSubscriptionDto);
   }
 
   @Get()
-  getSubscriptions(@Query() query: Record<string,any>) {
-      if(Object.keys(query).length >0){
-          return this.SubscriptionService.findFilters(query);
-      }
-      return this.SubscriptionService.getSubscriptions();
+  getSubscriptions(@Query() query: Record<string, any>) {
+    if (Object.keys(query).length > 0) {
+      return this.SubscriptionService.findFilters(query);
+    }
+    return this.SubscriptionService.getSubscriptions();
   }
 
   @Get(':id')
@@ -31,12 +41,15 @@ export class SubscriptionController {
   }
 
   @Patch(':id')
-  @ApiBody({type:editSubscriptionDto})
+  @ApiBody({ type: editSubscriptionDto })
   updateSubscription(
     @Param('id') subscriptionId: string,
     @Body() updateSubscriptionDto: editSubscriptionDto,
   ) {
-    return this.SubscriptionService.updateSubscription(subscriptionId, updateSubscriptionDto);
+    return this.SubscriptionService.updateSubscription(
+      subscriptionId,
+      updateSubscriptionDto,
+    );
   }
 
   @Delete(':id')

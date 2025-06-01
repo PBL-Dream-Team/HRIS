@@ -1,5 +1,5 @@
 export enum attendanceapproval {
-    APPROVED = "APPROVED",
-    DISAPPROVED = "DISAPPROVED",
-    PENDING = "PENDING"
+  APPROVED = 'APPROVED',
+  DISAPPROVED = 'DISAPPROVED',
+  PENDING = 'PENDING',
 }

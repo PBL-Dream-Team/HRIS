@@ -75,5 +75,4 @@ describe('Letter Feature', () => {
     cy.contains('Letter type added successfully').should('exist');
     cy.get('[role="dialog"]').should('not.exist');
   });
-
 });

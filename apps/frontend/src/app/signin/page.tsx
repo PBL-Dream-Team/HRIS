@@ -40,7 +40,6 @@ export default function HrLoginPage() {
     google.accounts.id.prompt(); // tampilkan popup login Google
   };
 
-
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
@@ -74,7 +73,6 @@ export default function HrLoginPage() {
         {/* Overlay transparan biru */}
         <div className="absolute inset-0 bg-[#1E3A5F] opacity-60 z-10" />
       </div>
-
 
       {/* Right Side - Form */}
       <div className="bg-white flex flex-col justify-center w-full md:w-1/2 p-8">
@@ -172,7 +170,6 @@ export default function HrLoginPage() {
               />
               <span>Sign in with Google</span>
             </Button>
-
 
             <Link href="/signin/employee" passHref>
               <Button

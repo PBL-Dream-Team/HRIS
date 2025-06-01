@@ -87,7 +87,10 @@ export default function DashboardClient({
           leaveDays,
         });
       } catch (err: any) {
-        console.error('Error fetching data:', err.response?.data || err.message);
+        console.error(
+          'Error fetching data:',
+          err.response?.data || err.message,
+        );
       }
     };
 

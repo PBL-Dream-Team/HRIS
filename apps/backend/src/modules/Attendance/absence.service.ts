@@ -10,16 +10,26 @@ export class AbsenceService {
   constructor(private prisma: PrismaService) {}
 
   async createAbsence(dto: createAbsenceDto, file?: Express.Multer.File) {
-    const data : any = { ...dto};
+    const data: any = { ...dto };
 
-    if(file){const filename = `${Date.now()}_${file.originalname}`;
-    data.filedir = filename;}
+    if (file) {
+      const filename = `${Date.now()}_${file.originalname}`;
+      data.filedir = filename;
+    }
 
     try {
       const absence = await this.prisma.absenceLeave.create({ data: data });
 
-      if(file && data.filedir){
-        const writePath = join(process.cwd(), 'apps', 'frontend', 'public' , 'storage', 'absence', data.filedir);
+      if (file && data.filedir) {
+        const writePath = join(
+          process.cwd(),
+          'apps',
+          'frontend',
+          'public',
+          'storage',
+          'absence',
+          data.filedir,
+        );
         const writeStream = createWriteStream(writePath);
         writeStream.write(file.buffer);
         writeStream.end();
@@ -61,16 +71,21 @@ export class AbsenceService {
     return await this.prisma.absenceLeave.findMany();
   }
 
-  async updateAbsence(absenceId: string, dto: editAbsenceDto, file?: Express.Multer.File) {
-    const data : any = { ...dto};
+  async updateAbsence(
+    absenceId: string,
+    dto: editAbsenceDto,
+    file?: Express.Multer.File,
+  ) {
+    const data: any = { ...dto };
 
-    const old = await this.prisma.absenceLeave.findFirst({where:{id:absenceId}});
-    
-    if(file){
+    const old = await this.prisma.absenceLeave.findFirst({
+      where: { id: absenceId },
+    });
+
+    if (file) {
       const filename = `${Date.now()}_${file.originalname}`;
       data.filedir = filename;
     }
-
 
     try {
       const absence = await this.prisma.absenceLeave.update({
@@ -78,15 +93,31 @@ export class AbsenceService {
         data: data,
       });
 
-      if(file && data.filedir){
-        const writePath = join(process.cwd(), 'apps', 'frontend', 'public' , 'storage', 'absence', data.filedir);
+      if (file && data.filedir) {
+        const writePath = join(
+          process.cwd(),
+          'apps',
+          'frontend',
+          'public',
+          'storage',
+          'absence',
+          data.filedir,
+        );
         const writeStream = createWriteStream(writePath);
         writeStream.write(file.buffer);
         writeStream.end();
-      
-        if(old.filedir){
-          const oldPath = join(process.cwd(), 'apps', 'frontend', 'public' , 'storage', 'absence', old.filedir);
-          if(existsSync(oldPath)){
+
+        if (old.filedir) {
+          const oldPath = join(
+            process.cwd(),
+            'apps',
+            'frontend',
+            'public',
+            'storage',
+            'absence',
+            old.filedir,
+          );
+          if (existsSync(oldPath)) {
             unlinkSync(oldPath);
           }
         }
@@ -108,15 +139,25 @@ export class AbsenceService {
 
   async deleteAbsence(absenceId: string) {
     try {
-      const data = await this.prisma.absenceLeave.findFirst({where:{id:absenceId}});
-  
+      const data = await this.prisma.absenceLeave.findFirst({
+        where: { id: absenceId },
+      });
+
       await this.prisma.absenceLeave.delete({ where: { id: absenceId } });
 
-      if(data.filedir){
-        const oldPath = join(process.cwd(), 'apps', 'frontend', 'public' , 'storage', 'absence', data.filedir);
-          if(existsSync(oldPath)){
-            unlinkSync(oldPath);
-          }
+      if (data.filedir) {
+        const oldPath = join(
+          process.cwd(),
+          'apps',
+          'frontend',
+          'public',
+          'storage',
+          'absence',
+          data.filedir,
+        );
+        if (existsSync(oldPath)) {
+          unlinkSync(oldPath);
+        }
       }
 
       return {
@@ -130,13 +171,13 @@ export class AbsenceService {
       };
     }
   }
-  async findFilters(filters: Record< string, any>){
-    const where: Record<string , any> = {}
+  async findFilters(filters: Record<string, any>) {
+    const where: Record<string, any> = {};
 
-    for (const [key,value] of Object.entries(filters)){
-      where[key] = { equals: value};
+    for (const [key, value] of Object.entries(filters)) {
+      where[key] = { equals: value };
     }
 
-    return await this.prisma.absenceLeave.findMany({where});
+    return await this.prisma.absenceLeave.findMany({ where });
   }
 }

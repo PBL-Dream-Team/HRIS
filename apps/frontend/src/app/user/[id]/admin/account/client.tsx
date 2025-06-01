@@ -2,11 +2,7 @@
 
 import { AppSidebar } from '@/components/app-sidebar';
 import { Input } from '@/components/ui/input';
-import {
-  Bell,
-  CalendarIcon,
-  Pencil,
-} from 'lucide-react';
+import { Bell, CalendarIcon, Pencil } from 'lucide-react';
 import { NavUser } from '@/components/nav-user';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
@@ -79,14 +75,14 @@ type AccountClientProps = {
     company_address: string;
     loc_lat: string;
     loc_long: string;
-  }
+  };
 };
 
 export default function AccountClient({
   isAdmin,
   userId,
   companyId,
-  initialData
+  initialData,
 }: AccountClientProps) {
   const [user, setUser] = useState({
     name: '',
@@ -101,7 +97,7 @@ export default function AccountClient({
     last_name: '',
     email: '',
     phone: '',
-    pict_dir: ''
+    pict_dir: '',
   });
 
   const [subsData, setSubsData] = useState({
@@ -118,7 +114,7 @@ export default function AccountClient({
     address: '',
     loc_lat: '',
     loc_long: '',
-  })
+  });
 
   const [lat, setLat] = useState('');
   const [lng, setLng] = useState('');
@@ -148,7 +144,7 @@ export default function AccountClient({
     }
   };
 
-  // Data Fetching 
+  // Data Fetching
   const fetchData = useCallback(async () => {
     try {
       const resUser = await api.get(`/api/employee/${userId}`);
@@ -156,7 +152,9 @@ export default function AccountClient({
       const admin = resUser.data.data;
       const company = resCompany.data.data;
 
-      const resSubs = await api.get(`/api/subscription/${company.subscription_id}`);
+      const resSubs = await api.get(
+        `/api/subscription/${company.subscription_id}`,
+      );
       const subscription = resSubs.data.data;
 
       setUser({
@@ -188,11 +186,12 @@ export default function AccountClient({
         address: company.address || '',
         loc_lat: company.loc_lat || '',
         loc_long: company.loc_long || '',
-      })
+      });
     } catch (err: any) {
       console.error(
         'Error fetching user data:',
-        err.response?.data || err.message);
+        err.response?.data || err.message,
+      );
     }
   }, [userId, companyId]);
 
@@ -202,7 +201,7 @@ export default function AccountClient({
 
   const handleOperationSuccess = useCallback(async () => {
     await fetchData();
-  }, [fetchData])
+  }, [fetchData]);
 
   const [avatar, setAvatar] = useState<File | null>(null);
   return (
@@ -260,9 +259,7 @@ export default function AccountClient({
         {/* Content */}
         <div className="flex flex-col md:flex-row gap-4 p-4 relative">
           <form className="w-full h-fit md:w-2/3 grid grid-cols-1 md:grid-cols-2 gap-4 border-2 p-4 bg-white rounded-lg shadow">
-            <h1 className="text-lg font-semibold mb-2">
-              Account Information
-            </h1>
+            <h1 className="text-lg font-semibold mb-2">Account Information</h1>
 
             {/* Profile Data */}
             <div className="col-span-full flex items-center gap-4">
@@ -280,7 +277,7 @@ export default function AccountClient({
             <div>
               <Label>First Name</Label>
               <Input
-                id='first_name'
+                id="first_name"
                 value={adminData.first_name || ''}
                 readOnly
                 placeholder="Your first name"
@@ -289,7 +286,7 @@ export default function AccountClient({
             <div>
               <Label>Last Name</Label>
               <Input
-                id='last_name'
+                id="last_name"
                 value={adminData.last_name || ''}
                 readOnly
                 placeholder="Your last name"
@@ -298,7 +295,7 @@ export default function AccountClient({
             <div>
               <Label>Email</Label>
               <Input
-                id='email'
+                id="email"
                 value={adminData.email || ''}
                 readOnly
                 placeholder="Your email"
@@ -307,7 +304,7 @@ export default function AccountClient({
             <div>
               <Label>Mobile Number</Label>
               <Input
-                id='phone'
+                id="phone"
                 value={adminData.phone || ''}
                 readOnly
                 placeholder="Your phone number"
@@ -359,8 +356,12 @@ export default function AccountClient({
             </h1>
             <Card>
               <CardHeader className="pb-2">
-                <p className="text-sm">Joined at : {formatDate(subsData.subs_date_start)}</p>
-                <CardTitle className="text-xl">{subsData.subscription_type}</CardTitle>
+                <p className="text-sm">
+                  Joined at : {formatDate(subsData.subs_date_start)}
+                </p>
+                <CardTitle className="text-xl">
+                  {subsData.subscription_type}
+                </CardTitle>
                 <div className="flex items-center gap-2">
                   <CalendarIcon className="w-4 h-4 text-muted-foreground" />
                   <p className="text-muted-foreground text-xs">
@@ -385,21 +386,21 @@ export default function AccountClient({
             </div>
           </div>
         </div>
-        <div className='flex flex-col md:flex-row gap-4 p-4 relative'>
-          <div className='w-full h-fit gap-4 border-2 p-4 bg-white rounded-lg shadow'>
-            <h1 className="text-lg font-semibold mb-2">
-              Company Information
-            </h1>
-            <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+        <div className="flex flex-col md:flex-row gap-4 p-4 relative">
+          <div className="w-full h-fit gap-4 border-2 p-4 bg-white rounded-lg shadow">
+            <h1 className="text-lg font-semibold mb-2">Company Information</h1>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="w-full space-y-2">
                 {isMapLoading && (
-                  <div className="text-gray-500 text-sm text-center">Loading map...</div>
+                  <div className="text-gray-500 text-sm text-center">
+                    Loading map...
+                  </div>
                 )}
                 {companyData.loc_lat && companyData.loc_long ? (
                   <MapDisplay
                     position={{
                       lat: parseFloat(companyData.loc_lat),
-                      lng: parseFloat(companyData.loc_long)
+                      lng: parseFloat(companyData.loc_long),
                     }}
                     onLoad={handleMapLoad}
                   />
@@ -409,11 +410,11 @@ export default function AccountClient({
                   </div>
                 )}
               </div>
-              <div className='grid grid-cols-1'>
+              <div className="grid grid-cols-1">
                 <div>
                   <Label>Company Name</Label>
                   <Input
-                    id='first_name'
+                    id="first_name"
                     value={companyData.name || ''}
                     readOnly
                     placeholder="Company name"
@@ -422,17 +423,17 @@ export default function AccountClient({
                 <div>
                   <Label>Company Address</Label>
                   <Input
-                    id='last_name'
+                    id="last_name"
                     value={companyData.address || ''}
                     readOnly
                     placeholder="Address detail of your company"
                   />
                 </div>
-                <div className='grid grid-cols-2 gap-4'>
+                <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label>Langtitude</Label>
                     <Input
-                      id='first_name'
+                      id="first_name"
                       value={companyData.loc_lat || ''}
                       readOnly
                       placeholder="Langtitude of your company"
@@ -441,14 +442,14 @@ export default function AccountClient({
                   <div>
                     <Label>Longtitude</Label>
                     <Input
-                      id='last_name'
+                      id="last_name"
                       value={companyData.loc_long || ''}
                       readOnly
                       placeholder="Longtitude of your company"
                     />
                   </div>
                 </div>
-                <div className='col-span-full flex justify-end mt-2'>
+                <div className="col-span-full flex justify-end mt-2">
                   <Dialog>
                     <DialogTrigger asChild>
                       <Button className="w-full md:w-auto">
@@ -477,8 +478,6 @@ export default function AccountClient({
             </div>
 
             {/* Attendance Type */}
-
-            
           </div>
         </div>
       </SidebarInset>

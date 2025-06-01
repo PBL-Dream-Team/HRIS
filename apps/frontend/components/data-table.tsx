@@ -1,7 +1,7 @@
 // components/ui/data-table.tsx
-"use client"
+'use client';
 
-import * as React from "react"
+import * as React from 'react';
 import {
   ColumnDef,
   flexRender,
@@ -12,7 +12,7 @@ import {
   ColumnFiltersState,
   useReactTable,
   VisibilityState,
-} from "@tanstack/react-table"
+} from '@tanstack/react-table';
 
 import {
   Table,
@@ -21,27 +21,26 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from '@/components/ui/table';
 
-import { Input } from "@/components/ui/input"
-import { TbArrowsDownUp } from "react-icons/tb"
-import { IoMdSearch } from "react-icons/io"
-import PaginationFooter from "@/components/pagination"
+import { Input } from '@/components/ui/input';
+import { TbArrowsDownUp } from 'react-icons/tb';
+import { IoMdSearch } from 'react-icons/io';
+import PaginationFooter from '@/components/pagination';
 
 interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[]
-  data: TData[]
-  searchableColumn?: string
-  title?: React.ReactNode
-  actions?: React.ReactNode
-  customSearchInput?: React.ReactNode
+  columns: ColumnDef<TData, TValue>[];
+  data: TData[];
+  searchableColumn?: string;
+  title?: React.ReactNode;
+  actions?: React.ReactNode;
+  customSearchInput?: React.ReactNode;
   pagination?: {
-    currentPage: number
-    itemsPerPage: number
-    onPageChange: (page: number) => void
-  }
+    currentPage: number;
+    itemsPerPage: number;
+    onPageChange: (page: number) => void;
+  };
 }
-
 
 export function DataTable<TData, TValue>({
   columns,
@@ -52,26 +51,30 @@ export function DataTable<TData, TValue>({
   customSearchInput,
   pagination,
 }: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = React.useState<SortingState>([])
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
-  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
+  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    [],
+  );
+  const [columnVisibility, setColumnVisibility] =
+    React.useState<VisibilityState>({});
 
   // Handle filtered + paginated data
   const filteredData = React.useMemo(() => {
-    const column = searchableColumn
-    if (!column) return data
-    const filterValue = columnFilters.find(f => f.id === column)?.value as string
-    if (!filterValue) return data
+    const column = searchableColumn;
+    if (!column) return data;
+    const filterValue = columnFilters.find((f) => f.id === column)
+      ?.value as string;
+    if (!filterValue) return data;
     return data.filter((item: any) =>
-      String(item[column]).toLowerCase().includes(filterValue.toLowerCase())
-    )
-  }, [data, columnFilters, searchableColumn])
+      String(item[column]).toLowerCase().includes(filterValue.toLowerCase()),
+    );
+  }, [data, columnFilters, searchableColumn]);
 
   const paginatedData = React.useMemo(() => {
-    if (!pagination) return filteredData
-    const startIndex = (pagination.currentPage - 1) * pagination.itemsPerPage
-    return filteredData.slice(startIndex, startIndex + pagination.itemsPerPage)
-  }, [filteredData, pagination])
+    if (!pagination) return filteredData;
+    const startIndex = (pagination.currentPage - 1) * pagination.itemsPerPage;
+    return filteredData.slice(startIndex, startIndex + pagination.itemsPerPage);
+  }, [filteredData, pagination]);
 
   const table = useReactTable({
     data: paginatedData,
@@ -88,8 +91,7 @@ export function DataTable<TData, TValue>({
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
     manualPagination: true, // we handle pagination ourselves
-  })
-
+  });
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-5 pt-5">
@@ -108,10 +110,14 @@ export function DataTable<TData, TValue>({
                 type="search"
                 placeholder={`Search ${searchableColumn}`}
                 value={
-                  (table.getColumn(searchableColumn)?.getFilterValue() as string) ?? ""
+                  (table
+                    .getColumn(searchableColumn)
+                    ?.getFilterValue() as string) ?? ''
                 }
                 onChange={(event) =>
-                  table.getColumn(searchableColumn)?.setFilterValue(event.target.value)
+                  table
+                    .getColumn(searchableColumn)
+                    ?.setFilterValue(event.target.value)
                 }
                 className="pl-10"
               />
@@ -136,7 +142,7 @@ export function DataTable<TData, TValue>({
                       >
                         {flexRender(
                           header.column.columnDef.header,
-                          header.getContext()
+                          header.getContext(),
                         )}
                         {header.column.getIsSorted() && (
                           <TbArrowsDownUp className="inline ml-1" />
@@ -156,7 +162,7 @@ export function DataTable<TData, TValue>({
                     <TableCell key={cell.id}>
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext()
+                        cell.getContext(),
                       )}
                     </TableCell>
                   ))}
@@ -164,7 +170,10 @@ export function DataTable<TData, TValue>({
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className="text-center py-10">
+                <TableCell
+                  colSpan={columns.length}
+                  className="text-center py-10"
+                >
                   No results.
                 </TableCell>
               </TableRow>
@@ -182,5 +191,5 @@ export function DataTable<TData, TValue>({
         />
       )}
     </div>
-  )
+  );
 }

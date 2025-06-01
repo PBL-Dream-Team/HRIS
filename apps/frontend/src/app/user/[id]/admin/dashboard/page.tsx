@@ -12,10 +12,6 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
   });
 
   return (
-    <DashboardClient
-      isAdmin={is_admin}
-      userId={sub}
-      companyId={company_id}
-    />
+    <DashboardClient isAdmin={is_admin} userId={sub} companyId={company_id} />
   );
 }

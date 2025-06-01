@@ -42,8 +42,8 @@ export default function LettersClient({
   const [employees, setEmployees] = useState<Record<string, any>>({});
   const [letterTypeMap, setLetterTypeMap] = useState<Record<string, any>>({});
   const [letters, setLetters] = useState<any[]>([]);
-  const [currentPage, setCurrentPage] = useState(1)
-  const itemsPerPage = 10
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   useEffect(() => {
     async function fetchData() {
@@ -177,10 +177,7 @@ export default function LettersClient({
               data={transformedLetters}
               searchableColumn="name"
               title="Letter Overview"
-              actions={
-                <>
-                </>
-              }
+              actions={<></>}
               pagination={{
                 currentPage,
                 itemsPerPage,

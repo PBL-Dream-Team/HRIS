@@ -15,7 +15,7 @@ services:
       - db
     environment:
       - DATABASE_URL= ${{ secrets.DATABASE_URL }}
-    
+
   db:
     image: postgres:15
     container_name: postgres_db
@@ -23,10 +23,10 @@ services:
     ports:
       - 5432:5432
     environment:
-      POSTGRES_USER:  ${{ secrets.DATABASE_USER }}
-      POSTGRES_PASSWORD:  ${{ secrets.DATABASE_PASSWORD }}
-      POSTGRES_DB:  hris_dev
-      POSTGRES_HOST:  ${{ secrets.DATABASE_HOST }}
+      POSTGRES_USER: ${{ secrets.DATABASE_USER }}
+      POSTGRES_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+      POSTGRES_DB: hris_dev
+      POSTGRES_HOST: ${{ secrets.DATABASE_HOST }}
     volumes:
       - postgres_data:/var/lib/postgresql/data
 

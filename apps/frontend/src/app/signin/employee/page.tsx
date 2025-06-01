@@ -52,7 +52,6 @@ export default function HrLoginPage() {
         <div className="absolute inset-0 bg-[#1E3A5F] opacity-60 z-10" />
       </div>
 
-
       {/* Right Side - Form */}
       <div className="bg-white flex flex-col justify-center w-full md:w-1/2 p-8">
         <div className="max-w-md w-full mx-auto">

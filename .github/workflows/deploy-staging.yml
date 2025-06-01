@@ -7,16 +7,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: SSH into GCP VM and deploy
-      uses: appleboy/ssh-action@v0.1.6
-      with:
-        host: ${{ secrets.STAGING_VM_HOST }}
-        username: ${{ secrets.STAGING_VM_USER }}
-        key: ${{ secrets.STAGING_VM_SSH_KEY }}
-        script: |
-          cd HRIS
-          git pull
-          npm install
-          npx prisma migrate reset --force
-          pm2 restart all
-          sudo systemctl restart nginx
+      - name: SSH into GCP VM and deploy
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.STAGING_VM_HOST }}
+          username: ${{ secrets.STAGING_VM_USER }}
+          key: ${{ secrets.STAGING_VM_SSH_KEY }}
+          script: |
+            cd HRIS
+            git pull
+            npm install
+            npx prisma migrate reset --force
+            pm2 restart all
+            sudo systemctl restart nginx

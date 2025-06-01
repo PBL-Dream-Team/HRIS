@@ -1,4 +1,16 @@
-import {Controller,Get,Post,Body,Param,Delete,Patch, UseGuards, Query, UseInterceptors, UploadedFile,} from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+  Patch,
+  UseGuards,
+  Query,
+  UseInterceptors,
+  UploadedFile,
+} from '@nestjs/common';
 import { createLetterDto } from './dtos/createLetter.dto';
 import { editLetterDto } from './dtos/editLetter.dto';
 import { LetterService } from './letter.service';
@@ -14,13 +26,13 @@ export class LetterController {
   constructor(private readonly LetterService: LetterService) {}
 
   @Post()
-  @ApiBody({type:createLetterDto})
+  @ApiBody({ type: createLetterDto })
   @UseInterceptors(
-      FileInterceptor('file',{
-        limits: { fileSize: 50 * 1024 * 1024},
-      }),
-      new UploadExtensionInterceptor(['pdf','docx','doc'])
-    )
+    FileInterceptor('file', {
+      limits: { fileSize: 50 * 1024 * 1024 },
+    }),
+    new UploadExtensionInterceptor(['pdf', 'docx', 'doc']),
+  )
   createLetter(
     @Body() createLetterDto: createLetterDto,
     @UploadedFile() file: Express.Multer.File,
@@ -29,12 +41,12 @@ export class LetterController {
   }
 
   @Get()
-  getLetters(@Query() query: Record<string,any>) {
-      if(Object.keys(query).length >0){
-          return this.LetterService.findFilters(query);
-      }
-      return this.LetterService.getLetters();
+  getLetters(@Query() query: Record<string, any>) {
+    if (Object.keys(query).length > 0) {
+      return this.LetterService.findFilters(query);
     }
+    return this.LetterService.getLetters();
+  }
 
   @Get(':id')
   getLetter(@Param('id') letterId: string) {
@@ -42,17 +54,17 @@ export class LetterController {
   }
 
   @Patch(':id')
-  @ApiBody({type:editLetterDto})
+  @ApiBody({ type: editLetterDto })
   @UseInterceptors(
-      FileInterceptor('file',{
-        limits: { fileSize: 50 * 1024 * 1024},
-      }),
-      new UploadExtensionInterceptor(['pdf','docx','doc'])
-    )
+    FileInterceptor('file', {
+      limits: { fileSize: 50 * 1024 * 1024 },
+    }),
+    new UploadExtensionInterceptor(['pdf', 'docx', 'doc']),
+  )
   updateLetter(
     @Param('id') letterId: string,
     @Body() updateLetterDto: editLetterDto,
-    @UploadedFile() file: Express.Multer.File
+    @UploadedFile() file: Express.Multer.File,
   ) {
     return this.LetterService.updateLetter(letterId, updateLetterDto, file);
   }

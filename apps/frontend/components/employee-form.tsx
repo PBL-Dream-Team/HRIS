@@ -207,7 +207,12 @@ export function EmployeeForm({
       {/* Work Scheme */}
       <div>
         <Label>Work Scheme</Label>
-        <Select value={workScheme} onValueChange={(value) => setWorkScheme(value as 'WFO' | 'WFA' | 'HYBRID')}>
+        <Select
+          value={workScheme}
+          onValueChange={(value) =>
+            setWorkScheme(value as 'WFO' | 'WFA' | 'HYBRID')
+          }
+        >
           <SelectTrigger>
             <SelectValue placeholder="Choose work scheme" />
           </SelectTrigger>
@@ -242,7 +247,10 @@ export function EmployeeForm({
       {/* Gender */}
       <div>
         <Label>Gender</Label>
-        <Select value={gender} onValueChange={(value) => setGender(value as 'M' | 'F' | 'O')}>
+        <Select
+          value={gender}
+          onValueChange={(value) => setGender(value as 'M' | 'F' | 'O')}
+        >
           <SelectTrigger>
             <SelectValue placeholder="Choose gender" />
           </SelectTrigger>
@@ -371,7 +379,12 @@ export function EmployeeForm({
       {/* Contract */}
       <div>
         <Label>Contract</Label>
-        <Select value={contract} onValueChange={(value) => setContract(value as 'PERMANENT' | 'CONTRACT' | 'INTERN')}>
+        <Select
+          value={contract}
+          onValueChange={(value) =>
+            setContract(value as 'PERMANENT' | 'CONTRACT' | 'INTERN')
+          }
+        >
           <SelectTrigger>
             <SelectValue placeholder="Choose Contract" />
           </SelectTrigger>
@@ -386,7 +399,14 @@ export function EmployeeForm({
       {/* Last Education */}
       <div>
         <Label>Last Education</Label>
-        <Select value={education} onValueChange={(value) => setEducation(value as 'HIGH_SCHOOL' | 'BACHELOR' | 'MASTER' | 'DOCTOR')}>
+        <Select
+          value={education}
+          onValueChange={(value) =>
+            setEducation(
+              value as 'HIGH_SCHOOL' | 'BACHELOR' | 'MASTER' | 'DOCTOR',
+            )
+          }
+        >
           <SelectTrigger>
             <SelectValue placeholder="Choose Last Education" />
           </SelectTrigger>
@@ -402,7 +422,33 @@ export function EmployeeForm({
       {/* Bank */}
       <div>
         <Label>Bank</Label>
-        <Select value={bank} onValueChange={(value) => setBank(value as 'BRI' | 'Mandiri' | 'BNI' | 'Danamon' | 'Permata' | 'BCA' | 'Maybank' | 'Panin' | 'Bukopin' | 'CIMB' | 'UOB' | 'OCBC' | 'BJB' | 'Muamalat' | 'BTN' | 'BTPN' | 'Mega' | 'SyariahMandiri' | 'Commonwealth')}>
+        <Select
+          value={bank}
+          onValueChange={(value) =>
+            setBank(
+              value as
+                | 'BRI'
+                | 'Mandiri'
+                | 'BNI'
+                | 'Danamon'
+                | 'Permata'
+                | 'BCA'
+                | 'Maybank'
+                | 'Panin'
+                | 'Bukopin'
+                | 'CIMB'
+                | 'UOB'
+                | 'OCBC'
+                | 'BJB'
+                | 'Muamalat'
+                | 'BTN'
+                | 'BTPN'
+                | 'Mega'
+                | 'SyariahMandiri'
+                | 'Commonwealth',
+            )
+          }
+        >
           <SelectTrigger>
             <SelectValue placeholder="Choose Bank" />
           </SelectTrigger>

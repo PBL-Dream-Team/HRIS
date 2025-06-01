@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import Image from "next/image";
-import { Button } from "@/components/ui/button";
+import Link from 'next/link';
+import Image from 'next/image';
+import { Button } from '@/components/ui/button';
 // import { FiMail } from "react-icons/fi";
-import { LuMailX } from "react-icons/lu";
-import { NewCompanyForm } from "@/components/newcompany-form";
+import { LuMailX } from 'react-icons/lu';
+import { NewCompanyForm } from '@/components/newcompany-form';
 
 export default function ForgotPassword() {
   return (

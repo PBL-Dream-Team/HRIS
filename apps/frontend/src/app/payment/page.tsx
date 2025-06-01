@@ -1,25 +1,26 @@
-'use client'
-import { useSearchParams } from 'next/navigation'
+'use client';
+import { useSearchParams } from 'next/navigation';
 
 export default function PaymentPage() {
-  const searchParams = useSearchParams()
+  const searchParams = useSearchParams();
 
-  const title = searchParams.get('title') || 'Unknown Package'
-  const priceString = searchParams.get('price') || '0'
-  const range = searchParams.get('range') || '1'
-  const type = searchParams.get('type') || 'single'
+  const title = searchParams.get('title') || 'Unknown Package';
+  const priceString = searchParams.get('price') || '0';
+  const range = searchParams.get('range') || '1';
+  const type = searchParams.get('type') || 'single';
 
-  const employeeCount = parseInt(range.replace(/[^\d]/g, ''), 10) || 1
-  const parsedPrice = parseInt(priceString.replace(/[^\d]/g, ''), 10) || 0
+  const employeeCount = parseInt(range.replace(/[^\d]/g, ''), 10) || 1;
+  const parsedPrice = parseInt(priceString.replace(/[^\d]/g, ''), 10) || 0;
 
-  const taxRate = 0.1
+  const taxRate = 0.1;
 
   // Hitung berdasarkan jenis paket
-  const subtotal = type === 'payg'
-    ? parsedPrice * employeeCount // pay-as-you-go dihitung per user
-    : parsedPrice                 // single payment sudah total
+  const subtotal =
+    type === 'payg'
+      ? parsedPrice * employeeCount // pay-as-you-go dihitung per user
+      : parsedPrice; // single payment sudah total
 
-  const total = subtotal + subtotal * taxRate
+  const total = subtotal + subtotal * taxRate;
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-white px-4">
@@ -27,19 +28,23 @@ export default function PaymentPage() {
         <h2 className="text-xl font-bold text-black mb-4">Order Summary</h2>
 
         <div className="flex justify-between">
-          <span>Package</span><span>: {title}</span>
+          <span>Package</span>
+          <span>: {title}</span>
         </div>
         <div className="flex justify-between">
-          <span>Total Users</span><span>: {employeeCount}</span>
+          <span>Total Users</span>
+          <span>: {employeeCount}</span>
         </div>
         {type === 'payg' && (
           <div className="flex justify-between">
-            <span>Price per User</span><span>: Rp {parsedPrice.toLocaleString()}</span>
+            <span>Price per User</span>
+            <span>: Rp {parsedPrice.toLocaleString()}</span>
           </div>
         )}
         {type === 'single' && (
           <div className="flex justify-between">
-            <span>Total Package Price</span><span>: Rp {parsedPrice.toLocaleString()}</span>
+            <span>Total Package Price</span>
+            <span>: Rp {parsedPrice.toLocaleString()}</span>
           </div>
         )}
 
@@ -66,5 +71,5 @@ export default function PaymentPage() {
         </button>
       </div>
     </div>
-  )
+  );
 }

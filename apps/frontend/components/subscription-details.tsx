@@ -32,7 +32,10 @@ export default function SubscriptionDetails({
 }: SubscriptionDetailsProps) {
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-[400px] sm:w-[500px] overflow-y-auto">
+      <SheetContent
+        side="right"
+        className="w-[400px] sm:w-[500px] overflow-y-auto"
+      >
         <SheetHeader className="px-4">
           <SheetTitle>Subscription Details</SheetTitle>
         </SheetHeader>
@@ -45,7 +48,9 @@ export default function SubscriptionDetails({
               <div className="grid grid-cols-2 gap-x-4 gap-y-3">
                 <div>
                   <p className="text-muted-foreground text-xs">Start Date</p>
-                  <p className="font-medium">{selectedSubscription.startDate}</p>
+                  <p className="font-medium">
+                    {selectedSubscription.startDate}
+                  </p>
                 </div>
                 <div>
                   <p className="text-muted-foreground text-xs">End Date</p>
@@ -80,14 +85,20 @@ export default function SubscriptionDetails({
               <div className="grid grid-cols-2 gap-x-4 gap-y-3">
                 <div className="flex items-center gap-2">
                   <CreditCardIcon className="w-4 h-4 text-muted-foreground" />
-                  <p className="text-muted-foreground text-xs">Payment Method</p>
+                  <p className="text-muted-foreground text-xs">
+                    Payment Method
+                  </p>
                 </div>
-                <p className="font-medium">{selectedSubscription.paymentMethod}</p>
+                <p className="font-medium">
+                  {selectedSubscription.paymentMethod}
+                </p>
                 <div className="flex items-center gap-2">
                   <CalendarIcon className="w-4 h-4 text-muted-foreground" />
                   <p className="text-muted-foreground text-xs">Last Updated</p>
                 </div>
-                <p className="font-medium">{selectedSubscription.lastUpdated}</p>
+                <p className="font-medium">
+                  {selectedSubscription.lastUpdated}
+                </p>
               </div>
             </div>
           </div>

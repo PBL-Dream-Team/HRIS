@@ -72,13 +72,17 @@ export function WorkschemeOverviewContent({
     try {
       const response = await api.get<Workscheme[]>('/api/attendanceType');
       if (response && Array.isArray(response.data)) {
-        const filteredWorkschemes = response.data.filter((ws) => ws.company_id === companyId);
+        const filteredWorkschemes = response.data.filter(
+          (ws) => ws.company_id === companyId,
+        );
         setWorkschemes(filteredWorkschemes);
       } else {
         setError('Invalid response format from server.');
       }
     } catch (err: any) {
-      setError(`Failed to fetch workschemes: ${err.message || 'Unknown error'}`);
+      setError(
+        `Failed to fetch workschemes: ${err.message || 'Unknown error'}`,
+      );
     } finally {
       setIsLoading(false);
     }
@@ -107,7 +111,9 @@ export function WorkschemeOverviewContent({
   const handleConfirmDelete = async () => {
     if (!selectedDeleteId) return;
     try {
-      const response = await api.delete(`/api/attendanceType/${selectedDeleteId}`);
+      const response = await api.delete(
+        `/api/attendanceType/${selectedDeleteId}`,
+      );
 
       if (response.status === 200 || response.data.statusCode === 200) {
         toast.success('Workscheme deleted successfully.');
@@ -115,7 +121,9 @@ export function WorkschemeOverviewContent({
       } else if (response.data.statusCode === 'P2003') {
         toast.error('Workscheme is still used by existing attendance records.');
       } else {
-        toast.error(`Unexpected response: ${response.data.message || 'Unknown error'}`);
+        toast.error(
+          `Unexpected response: ${response.data.message || 'Unknown error'}`,
+        );
       }
     } catch (error: any) {
       console.error('Delete error:', error);
@@ -140,7 +148,9 @@ export function WorkschemeOverviewContent({
         <div className="text-center py-8 text-gray-500">
           <Clock className="mx-auto h-12 w-12 mb-4 opacity-50" />
           <p>No workschemes found.</p>
-          <p className="text-sm">Create your first workscheme to get started.</p>
+          <p className="text-sm">
+            Create your first workscheme to get started.
+          </p>
         </div>
       )}
       {!isLoading && !error && workschemes.length > 0 && (
@@ -162,12 +172,16 @@ export function WorkschemeOverviewContent({
                   <div className="flex flex-col">
                     <span>{workscheme.name}</span>
                     <span className="text-xs text-gray-500">
-                      {workscheme.name.toLowerCase().includes('wfo') && '🏢 Office'}
-                      {workscheme.name.toLowerCase().includes('wfa') && '🌍 Anywhere'}
-                      {workscheme.name.toLowerCase().includes('hybrid') && '🔄 Hybrid'}
-                      {!workscheme.name.toLowerCase().includes('wfo') && 
-                       !workscheme.name.toLowerCase().includes('wfa') && 
-                       !workscheme.name.toLowerCase().includes('hybrid') && '📋 Custom'}
+                      {workscheme.name.toLowerCase().includes('wfo') &&
+                        '🏢 Office'}
+                      {workscheme.name.toLowerCase().includes('wfa') &&
+                        '🌍 Anywhere'}
+                      {workscheme.name.toLowerCase().includes('hybrid') &&
+                        '🔄 Hybrid'}
+                      {!workscheme.name.toLowerCase().includes('wfo') &&
+                        !workscheme.name.toLowerCase().includes('wfa') &&
+                        !workscheme.name.toLowerCase().includes('hybrid') &&
+                        '📋 Custom'}
                     </span>
                   </div>
                 </TableCell>
@@ -197,18 +211,30 @@ export function WorkschemeOverviewContent({
                         </span>
                       </div>
                     ) : (
-                      <span className="text-xs text-gray-400 italic">No address specified</span>
+                      <span className="text-xs text-gray-400 italic">
+                        No address specified
+                      </span>
                     )}
                   </div>
                 </TableCell>
                 <TableCell>
                   {workscheme.workspace_lat && workscheme.workspace_long ? (
                     <div className="text-xs text-gray-600 font-mono">
-                      <div>{parseFloat(workscheme.workspace_lat.toString()).toFixed(4)}</div>
-                      <div>{parseFloat(workscheme.workspace_long.toString()).toFixed(4)}</div>
+                      <div>
+                        {parseFloat(
+                          workscheme.workspace_lat.toString(),
+                        ).toFixed(4)}
+                      </div>
+                      <div>
+                        {parseFloat(
+                          workscheme.workspace_long.toString(),
+                        ).toFixed(4)}
+                      </div>
                     </div>
                   ) : (
-                    <span className="text-xs text-gray-400 italic">No coordinates</span>
+                    <span className="text-xs text-gray-400 italic">
+                      No coordinates
+                    </span>
                   )}
                 </TableCell>
                 <TableCell>
@@ -273,21 +299,19 @@ export function WorkschemeOverviewContent({
           <div className="py-4">
             <p>Are you sure you want to delete this workscheme?</p>
             <p className="text-sm text-gray-600 mt-2">
-              This action cannot be undone. If this workscheme is currently being used by employees, 
-              the deletion may fail to protect data integrity.
+              This action cannot be undone. If this workscheme is currently
+              being used by employees, the deletion may fail to protect data
+              integrity.
             </p>
           </div>
           <DialogFooter className="gap-2 pt-4">
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={() => setIsDeleteDialogOpen(false)}
             >
               Cancel
             </Button>
-            <Button 
-              variant="destructive" 
-              onClick={handleConfirmDelete}
-            >
+            <Button variant="destructive" onClick={handleConfirmDelete}>
               Delete
             </Button>
           </DialogFooter>

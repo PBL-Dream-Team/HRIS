@@ -56,13 +56,17 @@ export function LetterTypesOverviewContent({
     try {
       const response = await api.get<LetterType[]>('/api/letterType');
       if (response && Array.isArray(response.data)) {
-        const filteredTypes = response.data.filter((lt) => lt.company_id === companyId);
+        const filteredTypes = response.data.filter(
+          (lt) => lt.company_id === companyId,
+        );
         setLetterTypes(filteredTypes);
       } else {
         setError('Invalid response format from server.');
       }
     } catch (err: any) {
-      setError(`Failed to fetch letter types: ${err.message || 'Unknown error'}`);
+      setError(
+        `Failed to fetch letter types: ${err.message || 'Unknown error'}`,
+      );
     } finally {
       setIsLoading(false);
     }
@@ -99,7 +103,9 @@ export function LetterTypesOverviewContent({
       } else if (response.data.statusCode === 'P2003') {
         toast.error('Letter type is still used by existing letters.');
       } else {
-        toast.error(`Unexpected response: ${response.data.message || 'Unknown error'}`);
+        toast.error(
+          `Unexpected response: ${response.data.message || 'Unknown error'}`,
+        );
       }
     } catch (error: any) {
       toast.error('Failed to delete letter type.');
@@ -184,10 +190,14 @@ export function LetterTypesOverviewContent({
             <DialogTitle>Delete Letter Type</DialogTitle>
           </DialogHeader>
           <div>
-            Are you sure you want to delete this letter type? This action cannot be undone.
+            Are you sure you want to delete this letter type? This action cannot
+            be undone.
           </div>
           <DialogFooter className="gap-2 pt-4">
-            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setIsDeleteDialogOpen(false)}
+            >
               Cancel
             </Button>
             <Button variant="destructive" onClick={handleConfirmDelete}>
