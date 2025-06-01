@@ -45,12 +45,12 @@ model Company {
   loc_lat Float? @db.DoublePrecision
   loc_long Float? @db.DoublePrecision
   
-  subscription_id String @db.Uuid
-  Subscription Subscription @relation(fields: [subscription_id],references: [id])
+  subscription_id String? @db.Uuid
+  Subscription Subscription? @relation(fields: [subscription_id],references: [id])
 
-  max_employee Int @db.Integer
-  subs_date_start DateTime @db.Timestamptz()
-  subs_date_end DateTime @db.Timestamptz()
+  max_employee Int? @db.Integer
+  subs_date_start DateTime? @db.Timestamptz()
+  subs_date_end DateTime? @db.Timestamptz()
 
   created_at DateTime @db.Timestamptz() @default(now())
   updated_at DateTime @db.Timestamptz() @updatedAt

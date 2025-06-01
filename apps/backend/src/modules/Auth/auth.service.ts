@@ -9,12 +9,10 @@ import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AuthEmailDto } from './dtos/authEmail.dto';
 import { hash, verify } from 'argon2';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { RegDto } from './dtos/reg.dto';
 import { AuthIdDto } from './dtos';
 import { CompanySubscriptionStatus } from './dtos/CompanySubscriptionStatus.enum';
 import { randomBytes } from 'crypto';
-import * as bcrypt from 'bcrypt';
 import { CustomMailService } from '../../common/mail/mail.service';
 import { OAuth2Client } from 'google-auth-library';
 
@@ -57,16 +55,16 @@ export class AuthService {
 
     //Company
     if (dto.name) companyData.name = dto.name;
-    companyData.max_employee = 10;
-    const trial = await this.prisma.subscription.findFirst({
-      where: { name: 'Trial' },
-    });
-    companyData.subscription_id = trial.id;
-    companyData.subs_date_start = new Date().toISOString();
-    companyData.subs_date_end = new Date(
-      new Date().setDate(new Date().getDate() + 14),
-    ).toISOString(); //wtf??
-    companyData.status = CompanySubscriptionStatus.ACTIVE;
+    // companyData.max_employee = 10;
+    // const trial = await this.prisma.subscription.findFirst({
+    //   where: { name: 'Trial' },
+    // });
+    // companyData.subscription_id = trial.id;
+    // companyData.subs_date_start = new Date().toISOString();
+    // companyData.subs_date_end = new Date(
+    //   new Date().setDate(new Date().getDate() + 14),
+    // ).toISOString();
+
     //Employee
     if (dto.first_name) userData.first_name = dto.first_name;
     if (dto.last_name) userData.last_name = dto.last_name;
