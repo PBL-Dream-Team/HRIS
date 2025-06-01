@@ -1,5 +1,8 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+import api from '@/lib/axios';
+
 import WorkInformation from '@/components/dashboard-employee/WorkInformation';
 import AttendanceSummaryCard from '@/components/dashboard-employee/AttendanceSummaryCard';
 import LeaveSummaryCard from '@/components/dashboard-employee/LeaveSummaryCard';
@@ -19,12 +22,8 @@ import {
   SidebarTrigger,
 } from '@/components/ui/sidebar';
 
-import { Input } from '@/components/ui/input';
 import { Bell } from 'lucide-react';
 import { NavUser } from '@/components/nav-user';
-import { IoMdSearch } from 'react-icons/io';
-import { useEffect, useState } from 'react';
-import api from '@/lib/axios';
 
 import {
   DropdownMenu,
@@ -39,6 +38,13 @@ type DashboardClientProps = {
   isAdmin: boolean;
   userId: string;
   companyId: string;
+};
+
+type WorkStats = {
+  workHours: string;
+  onTimeDays: number;
+  lateDays: number;
+  leaveDays: number;
 };
 
 export default function DashboardClient({
@@ -60,25 +66,20 @@ export default function DashboardClient({
   });
 
   useEffect(() => {
-    async function fetchUser() {
+    const fetchData = async () => {
       try {
-        const res = await api.get(`/api/employee/${userId}`);
-        const { first_name, last_name, email, pict_dir } = res.data.data;
+        const userRes = await api.get(`/api/employee/${userId}`);
+        const { first_name, last_name, email, pict_dir } = userRes.data.data;
 
         setUser({
           name: `${first_name} ${last_name}`,
           email,
           avatar: pict_dir || '/avatars/default.jpg',
         });
-      } catch (err: any) {
-        console.error('Error fetching user:', err.response?.data || err.message);
-      }
-    }
 
-    async function fetchWorkStats() {
-      try {
-        const res = await api.get(`/api/employee/${userId}/work-info`);
-        const { workHours, onTimeDays, lateDays, leaveDays } = res.data;
+        const statsRes = await api.get(`/api/employee/${userId}/work-info`);
+        const { workHours, onTimeDays, lateDays, leaveDays } = statsRes.data;
+
         setWorkStats({
           workHours,
           onTimeDays,
@@ -86,26 +87,21 @@ export default function DashboardClient({
           leaveDays,
         });
       } catch (err: any) {
-        console.error('Error fetching work stats:', err.response?.data || err.message);
+        console.error('Error fetching data:', err.response?.data || err.message);
       }
-    }
+    };
 
-    fetchUser();
-    fetchWorkStats();
+    fetchData();
   }, [userId]);
-
 
   return (
     <SidebarProvider>
       <AppSidebar isAdmin={isAdmin} />
       <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center justify-between px-4 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
+        <header className="flex h-16 items-center justify-between px-4 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
           <div className="flex items-center gap-2">
             <SidebarTrigger className="-ml-1" />
-            <Separator
-              orientation="vertical"
-              className="mr-2 data-[orientation=vertical]:h-4"
-            />
+            <Separator orientation="vertical" className="mr-2 h-4" />
             <Breadcrumb>
               <BreadcrumbList>
                 <BreadcrumbItem>
@@ -116,7 +112,6 @@ export default function DashboardClient({
           </div>
 
           <div className="flex items-center gap-4">
-            {/* Notification */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="relative p-2 rounded-md hover:bg-muted focus:outline-none">
@@ -142,12 +137,12 @@ export default function DashboardClient({
               </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* Nav-user */}
             <NavUser user={user} isAdmin={isAdmin} />
           </div>
         </header>
+
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-            <WorkInformation stats={workStats} />
+          <WorkInformation stats={workStats} />
           <div className="flex flex-col gap-4">
             <div className="grid gap-4 sm:grid-cols-2">
               <AttendanceSummaryCard />
