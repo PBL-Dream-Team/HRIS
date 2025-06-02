@@ -27,6 +27,53 @@ type EmployeeFormProps = {
 // Constants
 // const DATE_DISPLAY_FORMAT = 'dd/MM/yyyy';
 
+const bankOptions = [
+  { value: 'BRI', label: 'BRI' },
+  { value: 'Mandiri', label: 'Mandiri' },
+  { value: 'BNI', label: 'BNI' },
+  { value: 'Danamon', label: 'Danamon' },
+  { value: 'Permata', label: 'Permata' },
+  { value: 'BCA', label: 'BCA' },
+  { value: 'Maybank', label: 'Maybank' },
+  { value: 'Panin', label: 'Panin' },
+  { value: 'Bukopin', label: 'Bukopin' },
+  { value: 'CIMB', label: 'CIMB' },
+  { value: 'UOB', label: 'UOB' },
+  { value: 'OCBC', label: 'OCBC' },
+  { value: 'BJB', label: 'BJB' },
+  { value: 'Muamalat', label: 'Muamalat' },
+  { value: 'BTN', label: 'BTN' },
+  { value: 'BTPN', label: 'BTPN' },
+  { value: 'Mega', label: 'Mega' },
+  { value: 'SyariahMandiri', label: 'Syariah Mandiri' },
+  { value: 'Commonwealth', label: 'Commonwealth Bank' },
+];
+
+const workSchemeOptions = [
+  { value: 'WFO', label: 'WFO' },
+  { value: 'WFA', label: 'WFA' },
+  { value: 'HYBRID', label: 'HYBRID' },
+];
+
+const genderOptions = [
+  { value: 'M', label: 'Male' },
+  { value: 'F', label: 'Female' },
+  { value: 'O', label: 'Other' },
+];
+
+const contractOptions = [
+  { value: 'PERMANENT', label: 'Permanent' },
+  { value: 'CONTRACT', label: 'Contract' },
+  { value: 'INTERN', label: 'Intern' },
+];
+
+const educationOptions = [
+  { value: 'HIGH_SCHOOL', label: 'High School' },
+  { value: 'BACHELOR', label: 'Bachelor' },
+  { value: 'MASTER', label: 'Master' },
+  { value: 'DOCTOR', label: 'Doctor' },
+];
+
 export function EmployeeForm({
   companyId,
   mode = 'create',
@@ -212,14 +259,20 @@ export function EmployeeForm({
           onValueChange={(value) =>
             setWorkScheme(value as 'WFO' | 'WFA' | 'HYBRID')
           }
+          key={`work_scheme-${workScheme}`}
         >
           <SelectTrigger>
-            <SelectValue placeholder="Choose work scheme" />
+            <SelectValue placeholder="Choose work scheme">
+              {workSchemeOptions.find((option) => option.value === workScheme)
+                ?.label || 'Choose work scheme'}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="WFO">WFO</SelectItem>
-            <SelectItem value="WFA">WFA</SelectItem>
-            <SelectItem value="HYBRID">HYBRID</SelectItem>
+            {workSchemeOptions.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
@@ -250,14 +303,20 @@ export function EmployeeForm({
         <Select
           value={gender}
           onValueChange={(value) => setGender(value as 'M' | 'F' | 'O')}
+          key={`gender-${gender}`}
         >
           <SelectTrigger>
-            <SelectValue placeholder="Choose gender" />
+            <SelectValue placeholder="Choose gender">
+              {genderOptions.find((option) => option.value === gender)?.label ||
+                'Choose gender'}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="M">Male</SelectItem>
-            <SelectItem value="F">Female</SelectItem>
-            <SelectItem value="O">Other</SelectItem>
+            {genderOptions.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
@@ -284,15 +343,17 @@ export function EmployeeForm({
       </div>
 
       {/* Password */}
-      <div>
-        <Label>Password</Label>
-        <Input
-          type="password"
-          placeholder="Enter password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-      </div>
+      {mode !== 'edit' && (
+        <div>
+          <Label>Password</Label>
+          <Input
+            type="password"
+            placeholder="Enter password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </div>
+      )}
 
       {/* Mobile */}
       <div>
@@ -384,14 +445,20 @@ export function EmployeeForm({
           onValueChange={(value) =>
             setContract(value as 'PERMANENT' | 'CONTRACT' | 'INTERN')
           }
+          key={`contract-${contract}`}
         >
           <SelectTrigger>
-            <SelectValue placeholder="Choose Contract" />
+            <SelectValue placeholder="Choose Contract">
+              {contractOptions.find((option) => option.value === contract)
+                ?.label || 'Choose Contract'}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="PERMANENT">Permanent</SelectItem>
-            <SelectItem value="CONTRACT">Contract</SelectItem>
-            <SelectItem value="INTERN">Intern</SelectItem>
+            {contractOptions.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
@@ -406,15 +473,20 @@ export function EmployeeForm({
               value as 'HIGH_SCHOOL' | 'BACHELOR' | 'MASTER' | 'DOCTOR',
             )
           }
+          key={`education-${education}`}
         >
           <SelectTrigger>
-            <SelectValue placeholder="Choose Last Education" />
+            <SelectValue placeholder="Choose Last Education">
+              {educationOptions.find((option) => option.value === education)
+                ?.label || 'Choose Last Education'}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="HIGH_SCHOOL">High School</SelectItem>
-            <SelectItem value="BACHELOR">Bachelor</SelectItem>
-            <SelectItem value="MASTER">Master</SelectItem>
-            <SelectItem value="DOCTOR">Doctor</SelectItem>
+            {educationOptions.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
@@ -423,55 +495,22 @@ export function EmployeeForm({
       <div>
         <Label>Bank</Label>
         <Select
-          value={bank}
-          onValueChange={(value) =>
-            setBank(
-              value as
-                | 'BRI'
-                | 'Mandiri'
-                | 'BNI'
-                | 'Danamon'
-                | 'Permata'
-                | 'BCA'
-                | 'Maybank'
-                | 'Panin'
-                | 'Bukopin'
-                | 'CIMB'
-                | 'UOB'
-                | 'OCBC'
-                | 'BJB'
-                | 'Muamalat'
-                | 'BTN'
-                | 'BTPN'
-                | 'Mega'
-                | 'SyariahMandiri'
-                | 'Commonwealth',
-            )
-          }
+          value={bank || ''}
+          onValueChange={(value) => setBank(value as any)}
+          key={`account_bank-${bank}`}
         >
           <SelectTrigger>
-            <SelectValue placeholder="Choose Bank" />
+            <SelectValue placeholder="Choose Bank">
+              {bankOptions.find((option) => option.value === bank)?.label ||
+                'Choose Bank'}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="BCA">BCA</SelectItem>
-            <SelectItem value="BNI">BNI</SelectItem>
-            <SelectItem value="BRI">BRI</SelectItem>
-            <SelectItem value="Mandiri">Mandiri</SelectItem>
-            <SelectItem value="Danamon">Danamon</SelectItem>
-            <SelectItem value="Permata">Permata</SelectItem>
-            <SelectItem value="Maybank">Maybank</SelectItem>
-            <SelectItem value="Panin">Panin</SelectItem>
-            <SelectItem value="Bukopin">Bukopin</SelectItem>
-            <SelectItem value="CIMB">CIMB</SelectItem>
-            <SelectItem value="UOB">UOB</SelectItem>
-            <SelectItem value="OCBC">OCBC</SelectItem>
-            <SelectItem value="BJB">BJB</SelectItem>
-            <SelectItem value="Muamalat">Muamalat</SelectItem>
-            <SelectItem value="BTN">BTN</SelectItem>
-            <SelectItem value="BTPN">BTPN</SelectItem>
-            <SelectItem value="Mega">Mega</SelectItem>
-            <SelectItem value="SyariahMandiri">SyariahMandiri</SelectItem>
-            <SelectItem value="Commonwealth">Commonwealth</SelectItem>
+            {bankOptions.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
