@@ -1,15 +1,14 @@
 # HRIS - Human Resource Information System
 
 Human Resource Information System (HRIS) is a software application designed to help organizations manage and automate various human resource functions. This system typically includes features such as employee management, attendance tracking, absence requests, and document handling.
-</br></br></br>
+</br></br>
 ## Contributor
 - **Andreagazy Iza Amerianto** as *Project Manager & System Analyst*
 - **Armand Maulana Andika Putra** as *UI/UX Designer*
 - **Farid Fitriansah Alfarizi** as *Frontend Developer*
 - **Muhammad Bagus Indrawan** as *Quality Assurance & Cloud Engineer*
 - **Ricky Putra Pratama Tedjo** as *Backend Developer*
-
-</br></br></br>
+</br></br>
 ## Tech Stack
 
 ### Project Management
@@ -33,12 +32,13 @@ Human Resource Information System (HRIS) is a software application designed to h
 ![Google Cloud](https://img.shields.io/badge/Google_Cloud-4285F4?logo=google-cloud&logoColor=white&style=for-the-badge)
 ![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-20232A?logo=github-actions&logoColor=white&style=for-the-badge)
 
-</br></br></br>
+</br>
+
 ## Cloud Architecture
 
 ![alt text](clouddiagram.png)
 
-</br></br></br>
+</br></br>
 ## Setup
 
 ### Install node modules
