@@ -23,13 +23,13 @@ import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { UpdatePasswordDto } from './dtos/updatePassword.dto';
 import { Response } from 'express';
 import { join } from 'path';
-import {} from 'multer';
+import { } from 'multer';
 
 @ApiTags('employee')
 @UseGuards(JwtGuard)
 @Controller('api/employee')
 export class EmployeeController {
-  constructor(private readonly employeeService: EmployeeService) {}
+  constructor(private readonly employeeService: EmployeeService) { }
 
   @Post()
   @UseGuards(SubscriptionGuard)
@@ -147,4 +147,11 @@ export class EmployeeController {
   async getStatusCount(@Param('companyId') companyId: string) {
     return this.employeeService.getStatusCountByCompany(companyId);
   }
+
+  @Get('attendance-count/:companyId')
+  async getAttendanceCount(@Param('companyId') companyId: string) {
+    return this.employeeService.getAttendanceCountbyCompany(companyId);
+  }
+
 }
+

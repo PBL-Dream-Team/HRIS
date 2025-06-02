@@ -1,9 +1,5 @@
 import React from 'react';
 
-{
-  /* Import Components */
-}
-
 import { Pie, PieChart, Cell } from 'recharts';
 
 import { Card, CardContent } from '@/components/ui/card';
@@ -14,16 +10,6 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from '@/components/ui/chart';
-
-{
-  /* Data */
-}
-
-const attendancesData = [
-  { attendance: 'onTime', total: 200, fill: 'hsl(var(--chart-1))' },
-  { attendance: 'late', total: 186, fill: 'hsl(var(--chart-2))' },
-  { attendance: 'leave', total: 50, fill: 'hsl(var(--chart-3))' },
-];
 
 const chartConfig = {
   total: {
@@ -44,11 +30,20 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-{
-  /* Content */
-}
+type AttendanceOverviewCardProps = {
+  attendancesData: {
+    attendance: 'onTime' | 'late' | 'leave';
+    total: number;
+  }[];
+};
 
-export default function AttendanceOverviewCard() {
+export default function AttendanceOverviewCard({ attendancesData }: AttendanceOverviewCardProps) {
+  const currentDate = new Date().toLocaleDateString('en-GB', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  });
+
   return (
     <Card className="@container/card">
       <div className="grid grid-cols-10 h-full items-center p-0">
@@ -87,11 +82,11 @@ export default function AttendanceOverviewCard() {
             </div>
             <div className="flex justify-between items-center text-lg">
               <span className="font-semibold">Attendance</span>
-              <span className="text-muted-foreground">02 May 2025</span>
+              <span className="text-muted-foreground">{currentDate}</span>
             </div>
             <hr />
             <div className="flex flex-col gap-3">
-              {attendancesData.slice(0, 4).map((item, index) => (
+              {attendancesData.map((item) => (
                 <div key={item.attendance}>
                   <div className="flex items-center gap-2">
                     <span

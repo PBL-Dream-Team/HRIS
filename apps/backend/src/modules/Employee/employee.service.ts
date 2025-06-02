@@ -9,10 +9,11 @@ import { editEmployeeDto } from './dtos/editEmployee.dto';
 import { createWriteStream, existsSync, unlinkSync } from 'fs';
 import { join } from 'path';
 import { hash, verify } from 'argon2';
+import { subMonths, startOfDay, endOfDay } from 'date-fns';
 
 @Injectable()
 export class EmployeeService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async createEmployee(dto: createEmployeeDto, file?: Express.Multer.File) {
     const data: any = { ...dto };
@@ -194,14 +195,69 @@ export class EmployeeService {
     return await this.prisma.employee.findMany({ where });
   }
 
-  async countEmployees(companyId: string): Promise<{ total: number }> {
+  async countEmployees(companyId: string) {
+    const todayStart = startOfDay(new Date());
+    const todayEnd = endOfDay(new Date());
+
     const total = await this.prisma.employee.count({
       where: {
         company_id: companyId,
-        is_admin: false, // asumsi: admin tidak dihitung
+        is_admin: false,
       },
     });
-    return { total };
+
+    const newEmployees = await this.prisma.employee.count({
+      where: {
+        company_id: companyId,
+        is_admin: false,
+        created_at: {
+          gte: subMonths(new Date(), 1),
+        },
+      },
+    });
+
+    const activeEmployees = await this.prisma.attendance.count({
+      where: {
+        company_id: companyId,
+        approval: 'APPROVED',
+        created_at: {
+          gte: todayStart,
+          lte: todayEnd,
+        },
+        check_in_status: {
+          in: ['ON_TIME', 'LATE'],
+        },
+        employee: {
+          is: {
+            company_id: companyId,
+            is_admin: false,
+          },
+        },
+      },
+    });
+
+    const absentEmployees = await this.prisma.absenceLeave.count({
+      where: {
+        company_id: companyId,
+        status: 'APPROVED',
+        type: {
+          in: ['SICK', 'PERMIT'],
+        },
+        employee: {
+          is: {
+            company_id: companyId,
+            is_admin: false,
+          },
+        },
+      },
+    });
+
+    return {
+      total,
+      newEmployees,
+      activeEmployees,
+      absentEmployees,
+    };
   }
 
   async updatePassword(
@@ -241,5 +297,56 @@ export class EmployeeService {
       name: emp.contract,
       total: emp._count._all,
     }));
+  }
+
+  async getAttendanceCountbyCompany(companyId: string) {
+    const [onTimeCount, lateCount, leaveCount] = await Promise.all([
+      this.prisma.attendance.count({
+        where: {
+          company_id: companyId,
+          check_in_status: 'ON_TIME',
+          approval: 'APPROVED',
+          employee: {
+            is: {
+              company_id: companyId,
+              is_admin: false,
+            },
+          },
+        },
+      }),
+
+      this.prisma.attendance.count({
+        where: {
+          company_id: companyId,
+          check_in_status: 'LATE',
+          approval: 'APPROVED',
+          employee: {
+            is: {
+              company_id: companyId,
+              is_admin: false,
+            },
+          },
+        },
+      }),
+
+      this.prisma.absenceLeave.count({
+        where: {
+          company_id: companyId,
+          status: 'APPROVED',
+          employee: {
+            is: {
+              company_id: companyId,
+              is_admin: false,
+            },
+          },
+        },
+      }),
+    ]);
+
+    return {
+      onTime: onTimeCount,
+      late: lateCount,
+      leave: leaveCount,
+    };
   }
 }

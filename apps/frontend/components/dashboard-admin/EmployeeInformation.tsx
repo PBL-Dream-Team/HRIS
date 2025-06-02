@@ -19,11 +19,16 @@ import {
 }
 
 type EmployeeInformationProps = {
-  totalEmployees: number;
+  employeeInfo: {
+    total: number;
+    newEmployees: number;
+    activeEmployees: number;
+    absentEmployees: number;
+  };
 };
 
 export default function EmployeeInformation({
-  totalEmployees,
+  employeeInfo,
 }: EmployeeInformationProps) {
   const [formattedDate, setFormattedDate] = useState('');
 
@@ -35,7 +40,7 @@ export default function EmployeeInformation({
       year: 'numeric',
     };
 
-    // Format ke '25 May 2025'
+    // Format ke 'DD MMMM YYYY'
     const localDate = date.toLocaleDateString('en-US', options);
     setFormattedDate(localDate);
   }, []);
@@ -51,7 +56,7 @@ export default function EmployeeInformation({
             </div>
           </CardTitle>
           <CardDescription className="text-black text-5xl font-semibold">
-            {totalEmployees}
+            {employeeInfo.total}
           </CardDescription>
         </CardHeader>
         <CardFooter>
@@ -68,11 +73,11 @@ export default function EmployeeInformation({
             </div>
           </CardTitle>
           <CardDescription className="text-black text-5xl font-semibold">
-            24
+            {employeeInfo.newEmployees}
           </CardDescription>
         </CardHeader>
         <CardFooter>
-          <div className="text-muted-foreground">Update: March 16, 2025</div>
+          <div className="text-muted-foreground">Update: {formattedDate}</div>
         </CardFooter>
       </Card>
 
@@ -85,11 +90,11 @@ export default function EmployeeInformation({
             </div>
           </CardTitle>
           <CardDescription className="text-black text-5xl font-semibold">
-            24
+            {employeeInfo.activeEmployees}
           </CardDescription>
         </CardHeader>
         <CardFooter>
-          <div className="text-muted-foreground">Update: March 16, 2025</div>
+          <div className="text-muted-foreground">Update: {formattedDate}</div>
         </CardFooter>
       </Card>
 
@@ -98,15 +103,15 @@ export default function EmployeeInformation({
           <CardTitle>
             <div className="flex items-center gap-2">
               <UserMinus className="h-8 w-8" />
-              <h1 className="text-xl">Resigned Employees</h1>
+              <h1 className="text-xl">Absent Employees</h1>
             </div>
           </CardTitle>
           <CardDescription className="text-black text-5xl font-semibold">
-            24
+            {employeeInfo.absentEmployees}
           </CardDescription>
         </CardHeader>
         <CardFooter>
-          <div className="text-muted-foreground">Update: March 16, 2025</div>
+          <div className="text-muted-foreground">Update: {formattedDate}</div>
         </CardFooter>
       </Card>
     </div>
