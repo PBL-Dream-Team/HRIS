@@ -9,21 +9,21 @@ const testimonials = [
     position: 'HR Manager di PT. Maju Sejahtera',
     message:
       'Sistem HRIS ini benar-benar memudahkan pekerjaan saya dalam mengelola absensi dan data karyawan. UI-nya intuitif dan tim support sangat responsif!',
-    image: '/images/testi1.jpg',
+    image: 'https://images.pexels.com/photos/1681010/pexels-photo-1681010.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
   },
   {
     name: 'Sinta Wulandari',
     position: 'CEO Startup Tech',
     message:
       'Kami menghemat banyak waktu dan biaya operasional sejak menggunakan platform ini. Sangat recommended untuk perusahaan berkembang.',
-    image: '/images/testi2.jpg',
+    image: 'https://images.pexels.com/photos/1587009/pexels-photo-1587009.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
   },
   {
     name: 'Budi Santoso',
     position: 'Staff HR di CV Kreatif',
     message:
       'Fitur payroll dan dokumentasi karyawan sangat membantu dan terintegrasi dengan baik. Keren banget!',
-    image: '/images/testi3.jpg',
+    image: 'https://images.pexels.com/photos/1043474/pexels-photo-1043474.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
   },
 ];
 
