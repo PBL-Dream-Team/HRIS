@@ -111,7 +111,7 @@ export function AbsenceForm({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="sick">Sick</SelectItem>
-                <SelectItem value="permission">Permission</SelectItem>
+                <SelectItem value="permit">Permission</SelectItem>
                 <SelectItem value="leave">Leave</SelectItem>
               </SelectContent>
             </Select>
