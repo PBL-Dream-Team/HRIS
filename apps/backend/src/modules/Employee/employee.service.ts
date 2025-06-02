@@ -204,27 +204,6 @@ export class EmployeeService {
     return { total };
   }
 
-  async getStatusSummary(companyId: string) {
-    const employees = await this.prisma.employee.findMany({
-      where: {
-        company_id: companyId,
-        is_admin: false,
-      },
-    });
-
-    const summary = {
-      PERMANENT: 0,
-      CONTRACT: 0,
-      INTERN: 0,
-    };
-
-    for (const emp of employees) {
-      summary[emp.contract]++;
-    }
-
-    return summary;
-  }
-
   async updatePassword(
     employeeId: string,
     dto: { old_password: string; new_password: string },
