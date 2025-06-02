@@ -1,8 +1,5 @@
 import {
-  IsEmail,
   IsNotEmpty,
-  IsNumberString,
-  IsOptional,
   IsString,
   IsUUID,
 } from '@nestjs/class-validator';

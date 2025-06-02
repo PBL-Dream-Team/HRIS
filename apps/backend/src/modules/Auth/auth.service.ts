@@ -2,7 +2,6 @@ import {
   ForbiddenException,
   UnauthorizedException,
   Injectable,
-  Res,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
@@ -11,7 +10,6 @@ import { AuthEmailDto } from './dtos/authEmail.dto';
 import { hash, verify } from 'argon2';
 import { RegDto } from './dtos/reg.dto';
 import { AuthIdDto } from './dtos';
-import { CompanySubscriptionStatus } from './dtos/CompanySubscriptionStatus.enum';
 import { randomBytes } from 'crypto';
 import { CustomMailService } from '../../common/mail/mail.service';
 import { OAuth2Client } from 'google-auth-library';

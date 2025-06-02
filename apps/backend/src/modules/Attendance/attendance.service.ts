@@ -3,7 +3,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { createAttendanceDto } from './dtos/createAttendance.dto';
 import { editAttendanceDto } from './dtos/editAttendance.dto';
 import { join } from 'path';
-import { createWriteStream, existsSync, unlinkSync } from 'fs';
+import { createWriteStream} from 'fs';
 
 function isTimeAfter(timeA: Date, timeB: Date): boolean {
   const getTimeOnlyMs = (d: Date) =>

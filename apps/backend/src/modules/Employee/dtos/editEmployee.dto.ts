@@ -14,7 +14,6 @@ import { educationtype } from './educationtype.enum';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { contracttype } from './contracttype.enum';
 import { BankCode } from './bankcode.enum';
-import { Matches } from 'class-validator';
 import { Transform } from 'class-transformer';
 
 export class editEmployeeDto {
