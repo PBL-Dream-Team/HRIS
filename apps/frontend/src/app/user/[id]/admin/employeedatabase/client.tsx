@@ -174,6 +174,14 @@ export default function EmployeeDatabaseClient({
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [employeeToEdit, setEmployeeToEdit] = useState<any>(null);
 
+  const ITEMS_PER_PAGE = 10;
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const paginatedEmployees = employees.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE,
+  );
+
   return (
     <SidebarProvider>
       <AppSidebar isAdmin={isAdmin} />
@@ -288,9 +296,11 @@ export default function EmployeeDatabaseClient({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {employees.map((emp, i) => (
+                {paginatedEmployees.map((emp, i) => (
                   <TableRow key={emp.id}>
-                    <TableCell>{i + 1}</TableCell>
+                    <TableCell>
+                      {(currentPage - 1) * ITEMS_PER_PAGE + i + 1}
+                    </TableCell>
                     <TableCell>
                       <Avatar className="h-8 w-8 rounded-lg">
                         <AvatarImage
@@ -367,8 +377,13 @@ export default function EmployeeDatabaseClient({
               </TableBody>
             </Table>
 
-            {/* Pagination */}
-            {/* <PaginationFooter totalItems={employees.length} itemsPerPage={10} /> */}
+            {/* Pagination Footer */}
+            <PaginationFooter
+              totalItems={employees.length}
+              itemsPerPage={ITEMS_PER_PAGE}
+              currentPage={currentPage}
+              onPageChange={setCurrentPage}
+            />
           </div>
         </div>
       </SidebarInset>
