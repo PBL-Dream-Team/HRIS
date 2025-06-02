@@ -130,6 +130,7 @@ model Employee {
   attendances Attendance[]
   absences AbsenceLeave[]
   passwordResets PasswordReset[]
+  refreshes RefreshToken[]
 
   @@map("Employee")
 }
@@ -381,3 +382,11 @@ model PasswordReset {
   expires_at DateTime
 }
 
+model RefreshToken{
+  id           String   @id @default(uuid())
+  token        String   @unique
+  employeeId   String   @db.Uuid()
+  employee     Employee @relation(fields: [employeeId], references: [id])
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+}

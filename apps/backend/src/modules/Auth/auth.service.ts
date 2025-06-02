@@ -30,7 +30,7 @@ export class AuthService {
     company_id: string,
     is_admin: boolean,
     company_subs_id?: string | null,
-  ): Promise<{ access_token: string }> {
+  ): Promise<{ access_token: string, refresh_token: string }> {
     const payload = {
       sub: userId,
       company_id,
@@ -40,13 +40,29 @@ export class AuthService {
 
     const secret = this.config.get('JWT_SECRET');
 
-    const token = await this.jwt.signAsync(payload, {
-      expiresIn: '1440m',
+    const access_token = await this.jwt.signAsync(payload, {
+      expiresIn: this.config.get('JWT_ACCESS_TOKEN_EXPIRE'),
       secret: secret,
     });
 
+    const refresh_token = await this.jwt.signAsync(payload, {
+      expiresIn: this.config.get('JWT_REFRESH_TOKEN_EXPIRE'),
+      secret: secret
+    });
+
+    const expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 7);
+
+    await this.prisma.refreshToken.create({
+      data: {
+        token: refresh_token,
+        employeeId: userId,
+        expiresAt,
+      },
+    });
+
     return {
-      access_token: token,
+      access_token: access_token,
+      refresh_token: refresh_token
     };
   }
   async signUp(dto: RegDto) {
@@ -288,5 +304,44 @@ export class AuthService {
       company.subscription_id,
     );
     return token;
+  }
+
+  async tokenRefresh(tokenString: string){
+    let payload:any;
+    try{
+      payload = await this.jwt.verifyAsync(tokenString,{
+        secret: this.config.get('JWT_SECRET')
+      });
+      const storedTokens = await this.prisma.refreshToken.findMany({
+        where: { employeeId: payload.sub },
+      });
+
+      const isValid = await Promise.any(
+        storedTokens.map(t => verify(t.token, tokenString).catch(() => false))
+      );
+
+      if (!isValid) throw new ForbiddenException('Refresh token not recognized');
+
+      const employee = await this.prisma.employee.findFirst({where:{id:payload.sub}});
+      const company = await this.prisma.company.findFirst({where:{id: employee.id}});
+
+      const tokens = await this.signToken(
+        employee.id,
+        employee.company_id,
+        employee.is_admin,
+        company.subscription_id,
+      );
+
+      return tokens;
+    }
+    catch(e){
+      throw new ForbiddenException('Invalid refresh token');
+    }
+  }
+
+  async removeRefreshToken(tokenString: string){
+    await this.prisma.refreshToken.delete({
+      where:{token:tokenString}
+    });
   }
 }
