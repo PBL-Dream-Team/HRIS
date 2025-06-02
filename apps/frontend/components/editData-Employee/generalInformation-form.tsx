@@ -23,7 +23,6 @@ type Gender = 'M' | 'F';
 type EducationType = 'HIGH_SCHOOL' | 'BACHELOR' | 'MASTER' | 'DOCTOR';
 
 type EmployeeEditGeneralDataFormProps = {
-  companyId: string;
   employeeId: string;
   initialData?: {
     id: string;
@@ -118,11 +117,13 @@ export function EmployeeEditGeneralDataForm({
       const isoDateString = birth_date ? birth_date.toISOString() : '';
       formPayload.append('birth_date', isoDateString);
 
-      await api.patch(`/api/employee/${employeeId}`, formPayload, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      // await api.patch(`/api/employee/${employeeId}`, formPayload, {
+      //   headers: {
+      //     'Content-Type': 'multipart/form-data',
+      //   },
+      // });
+
+      await api.patch(`/api/employee/${employeeId}`, formPayload);
 
       toast.success('Data updated successfully!');
 

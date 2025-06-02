@@ -38,8 +38,6 @@ type Bank =
   | 'Commonwealth';
 
 type EmployeeEditWorkDataFormProps = {
-  mode: 'edit';
-  companyId: string;
   employeeId: string;
   initialData?: {
     id: string;

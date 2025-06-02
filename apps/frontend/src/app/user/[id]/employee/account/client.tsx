@@ -415,7 +415,6 @@ export default function AccountClient({
                       <DialogTitle>Edit Profile</DialogTitle>
                     </DialogHeader>
                     <EmployeeEditGeneralDataForm
-                      companyId={companyId}
                       employeeId={employeeData.id}
                       initialData={{
                         id: employeeData.id || '',
@@ -547,8 +546,6 @@ export default function AccountClient({
                       <DialogTitle>Edit Data</DialogTitle>
                     </DialogHeader>
                     <EmployeeEditWorkDataForm
-                      mode="edit"
-                      companyId={companyId}
                       employeeId={employeeData.id}
                       initialData={{
                         id: employeeData.id || '',
