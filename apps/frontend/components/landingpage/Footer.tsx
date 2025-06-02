@@ -9,16 +9,15 @@ export function Footer() {
         <div>
           <div className="w-32 h-16 bg-white rounded-lg flex items-center justify-center mb-4">
             <Image
-              src="/images/logo.png" // Ganti jika path-nya berbeda
-              alt="Logo HRIS"
+              src="/images/logo.png" // Change this path if necessary
+              alt="HRIS Logo"
               width={80}
               height={30}
               className="object-contain"
             />
           </div>
           <p className="text-sm text-gray-300">
-            Solusi manajemen SDM modern untuk meningkatkan efisiensi dan
-            produktivitas perusahaan Anda.
+            A modern HR management solution to improve your company's efficiency and productivity.
           </p>
         </div>
 
@@ -28,12 +27,12 @@ export function Footer() {
           <ul className="space-y-2 text-sm text-gray-300">
             <li>
               <Link href="#feature" className="hover:underline">
-                Fitur
+                Features
               </Link>
             </li>
             <li>
               <Link href="#pricing" className="hover:underline">
-                Harga
+                Pricing
               </Link>
             </li>
             <li>
@@ -44,23 +43,23 @@ export function Footer() {
           </ul>
         </div>
 
-        {/* Bantuan */}
+        {/* Help */}
         <div>
-          <h3 className="text-lg font-semibold mb-3">Bantuan</h3>
+          <h3 className="text-lg font-semibold mb-3">Help</h3>
           <ul className="space-y-2 text-sm text-gray-300">
             <li>
               <Link href="/contact" className="hover:underline">
-                Hubungi Kami
+                Contact Us
               </Link>
             </li>
             <li>
               <Link href="/support" className="hover:underline">
-                Pusat Bantuan
+                Help Center
               </Link>
             </li>
             <li>
               <Link href="/privacy" className="hover:underline">
-                Kebijakan Privasi
+                Privacy Policy
               </Link>
             </li>
           </ul>
@@ -68,21 +67,21 @@ export function Footer() {
 
         {/* Newsletter / CTA */}
         <div>
-          <h3 className="text-lg font-semibold mb-3">Dapatkan Update</h3>
+          <h3 className="text-lg font-semibold mb-3">Get Updates</h3>
           <p className="text-sm text-gray-300 mb-3">
-            Berlangganan untuk info produk dan penawaran spesial.
+            Subscribe for product news and special offers.
           </p>
           <form className="flex flex-col sm:flex-row gap-2">
             <input
               type="email"
-              placeholder="Email kamu"
+              placeholder="Your email"
               className="px-4 py-2 rounded-md border-white text-white bg-transparent placeholder:text-white w-full border"
             />
             <button
               type="submit"
               className="bg-white text-[#1E3A5F] font-semibold px-4 py-2 rounded-md hover:bg-gray-100"
             >
-              Langganan
+              Subscribe
             </button>
           </form>
         </div>

@@ -48,7 +48,7 @@ export default function Home() {
         </section>
 
         {/* Testimonial Section */}
-        <section id="testimonials" className="py-24 px-4 md:px-8 bg-[#F9FAFB]">
+        <section id="testimonial" className="py-24 px-4 md:px-8 bg-[#F9FAFB]">
           <TestimonialSection />
         </section>
 
