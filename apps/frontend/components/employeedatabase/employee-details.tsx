@@ -18,6 +18,7 @@ type Employee = {
   address: string;
   email: string;
   phone: string;
+  birth_date: string;
   birth_place: string;
   nik: string;
   position: string;
@@ -112,6 +113,10 @@ export default function EmployeeDetails({
                 <div>
                   <p className="text-muted-foreground text-xs">Phone Number</p>
                   <p className="font-medium">{selectedEmployee.phone}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground text-xs">Birth Date</p>
+                  <p className="font-medium">{selectedEmployee.birth_date}</p>
                 </div>
                 <div>
                   <p className="text-muted-foreground text-xs">Birth Place</p>

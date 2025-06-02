@@ -10,7 +10,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { CalendarIcon, Upload } from 'lucide-react';
+import { Upload } from 'lucide-react';
+import { format } from 'date-fns';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -92,7 +93,7 @@ export function EmployeeForm({
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
-  // const [birthDate, setBirthDate] = useState<Date | undefined>(undefined);
+  const [birthDate, setBirthDate] = useState<Date | undefined>(undefined);
   const [birthPlace, setBirthPlace] = useState('');
   const [nik, setNik] = useState('');
   const [position, setPosition] = useState('');
@@ -149,6 +150,17 @@ export function EmployeeForm({
       setAccountNumber(initialData.account_number || '');
       setAccountName(initialData.account_name || '');
       setAvatar(null);
+
+      if (initialData.birth_date) {
+        try {
+          const parsedDate = new Date(initialData.birth_date + 'T00:00:00');
+          if (!isNaN(parsedDate.getTime())) {
+            setBirthDate(parsedDate);
+          }
+        } catch (error) {
+          // Optional: handle error
+        }
+      }
     }
   }, [mode, initialData]);
 
@@ -182,6 +194,10 @@ export function EmployeeForm({
     if (bank) formData.append('account_bank', bank);
     formData.append('account_number', accountNumber);
     formData.append('account_name', accountName);
+    formData.append(
+      'birth_date',
+      birthDate ? birthDate.toISOString().split('T')[0] : '',
+    );
 
     try {
       if (mode === 'create') {
@@ -366,36 +382,23 @@ export function EmployeeForm({
       </div>
 
       {/* Birth Date */}
-      {/* <div>
-        <Label>Birth Date</Label>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              id="validUntil"
-              variant="outline"
-              className="w-full justify-start text-left font-normal"
-            >
-              <CalendarIcon className="mr-2 h-4 w-4" />
-              {birthDate ? (
-                format(birthDate, DATE_DISPLAY_FORMAT)
-              ) : (
-                <span>Select date</span>
-              )}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
-            <Calendar
-              mode="single"
-              selected={birthDate}
-              onSelect={setBirthDate}
-              initialFocus
-              disabled={(date) =>
-                date < new Date(new Date().setHours(0, 0, 0, 0))
-              }
-            />
-          </PopoverContent>
-        </Popover>
-      </div> */}
+      <div>
+        <Label htmlFor="birth_date">Date of Birth</Label>
+        <Input
+          id="birth_date"
+          type="date"
+          value={birthDate ? format(birthDate, 'yyyy-MM-dd') : ''}
+          onChange={(e) => {
+            const selectedDate = e.target.value
+              ? new Date(e.target.value)
+              : undefined;
+            setBirthDate(selectedDate);
+          }}
+          max={format(new Date(), 'yyyy-MM-dd')}
+          min="1900-01-01"
+          required
+        />
+      </div>
 
       {/* Birth Place */}
       <div>
