@@ -135,11 +135,6 @@ export class EmployeeController {
     return this.employeeService.countEmployees(companyId);
   }
 
-  @Get('status-summary/:companyId')
-  async getEmployeeStatusByContract(@Param('companyId') companyId: string) {
-    return this.employeeService.getStatusSummary(companyId);
-  }
-
   @Patch(':id/password')
   async updatePassword(
     @Param('id') id: string,
