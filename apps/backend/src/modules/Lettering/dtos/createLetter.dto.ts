@@ -4,12 +4,10 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
-  IsUUID,
-  Matches,
+  IsUUID
 } from '@nestjs/class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type, Transform } from 'class-transformer';
-import { IsISO8601 } from 'class-validator';
 
 export class createLetterDto {
   @ApiProperty()

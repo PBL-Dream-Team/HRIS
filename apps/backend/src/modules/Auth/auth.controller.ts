@@ -13,7 +13,6 @@ import { Response } from 'express';
 import { AuthService } from './auth.service';
 import { AuthEmailDto } from './dtos';
 import { RegDto } from './dtos';
-import { AuthIdDto } from './dtos';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { ForgotPasswordDto } from './dtos/forgotPassword.dto';
 import { ResetPasswordDto } from './dtos/resetPassword.dto';

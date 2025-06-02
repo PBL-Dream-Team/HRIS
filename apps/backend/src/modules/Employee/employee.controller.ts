@@ -10,7 +10,6 @@ import {
   Query,
   UploadedFile,
   UseInterceptors,
-  UploadedFiles,
   Res,
 } from '@nestjs/common';
 import { EmployeeService } from './employee.service';
@@ -19,7 +18,7 @@ import { editEmployeeDto } from './dtos/editEmployee.dto';
 import { JwtGuard, SubscriptionGuard } from '../Auth/guard';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { UploadExtensionInterceptor } from '../../multer/image_upload.interceptor';
-import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor} from '@nestjs/platform-express';
 import { UpdatePasswordDto } from './dtos/updatePassword.dto';
 import { Response } from 'express';
 import { join } from 'path';
