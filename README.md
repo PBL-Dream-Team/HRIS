@@ -1,3 +1,5 @@
+<img src="apps/frontend/public/images/logo.png" alt="HRIS" width="120" />
+
 # HRIS - Human Resource Information System
 
 Human Resource Information System (HRIS) is a software application designed to help organizations manage and automate various human resource functions. This system typically includes features such as employee management, attendance tracking, absence requests, and document handling.
@@ -28,7 +30,7 @@ Human Resource Information System (HRIS) is a software application designed to h
 ![Cypress](https://img.shields.io/badge/Cypress-17202C?logo=cypress&logoColor=white&style=for-the-badge)
 ![Postman](https://img.shields.io/badge/Postman-FF6C37?logo=postman&logoColor=white&style=for-the-badge)
 ![Google Sheets](https://img.shields.io/badge/Google_Sheets-34A853?logo=google-sheets&logoColor=white&style=for-the-badge)
-### Cloud Infrastructure
+### Cloud Computing
 ![Google Cloud](https://img.shields.io/badge/Google_Cloud-4285F4?logo=google-cloud&logoColor=white&style=for-the-badge)
 ![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-20232A?logo=github-actions&logoColor=white&style=for-the-badge)
 
