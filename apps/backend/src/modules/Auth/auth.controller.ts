@@ -92,10 +92,8 @@ export class AuthController {
   // }
   @HttpCode(HttpStatus.OK)
   @Post('logout')
-  logout(@Res({ passthrough: true }) res: Response,@Req() req: Request) {
+  logout(@Res({ passthrough: true }) res: Response) {
     res.clearCookie('jwt');
-
-    this.authService.removeRefreshToken(req.cookies['jwt_refresh']);
 
     res.clearCookie('jwt_refresh')
     return {
