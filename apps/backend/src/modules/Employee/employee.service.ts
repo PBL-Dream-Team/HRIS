@@ -241,7 +241,7 @@ export class EmployeeService {
         company_id: companyId,
         status: 'APPROVED',
         type: {
-          in: ['SICK', 'PERMIT'],
+          in: ['SICK', 'PERMIT', 'LEAVE'],
         },
         employee: {
           is: {
