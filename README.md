@@ -36,6 +36,25 @@ Human Resource Information System (HRIS) is a software application designed to h
 
 </br>
 
+```
+HRIS/
+├── .github/
+│   └── workflows/        # CI/CD workflows
+├── apps/
+│   ├── frontend/         # Next.js application
+│   └── backend/          # Nest.js application
+├── cypress/
+│   └── e2e/              # End to end testing script
+├── docker/
+|   ├── frontend/         # Dockerfile for frontend
+|   └── backend/          # Dockerfile for backend
+└── prisma/
+    ├── migrations/       # Database migrations
+    └── schema.prisma     # Database schema
+    └── seeder.ts         # Database seeder
+```
+
+</br>
 ## Cloud Architecture
 
 ![alt text](clouddiagram.png)
