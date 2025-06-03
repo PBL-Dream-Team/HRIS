@@ -9,7 +9,7 @@ import { editEmployeeDto } from './dtos/editEmployee.dto';
 import { createWriteStream, existsSync, unlinkSync } from 'fs';
 import { join } from 'path';
 import { hash, verify } from 'argon2';
-import { subMonths, startOfDay, endOfDay } from 'date-fns';
+import { subMonths, startOfDay, endOfDay, format } from 'date-fns';
 
 @Injectable()
 export class EmployeeService {
@@ -243,6 +243,10 @@ export class EmployeeService {
         type: {
           in: ['SICK', 'PERMIT', 'LEAVE'],
         },
+        created_at: {
+          gte: todayStart,
+          lte: todayEnd,
+        },
         employee: {
           is: {
             company_id: companyId,
@@ -299,13 +303,20 @@ export class EmployeeService {
     }));
   }
 
+
   async getAttendanceCountbyCompany(companyId: string) {
+    const todayStart = startOfDay(new Date());
+    const todayEnd = endOfDay(new Date());
+    const today = new Date().toISOString(); // ⬅️ hasil: '2025-06-02'
+
     const [onTimeCount, lateCount, leaveCount] = await Promise.all([
       this.prisma.attendance.count({
         where: {
           company_id: companyId,
           check_in_status: 'ON_TIME',
           approval: 'APPROVED',
+          created_at: { gte: todayStart },
+          updated_at: { lte: todayEnd },
           employee: {
             is: {
               company_id: companyId,
@@ -320,6 +331,8 @@ export class EmployeeService {
           company_id: companyId,
           check_in_status: 'LATE',
           approval: 'APPROVED',
+          created_at: { gte: todayStart },
+          updated_at: { lte: todayEnd },
           employee: {
             is: {
               company_id: companyId,
@@ -333,6 +346,10 @@ export class EmployeeService {
         where: {
           company_id: companyId,
           status: 'APPROVED',
+          type: {
+            in: ['SICK', 'PERMIT', 'LEAVE'],
+          },
+          date: today,
           employee: {
             is: {
               company_id: companyId,
@@ -349,4 +366,5 @@ export class EmployeeService {
       leave: leaveCount,
     };
   }
+
 }
