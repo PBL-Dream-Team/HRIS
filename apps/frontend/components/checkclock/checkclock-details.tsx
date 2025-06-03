@@ -108,7 +108,7 @@ export default function CheckClockDetails({
                     default:
                       return (
                         <span className="text-gray-500 font-medium">
-                          Unknown Status
+                          -
                         </span>
                       );
                   }

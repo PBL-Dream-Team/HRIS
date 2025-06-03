@@ -55,6 +55,8 @@ import { AbsenceAddForm } from '@/components/absence/absenceAdd-form';
 import { AbsenceEditForm } from '@/components/absence/absenceEdit-form';
 import { Trash2, Pencil } from 'lucide-react';
 import { toast } from 'sonner';
+import { enUS } from 'date-fns/locale';
+import { format } from 'date-fns';
 
 type Absence = {
   id: string;
@@ -79,6 +81,20 @@ type AbsenceClientProps = {
 
 type AbsenceType = 'SICK' | 'PERMIT' | 'LEAVE';
 
+export function formatTimeOnly(input: Date | string): string {
+  const pad = (n: number) => n.toString().padStart(2, '0');
+
+  if (typeof input === 'string') {
+    const timePart = input.split('.')[0];
+    if (timePart.includes('T')) {
+      const dateObj = new Date(input);
+      return `${pad(dateObj.getHours())}:${pad(dateObj.getMinutes())}:${pad(dateObj.getSeconds())}`;
+    }
+    return timePart;
+  }
+  return `${pad(input.getHours())}:${pad(input.getMinutes())}:${pad(input.getSeconds())}`;
+}
+
 export default function AbsenceClient({
   isAdmin,
   userId,
@@ -94,6 +110,19 @@ export default function AbsenceClient({
   const [pictdir, setPictDir] = useState({
     pictdir: ''
   });
+
+  const formatDate = (dateString: string) => {
+    if (!dateString) return 'No date';
+
+    try {
+      // Konversi string ke Date object
+      const date = new Date(dateString);
+      return format(date, 'PPP', { locale: enUS });
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return dateString; // Fallback ke string asli jika error
+    }
+  };
 
   const fetchAbsences = async () => {
     try {
@@ -165,7 +194,7 @@ export default function AbsenceClient({
       type: absence.type,
       address: employee?.address ? employee.address : '-',
       filedir: absence.filedir,
-      created_at: new Date(absence.created_at).toDateString(),
+      created_at: formatTimeOnly(absence.created_at),
     };
   });
 
@@ -206,7 +235,7 @@ export default function AbsenceClient({
     try {
       await api.delete(`/api/absence/${absenceToDelete.id}`);
       toast.success('Absence deleted successfully.');
-      
+
       // Update state dengan menghapus absence yang sudah dihapus
       setAbsences((prev) =>
         prev.filter((abs) => abs.id !== absenceToDelete.id),
@@ -294,8 +323,8 @@ export default function AbsenceClient({
                     <DialogHeader>
                       <DialogTitle>Add Absence</DialogTitle>
                     </DialogHeader>
-                    <AbsenceAddForm 
-                      employeeId={userId} 
+                    <AbsenceAddForm
+                      employeeId={userId}
                       companyId={companyId}
                       onSuccess={handleAddAbsenceSuccess}
                       onClose={() => setOpenAddDialog(false)}
@@ -321,14 +350,48 @@ export default function AbsenceClient({
                   return (
                     <TableRow key={abs.id}>
                       <TableCell>
-                        {new Date(abs.created_at).toLocaleDateString()}
+                        {abs.created_at}
                       </TableCell>
                       <TableCell>
-                        {new Date(abs.date).toLocaleDateString()}
+                        {formatDate(abs.date)}
                       </TableCell>
                       <TableCell>{abs.type}</TableCell>
                       <TableCell>{abs.reason}</TableCell>
-                      <TableCell>{abs.status}</TableCell>
+                      <TableCell>
+                        <div>
+                          {(() => {
+                            switch (abs.status) {
+                              case 'APPROVED':
+                                return (
+                                  <div className="flex items-center">
+                                    <span className="h-2 w-2 rounded-full bg-green-500 inline-block mr-2" />
+                                    Approved
+                                  </div>
+                                );
+                              case 'REJECTED':
+                                return (
+                                  <div className="flex items-center">
+                                    <span className="h-2 w-2 rounded-full bg-red-500 inline-block mr-2" />
+                                    Rejected
+                                  </div>
+                                );
+                              case 'PENDING':
+                                return (
+                                  <div className="flex items-center">
+                                    <span className="h-2 w-2 rounded-full bg-yellow-500 inline-block mr-2" />
+                                    Pending
+                                  </div>
+                                );
+                              default:
+                                return (
+                                  <span className="text-gray-500 font-medium">
+                                    Unknown Status
+                                  </span>
+                                );
+                            }
+                          })()}
+                        </div>
+                      </TableCell>
                       <TableCell className="flex gap-2">
                         <Button
                           size="icon"
@@ -386,6 +449,7 @@ export default function AbsenceClient({
           open={openSheet}
           onOpenChange={setOpenSheet}
           selectedAbsence={selectedAbsence}
+          avatarUrl={employees[selectedAbsence.employee_id]?.pict_dir || ''}
         />
       )}
 
