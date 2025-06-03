@@ -36,10 +36,12 @@ Human Resource Information System (HRIS) is a software application designed to h
 
 </br>
 
+## Project Structure
+
 ```
 HRIS/
 ├── .github/
-│   └── workflows/        # CI/CD workflows
+│   └── workflows/        # CI/CD & CI/CT workflows
 ├── apps/
 │   ├── frontend/         # Next.js application
 │   └── backend/          # Nest.js application
@@ -55,6 +57,7 @@ HRIS/
 ```
 
 </br>
+
 ## Cloud Architecture
 
 ![alt text](clouddiagram.png)
