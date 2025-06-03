@@ -43,6 +43,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import AbsenceDetails from '@/components/absence/absence-details';
+import { fi } from 'date-fns/locale';
+import { enUS } from 'date-fns/locale';
+import { format } from 'date-fns';
 
 type Absence = {
   id: string;
@@ -55,6 +58,7 @@ type Absence = {
   position: string;
   type: string;
   address: string;
+  filedir: string;
   created_at: string;
 };
 
@@ -132,15 +136,29 @@ export default function AbsenceClient({
       employee_id: absence.employee_id,
       company_id: absence.company_id,
       reason: absence.reason ? absence.reason : '-',
-      date: formatTimeOnly(absence.date),
+      date: new Date(absence.date).toDateString(),
       status: absence.status,
       name: `${employee.first_name} ${employee.last_name}`,
       position: employee.position ? employee.position : 'N/A',
       type: absence.type,
       address: employee.address ? employee.address : '-',
-      created_at: new Date(absence.created_at).toDateString(),
+      filedir: absence.filedir,
+      created_at: formatTimeOnly(absence.created_at),
     };
   });
+
+  const formatDate = (dateString: string) => {
+    if (!dateString) return 'No date';
+
+    try {
+      // Konversi string ke Date object
+      const date = new Date(dateString);
+      return format(date, 'PPP', { locale: enUS });
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return dateString; // Fallback ke string asli jika error
+    }
+  };
 
   const displayedAbsences = transformedabsences.slice(
     (currentPage - 1) * itemsPerPage,
@@ -157,7 +175,7 @@ export default function AbsenceClient({
 
   const handleApproval = async (
     id: string,
-    status: 'APPROVED' | 'DISAPPROVED',
+    status: 'APPROVED' | 'REJECTED',
   ) => {
     try {
       await api.patch(`/api/absence/${id}`, { status });
@@ -221,18 +239,6 @@ export default function AbsenceClient({
                 <Button variant="outline">
                   <VscSettings className="w-4 h-4 mr-1" /> Filter
                 </Button>
-
-                {/* <Dialog>
-                                    <DialogTrigger asChild>
-                                        <Button><IoMdAdd /> Add Absence</Button>
-                                    </DialogTrigger>
-                                    <DialogContent className="max-w-4xl">
-                                        <DialogHeader>
-                                            <DialogTitle>Add Absence</DialogTitle>
-                                        </DialogHeader>
-                                        <AbsenceForm />
-                                    </DialogContent>
-                                </Dialog> */}
               </div>
             </div>
 
@@ -270,9 +276,9 @@ export default function AbsenceClient({
                           <Button
                             size="icon"
                             variant="outline"
-                            title="Disapprove"
+                            title="Reject"
                             onClick={() =>
-                              handleApproval(abs.id, 'DISAPPROVED')
+                              handleApproval(abs.id, 'REJECTED')
                             }
                           >
                             <X className="text-red-600 w-4 h-4" />
@@ -288,13 +294,14 @@ export default function AbsenceClient({
                         </div>
                       );
                       break;
-                    case 'DISAPPROVED':
+                    case 'REJECTED':
                       approveContent = (
                         <div className="flex items-center">
                           <span className="h-2 w-2 rounded-full bg-red-500 inline-block mr-2" />
                           Rejected
                         </div>
                       );
+                      break;
                     default:
                       approveContent = abs.status || 'N/A';
                   }
@@ -304,7 +311,7 @@ export default function AbsenceClient({
                       <TableCell>
                         <Avatar className="h-8 w-8 rounded-lg">
                           <AvatarImage
-                            src={emp?.pict_dir || '/avatars/default.jpg'}
+                            src={`/storage/employee/${emp.pict_dir}`}
                           />
                           <AvatarFallback>
                             {emp ? emp.first_name[0] + emp.last_name[0] : 'NA'}
@@ -316,10 +323,10 @@ export default function AbsenceClient({
                       </TableCell>
                       <TableCell>{emp?.position || '-'}</TableCell>
                       <TableCell>
-                        {new Date(abs.created_at).toLocaleDateString()}
+                        {abs.created_at}
                       </TableCell>
                       <TableCell>
-                        {new Date(abs.date).toLocaleDateString()}
+                        {formatDate(abs.date)}
                       </TableCell>
                       <TableCell>{abs.reason}</TableCell>
                       <TableCell>{approveContent}</TableCell>
@@ -355,7 +362,8 @@ export default function AbsenceClient({
           open={openSheet}
           onOpenChange={setOpenSheet}
           selectedAbsence={selectedAbsence}
-          // selectedCheckClock={selectedCheckClock.originalData || selectedCheckClock}
+          avatarUrl={employees[selectedAbsence.employee_id]?.pict_dir || ''}
+        // selectedCheckClock={selectedCheckClock.originalData || selectedCheckClock}
         />
       )}
     </SidebarProvider>

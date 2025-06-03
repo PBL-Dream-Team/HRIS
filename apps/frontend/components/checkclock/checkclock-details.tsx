@@ -7,10 +7,13 @@ import {
   SheetTitle,
 } from '@/components/ui/sheet';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { enUS } from 'date-fns/locale';
+import { format } from 'date-fns';
 
 type CheckClock = {
   date: string;
   name: string;
+  avatarUrl?: string;
   position: string;
   status: string;
   clockIn: string;
@@ -34,6 +37,20 @@ export default function CheckClockDetails({
   onOpenChange,
   selectedCheckClock,
 }: CheckClockDetailsProps) {
+
+  const formatDate = (dateString: string) => {
+    if (!dateString) return 'No date';
+
+    try {
+      // Konversi string ke Date object
+      const date = new Date(dateString);
+      return format(date, 'PPP', { locale: enUS });
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return dateString; // Fallback ke string asli jika error
+    }
+  };
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
@@ -49,7 +66,7 @@ export default function CheckClockDetails({
             {/* Header Info */}
             <div className="flex items-center gap-3 border rounded-md p-4">
               <Avatar className="h-8 w-8 rounded-lg">
-                <AvatarImage src="/avatars/user.jpg" />
+                <AvatarImage src={`/storage/employee/${selectedCheckClock.avatarUrl}`} />
                 <AvatarFallback className="rounded-lg">
                   {selectedCheckClock.name
                     .split(' ')
@@ -64,37 +81,76 @@ export default function CheckClockDetails({
                   {selectedCheckClock.position}
                 </p>
               </div>
-              <div className="ml-auto flex items-center gap-2">
-                <span
-                  className={`h-2 w-2 rounded-full ${
-                    selectedCheckClock.status === 'ON_TIME'
-                      ? 'bg-green-600'
-                      : selectedCheckClock.status != 'ON_TIME' &&
-                          selectedCheckClock.approval === 'APPROVED'
-                        ? 'bg-green-600'
-                        : selectedCheckClock.approval === 'PENDING'
-                          ? 'bg-yellow-500'
-                          : 'bg-red-600'
-                  }`}
-                ></span>
-                <span className="text-sm text-muted-foreground">
-                  {selectedCheckClock.status === 'ON_TIME'
-                    ? 'ON TIME'
-                    : selectedCheckClock.status === 'LATE'
-                      ? 'LATE'
-                      : 'EARLY'}
-                </span>
+              <div className="ml-auto flex items-center gap-2 text-sm">
+                {(() => {
+                  switch (selectedCheckClock.approval) {
+                    case 'APPROVED':
+                      return (
+                        <div className="flex items-center">
+                          <span className="h-2 w-2 rounded-full bg-green-500 inline-block mr-2" />
+                          Approved
+                        </div>
+                      );
+                    case 'DISSAPPROVED':
+                      return (
+                        <div className="flex items-center">
+                          <span className="h-2 w-2 rounded-full bg-red-500 inline-block mr-2" />
+                          Dissaproved
+                        </div>
+                      );
+                    case 'PENDING':
+                      return (
+                        <div className="flex items-center">
+                          <span className="h-2 w-2 rounded-full bg-yellow-500 inline-block mr-2" />
+                          Pending
+                        </div>
+                      );
+                    default:
+                      return (
+                        <span className="text-gray-500 font-medium">
+                          Unknown Status
+                        </span>
+                      );
+                  }
+                })()}
               </div>
             </div>
 
             {/* Attendance Info */}
             <div className="border rounded-md p-4 text-sm">
-              <h4 className="font-medium mb-4">Attendance Information</h4>
+              <h4 className="font-medium text-md mb-4">Attendance Information</h4>
               <div className="grid grid-cols-2 gap-x-4 gap-y-3">
                 <div>
                   <p className="text-muted-foreground text-xs">Date</p>
                   <p className="font-medium">
-                    {selectedCheckClock.date.replace(/T.*/, '')}
+                    {formatDate(selectedCheckClock.date)}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground text-xs">Status</p>
+                  <p className="font-medium">
+                    {(() => {
+                      switch (selectedCheckClock.status) {
+                        case 'ON_TIME':
+                          return (
+                            <span className=" text-green-600">On Time</span>
+                          );
+                        case 'LATE':
+                          return (
+                            <span className=" text-red-600">Late</span>
+                          );
+                        case 'EARLY':
+                          return (
+                            <span className=" text-yellow-600">Early</span>
+                          );
+                        default:
+                          return (
+                            <span className="text-gray-500 font-medium">
+                              Unknown Status
+                            </span>
+                          );
+                      }
+                    })()}
                   </p>
                 </div>
                 <div>
@@ -107,16 +163,6 @@ export default function CheckClockDetails({
                   <p className="text-muted-foreground text-xs">Clock Out</p>
                   <p className="font-medium">
                     {selectedCheckClock.clockOut.replace(/.*T/, '')}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground text-xs">Status</p>
-                  <p className="font-medium">
-                    {selectedCheckClock.status === 'ON_TIME'
-                      ? 'On Time'
-                      : selectedCheckClock.status === 'LATE'
-                        ? 'Late'
-                        : 'Early'}
                   </p>
                 </div>
                 <div>
@@ -154,22 +200,6 @@ export default function CheckClockDetails({
                 </div>
               </div>
             </div>
-
-            {/* Proof of Attendance */}
-            {/* <div className="border rounded-md p-4 space-y-2 text-sm">
-              <h4 className="font-medium">Proof of Attendance</h4>
-              <div className="flex items-center justify-between border rounded px-3 py-2">
-                <span>Proof of Attendance.jpg</span>
-                <div className="flex items-center gap-2">
-                  <button className="text-gray-600 hover:text-black">
-                    <Eye className="w-4 h-4" />
-                  </button>
-                  <button className="text-gray-600 hover:text-black">
-                    <DownloadIcon className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            </div> */}
           </div>
         )}
       </SheetContent>
