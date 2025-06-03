@@ -13,6 +13,8 @@ const SUBSCRIPTION_IDS: Record<string, string> = {
   Gold: 'edd5b74d-2329-4e22-b720-a1801ab02939',
 };
 
+const PAYMENT_METHODS = ['ShopeePay', 'DANA', 'OVO', 'QRIS', 'BCA Virtual Account', 'BRI Virtual Account', 'Mandiri Virtual Account'];
+
 export default function PaymentClient({
   company_id,
 }: {
@@ -21,6 +23,7 @@ export default function PaymentClient({
   const router = useRouter();
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState('ShopeePay');
 
   const title = searchParams.get('title') || 'Unknown Package';
   const priceString = searchParams.get('price') || '0';
@@ -36,7 +39,7 @@ export default function PaymentClient({
 
   const handleContinue = async () => {
     if (!company_id) {
-      router.push('/signin'); // atau tampilkan error
+      router.push('/signin');
       return;
     }
 
@@ -48,6 +51,7 @@ export default function PaymentClient({
         company_id,
         subscription_id,
         total,
+        payment_method: paymentMethod, // Kirim metode pembayaran
       });
 
       router.push('/payment/callback?status=success');
@@ -101,6 +105,23 @@ export default function PaymentClient({
         <div className="flex justify-between font-semibold text-base">
           <span>Total</span>
           <span>Rp {total.toLocaleString()}</span>
+        </div>
+
+        <div className="mt-4">
+          <label className="block font-medium mb-2">Payment Method</label>
+          <div className="space-y-2">
+            {PAYMENT_METHODS.map((method) => (
+              <label key={method} className="flex items-center space-x-2">
+                <input
+                  type="radio"
+                  value={method}
+                  checked={paymentMethod === method}
+                  onChange={(e) => setPaymentMethod(e.target.value)}
+                />
+                <span>{method}</span>
+              </label>
+            ))}
+          </div>
         </div>
 
         <Button

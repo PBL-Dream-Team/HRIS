@@ -6,23 +6,32 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet';
-import { CalendarIcon, CreditCardIcon } from 'lucide-react';
+import {
+  CalendarIcon,
+  CreditCardIcon,
+  ReceiptIcon,
+  BadgeCheckIcon,
+} from 'lucide-react';
 
 type Subscription = {
   id: string;
+  company_id: string;
+  subscription_id: string;
+  price: string;
   startDate: string;
   endDate: string;
-  price: string;
-  type: string;
-  status: 'Active' | 'Expired' | 'Trial' | 'Cancelled';
+  expiresAt: string;
+  merchantRef: string;
+  paidAt: string;
   paymentMethod: string;
-  lastUpdated: string;
+  status: string;
+  tripayRef: string;
 };
 
 interface SubscriptionDetailsProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  selectedSubscription?: Subscription;
+  selectedSubscription?: Subscription | null;
 }
 
 export default function SubscriptionDetails({
@@ -49,23 +58,31 @@ export default function SubscriptionDetails({
                 <div>
                   <p className="text-muted-foreground text-xs">Start Date</p>
                   <p className="font-medium">
-                    {selectedSubscription.startDate}
+                    {new Date(selectedSubscription.startDate).toLocaleDateString('en-GB')}
                   </p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground text-xs">End Date</p>
-                  <p className="font-medium">{selectedSubscription.endDate}</p>
+                  <p className="text-muted-foreground text-xs">Expires Date</p>
+                  <p className="font-medium">
+                    {selectedSubscription.expiresAt
+                      ? new Date(selectedSubscription.expiresAt).toLocaleDateString('en-GB')
+                      : '-'}
+                  </p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground text-xs">Type</p>
-                  <p className="font-medium">{selectedSubscription.type}</p>
+                  <p className="text-muted-foreground text-xs">Subscription ID</p>
+                  <p className="font-medium break-all">
+                    {selectedSubscription.subscription_id}
+                  </p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground text-xs">Price</p>
-                  <p className="font-medium">{selectedSubscription.price}</p>
+                  <p className="text-muted-foreground text-xs">Total</p>
+                  <p className="font-medium">
+                    Rp {Number(selectedSubscription.price).toLocaleString('id-ID')}
+                  </p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground text-xs mb-2">Status</p>
+                  <p className="text-muted-foreground text-xs">Status</p>
                   <span
                     className={`inline-block px-2 py-1 rounded text-xs font-semibold ${
                       selectedSubscription.status === 'Active'
@@ -83,21 +100,37 @@ export default function SubscriptionDetails({
             <div className="border rounded-md p-4 text-sm">
               <h4 className="font-medium mb-4">Payment Information</h4>
               <div className="grid grid-cols-2 gap-x-4 gap-y-3">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 col-span-2">
                   <CreditCardIcon className="w-4 h-4 text-muted-foreground" />
-                  <p className="text-muted-foreground text-xs">
-                    Payment Method
-                  </p>
+                  <p className="text-muted-foreground text-xs">Payment Method</p>
                 </div>
-                <p className="font-medium">
-                  {selectedSubscription.paymentMethod}
+                <p className="font-medium col-span-2">
+                  {selectedSubscription.paymentMethod || '-'}
                 </p>
-                <div className="flex items-center gap-2">
-                  <CalendarIcon className="w-4 h-4 text-muted-foreground" />
-                  <p className="text-muted-foreground text-xs">Last Updated</p>
+
+                <div className="flex items-center gap-2 col-span-2">
+                  <BadgeCheckIcon className="w-4 h-4 text-muted-foreground" />
+                  <p className="text-muted-foreground text-xs">Paid At</p>
                 </div>
-                <p className="font-medium">
-                  {selectedSubscription.lastUpdated}
+                <p className="font-medium col-span-2">
+                  {selectedSubscription.paidAt
+                    ? new Date(selectedSubscription.paidAt).toLocaleDateString('en-GB')
+                    : '-'}
+                </p>
+                <div className="flex items-center gap-2 col-span-2">
+                  <ReceiptIcon className="w-4 h-4 text-muted-foreground" />
+                  <p className="text-muted-foreground text-xs">Merchant Ref</p>
+                </div>
+                <p className="font-medium col-span-2 break-all">
+                  {selectedSubscription.merchantRef || '-'}
+                </p>
+
+                <div className="flex items-center gap-2 col-span-2">
+                  <ReceiptIcon className="w-4 h-4 text-muted-foreground" />
+                  <p className="text-muted-foreground text-xs">Tripay Ref</p>
+                </div>
+                <p className="font-medium col-span-2 break-all">
+                  {selectedSubscription.tripayRef || '-'}
                 </p>
               </div>
             </div>
