@@ -3,7 +3,7 @@
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import api from '@/lib/axios';
+import axios from 'axios';
 
 const SUBSCRIPTION_IDS: Record<string, string> = {
   Trial: 'bcf1b2a6-bdc2-4b66-98b1-e8a2c0ea2e95',
@@ -13,17 +13,25 @@ const SUBSCRIPTION_IDS: Record<string, string> = {
   Gold: 'edd5b74d-2329-4e22-b720-a1801ab02939',
 };
 
-const PAYMENT_METHODS = ['ShopeePay', 'DANA', 'OVO', 'QRIS', 'BCA Virtual Account', 'BRI Virtual Account', 'Mandiri Virtual Account'];
+// Hanya metode yang didukung Tripay
+const PAYMENT_METHODS = [
+  'BNIVA',
+  'BRIVA',
+  'MANDIRIVA',
+  'BCAVA',
+  'OVO',
+  'QRIS',
+  'QRIS2',
+  'DANA',
+  'SHOPEEPAY',
+];
 
-export default function PaymentClient({
-  company_id,
-}: {
-  company_id: string | null;
-}) {
+export default function PaymentClient({ company_id }: { company_id: string | null }) {
   const router = useRouter();
   const searchParams = useSearchParams();
+
   const [loading, setLoading] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState('ShopeePay');
+  const [paymentMethod, setPaymentMethod] = useState('SHOPEEPAY');
 
   const title = searchParams.get('title') || 'Unknown Package';
   const priceString = searchParams.get('price') || '0';
@@ -44,19 +52,33 @@ export default function PaymentClient({
     }
 
     setLoading(true);
+
     const subscription_id = SUBSCRIPTION_IDS[title] || '';
+    const merchant_ref = `HRIS${Math.floor(100000 + Math.random() * 900000)}`;
+    const expired = Math.floor(Date.now() / 1000) + 3600; // expired 1 jam dari sekarang
 
     try {
-      await api.post('/api/transaction', {
+      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/tripay-transaction`, {
         company_id,
         subscription_id,
-        total,
-        payment_method: paymentMethod, // Kirim metode pembayaran
+        title,
+        price: parsedPrice,
+        employeeCount,
+        type,
+        method: paymentMethod,
+        amount: total,
+        merchant_ref,
+        expired,
       });
 
-      router.push('/payment/callback?status=success');
+      if (res.data?.success) {
+        router.push(res.data.checkout_url);
+      } else {
+        console.error('Tripay Error:', res.data);
+        router.push('/payment/callback?status=failed');
+      }
     } catch (error) {
-      console.error('Transaction API error:', error);
+      console.error('Request Error:', error);
       router.push('/payment/callback?status=failed');
     } finally {
       setLoading(false);
@@ -68,14 +90,9 @@ export default function PaymentClient({
       <div className="max-w-md w-full text-black border rounded-lg p-6 shadow-sm space-y-2 text-sm">
         <h2 className="text-xl font-bold text-black mb-4">Order Summary</h2>
 
-        <div className="flex justify-between">
-          <span>Package</span>
-          <span>: {title}</span>
-        </div>
-        <div className="flex justify-between">
-          <span>Total Users</span>
-          <span>: {employeeCount}</span>
-        </div>
+        <div className="flex justify-between"><span>Package</span><span>: {title}</span></div>
+        <div className="flex justify-between"><span>Total Users</span><span>: {employeeCount}</span></div>
+
         {type === 'payg' && (
           <div className="flex justify-between">
             <span>Price per User</span>
@@ -90,22 +107,10 @@ export default function PaymentClient({
         )}
 
         <hr className="my-4" />
-
-        <div className="flex justify-between text-sm">
-          <span>Subtotal</span>
-          <span>Rp {subtotal.toLocaleString()}</span>
-        </div>
-        <div className="flex justify-between text-sm">
-          <span>Tax (10%)</span>
-          <span>Rp {(subtotal * taxRate).toLocaleString()}</span>
-        </div>
-
+        <div className="flex justify-between text-sm"><span>Subtotal</span><span>Rp {subtotal.toLocaleString()}</span></div>
+        <div className="flex justify-between text-sm"><span>Tax (10%)</span><span>Rp {(subtotal * taxRate).toLocaleString()}</span></div>
         <hr className="my-4" />
-
-        <div className="flex justify-between font-semibold text-base">
-          <span>Total</span>
-          <span>Rp {total.toLocaleString()}</span>
-        </div>
+        <div className="flex justify-between font-semibold text-base"><span>Total</span><span>Rp {total.toLocaleString()}</span></div>
 
         <div className="mt-4">
           <label className="block font-medium mb-2">Payment Method</label>
@@ -124,11 +129,7 @@ export default function PaymentClient({
           </div>
         </div>
 
-        <Button
-          className="mt-6 w-full"
-          onClick={handleContinue}
-          disabled={loading}
-        >
+        <Button className="mt-6 w-full" onClick={handleContinue} disabled={loading}>
           {loading ? 'Processing...' : 'Continue to Payment'}
         </Button>
       </div>
