@@ -65,6 +65,7 @@ import api from '@/lib/axios';
 import { useEffect } from 'react';
 
 import { toast } from 'sonner'; // atau dari 'react-toastify'
+import { DataTable } from '@/components/data-table';
 
 type EmployeeDatabaseClientProps = {
   isAdmin: boolean;
@@ -111,7 +112,9 @@ export default function EmployeeDatabaseClient({
 
   const fetchEmployees = async () => {
     try {
-      const res = await api.get('/api/employee');
+      const res = await api.get('/api/employee', {
+        params: { company_id: companyId }, // tambahkan filter company_id
+      });
       setEmployees(res.data);
     } catch (err: any) {
       console.error(
@@ -174,6 +177,99 @@ export default function EmployeeDatabaseClient({
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [employeeToEdit, setEmployeeToEdit] = useState<any>(null);
 
+  // Buat columns untuk DataTable Employee
+  const employeeColumns = [
+    {
+      accessorKey: 'no',
+      header: 'No',
+      cell: ({ row }: any) => row.index + 1,
+    },
+    {
+      accessorKey: 'pict_dir',
+      header: 'Avatar',
+      cell: ({ row }: any) => (
+        <Avatar className="h-8 w-8 rounded-lg">
+          <AvatarImage
+            src={`/storage/employee/${row.original.pict_dir}`}
+            alt={`${row.original.first_name} ${row.original.last_name}`}
+          />
+          <AvatarFallback className="rounded-lg">
+            {`${row.original.first_name} ${row.original.last_name}`
+              .split(' ')
+              .map((n: string) => n[0])
+              .join('')}
+          </AvatarFallback>
+        </Avatar>
+      ),
+    },
+    {
+      accessorKey: 'name',
+      header: 'Name',
+      cell: ({ row }: any) =>
+        `${row.original.first_name} ${row.original.last_name}`,
+    },
+    {
+      accessorKey: 'gender',
+      header: 'Gender',
+      cell: ({ row }: any) =>
+        row.original.gender === 'M'
+          ? 'Male'
+          : row.original.gender === 'F'
+            ? 'Female'
+            : 'Other',
+    },
+    {
+      accessorKey: 'phone',
+      header: 'Mobile Number',
+    },
+    {
+      accessorKey: 'branch',
+      header: 'Branch',
+    },
+    {
+      accessorKey: 'position',
+      header: 'Position',
+    },
+    {
+      accessorKey: 'actions',
+      header: 'Actions',
+      cell: ({ row }: any) => (
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="icon"
+            className="hover:text-white hover:bg-blue-600"
+            onClick={() => handleViewDetails(row.original)}
+          >
+            <Eye className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            className="hover:text-white hover:bg-yellow-500"
+            onClick={() => {
+              setEmployeeToEdit(row.original);
+              setOpenEditDialog(true);
+            }}
+          >
+            <Pencil className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            className="hover:text-white hover:bg-red-600"
+            onClick={() => {
+              setEmployeeToDelete(row.original);
+              setIsDeleteDialogOpen(true);
+            }}
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
+      ),
+    },
+  ];
+
   const ITEMS_PER_PAGE = 10;
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -181,6 +277,12 @@ export default function EmployeeDatabaseClient({
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE,
   );
+
+  // Tambahkan setelah employees didefinisikan
+  const employeesWithName = employees.map((emp) => ({
+    ...emp,
+    name: `${emp.first_name} ${emp.last_name}`,
+  }));
 
   return (
     <SidebarProvider>
@@ -237,152 +339,53 @@ export default function EmployeeDatabaseClient({
           <EmployeeInformation employees={employees} />
 
           <div className="border border-gray-300 rounded-md p-4">
-            {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b">
-              <div className="text-lg font-semibold">
-                Employee Database Overview
-              </div>
-              {/* Search Input */}
-              <div className="relative w-96 hidden lg:block">
-                <IoMdSearch className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-500" />
-                <Input type="search" placeholder="Search" className="pl-10" />
-              </div>
-
-              {/* Buttons */}
-              <div className="flex flex-col gap-2 md:flex-row md:flex-wrap md:gap-2">
-                <Button variant="outline" className="w-full md:w-auto">
-                  <VscSettings className="h-4 w-4 mr-1" /> Filter
-                </Button>
-                <Button variant="outline" className="w-full md:w-auto">
-                  <BiExport className="h-4 w-4 mr-1" /> Export
-                </Button>
-                <Button variant="outline" className="w-full md:w-auto">
-                  <BiImport className="h-4 w-4 mr-1" /> Import
-                </Button>
-                <Dialog open={openAddDialog} onOpenChange={setOpenAddDialog}>
-                  <DialogTrigger asChild>
-                    <Button className="w-full md:w-auto">
-                      <Plus className="h-4 w-4 mr-1" /> Add Employee
+            {/* DataTable for Employee */}
+            <DataTable
+              columns={employeeColumns}
+              data={employeesWithName} // Ganti dari employees ke employeesWithName
+              searchableColumn="name"
+              title="Employee Database Overview"
+              actions={
+                <>
+                  {/* Buttons */}
+                  <div className="flex flex-col gap-2 md:flex-row md:flex-wrap md:gap-2">
+                    <Button variant="outline" className="w-full md:w-auto">
+                      <VscSettings className="h-4 w-4 mr-1" /> Filter
                     </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
-                    <DialogHeader>
-                      <DialogTitle>Add New Employee</DialogTitle>
-                    </DialogHeader>
-                    <EmployeeForm
-                      companyId={companyId}
-                      onSuccess={handleAddEmployeeSuccess}
-                      onClose={() => setOpenAddDialog(false)}
-                    />
-                  </DialogContent>
-                </Dialog>
-              </div>
-            </div>
-
-            {/* Table */}
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="text-white">No</TableHead>
-                  <TableHead className="text-white">Avatar</TableHead>
-                  <TableHead className="text-white">Name</TableHead>
-                  <TableHead className="text-white">Gender</TableHead>
-                  <TableHead className="text-white">Mobile Number</TableHead>
-                  <TableHead className="text-white">Branch</TableHead>
-                  <TableHead className="text-white">Position</TableHead>
-                  {/* <TableHead className="text-white">Grade</TableHead> */}
-                  {/* <TableHead className="text-white">Status</TableHead> */}
-                  <TableHead className="text-white">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {paginatedEmployees.map((emp, i) => (
-                  <TableRow key={emp.id}>
-                    <TableCell>
-                      {(currentPage - 1) * ITEMS_PER_PAGE + i + 1}
-                    </TableCell>
-                    <TableCell>
-                      <Avatar className="h-8 w-8 rounded-lg">
-                        <AvatarImage
-                          src={`/storage/employee/${emp.pict_dir}`}
-                          alt={`${emp.first_name} ${emp.last_name}`}
+                    <Button variant="outline" className="w-full md:w-auto">
+                      <BiExport className="h-4 w-4 mr-1" /> Export
+                    </Button>
+                    <Button variant="outline" className="w-full md:w-auto">
+                      <BiImport className="h-4 w-4 mr-1" /> Import
+                    </Button>
+                    <Dialog
+                      open={openAddDialog}
+                      onOpenChange={setOpenAddDialog}
+                    >
+                      <DialogTrigger asChild>
+                        <Button className="w-full md:w-auto">
+                          <Plus className="h-4 w-4 mr-1" /> Add Employee
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+                        <DialogHeader>
+                          <DialogTitle>Add New Employee</DialogTitle>
+                        </DialogHeader>
+                        <EmployeeForm
+                          companyId={companyId}
+                          onSuccess={handleAddEmployeeSuccess}
+                          onClose={() => setOpenAddDialog(false)}
                         />
-                        <AvatarFallback className="rounded-lg">
-                          {`${emp.first_name} ${emp.last_name}`
-                            .split(' ')
-                            .map((n: string) => n[0])
-                            .join('')}
-                        </AvatarFallback>
-                      </Avatar>
-                    </TableCell>
-                    <TableCell>{`${emp.first_name} ${emp.last_name}`}</TableCell>
-                    <TableCell>
-                      {emp.gender === 'M'
-                        ? 'Male'
-                        : emp.gender === 'F'
-                          ? 'Female'
-                          : 'Other'}
-                    </TableCell>
-                    <TableCell>{emp.phone}</TableCell>
-                    <TableCell>{emp.branch}</TableCell>
-                    <TableCell>{emp.position}</TableCell>
-                    {/* <TableCell>{emp.grade}</TableCell> */}
-                    {/* <TableCell>
-                      <div className="flex items-center">
-                        <span
-                          className={`px-2 py-1 rounded text-xs text-white ${
-                            emp.status ? 'bg-green-600' : 'bg-gray-400'
-                          }`}
-                        >
-                          {emp.status ? 'Active' : 'Not Active'}
-                        </span>
-                      </div>
-                    </TableCell> */}
-                    <TableCell className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        className="hover:text-white hover:bg-blue-600"
-                        onClick={() => handleViewDetails(emp)}
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button>
-
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        className="hover:text-white hover:bg-yellow-500"
-                        onClick={() => {
-                          setEmployeeToEdit(emp);
-                          setOpenEditDialog(true);
-                        }}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        className="hover:text-white hover:bg-red-600"
-                        onClick={() => {
-                          setEmployeeToDelete(emp);
-                          setIsDeleteDialogOpen(true);
-                        }}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-
-            {/* Pagination Footer */}
-            <PaginationFooter
-              totalItems={employees.length}
-              itemsPerPage={ITEMS_PER_PAGE}
-              currentPage={currentPage}
-              onPageChange={setCurrentPage}
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                </>
+              }
+              pagination={{
+                currentPage,
+                itemsPerPage: ITEMS_PER_PAGE,
+                onPageChange: setCurrentPage,
+              }}
             />
           </div>
         </div>

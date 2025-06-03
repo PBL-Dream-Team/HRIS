@@ -6,7 +6,7 @@ export class PaymentService {
   constructor(private prisma: PrismaService) {}
   async tripayCallbackHandler(req: any) {
     try {
-      if (req.success) {
+      if (req) {
         const transactionData = {
           paymentMethod: req.payment_method,
           paidAt: new Date(parseInt(req.paid_at, 10) * 1000).toISOString(),

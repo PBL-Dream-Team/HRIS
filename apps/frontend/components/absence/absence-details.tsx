@@ -7,6 +7,8 @@ import {
   SheetTitle,
 } from '@/components/ui/sheet';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { enUS } from 'date-fns/locale';
+import { format } from 'date-fns';
 
 type Absence = {
   date: string;
@@ -15,9 +17,7 @@ type Absence = {
   type: string;
   reason: string;
   status: string;
-  // duration: string;
-  address: string;
-  // location: string;
+  filedir: string;
   created_at: string;
 };
 
@@ -32,6 +32,18 @@ export default function AbsenceDetails({
   onOpenChange,
   selectedAbsence,
 }: AbsenceDetailsProps) {
+  const formatDate = (dateString: string) => {
+    if (!dateString) return 'No date';
+
+    try {
+      // Konversi string ke Date object
+      const date = new Date(dateString);
+      return format(date, 'PPP', { locale: enUS });
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return dateString; // Fallback ke string asli jika error
+    }
+  };
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
@@ -74,17 +86,13 @@ export default function AbsenceDetails({
                 <div>
                   <p className="text-muted-foreground text-xs">Date</p>
                   <p className="font-medium">
-                    {selectedAbsence.date.replace(/T.*/, '')}
+                    {formatDate(selectedAbsence.date)}
                   </p>
                 </div>
                 <div>
                   <p className="text-muted-foreground text-xs">Type</p>
                   <p className="font-medium">{selectedAbsence.type}</p>
                 </div>
-                {/* <div>
-                  <p className="text-muted-foreground text-xs">Duration</p>
-                  <p className="font-medium">{selectedAbsence.duration}</p>
-                </div> */}
                 <div>
                   <p className="text-muted-foreground text-xs">Reason</p>
                   <p className="font-medium">{selectedAbsence.reason || '-'}</p>
@@ -92,38 +100,38 @@ export default function AbsenceDetails({
               </div>
             </div>
 
-            {/* Location Info */}
+            {/* Evidence Picture Section */}
             <div className="border rounded-md p-4 text-sm">
-              <h4 className="font-medium mb-4">Location Information</h4>
-              <div className="grid grid-cols-2 gap-x-4 gap-y-3">
-                {/* <div>
-                  <p className="text-muted-foreground text-xs">Location</p>
-                  <p className="font-medium">{selectedAbsence.location}</p>
-                </div> */}
-                <div>
-                  <p className="text-muted-foreground text-xs">Address</p>
-                  <p className="font-medium">{selectedAbsence.address}</p>
-                </div>
-              </div>
-            </div>
+              <h4 className="font-medium mb-4">Evidence Picture</h4>
 
-            {/* Optional: Attachment Proof */}
-            {/* 
-            <div className="border rounded-md p-4 space-y-2 text-sm">
-              <h4 className="font-medium">Attachment</h4>
-              <div className="flex items-center justify-between border rounded px-3 py-2">
-                <span>DoctorNote.pdf</span>
-                <div className="flex items-center gap-2">
-                  <button className="text-gray-600 hover:text-black">
-                    <Eye className="w-4 h-4" />
-                  </button>
-                  <button className="text-gray-600 hover:text-black">
-                    <DownloadIcon className="w-4 h-4" />
-                  </button>
+              {selectedAbsence.filedir ? (
+                <div className="space-y-3">
+                  {/* Image Preview */}
+                  <div className="relative">
+                    <img
+                      src={`/storage/absence/${selectedAbsence.filedir}`}
+                      alt="Absence evidence"
+                      className="w-full max-w-sm rounded-lg border shadow-sm"
+                      onError={(e) => {
+                        // Fallback jika gambar tidak ditemukan
+                        e.currentTarget.style.display = 'none';
+                        if (e.currentTarget.nextElementSibling) {
+                          (e.currentTarget.nextElementSibling as HTMLElement).style.display = 'block';
+                        }
+                      }}
+                    />
+                    {/* Fallback text jika gambar error */}
+                    <div
+                      className="hidden text-muted-foreground text-center p-4 border rounded-lg bg-gray-50"
+                    >
+                      <p>Unable to load image</p>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div> 
-            */}
+              ) : (
+                <p className="text-muted-foreground">No evidence picture available</p>
+              )}
+            </div>
           </div>
         )}
       </SheetContent>
