@@ -1,13 +1,14 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { PaymentService } from './payment.service';
 import { TripayTransactionDto } from './dtos/tripay.dto';
 import { GetUser } from '../Auth/decorator';
+import { JwtGuard } from '../Auth/guard';
 
 @Controller('api/payment')
 export class PaymentController {
   constructor(private readonly PaymentService: PaymentService) {}
 
-  
+  @UseGuards(JwtGuard)
   @Post('/init')
   async create(@Body() dto: TripayTransactionDto, @GetUser('sub') id:string) {
     const result = await this.PaymentService.createTransaction(dto, id);

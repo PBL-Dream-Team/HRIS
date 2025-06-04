@@ -76,7 +76,7 @@ export default function PaymentClient({ company_id }: { company_id: string | nul
         amount: total,
         merchant_ref,
         expired,
-      },{withCredentials:true});
+      });
 
       if (res.data?.success) {
         router.push(res.data.checkout_url);
