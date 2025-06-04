@@ -412,7 +412,6 @@ export default function CheckClockClient({
                     case 'PENDING':
                       approveContent = (
                         <div className="flex gap-1">
-                          {/* Add onClick handlers for approval actions */}
                           <Button
                             size="icon"
                             variant="outline"
@@ -448,7 +447,7 @@ export default function CheckClockClient({
                       approveContent = (
                         <div className="flex items-center">
                           <span className="h-2 w-2 rounded-full bg-red-500 inline-block mr-2" />
-                          Rejected
+                          Disaproved
                         </div>
                       );
                       break;

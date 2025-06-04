@@ -92,11 +92,11 @@ export default function CheckClockDetails({
                           Approved
                         </div>
                       );
-                    case 'DISSAPPROVED':
+                    case 'DISAPPROVED':
                       return (
                         <div className="flex items-center">
                           <span className="h-2 w-2 rounded-full bg-red-500 inline-block mr-2" />
-                          Dissaproved
+                          Disapproved
                         </div>
                       );
                     case 'PENDING':

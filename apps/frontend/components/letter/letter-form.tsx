@@ -81,32 +81,42 @@ export function LetterForm({
 
   // State for loading indicators or errors during option fetching
   const [isLoadingOptions, setIsLoadingOptions] = useState<boolean>(true);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   // Fetch employees and letter types for select options
-  useEffect(() => {
-    const fetchOptions = async () => {
-      setIsLoadingOptions(true);
-      try {
-        const [empRes, typeRes] = await Promise.all([
-          api.get(`/api/employee?company_id=${companyId}`),
-          api.get(`/api/letterType?company_id=${companyId}`),
-        ]);
-        setEmployees(empRes.data ?? []);
-        setLetterTypes(typeRes.data ?? []);
-      } catch (error) {
-        console.error('Error fetching form options:', error);
-        toast.error('Failed to load employees or letter types.');
-        setEmployees([]);
-        setLetterTypes([]);
-      } finally {
-        setIsLoadingOptions(false);
-      }
-    };
+  const fetchOptions = useCallback(async () => {
+    if (!companyId) return;
 
-    if (companyId) {
-      fetchOptions();
+    setIsLoadingOptions(true);
+    try {
+      const [empRes, typeRes] = await Promise.all([
+        api.get(`/api/employee?company_id=${companyId}`),
+        api.get(`/api/letterType?company_id=${companyId}`),
+      ]);
+
+      setEmployees(empRes.data ?? []);
+      setLetterTypes(typeRes.data ?? []);
+
+      if ((empRes.data ?? []).length === 0) {
+        toast.warning('No employees found for this company.');
+      }
+      if ((typeRes.data ?? []).length === 0) {
+        toast.warning('No letter types found. Please create letter types first.');
+      }
+    } catch (error: any) {
+      console.error('Error fetching form options:', error);
+      toast.error('Failed to load employees or letter types.');
+      setEmployees([]);
+      setLetterTypes([]);
+    } finally {
+      setIsLoadingOptions(false);
     }
   }, [companyId]);
+
+  useEffect(() => {
+    fetchOptions();
+  }, [fetchOptions]);
 
   // Initialize form with initialData when in 'edit' mode and options are loaded
   useEffect(() => {
@@ -120,9 +130,26 @@ export function LetterForm({
       let parsedDate: Date | undefined = undefined;
       if (initialData.valid_until) {
         try {
+          // Handle both ISO string and formatted date string
           const dateValue = new Date(initialData.valid_until);
           if (isValid(dateValue)) {
             parsedDate = dateValue;
+          } else {
+            // Try parsing Indonesian formatted date
+            const parts = initialData.valid_until.split(' ');
+            if (parts.length >= 3) {
+              const day = parseInt(parts[0]);
+              const monthMap: Record<string, number> = {
+                'Januari': 0, 'Februari': 1, 'Maret': 2, 'April': 3,
+                'Mei': 4, 'Juni': 5, 'Juli': 6, 'Agustus': 7,
+                'September': 8, 'Oktober': 9, 'November': 10, 'Desember': 11
+              };
+              const month = monthMap[parts[1]];
+              const year = parseInt(parts[2]);
+              if (!isNaN(day) && month !== undefined && !isNaN(year)) {
+                parsedDate = new Date(year, month, day);
+              }
+            }
           }
         } catch (e) {
           console.error('Error parsing date:', e);
@@ -133,6 +160,70 @@ export function LetterForm({
     }
   }, [mode, initialData, isLoadingOptions, employees, letterTypes]);
 
+  // Validate form fields - returns the first error found
+  const validateForm = useCallback(() => {
+    // Reset form errors
+    setFormErrors({});
+
+    // Check employee selection
+    if (!employeeId.trim()) {
+      return 'Please select an employee.';
+    }
+
+    // Check letter type selection
+    if (!letterTypeId.trim()) {
+      return 'Please select a letter type.';
+    }
+
+    // Check letter name
+    if (!letterName.trim()) {
+      return 'Please input name for letter.';
+    }
+
+    if (letterName.trim().length < 3) {
+      return 'Letter name must be at least 3 characters long.';
+    }
+
+    // Check valid until date
+    if (!validUntilDate) {
+      return 'Valid until date is required.';
+    }
+
+    if (validUntilDate < new Date()) {
+      return 'Valid until date cannot be in the past.';
+    }
+
+    // Check status
+    if (!status) {
+      return 'Please select a letter status.';
+    }
+
+    // File validation
+    if (!selectedFile) {
+      return 'Please select a file to upload.';
+    }
+
+    if (selectedFile) {
+      const maxSize = 10 * 1024 * 1024; // 10MB
+      const allowedTypes = [
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+      ];
+
+      if (selectedFile.size > maxSize) {
+        return 'File size must be less than 10MB.';
+      }
+
+      if (!allowedTypes.includes(selectedFile.type)) {
+        return 'Invalid file type. Only PDF and Word documents are allowed.';
+      }
+    }
+
+    // If all validations pass
+    return null;
+  }, [employeeId, letterTypeId, letterName, validUntilDate, status, selectedFile]);
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     setSelectedFile(file || null);
@@ -141,16 +232,14 @@ export function LetterForm({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (
-      !employeeId ||
-      !letterTypeId ||
-      !letterName ||
-      !validUntilDate ||
-      !status
-    ) {
-      toast.error('Please fill in all required fields.');
-      return;
+    // Validate form and show first error if any
+    const validationError = validateForm();
+    if (validationError) {
+      toast.error(validationError);
+      return; // Stop execution if validation fails
     }
+
+    setIsSubmitting(true);
 
     const formData = new FormData();
     formData.append('company_id', companyId);
@@ -158,7 +247,9 @@ export function LetterForm({
     formData.append('lettertype_id', letterTypeId);
     formData.append('name', letterName);
     formData.append('desc', letterDesc);
-    formData.append('valid_until', validUntilDate.toISOString());
+    if (validUntilDate) {
+      formData.append('valid_until', validUntilDate.toISOString());
+    }
     formData.append('is_active', status === 'active' ? 'true' : 'false');
 
     console.log('Submitting form data:', {
@@ -167,7 +258,7 @@ export function LetterForm({
       lettertype_id: letterTypeId,
       name: letterName,
       desc: letterDesc,
-      valid_until: validUntilDate.toISOString(),
+      valid_until: validUntilDate ? validUntilDate.toISOString() : '',
       is_active: status,
     });
 
@@ -197,8 +288,17 @@ export function LetterForm({
       toast.success(
         `Letter ${mode === 'create' ? 'created' : 'updated'} successfully!`,
       );
-      onSuccess?.();
-      onClose?.();
+
+      // Call success callback first to refresh data
+      if (onSuccess) {
+        await onSuccess();
+      }
+
+      // Close dialog after successful operation
+      if (onClose) {
+        onClose();
+      }
+
     } catch (error: any) {
       console.error('Error submitting form:', error);
       // Log FormData entries for debugging if needed
@@ -208,6 +308,8 @@ export function LetterForm({
       const errorMessage =
         error.response?.data?.message || 'Something went wrong.';
       toast.error(errorMessage);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -221,7 +323,7 @@ export function LetterForm({
         {/* Employee Select */}
         <div className="space-y-1">
           <Label htmlFor="employee">Employee *</Label>
-          <Select value={employeeId} onValueChange={setEmployeeId} required>
+          <Select value={employeeId} onValueChange={setEmployeeId}>
             <SelectTrigger id="employee">
               <SelectValue placeholder="- Choose Employee -" />
             </SelectTrigger>
@@ -238,7 +340,7 @@ export function LetterForm({
         {/* Letter Type Select */}
         <div className="space-y-1">
           <Label htmlFor="letterType">Letter Type *</Label>
-          <Select value={letterTypeId} onValueChange={setLetterTypeId} required>
+          <Select value={letterTypeId} onValueChange={setLetterTypeId}>
             <SelectTrigger id="letterType">
               <SelectValue placeholder="- Choose Letter Type -" />
             </SelectTrigger>
@@ -261,18 +363,19 @@ export function LetterForm({
           value={letterName}
           onChange={(e) => setLetterName(e.target.value)}
           placeholder="Enter letter name"
-          required
+          disabled={isSubmitting}
         />
       </div>
 
       {/* Letter Description Input */}
       <div className="space-y-1">
-        <Label htmlFor="letterDescription">Letter Description</Label>
+        <Label htmlFor="letterDescription">Letter Description (optional)</Label>
         <Input
           id="letterDescription"
           value={letterDesc}
           onChange={(e) => setLetterDesc(e.target.value)}
           placeholder="Enter letter description (optional)"
+          disabled={isSubmitting}
         />
       </div>
 
@@ -280,7 +383,7 @@ export function LetterForm({
         {/* File Upload */}
         <div className="space-y-1">
           <Label htmlFor="letterFile">
-            Upload Letter File{' '}
+            Upload Letter File *{' '}
             {mode === 'create' ? '' : '(Optional: Overwrites existing)'}
           </Label>
           <div className="mt-1 relative w-full aspect-[3/1] border-2 border-dashed rounded-lg shadow-sm flex items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-700 transition cursor-pointer">
@@ -308,6 +411,7 @@ export function LetterForm({
               accept="application/pdf,.doc,.docx"
               onChange={handleFileChange}
               className="absolute inset-0 opacity-0 w-full h-full cursor-pointer"
+              disabled={isSubmitting}
             />
           </div>
           {mode === 'edit' && initialData?.file_url && !selectedFile && (
@@ -322,7 +426,7 @@ export function LetterForm({
           {/* Letter Status Select */}
           <div className="space-y-1">
             <Label htmlFor="letterStatus">Letter Status *</Label>
-            <Select value={status} onValueChange={setStatus} required>
+            <Select value={status} onValueChange={setStatus}>
               <SelectTrigger id="letterStatus">
                 <SelectValue placeholder="- Choose Letter Status -" />
               </SelectTrigger>
@@ -346,7 +450,7 @@ export function LetterForm({
                   : undefined;
                 setValidUntilDate(selected);
               }}
-              required
+              disabled={isSubmitting}
             />
           </div>
         </div>
@@ -359,12 +463,20 @@ export function LetterForm({
             variant="outline"
             onClick={onClose}
             className="w-full sm:w-auto"
+            disabled={isSubmitting}
           >
             Cancel
           </Button>
         )}
-        <Button type="submit" className="w-full sm:w-auto">
-          {mode === 'create' ? 'Submit Letter' : 'Update Letter'}
+        <Button
+          type="submit"
+          className="w-full sm:w-auto"
+          disabled={isSubmitting}
+        >
+          {isSubmitting
+            ? (mode === 'create' ? 'Creating...' : 'Updating...')
+            : (mode === 'create' ? 'Submit Letter' : 'Update Letter')
+          }
         </Button>
       </DialogFooter>
     </form>
