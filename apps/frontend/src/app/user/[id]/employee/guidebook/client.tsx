@@ -3,8 +3,6 @@
 import { AppSidebar } from '@/components/app-sidebar';
 import { useState } from 'react';
 
-import EmployeeInformation from '@/components/employeedatabase/employee-information';
-
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -17,20 +15,8 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from '@/components/ui/sidebar';
-
-import { Input } from '@/components/ui/input';
 import { Bell } from 'lucide-react';
 import { NavUser } from '@/components/nav-user';
-
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-
-import {
-  Dialog,
-  DialogTrigger,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
 
 import {
   DropdownMenu,
@@ -43,12 +29,9 @@ import {
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import api from '@/lib/axios';
 import { useEffect } from 'react';
@@ -62,7 +45,6 @@ type GuideBookClientProps = {
 export default function GuideBookClient({
   isAdmin,
   userId,
-  companyId,
 }: GuideBookClientProps) {
   const [user, setUser] = useState({
     name: '',
@@ -177,7 +159,7 @@ export default function GuideBookClient({
                             value="edit_account_data"
                             className="w-full justify-start text-left p-3 rounded-md bg-white hover:bg-gray-100 data-[state=active]:bg-[#1E3A5F] data-[state=active]:text-white border-0 shadow-none font-medium"
                           >
-                            Account Data Edit
+                            Edit Account Data
                           </TabsTrigger>
                         </TabsList>
                       </div>
@@ -193,14 +175,53 @@ export default function GuideBookClient({
                           </CardHeader>
                           <CardContent>
                             <div className="space-y-4">
-                              <p>Here you can view detailed information about an employee. This section covers viewing employee profiles, attendance records, and performance data.</p>
-                              <div className="bg-purple-50 p-4 rounded-lg">
-                                <h4 className="font-semibold mb-2">Available Information:</h4>
-                                <ul className="list-disc list-inside space-y-1 text-sm">
-                                  <li>bla bla bla</li>
-                                  <li>ble ble ble</li>
-                                  <li>blo blo blo</li>
-                                </ul>
+                              <p>Account data information can be accessed on the profile page.</p>
+                              <p>To navigate to the profile page, follow these steps:</p>
+                              <ol className="list-decimal list-inside space-y-1 text-sm bg-blue-50 p-4 rounded-lg">
+                                <li>Click on the account name information in the top right corner.</li>
+                                <li>The system will display account information along with the "Account" menu and "Log out" button.</li>
+                                <li>Click the "Account" menu to go to the profile page.</li>
+                              </ol>
+
+                              <p>Here the system displays personal data details of the account owner that have been added by the admin. Data is divided into two types: general information and work information.</p>
+                              <div className='grid grid-cols-2 gap-4'>
+                                <div className="bg-purple-50 p-4 rounded-lg">
+                                  <h4 className="font-semibold mb-2">General Information:</h4>
+                                  <div className='grid grid-cols-2 gap-4'>
+                                    <ul className="list-disc list-inside space-y-1 text-sm">
+                                      <li>Avatar/Profile Picture</li>
+                                      <li>First Name</li>
+                                      <li>Last Name</li>
+                                      <li>Gender</li>
+                                      <li>Last Education</li>
+                                    </ul>
+                                    <ul className="list-disc list-inside space-y-1 text-sm">
+                                      <li>Phone Number</li>
+                                      <li>Email</li>
+                                      <li>Place of Birth</li>
+                                      <li>Date of Birth</li>
+                                      <li>National ID Number (NIK)</li>
+                                    </ul>
+                                  </div>
+                                </div>
+                                <div className="bg-purple-50 p-4 rounded-lg">
+                                  <h4 className="font-semibold mb-2">Work Information:</h4>
+                                  <div className='grid grid-cols-2 gap-4'>
+                                    <ul className="list-disc list-inside space-y-1 text-sm">
+                                      <li>Position</li>
+                                      <li>Branch</li>
+                                      <li>Contact Type</li>
+                                      <li>Gender</li>
+                                      <li>Workscheme</li>
+                                    </ul>
+                                    <ul className="list-disc list-inside space-y-1 text-sm">
+                                      <li>Employee ID</li>
+                                      <li>Bank</li>
+                                      <li>Account Number</li>
+                                      <li>Account Name</li>
+                                    </ul>
+                                  </div>
+                                </div>
                               </div>
                             </div>
                           </CardContent>
@@ -210,17 +231,74 @@ export default function GuideBookClient({
                       <TabsContent value="edit_account_data" className="mt-0 h-full">
                         <Card className="w-full h-fit">
                           <CardHeader>
-                            <CardTitle>Edit Account Data Guide</CardTitle>
+                            <CardTitle>Account Data Edit Guide</CardTitle>
                           </CardHeader>
                           <CardContent>
                             <div className="space-y-4">
-                              <p>Follow the steps to edit an existing employee's information. Learn how to update personal details, job information, and access permissions.</p>
-                              <div className="bg-yellow-50 p-4 rounded-lg">
-                                <h4 className="font-semibold mb-2">Editable Information:</h4>
-                                <ul className="list-disc list-inside space-y-1 text-sm">
-                                  <li>bla bla bla</li>
-                                  <li>ble ble ble</li>
-                                  <li>blo blo blo</li>
+                              <p>Account information can be modified directly by the user. However, some data can only be changed by the admin.</p>
+                              <p>Here is the data that can be changed directly by the user:</p>
+                              <div className='grid grid-cols-2 gap-4'>
+                                <div className="bg-purple-50 p-4 rounded-lg">
+                                  <h4 className="font-semibold mb-2">General Information:</h4>
+                                  <div className='grid grid-cols-2 gap-4'>
+                                    <ul className="list-disc list-inside space-y-1 text-sm">
+                                      <li>First Name</li>
+                                      <li>Last Name</li>
+                                      <li>Gender</li>
+                                      <li>Last Education</li>
+                                    </ul>
+                                    <ul className="list-disc list-inside space-y-1 text-sm">
+                                      <li>Phone Number</li>
+                                      <li>National ID Number (NIK)</li>
+                                      <li>Place of Birth</li>
+                                      <li>Date of Birth</li>
+                                    </ul>
+                                  </div>
+                                </div>
+                                <div className="bg-purple-50 p-4 rounded-lg">
+                                  <h4 className="font-semibold mb-2">Work Information:</h4>
+                                  <ul className="list-disc list-inside space-y-1 text-sm">
+                                    <li>Bank</li>
+                                    <li>Account Holder Name</li>
+                                    <li>Account Number</li>
+                                  </ul>
+                                </div>
+                              </div>
+                              <p>To edit account data, follow these steps:</p>
+                              <div className='grid grid-cols-2 gap-4'>
+                                <div className="bg-yellow-50 p-4 rounded-lg">
+                                  <h4 className="font-semibold mb-2">General Information:</h4>
+                                  <ul className="list-decimal list-inside space-y-1 text-sm">
+                                    <li>Go to the profile page.</li>
+                                    <li>In the "General Information" section, click the "Edit Profile" button.</li>
+                                    <li>The system will display a form to edit data.</li>
+                                    <li>In this form, users can change information as desired.</li>
+                                    <li>Click the "Save" button to save changes.</li>
+                                    <li>Information on the profile page will automatically update.</li>
+                                  </ul>
+                                </div>
+                                <div className="bg-yellow-50 p-4 rounded-lg">
+                                  <h4 className="font-semibold mb-2">Work Information:</h4>
+                                  <ul className="list-decimal list-inside space-y-1 text-sm">
+                                    <li>Go to the profile page.</li>
+                                    <li>In the "Work Information" section, click the "Edit Data" button.</li>
+                                    <li>The system will display a form to edit data.</li>
+                                    <li>In this form, users can change information as desired.</li>
+                                    <li>Click the "Save" button to save changes.</li>
+                                    <li>Information on the profile page will automatically update.</li>
+                                  </ul>
+                                </div>
+                              </div>
+                              <p>Users can also change their account password, follow these steps:</p>
+                              <div className='bg-yellow-50 p-4 rounded-lg'>
+                                <h4 className="font-semibold mb-2">Change Password:</h4>
+                                <ul className="list-decimal list-inside space-y-1 text-sm">
+                                  <li>Go to the profile page.</li>
+                                  <li>In the "General Information" section, click the "Change Password" button.</li>
+                                  <li>The system will display a form to change the password.</li>
+                                  <li>Enter the old password, new password, and confirm the new password.</li>
+                                  <li>Click the "Save" button to save changes.</li>
+                                  <li>The account password will automatically change.</li>
                                 </ul>
                               </div>
                             </div>
@@ -311,13 +389,19 @@ export default function GuideBookClient({
                                     </CardHeader>
                                     <CardContent>
                                       <div className="space-y-4">
-                                        <p>Here you can view all employees in the company. This section shows how to navigate the employee list, filter employees, and access their basic information.</p>
-                                        <div className="bg-blue-50 p-4 rounded-lg">
-                                          <h4 className="font-semibold mb-2">Key Features:</h4>
+                                        <p>Attendance data previously submitted by users will be recorded by the system and displayed on the "Checkclock" page in table form.</p>
+                                        <p className='bg-blue-50 p-2 rounded-lg'>The "Checkclock" page can be accessed from the navigation menu on the left.</p>
+                                        <p>The attendance data displayed in the table includes:</p>
+                                        <div className="bg-purple-50 p-4 rounded-lg grid grid-cols-2 gap-4">
                                           <ul className="list-disc list-inside space-y-1 text-sm">
-                                            <li>bla bla bla</li>
-                                            <li>ble ble ble</li>
-                                            <li>blo blo blo</li>
+                                            <li>Date</li>
+                                            <li>Clock In</li>
+                                            <li>Clock Out</li>
+                                          </ul>
+                                          <ul className="list-disc list-inside space-y-1 text-sm">
+                                            <li>Work Hours</li>
+                                            <li>Status</li>
+                                            <li>Detail Attendance Button</li>
                                           </ul>
                                         </div>
                                       </div>
@@ -332,13 +416,14 @@ export default function GuideBookClient({
                                     </CardHeader>
                                     <CardContent>
                                       <div className="space-y-4">
-                                        <p>Follow the steps to add a new letter. This guide covers filling out employee forms, uploading documents, and setting initial permissions.</p>
+                                        <p>Users can record attendance using the clock in feature. This feature is available on the "Checkclock" menu.</p>
                                         <div className="bg-green-50 p-4 rounded-lg">
-                                          <h4 className="font-semibold mb-2">Steps to Add Employee:</h4>
+                                          <h4 className="font-semibold mb-2">Clock In Steps:</h4>
                                           <ol className="list-decimal list-inside space-y-1 text-sm">
-                                            <li>bla bla bla</li>
-                                            <li>ble ble ble</li>
-                                            <li>blo blo blo</li>
+                                            <li>Go to the "Checkclock" page.</li>
+                                            <li>Above the table, there is a "Clock In" button.</li>
+                                            <li>Click this button to save attendance data.</li>
+                                            <li>The system will record the clock in time and display the data in the table.</li>
                                           </ol>
                                         </div>
                                       </div>
@@ -353,13 +438,15 @@ export default function GuideBookClient({
                                     </CardHeader>
                                     <CardContent>
                                       <div className="space-y-4">
-                                        <p>Follow the steps to add a new letter. This guide covers filling out employee forms, uploading documents, and setting initial permissions.</p>
+                                        <p>Users who have finished working can use the clock out feature to complete attendance for that day. This feature is available on the "Checkclock" menu.</p>
                                         <div className="bg-green-50 p-4 rounded-lg">
-                                          <h4 className="font-semibold mb-2">Steps to Add Employee:</h4>
+                                          <h4 className="font-semibold mb-2">Clock Out Steps:</h4>
                                           <ol className="list-decimal list-inside space-y-1 text-sm">
-                                            <li>bla bla bla</li>
-                                            <li>ble ble ble</li>
-                                            <li>blo blo blo</li>
+                                            <li>Go to the "Checkclock" page.</li>
+                                            <li>In the table, there is a "Clock Out" button next to the "detail attendance" button.</li>
+                                            <li>Click this button to save attendance data.</li>
+                                            <li>The system will record the clock out time and display the data in the table.</li>
+                                            <li>The system automatically calculates working hours based on clock in and clock out times.</li>
                                           </ol>
                                         </div>
                                       </div>
@@ -374,14 +461,33 @@ export default function GuideBookClient({
                                     </CardHeader>
                                     <CardContent>
                                       <div className="space-y-4">
-                                        <p>Here you can view detailed information about a letter.</p>
-                                        <div className="bg-purple-50 p-4 rounded-lg">
-                                          <h4 className="font-semibold mb-2">Available Information:</h4>
-                                          <ul className="list-disc list-inside space-y-1 text-sm">
-                                            <li>bla bla bla</li>
-                                            <li>ble ble ble</li>
-                                            <li>blo blo blo</li>
-                                          </ul>
+                                        <p>Users can view attendance details for specific days.</p>
+                                        <p className='bg-blue-50 p-2 rounded-lg'>This feature can be accessed by clicking the "detail attendance" button in the table on the "Checkclock" page.</p>
+                                        <p>The attendance details displayed include:</p>
+                                        <div className='grid grid-cols-2 gap-4'>
+                                          <div className="bg-purple-50 p-4 rounded-lg">
+                                            <h4 className="font-semibold mb-2">Attendance Information:</h4>
+                                            <div className='grid grid-cols-2 gap-4'>
+                                              <ul className="list-disc list-inside space-y-1 text-sm">
+                                                <li>Date</li>
+                                                <li>Clock In</li>
+                                                <li>Work Hours</li>
+                                              </ul>
+                                              <ul className="list-disc list-inside space-y-1 text-sm">
+                                                <li>Status</li>
+                                                <li>Clock Out</li>
+                                              </ul>
+                                            </div>
+                                          </div>
+                                          <div className="bg-purple-50 p-4 rounded-lg">
+                                            <h4 className="font-semibold mb-2">Location Information:</h4>
+                                            <ul className="list-disc list-inside space-y-1 text-sm">
+                                              <li>Location</li>
+                                              <li>Detail Address</li>
+                                              <li>Latitude</li>
+                                              <li>Longitude</li>
+                                            </ul>
+                                          </div>
                                         </div>
                                       </div>
                                     </CardContent>
@@ -393,24 +499,22 @@ export default function GuideBookClient({
                         </Card>
                       </TabsContent>
 
-                      
-
                       {/* Absence Management */}
                       <TabsContent value="absence_management" className="mt-0 h-full">
                         {/* Content */}
                         <Card className="w-full p-6">
                           <CardTitle className="mb-6 text-xl">Absence Management Guide</CardTitle>
-                          <Tabs defaultValue="absence_list" className="w-full">
+                          <Tabs defaultValue="absence_overview" className="w-full">
                             <div className="flex gap-6">
                               {/* Sidebar Navigation */}
                               <div className="w-64 flex-shrink-0">
                                 <div className="flex flex-col space-y-1 bg-gray-50 p-2 rounded-lg">
                                   <TabsList className="flex flex-col h-auto w-full bg-transparent p-0 space-y-1">
                                     <TabsTrigger
-                                      value="absence_list"
+                                      value="absence_overview"
                                       className="w-full justify-start text-left p-3 rounded-md bg-white hover:bg-gray-100 data-[state=active]:bg-[#1E3A5F] data-[state=active]:text-white border-0 shadow-none font-medium"
                                     >
-                                      Absence List
+                                      Absence Overview
                                     </TabsTrigger>
                                     <TabsTrigger
                                       value="add_absence"
@@ -443,20 +547,26 @@ export default function GuideBookClient({
                               {/* Content Area */}
                               <div className="flex-1 min-h-fit">
                                 {/* Absence List */}
-                                <TabsContent value="absence_list" className="mt-0 h-full">
+                                <TabsContent value="absence_overview" className="mt-0 h-full">
                                   <Card className="w-full h-fit">
                                     <CardHeader>
-                                      <CardTitle>Absence List Guide</CardTitle>
+                                      <CardTitle>Absence Overview Guide</CardTitle>
                                     </CardHeader>
                                     <CardContent>
                                       <div className="space-y-4">
-                                        <p>Here you can view all employees in the company. This section shows how to navigate the employee list, filter employees, and access their basic information.</p>
-                                        <div className="bg-blue-50 p-4 rounded-lg">
-                                          <h4 className="font-semibold mb-2">Key Features:</h4>
+                                        <p>Leave request data previously submitted by users will be recorded by the system and displayed on the "Absence" page.</p>
+                                        <p className='bg-blue-50 p-2 rounded-lg'>The "Absence" page can be accessed from the navigation menu on the left.</p>
+                                        <p>The leave request data displayed in the table includes:</p>
+                                        <div className="bg-purple-50 p-4 rounded-lg grid grid-cols-2 gap-4">
                                           <ul className="list-disc list-inside space-y-1 text-sm">
-                                            <li>bla bla bla</li>
-                                            <li>ble ble ble</li>
-                                            <li>blo blo blo</li>
+                                            <li>Created At</li>
+                                            <li>Date</li>
+                                            <li>Type</li>
+                                          </ul>
+                                          <ul className="list-disc list-inside space-y-1 text-sm">
+                                            <li>Reason</li>
+                                            <li>Status</li>
+                                            <li>Detail Absence Button</li>
                                           </ul>
                                         </div>
                                       </div>
@@ -471,13 +581,16 @@ export default function GuideBookClient({
                                     </CardHeader>
                                     <CardContent>
                                       <div className="space-y-4">
-                                        <p>Follow the steps to add a new letter. This guide covers filling out employee forms, uploading documents, and setting initial permissions.</p>
+                                        <p>Users can submit leave requests to the admin using the "Add Absence" feature. This feature is available on the "Absence" menu.</p>
                                         <div className="bg-green-50 p-4 rounded-lg">
-                                          <h4 className="font-semibold mb-2">Steps to Add Employee:</h4>
+                                          <h4 className="font-semibold mb-2">Add Absence Steps:</h4>
                                           <ol className="list-decimal list-inside space-y-1 text-sm">
-                                            <li>bla bla bla</li>
-                                            <li>ble ble ble</li>
-                                            <li>blo blo blo</li>
+                                            <li>Go to the "Absence" page.</li>
+                                            <li>Above the table, there is an "Add Absence" button.</li>
+                                            <li>Click this button to display the leave request form.</li>
+                                            <li>Fill in the required data.</li>
+                                            <li>Click the "Submit" button to submit the request.</li>
+                                            <li>The system will record the request data and display it in the table.</li>
                                           </ol>
                                         </div>
                                       </div>
@@ -492,14 +605,17 @@ export default function GuideBookClient({
                                     </CardHeader>
                                     <CardContent>
                                       <div className="space-y-4">
-                                        <p>Follow the steps to edit an existing letter's information.</p>
-                                        <div className="bg-yellow-50 p-4 rounded-lg">
-                                          <h4 className="font-semibold mb-2">Editable Information:</h4>
-                                          <ul className="list-disc list-inside space-y-1 text-sm">
-                                            <li>bla bla bla</li>
-                                            <li>ble ble ble</li>
-                                            <li>blo blo blo</li>
-                                          </ul>
+                                        <p>The system allows users to modify leave request data if there are errors when filling out the form. As long as the request status is "Pending", users can still edit their leave request data.</p>
+                                        <div className="bg-green-50 p-4 rounded-lg">
+                                          <h4 className="font-semibold mb-2">Edit Absence Steps:</h4>
+                                          <ol className="list-decimal list-inside space-y-1 text-sm">
+                                            <li>Go to the "Absence" page.</li>
+                                            <li>In the table, there is an edit button (pencil icon) for each request.</li>
+                                            <li>Click this button to display the edit absence form.</li>
+                                            <li>In this form, users can modify the request data as desired.</li>
+                                            <li>Click the "Save" button to save changes.</li>
+                                            <li>The system will record the new request data and display it in the table.</li>
+                                          </ol>
                                         </div>
                                       </div>
                                     </CardContent>
@@ -513,13 +629,13 @@ export default function GuideBookClient({
                                     </CardHeader>
                                     <CardContent>
                                       <div className="space-y-4">
-                                        <p>Follow the steps to delete an letter from the system. This guide explains the deletion process and data retention policies.</p>
+                                        <p>Users can cancel leave requests by deleting the request data. There is a trash can icon button to delete request data.</p>
                                         <div className="bg-red-50 p-4 rounded-lg">
                                           <h4 className="font-semibold mb-2">Important Notes:</h4>
                                           <ul className="list-disc list-inside space-y-1 text-sm">
-                                            <li>bla bla bla</li>
-                                            <li>ble ble ble</li>
-                                            <li>blo blo blo</li>
+                                            <li>Users can only delete data when the request status is "Pending".</li>
+                                            <li>Once data is deleted, users cannot recover it.</li>
+                                            <li>Before deleting, make sure to check the details first.</li>
                                           </ul>
                                         </div>
                                       </div>
@@ -534,13 +650,16 @@ export default function GuideBookClient({
                                     </CardHeader>
                                     <CardContent>
                                       <div className="space-y-4">
-                                        <p>Here you can view detailed information about a letter.</p>
+                                        <p>Users can view leave request details by clicking the eye icon button in the table.</p>
                                         <div className="bg-purple-50 p-4 rounded-lg">
-                                          <h4 className="font-semibold mb-2">Available Information:</h4>
+                                          <h4 className="font-semibold mb-2">Absence Details:</h4>
                                           <ul className="list-disc list-inside space-y-1 text-sm">
-                                            <li>bla bla bla</li>
-                                            <li>ble ble ble</li>
-                                            <li>blo blo blo</li>
+                                            <li>Status (Pending/Approved/Rejected)</li>
+                                            <li>Created At (Time)</li>
+                                            <li>Date</li>
+                                            <li>Type (Sick/Permit/Leave)</li>
+                                            <li>Reason</li>
+                                            <li>Evidence Picture</li>
                                           </ul>
                                         </div>
                                       </div>
@@ -594,14 +713,21 @@ export default function GuideBookClient({
                           </CardHeader>
                           <CardContent>
                             <div className="space-y-4">
-                              <p>Here you can view detailed information about an employee. This section covers viewing employee profiles, attendance records, and performance data.</p>
-                              <div className="bg-blue-50 p-4 rounded-lg">
-                                <h4 className="font-semibold mb-2">Key Feature:</h4>
-                                <ul className="list-disc list-inside space-y-1 text-sm">
-                                  <li>bla bla bla</li>
-                                  <li>ble ble ble</li>
-                                  <li>blo blo blo</li>
-                                </ul>
+                              <p>Users can view letters entered into the system by the admin. Letter data can only be viewed by the intended user, and users can download the letter file. Letter data is displayed on the "Letters" page in table form.</p>
+                              <p className='bg-blue-50 p-2 rounded-lg'>The "Letters" page can be accessed from the navigation menu on the left.</p>
+                              <p>The letter data displayed in the table includes:</p>
+                              <div className='bg-purple-50 p-4 rounded-lg'>
+                                <div className='grid grid-cols-2 gap-4'>
+                                  <ul className="list-disc list-inside space-y-1 text-sm">
+                                    <li>Letter Name</li>
+                                    <li>Employee Name</li>
+                                    <li>Letter Type</li>
+                                  </ul>
+                                  <ul className="list-disc list-inside space-y-1 text-sm">
+                                    <li>Valid Until</li>
+                                    <li>Status</li>
+                                  </ul>
+                                </div>
                               </div>
                             </div>
                           </CardContent>
@@ -615,15 +741,22 @@ export default function GuideBookClient({
                           </CardHeader>
                           <CardContent>
                             <div className="space-y-4">
-                              <p>Follow the steps to edit an existing employee's information. Learn how to update personal details, job information, and access permissions.</p>
+                              <p>Users can view letter details by clicking the eye icon button in the table.</p>
+                              <p>The letter details displayed include:</p>
                               <div className="bg-purple-50 p-4 rounded-lg">
-                                <h4 className="font-semibold mb-2">Available Information:</h4>
-                                <ul className="list-disc list-inside space-y-1 text-sm">
-                                  <li>bla bla bla</li>
-                                  <li>ble ble ble</li>
-                                  <li>blo blo blo</li>
-                                </ul>
+                                <div className='grid grid-cols-2 gap-4'>
+                                  <ul className="list-disc list-inside space-y-1 text-sm">
+                                    <li>Status (Active/Inactive)</li>
+                                    <li>Letter Name</li>
+                                    <li>Letter Type</li>
+                                  </ul>
+                                  <ul className="list-disc list-inside space-y-1 text-sm">
+                                    <li>Description</li>
+                                    <li>Valid Until (date)</li>
+                                  </ul>
+                                </div>
                               </div>
+                              <p>To download the letter, users can click the download button next to the detail letter button.</p>
                             </div>
                           </CardContent>
                         </Card>
