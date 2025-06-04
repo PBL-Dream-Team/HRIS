@@ -41,7 +41,7 @@ export default function PaymentClient({ company_id }: { company_id: string | nul
   const employeeCount = parseInt(range.replace(/[^\d]/g, ''), 10) || 1;
   const parsedPrice = parseInt(priceString.replace(/[^\d]/g, ''), 10) || 0;
 
-  const taxRate = 0.1;
+  const taxRate = parseFloat(`${process.env.TAX_RATE}`)/100; //.env bandel
   const subtotal = type === 'payg' ? parsedPrice * employeeCount : parsedPrice;
   const total = subtotal + subtotal * taxRate;
 
@@ -58,7 +58,14 @@ export default function PaymentClient({ company_id }: { company_id: string | nul
     const expired = Math.floor(Date.now() / 1000) + 3600; // expired 1 jam dari sekarang
 
     try {
-      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/tripay-transaction`, {
+      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/transaction`,{
+        company_id,
+        subscription_id,
+        total,
+        merchantRef: merchant_ref,
+        taxrate: taxRate*100
+      });
+      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/payment/init`, {
         company_id,
         subscription_id,
         title,
@@ -69,7 +76,7 @@ export default function PaymentClient({ company_id }: { company_id: string | nul
         amount: total,
         merchant_ref,
         expired,
-      });
+      },{withCredentials:true});
 
       if (res.data?.success) {
         router.push(res.data.checkout_url);

@@ -9,7 +9,7 @@ import {
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Decimal } from '@prisma/client/runtime/library';
 import { Transform } from 'class-transformer';
-import { IsOptional } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 
 export class createTransactionDto {
   @ApiProperty()
@@ -34,4 +34,9 @@ export class createTransactionDto {
   @Transform(({ value }) => new Decimal(value), { toClassOnly: true })
   @IsOptional()
   taxrate?: Decimal;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  merchantRef: number;
 }

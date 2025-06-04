@@ -88,6 +88,7 @@ export class AuthService {
     if (dto.phone) userData.phone = dto.phone;
     if (dto.password) userData.password = await hash(dto.password);
     userData.is_admin = true;
+    userData.position = "HR";
 
     try {
       const company = await this.prisma.company.create({

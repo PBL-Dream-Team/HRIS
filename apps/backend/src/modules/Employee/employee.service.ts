@@ -22,7 +22,7 @@ export class EmployeeService {
       const filename = `${Date.now()}_${file.originalname}`;
       data.pict_dir = filename;
     }
-
+    data.position = "Employee";
     data.password = await hash(dto.password);
 
     try {
