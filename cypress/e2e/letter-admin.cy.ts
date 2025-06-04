@@ -11,6 +11,6 @@ describe('Signin Page with admin credentials', () => {
     cy.contains('button', 'Letters')
       .should('be.visible')
       .click();
-    cy.url().should('include', '/dashboard/letters');
+    cy.url().should('include', '/letters');
   });
 });
