@@ -2,7 +2,7 @@ name: cypress
 
 on:
   workflow_run:
-    workflows: ["deploy-staging"]
+    workflows: ["deploy"]
     types:
       - completed
 
