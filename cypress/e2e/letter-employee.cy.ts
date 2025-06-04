@@ -6,7 +6,6 @@ describe('Signin Page with admin credentials', () => {
     cy.get('button[type="submit"]').click();
     cy.url({ timeout: 60000 }).should('include', '/redirect');
     cy.url({ timeout: 60000 }).should('include', '/dashboard');
-
     cy.contains('button', 'Letters').should('be.visible').click();
     cy.url({ timeout: 60000 }).should('include', '/letters');
   });

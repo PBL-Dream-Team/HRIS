@@ -18,7 +18,7 @@ export class CustomMailService {
       attachments: [
         {
           filename: 'logo.png',
-          path: __dirname + '../../../templates/logo.png',
+          path: __dirname + '/../../templates/logo.png',
           cid: 'logo@hris',
         },
       ],
