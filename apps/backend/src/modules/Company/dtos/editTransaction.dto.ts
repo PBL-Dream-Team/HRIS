@@ -31,5 +31,5 @@ export class editTransactionDto {
   @ApiPropertyOptional()
     @Transform(({ value }) => new Decimal(value))
     @IsOptional()
-  taxrate?;
+  taxRate?;
 }

@@ -32,7 +32,7 @@ export class createTransactionDto {
   @ApiPropertyOptional()
   @Transform(({ value }) => new Decimal(value))
   @IsOptional()
-  taxrate?;
+  taxRate?;
 
   @ApiProperty()
   @IsString()
