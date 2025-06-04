@@ -55,8 +55,8 @@ export default function PaymentClient({ company_id }: { company_id: string | nul
 
     const subscription_id = SUBSCRIPTION_IDS[title] || '';
     const merchant_ref = `HRIS${Math.floor(100000 + Math.random() * 900000)}`;
-    const expired = new Date(Date.now() + 3600 * 1000); // expired 1 jam dari sekarang
-    const expiryDate = new Date(expired).toISOString();
+    const expired = Math.floor(Date.now() / 1000) + 3600; // UNIX
+    const expiryDate = new Date(expired * 1000).toISOString(); //ISO
 
     try {
       await api.post(`/api/transaction`,{
