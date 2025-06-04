@@ -30,7 +30,6 @@ export class editTransactionDto {
 
   @ApiPropertyOptional()
     @Transform(({ value }) => new Decimal(value))
-    @IsDecimal({ decimal_digits: '0,3' })
     @IsOptional()
   taxrate?;
 }
