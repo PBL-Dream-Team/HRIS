@@ -30,8 +30,8 @@ export class createTransactionDto {
   total: number;
 
   @ApiPropertyOptional()
-  @IsDecimal({ decimal_digits: '0,2' })
   @Transform(({ value }) => new Decimal(value), { toClassOnly: true })
+  @IsDecimal({ decimal_digits: '0,3' })
   @IsOptional()
   taxrate?: Decimal;
 
