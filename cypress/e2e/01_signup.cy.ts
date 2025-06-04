@@ -10,6 +10,6 @@ describe('Signup Page', () => {
     cy.get('input[id="confirmPassword"]').type('admin123');
     cy.get('button[role="checkbox"]#terms').click();
     cy.get('button[type="submit"]').click();
-    cy.url().should('include', '/signin');
+    cy.url().should('include', '/redirect');
   });
 });
