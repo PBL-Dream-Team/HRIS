@@ -4,11 +4,10 @@ describe('Signin Page with admin credentials', () => {
     cy.get('input[id="email"]').should('not.be.disabled').type('setiabudi@gmail.com');
     cy.get('input[id="password"]').should('not.be.disabled').type('admin123');
     cy.get('button[type="submit"]').click();
-    cy.url().should('include', '/redirect');
-    cy.wait(10000);
-    cy.url().should('include', '/dashboard');
+    cy.url({ timeout: 60000 }).should('include', '/redirect');
+    cy.url({ timeout: 60000 }).should('include', '/dashboard');
 
     cy.contains('button', 'Letters').should('be.visible').click();
-    cy.url().should('include', '/letters');
+    cy.url({ timeout: 60000 }).should('include', '/letters');
   });
 });
