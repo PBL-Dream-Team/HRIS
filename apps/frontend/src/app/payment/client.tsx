@@ -63,7 +63,7 @@ export default function PaymentClient({ company_id }: { company_id: string | nul
         subscription_id,
         total,
         merchantRef: merchant_ref,
-        taxrate: taxRate*100
+        taxRate: taxRate*100
       });
       const res = await api.post(`/api/payment/init`, {
         company_id,
