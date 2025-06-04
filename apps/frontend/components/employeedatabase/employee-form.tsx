@@ -16,6 +16,7 @@ import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 import api from '@/lib/axios';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 
 type EmployeeFormProps = {
   companyId: string;
@@ -218,328 +219,329 @@ export function EmployeeForm({
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="grid grid-cols-1 md:grid-cols-2 gap-4"
-    >
+    <form onSubmit={handleSubmit} className="space-y-6">
       {/* Avatar Upload */}
-      <div className="col-span-full flex items-center gap-4">
-        <label htmlFor="avatar-upload" className="cursor-pointer">
-          {avatar ? (
-            // Preview avatar baru
-            <img
-              src={URL.createObjectURL(avatar)}
-              alt="Avatar Preview"
-              className="w-20 h-20 rounded object-cover"
+      <Card>
+        <CardHeader>
+          <CardTitle>Avatar</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center gap-4">
+            <label htmlFor="avatar-upload" className="cursor-pointer">
+              {avatar ? (
+                <img
+                  src={URL.createObjectURL(avatar)}
+                  alt="Avatar Preview"
+                  className="w-20 h-20 rounded object-cover"
+                />
+              ) : initialData?.pict_dir ? (
+                <img
+                  src={`/storage/employee/${initialData.pict_dir}`}
+                  alt="Current Avatar"
+                  className="w-20 h-20 rounded object-cover"
+                />
+              ) : (
+                <div className="w-20 h-20 rounded bg-muted flex items-center justify-center">
+                  <Upload className="h-6 w-6 text-muted-foreground" />
+                </div>
+              )}
+            </label>
+            <div>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => document.getElementById('avatar-upload')?.click()}
+              >
+                Upload Avatar
+              </Button>
+              <input
+                id="avatar-upload"
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) setAvatar(file);
+                }}
+              />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Personal Information */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Personal Information</CardTitle>
+        </CardHeader>
+        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <Label>First Name</Label>
+            <Input
+              placeholder="Enter first name"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
             />
-          ) : initialData?.pict_dir ? (
-            // Tampilkan avatar lama jika ada
-            <img
-              src={`/storage/employee/${initialData.pict_dir}`}
-              alt="Current Avatar"
-              className="w-20 h-20 rounded object-cover"
+          </div>
+          <div>
+            <Label>Last Name</Label>
+            <Input
+              placeholder="Enter last name"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
             />
-          ) : (
-            // Placeholder jika tidak ada avatar
-            <div className="w-20 h-20 rounded bg-muted flex items-center justify-center">
-              <Upload className="h-6 w-6 text-muted-foreground" />
+          </div>
+          <div>
+            <Label>Gender</Label>
+            <Select
+              value={gender}
+              onValueChange={(value) => setGender(value as 'M' | 'F' | 'O')}
+              key={`gender-${gender}`}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Choose gender">
+                  {genderOptions.find((option) => option.value === gender)?.label ||
+                    'Choose gender'}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {genderOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label htmlFor="birth_date">Date of Birth</Label>
+            <Input
+              id="birth_date"
+              type="date"
+              value={birthDate ? format(birthDate, 'yyyy-MM-dd') : ''}
+              onChange={(e) => {
+                const selectedDate = e.target.value
+                  ? new Date(e.target.value)
+                  : undefined;
+                setBirthDate(selectedDate);
+              }}
+              max={format(new Date(), 'yyyy-MM-dd')}
+              min="1900-01-01"
+              required
+            />
+          </div>
+          <div>
+            <Label>Birth Place</Label>
+            <Input
+              placeholder="Enter birth place"
+              value={birthPlace}
+              onChange={(e) => setBirthPlace(e.target.value)}
+            />
+          </div>
+          <div>
+            <Label>NIK</Label>
+            <Input
+              placeholder="Enter NIK"
+              value={nik}
+              onChange={(e) => setNik(e.target.value)}
+            />
+          </div>
+          <div>
+            <Label>Last Education</Label>
+            <Select
+              value={education}
+              onValueChange={(value) =>
+                setEducation(
+                  value as 'HIGH_SCHOOL' | 'BACHELOR' | 'MASTER' | 'DOCTOR',
+                )
+              }
+              key={`education-${education}`}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Choose Last Education">
+                  {educationOptions.find((option) => option.value === education)
+                    ?.label || 'Choose Last Education'}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {educationOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Contact Information */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Contact Information</CardTitle>
+        </CardHeader>
+        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <Label>Address</Label>
+            <Input
+              placeholder="Enter address"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+            />
+          </div>
+          <div>
+            <Label>Email</Label>
+            <Input
+              type="email"
+              placeholder="Enter email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
+          {mode !== 'edit' && (
+            <div>
+              <Label>Password</Label>
+              <Input
+                type="password"
+                placeholder="Enter password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
             </div>
           )}
-        </label>
-        <div>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => document.getElementById('avatar-upload')?.click()}
-          >
-            Upload Avatar
-          </Button>
-          <input
-            id="avatar-upload"
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) setAvatar(file);
-            }}
-          />
-        </div>
-      </div>
+          <div>
+            <Label>Phone Number</Label>
+            <Input
+              placeholder="Enter phone number"
+              value={phoneNumber}
+              onChange={(e) => setPhoneNumber(e.target.value)}
+            />
+          </div>
+        </CardContent>
+      </Card>
 
-      {/* Work Scheme */}
-      <div>
-        <Label>Work Scheme</Label>
-        <Select
-          value={workScheme}
-          onValueChange={(value) =>
-            setWorkScheme(value as 'WFO' | 'WFA' | 'HYBRID')
-          }
-          key={`work_scheme-${workScheme}`}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Choose work scheme">
-              {workSchemeOptions.find((option) => option.value === workScheme)
-                ?.label || 'Choose work scheme'}
-            </SelectValue>
-          </SelectTrigger>
-          <SelectContent>
-            {workSchemeOptions.map((option) => (
-              <SelectItem key={option.value} value={option.value}>
-                {option.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      {/* Employment Details */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Employment Details</CardTitle>
+        </CardHeader>
+        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <Label>Work Scheme</Label>
+            <Select
+              value={workScheme}
+              onValueChange={(value) =>
+                setWorkScheme(value as 'WFO' | 'WFA' | 'HYBRID')
+              }
+              key={`work_scheme-${workScheme}`}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Choose work scheme">
+                  {workSchemeOptions.find((option) => option.value === workScheme)
+                    ?.label || 'Choose work scheme'}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {workSchemeOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label>Position</Label>
+            <Input
+              placeholder="Enter position"
+              value={position}
+              onChange={(e) => setPosition(e.target.value)}
+            />
+          </div>
+          <div>
+            <Label>Branch</Label>
+            <Input
+              placeholder="Enter branch"
+              value={branch}
+              onChange={(e) => setBranch(e.target.value)}
+            />
+          </div>
+          <div>
+            <Label>Contract</Label>
+            <Select
+              value={contract}
+              onValueChange={(value) =>
+                setContract(value as 'PERMANENT' | 'CONTRACT' | 'INTERN')
+              }
+              key={`contract-${contract}`}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Choose Contract">
+                  {contractOptions.find((option) => option.value === contract)
+                    ?.label || 'Choose Contract'}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {contractOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </CardContent>
+      </Card>
 
-      {/* First Name */}
-      <div>
-        <Label>First Name</Label>
-        <Input
-          placeholder="Enter first name"
-          value={firstName}
-          onChange={(e) => setFirstName(e.target.value)}
-        />
-      </div>
-
-      {/* Last Name */}
-      <div>
-        <Label>Last Name</Label>
-        <Input
-          placeholder="Enter last name"
-          value={lastName}
-          onChange={(e) => setLastName(e.target.value)}
-        />
-      </div>
-
-      {/* Gender */}
-      <div>
-        <Label>Gender</Label>
-        <Select
-          value={gender}
-          onValueChange={(value) => setGender(value as 'M' | 'F' | 'O')}
-          key={`gender-${gender}`}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Choose gender">
-              {genderOptions.find((option) => option.value === gender)?.label ||
-                'Choose gender'}
-            </SelectValue>
-          </SelectTrigger>
-          <SelectContent>
-            {genderOptions.map((option) => (
-              <SelectItem key={option.value} value={option.value}>
-                {option.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Address */}
-      <div className="w-full">
-        <Label>Address</Label>
-        <Input
-          placeholder="Enter address"
-          value={address}
-          onChange={(e) => setAddress(e.target.value)}
-        />
-      </div>
-
-      {/* Email */}
-      <div>
-        <Label>Email</Label>
-        <Input
-          type="email"
-          placeholder="Enter email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-      </div>
-
-      {/* Password */}
-      {mode !== 'edit' && (
-        <div>
-          <Label>Password</Label>
-          <Input
-            type="password"
-            placeholder="Enter password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
-      )}
-
-      {/* Mobile */}
-      <div>
-        <Label>Phone Number</Label>
-        <Input
-          placeholder="Enter phone number"
-          value={phoneNumber}
-          onChange={(e) => setPhoneNumber(e.target.value)}
-        />
-      </div>
-
-      {/* Birth Date */}
-      <div>
-        <Label htmlFor="birth_date">Date of Birth</Label>
-        <Input
-          id="birth_date"
-          type="date"
-          value={birthDate ? format(birthDate, 'yyyy-MM-dd') : ''}
-          onChange={(e) => {
-            const selectedDate = e.target.value
-              ? new Date(e.target.value)
-              : undefined;
-            setBirthDate(selectedDate);
-          }}
-          max={format(new Date(), 'yyyy-MM-dd')}
-          min="1900-01-01"
-          required
-        />
-      </div>
-
-      {/* Birth Place */}
-      <div>
-        <Label>Birth Place</Label>
-        <Input
-          placeholder="Enter birth place"
-          value={birthPlace}
-          onChange={(e) => setBirthPlace(e.target.value)}
-        />
-      </div>
-
-      {/* NIK */}
-      <div>
-        <Label>NIK</Label>
-        <Input
-          placeholder="Enter NIK"
-          value={nik}
-          onChange={(e) => setNik(e.target.value)}
-        />
-      </div>
-
-      {/* Position */}
-      <div>
-        <Label>Position</Label>
-        <Input
-          placeholder="Enter position"
-          value={position}
-          onChange={(e) => setPosition(e.target.value)}
-        />
-      </div>
-
-      {/* Branch */}
-      <div>
-        <Label>Branch</Label>
-        <Input
-          placeholder="Enter branch"
-          value={branch}
-          onChange={(e) => setBranch(e.target.value)}
-        />
-      </div>
-
-      {/* Contract */}
-      <div>
-        <Label>Contract</Label>
-        <Select
-          value={contract}
-          onValueChange={(value) =>
-            setContract(value as 'PERMANENT' | 'CONTRACT' | 'INTERN')
-          }
-          key={`contract-${contract}`}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Choose Contract">
-              {contractOptions.find((option) => option.value === contract)
-                ?.label || 'Choose Contract'}
-            </SelectValue>
-          </SelectTrigger>
-          <SelectContent>
-            {contractOptions.map((option) => (
-              <SelectItem key={option.value} value={option.value}>
-                {option.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Last Education */}
-      <div>
-        <Label>Last Education</Label>
-        <Select
-          value={education}
-          onValueChange={(value) =>
-            setEducation(
-              value as 'HIGH_SCHOOL' | 'BACHELOR' | 'MASTER' | 'DOCTOR',
-            )
-          }
-          key={`education-${education}`}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Choose Last Education">
-              {educationOptions.find((option) => option.value === education)
-                ?.label || 'Choose Last Education'}
-            </SelectValue>
-          </SelectTrigger>
-          <SelectContent>
-            {educationOptions.map((option) => (
-              <SelectItem key={option.value} value={option.value}>
-                {option.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Bank */}
-      <div>
-        <Label>Bank</Label>
-        <Select
-          value={bank || ''}
-          onValueChange={(value) => setBank(value as any)}
-          key={`account_bank-${bank}`}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Choose Bank">
-              {bankOptions.find((option) => option.value === bank)?.label ||
-                'Choose Bank'}
-            </SelectValue>
-          </SelectTrigger>
-          <SelectContent>
-            {bankOptions.map((option) => (
-              <SelectItem key={option.value} value={option.value}>
-                {option.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Account Number */}
-      <div>
-        <Label>Account Number</Label>
-        <Input
-          placeholder="Enter account number"
-          value={accountNumber}
-          onChange={(e) => setAccountNumber(e.target.value)}
-        />
-      </div>
-
-      {/* Account Name */}
-      <div>
-        <Label>Account Name</Label>
-        <Input
-          placeholder="Enter account name"
-          value={accountName}
-          onChange={(e) => setAccountName(e.target.value)}
-        />
-      </div>
+      {/* Bank Information */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Bank Information</CardTitle>
+        </CardHeader>
+        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <Label>Bank</Label>
+            <Select
+              value={bank || ''}
+              onValueChange={(value) => setBank(value as any)}
+              key={`account_bank-${bank}`}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Choose Bank">
+                  {bankOptions.find((option) => option.value === bank)?.label ||
+                    'Choose Bank'}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {bankOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label>Account Number</Label>
+            <Input
+              placeholder="Enter account number"
+              value={accountNumber}
+              onChange={(e) => setAccountNumber(e.target.value)}
+            />
+          </div>
+          <div>
+            <Label>Account Name</Label>
+            <Input
+              placeholder="Enter account name"
+              value={accountName}
+              onChange={(e) => setAccountName(e.target.value)}
+            />
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Form Buttons */}
-      <div className="col-span-full flex justify-end gap-2 mt-4">
+      <div className="flex justify-end gap-2 mt-4">
         <Button type="button" variant="outline" onClick={onClose}>
           Cancel
         </Button>
