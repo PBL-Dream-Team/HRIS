@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { EmployeeEditGeneralDataForm } from '@/components/editData-Employee/generalInformation-form';
 import { EmployeeEditWorkDataForm } from '@/components/editData-Employee/workInformation-form';
 import { EditPassword } from '@/components/editData-Employee/editPass-form';
-import { format, parseISO } from 'date-fns';
+import { format, parseISO, set } from 'date-fns';
 
 import {
   Breadcrumb,
@@ -136,6 +136,10 @@ export default function AccountClient({
     account_name: '',
     account_number: '',
   });
+
+  const [openEditGenDialog, setOpenEditGenDialog] = useState(false);
+  const [openEditWorkDialog, setOpenEditWorkDialog] = useState(false);
+  const [openEditPassDialog, setOpenEditPassialog] = useState(false);
 
   // Data Fetching
   const fetchData = useCallback(async () => {
@@ -408,7 +412,7 @@ export default function AccountClient({
             </div>
             <div className="col-span-full flex justify-end items-center mt-4">
               <div className="flex items-center gap-2">
-                <Dialog>
+                <Dialog open={openEditGenDialog} onOpenChange={setOpenEditGenDialog}>
                   <DialogTrigger asChild>
                     <Button className="w-full md:w-auto">
                       <Pencil className="h-4 w-4 mr-1" /> Edit Profile
@@ -435,11 +439,12 @@ export default function AccountClient({
                         email: employeeData.email || '',
                       }}
                       onSuccess={handleOperationSuccess}
+                      onClose={() => setOpenEditGenDialog(false)}
                     />
                   </DialogContent>
                 </Dialog>
 
-                <Dialog>
+                <Dialog open={openEditPassDialog} onOpenChange={setOpenEditPassialog}>
                   <DialogTrigger asChild>
                     <Button className="w-full md:w-auto">
                       <Pencil className="h-4 w-4 mr-1" /> Change Password
@@ -452,6 +457,7 @@ export default function AccountClient({
                     <EditPassword
                       userId={userId}
                       onSuccess={handleOperationSuccess}
+                      onClose={() => setOpenEditPassialog(false)}
                     />
                   </DialogContent>
                 </Dialog>
@@ -538,7 +544,7 @@ export default function AccountClient({
                 />
               </div>
               <div className="col-span-full flex justify-end mt-2">
-                <Dialog>
+                <Dialog open={openEditWorkDialog} onOpenChange={setOpenEditWorkDialog}>
                   <DialogTrigger asChild>
                     <Button className="w-full md:w-auto">
                       <Pencil className="h-4 w-4 mr-1" /> Edit Data
@@ -558,6 +564,7 @@ export default function AccountClient({
                         account_number: employeeWorkData.account_number || '',
                       }}
                       onSuccess={handleOperationSuccess}
+                      onClose={() => setOpenEditWorkDialog(false)}
                     />
                   </DialogContent>
                 </Dialog>

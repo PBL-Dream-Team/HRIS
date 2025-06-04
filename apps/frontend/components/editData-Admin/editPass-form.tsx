@@ -8,6 +8,7 @@ import { useState } from 'react';
 import api from '@/lib/axios';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import { Eye, EyeOff } from 'lucide-react';
 
 type EditPasswordProps = {
   userId: string;
@@ -28,6 +29,13 @@ export function EditPassword({
     confirmPassword: '',
   });
 
+  // State untuk visibility password
+  const [showPasswords, setShowPasswords] = useState({
+    oldPassword: false,
+    newPassword: false,
+    confirmPassword: false,
+  });
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
     setFormData((prev) => ({
@@ -36,8 +44,43 @@ export function EditPassword({
     }));
   };
 
+  // Function untuk toggle visibility password
+  const togglePasswordVisibility = (field: keyof typeof showPasswords) => {
+    setShowPasswords((prev) => ({
+      ...prev,
+      [field]: !prev[field],
+    }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validasi input
+    if (!formData.oldPassword) {
+      toast.error('Current password is required');
+      return;
+    }
+    if (formData.oldPassword.length < 8) {
+      toast.error('Current password must be at least 8 characters');
+      return;
+    }
+    if (!formData.newPassword) {
+      toast.error('New password is required');
+      return;
+    }
+    if (formData.newPassword.length < 8) {
+      toast.error('New password must be at least 8 characters');
+      return;
+    }
+    if (formData.oldPassword === formData.newPassword) {
+      toast.error('New password must be different from current password');
+      return;
+    }
+    if (!formData.confirmPassword) {
+      toast.error('Please input your password again');
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -62,6 +105,13 @@ export function EditPassword({
         confirmPassword: '',
       });
 
+      // Reset password visibility
+      setShowPasswords({
+        oldPassword: false,
+        newPassword: false,
+        confirmPassword: false,
+      });
+
       // Panggil callback functions
       onClose?.();
       onSuccess?.();
@@ -77,43 +127,79 @@ export function EditPassword({
   return (
     <form onSubmit={handleSubmit} className="grid gap-4">
       <div>
-        <Label htmlFor="oldPassword">Current Password</Label>
-        <Input
-          id="oldPassword"
-          type="password"
-          value={formData.oldPassword}
-          onChange={handleChange}
-          placeholder="Enter current password"
-          required
-          className="text-gray-700 border-zinc-600"
-        />
+        <Label htmlFor="oldPassword">Current Password *</Label>
+        <div className="relative">
+          <Input
+            id="oldPassword"
+            type={showPasswords.oldPassword ? 'text' : 'password'}
+            value={formData.oldPassword}
+            onChange={handleChange}
+            placeholder="Enter current password"
+            className="text-gray-700 border-zinc-600 pr-10"
+          />
+          <button
+            type="button"
+            onClick={() => togglePasswordVisibility('oldPassword')}
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+          >
+            {showPasswords.oldPassword ? (
+              <Eye className="h-4 w-4" />
+            ) : (
+              <EyeOff className="h-4 w-4" />
+            )}
+          </button>
+        </div>
       </div>
 
       <div>
-        <Label htmlFor="newPassword">New Password</Label>
-        <Input
-          id="newPassword"
-          type="password"
-          value={formData.newPassword}
-          onChange={handleChange}
-          placeholder="Enter new password"
-          required
-          minLength={8}
-          className="text-gray-700 border-zinc-600"
-        />
+        <Label htmlFor="newPassword">New Password *</Label>
+        <div className="relative">
+          <Input
+            id="newPassword"
+            type={showPasswords.newPassword ? 'text' : 'password'}
+            value={formData.newPassword}
+            onChange={handleChange}
+            placeholder="Enter new password"
+            minLength={8}
+            className="text-gray-700 border-zinc-600 pr-10"
+          />
+          <button
+            type="button"
+            onClick={() => togglePasswordVisibility('newPassword')}
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+          >
+            {showPasswords.newPassword ? (
+              <Eye className="h-4 w-4" />
+            ) : (
+              <EyeOff className="h-4 w-4" />
+            )}
+          </button>
+        </div>
       </div>
 
       <div>
-        <Label htmlFor="confirmPassword">Confirm New Password</Label>
-        <Input
-          id="confirmPassword"
-          type="password"
-          value={formData.confirmPassword}
-          onChange={handleChange}
-          placeholder="Confirm new password"
-          required
-          className="text-gray-700 border-zinc-600"
-        />
+        <Label htmlFor="confirmPassword">Confirm New Password *</Label>
+        <div className="relative">
+          <Input
+            id="confirmPassword"
+            type={showPasswords.confirmPassword ? 'text' : 'password'}
+            value={formData.confirmPassword}
+            onChange={handleChange}
+            placeholder="Confirm new password"
+            className="text-gray-700 border-zinc-600 pr-10"
+          />
+          <button
+            type="button"
+            onClick={() => togglePasswordVisibility('confirmPassword')}
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+          >
+            {showPasswords.confirmPassword ? (
+              <Eye className="h-4 w-4" />
+            ) : (
+              <EyeOff className="h-4 w-4" />
+            )}
+          </button>
+        </div>
       </div>
 
       <DialogFooter className="gap-2 sm:justify-end mt-4">
