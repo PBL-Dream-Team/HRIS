@@ -65,7 +65,7 @@ export default function PaymentClient({ company_id }: { company_id: string | nul
         total: total,
         merchantRef: merchant_ref,
         taxRate: taxRate*100,
-        expiresAt: expiryDate
+        expiresAt: new Date(expiryDate).toISOString()
       });
       const res = await api.post(`/api/payment/init`, {
         company_id: company_id,
