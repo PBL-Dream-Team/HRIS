@@ -18,14 +18,9 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 
-type WorkStats = {
-  workHours: string;
-  onTimeDays: number;
-  lateDays: number;
-  leaveDays: number;
-};
 
-export default function WorkInformation({ stats }: { stats: WorkStats }) {
+
+export default function WorkInformation() {
   return (
     <div className="grid auto-rows-min gap-4 md:grid-cols-4 sm:grid-cols-2">
       <Card className="@container/card border-black border-3">
@@ -37,7 +32,7 @@ export default function WorkInformation({ stats }: { stats: WorkStats }) {
             </div>
           </CardTitle>
           <CardDescription className="text-black text-4xl font-semibold">
-            {stats.workHours}
+            12h 23m
           </CardDescription>
         </CardHeader>
       </Card>
@@ -51,7 +46,7 @@ export default function WorkInformation({ stats }: { stats: WorkStats }) {
             </div>
           </CardTitle>
           <CardDescription className="text-[#257047] text-4xl font-semibold">
-            {stats.onTimeDays} days
+            0 days
           </CardDescription>
         </CardHeader>
       </Card>
@@ -65,7 +60,7 @@ export default function WorkInformation({ stats }: { stats: WorkStats }) {
             </div>
           </CardTitle>
           <CardDescription className="text-[#FFAB00] text-4xl font-semibold">
-            {stats.lateDays} days
+            0 days
           </CardDescription>
         </CardHeader>
       </Card>
@@ -79,7 +74,7 @@ export default function WorkInformation({ stats }: { stats: WorkStats }) {
             </div>
           </CardTitle>
           <CardDescription className="text-[#C11106] text-4xl font-semibold">
-            {stats.lateDays} days
+            0 days
           </CardDescription>
         </CardHeader>
       </Card>

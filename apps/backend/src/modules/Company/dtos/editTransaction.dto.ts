@@ -29,8 +29,8 @@ export class editTransactionDto {
   total: number;
 
   @ApiPropertyOptional()
-  @IsDecimal({ decimal_digits: '0,2' })
-  @Transform(({ value }) => new Decimal(value), { toClassOnly: true })
-  @IsOptional()
-  taxrate?: Decimal;
+    @Transform(({ value }) => new Decimal(value))
+    @IsDecimal({ decimal_digits: '0,3' })
+    @IsOptional()
+  taxrate?;
 }

@@ -10,6 +10,7 @@ export class TransactionService {
 
   async createTransaction(dto: createTransactionDto) {
     const data: any = { ...dto };
+    if(dto.taxrate) data.taxRate = new Decimal(dto.taxrate);
 
     //Temporary
     // const company = await this.prisma.company.findFirst({

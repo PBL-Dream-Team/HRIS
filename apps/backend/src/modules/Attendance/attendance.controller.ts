@@ -60,12 +60,4 @@ export class AttendanceController {
     return this.AttendanceService.deleteAttendance(attendanceId);
   }
 
-  @Get(':id/work-info')
-  async getWorkInformation(
-    @Param('id') id: string,
-    @Query('month') month: number,
-    @Query('year') year: number,
-  ) {
-    return this.AttendanceService.getMonthlyWorkInfo(id, month, year);
-  }
 }
