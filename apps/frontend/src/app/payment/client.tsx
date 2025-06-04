@@ -3,7 +3,7 @@
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import axios from 'axios';
+import api from '@/lib/axios';
 
 const SUBSCRIPTION_IDS: Record<string, string> = {
   Trial: 'bcf1b2a6-bdc2-4b66-98b1-e8a2c0ea2e95',
@@ -58,14 +58,14 @@ export default function PaymentClient({ company_id }: { company_id: string | nul
     const expired = Math.floor(Date.now() / 1000) + 3600; // expired 1 jam dari sekarang
 
     try {
-      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/transaction`,{
+      await api.post(`/api/transaction`,{
         company_id,
         subscription_id,
         total,
         merchantRef: merchant_ref,
         taxrate: taxRate*100
       });
-      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/payment/init`, {
+      const res = await api.post(`/api/payment/init`, {
         company_id,
         subscription_id,
         title,

@@ -78,11 +78,11 @@ export default function HrLoginPage() {
           <form className="space-y-4" onSubmit={handleSubmit}>
             {/* ID Employee */}
             <div className="space-y-2">
-              <Label htmlFor="id-employee" className="text-[#1E3A5F]">
+              <Label htmlFor="email" className="text-[#1E3A5F]">
                 Email Employee
               </Label>
               <Input
-                id="input"
+                id="email"
                 type="email"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}

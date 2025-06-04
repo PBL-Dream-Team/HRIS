@@ -95,11 +95,11 @@ export default function HrLoginPage() {
           <form className="space-y-4" onSubmit={handleSubmit}>
             {/* Email */}
             <div className="space-y-2">
-              <Label htmlFor="input" className="text-[#1E3A5F]">
+              <Label htmlFor="email" className="text-[#1E3A5F]">
                 Email
               </Label>
               <Input
-                id="input"
+                id="email"
                 type="email"
                 placeholder="Enter your email"
                 value={input}
