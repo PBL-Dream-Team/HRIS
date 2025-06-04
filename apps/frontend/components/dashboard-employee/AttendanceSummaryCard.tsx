@@ -22,13 +22,13 @@ import {
 } from '@/components/ui/chart';
 
 // Data
-const attendancesData = [
-  { attendance: 'onTime', total: 200, fill: 'hsl(var(--chart-1))' },
-  { attendance: 'late', total: 186, fill: 'hsl(var(--chart-2))' },
-  { attendance: 'leave', total: 50, fill: 'hsl(var(--chart-3))' },
-  { attendance: 'sick', total: 30, fill: 'hsl(var(--chart-4))' },
-  { attendance: 'absent', total: 20, fill: 'hsl(var(--chart-5))' },
-];
+// const attendancesData = [
+//   { attendance: 'onTime', total: 200, fill: 'hsl(var(--chart-1))' },
+//   { attendance: 'late', total: 186, fill: 'hsl(var(--chart-2))' },
+//   { attendance: 'leave', total: 50, fill: 'hsl(var(--chart-3))' },
+//   { attendance: 'sick', total: 30, fill: 'hsl(var(--chart-4))' },
+//   { attendance: 'permit', total: 20, fill: 'hsl(var(--chart-5))' },
+// ];
 
 const chartConfig = {
   total: {
@@ -51,14 +51,32 @@ const chartConfig = {
     label: 'Sick',
     color: '#900d04',
   },
-  absent: {
-    label: 'Absent',
+  permit: {
+    label: 'Permit',
     color: '#BA3C54',
   },
 } satisfies ChartConfig;
 
+type AttendanceSummary = {
+  onTime: number;
+  late: number;
+  leave: number;
+  sick: number;
+  permit: number;
+};
 // Content
-export default function AttendanceSummaryCard() {
+type AttendanceSummaryCardProps = {
+  summary: AttendanceSummary;
+};
+
+export default function AttendanceSummaryCard({ summary }: AttendanceSummaryCardProps) {
+  const attendancesData = [
+    { attendance: 'onTime', total: summary.onTime, fill: 'hsl(var(--chart-1))' },
+    { attendance: 'late', total: summary.late, fill: 'hsl(var(--chart-2))' },
+    { attendance: 'leave', total: summary.leave, fill: 'hsl(var(--chart-3))' },
+    { attendance: 'sick', total: summary.sick, fill: 'hsl(var(--chart-4))' },
+    { attendance: 'permit', total: summary.permit, fill: 'hsl(var(--chart-5))' },
+  ];
   return (
     <Card>
       <CardHeader className="relative pb-4">
