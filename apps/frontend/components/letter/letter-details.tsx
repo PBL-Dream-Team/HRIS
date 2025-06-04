@@ -93,37 +93,38 @@ export default function LetterDetails({
                   {letter.position}
                 </p>
               </div>
+              <div className='ml-auto flex items-center gap-2 text-sm'>
+                  <div className="ml-auto flex items-center gap-2">
+                    <span
+                      className={`h-2 w-2 rounded-full ${
+                        letter.status === 'Active' ? 'bg-green-500' : 'bg-red-500'
+                      }`}
+                    ></span>
+                    <span className="text-sm font-medium text-muted-foreground">
+                      {letter.status}
+                    </span>
+                  </div>
+                </div>
             </div>
 
             <div className="border rounded-md p-4 text-sm space-y-3">
               <h4 className="font-medium mb-4">Letter Information</h4>
-              <div>
-                <p className="text-muted-foreground text-xs">Letter Name</p>
-                <p className="font-medium">{letter.letterName}</p>
-              </div>
-              <div>
-                <p className="text-muted-foreground text-xs">Letter Type</p>
-                <p className="font-medium">{letter.letterType}</p>
-              </div>
-              <div>
-                <p className="text-muted-foreground text-xs">Description</p>
-                <p className="font-medium">{letter.description}</p>
-              </div>
-              <div>
-                <p className="text-muted-foreground text-xs">Valid Until</p>
-                <p className="font-medium">{letter.validUntil}</p>
-              </div>
-              <div>
-                <p className="text-muted-foreground text-xs">Status</p>
-                <div className="ml-auto flex items-center gap-2">
-                  <span
-                    className={`h-2 w-2 rounded-full ${
-                      letter.status === 'Active' ? 'bg-green-500' : 'bg-red-500'
-                    }`}
-                  ></span>
-                  <span className="text-sm font-medium text-muted-foreground">
-                    {letter.status}
-                  </span>
+              <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
+                <div>
+                  <p className="text-muted-foreground text-xs">Letter Name</p>
+                  <p className="font-medium">{letter.letterName}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground text-xs">Letter Type</p>
+                  <p className="font-medium">{letter.letterType}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground text-xs">Description</p>
+                  <p className="font-medium">{letter.description}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground text-xs">Valid Until</p>
+                  <p className="font-medium">{letter.validUntil}</p>
                 </div>
               </div>
             </div>

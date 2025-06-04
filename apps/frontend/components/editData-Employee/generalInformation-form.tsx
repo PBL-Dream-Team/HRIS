@@ -57,7 +57,7 @@ export function EmployeeEditGeneralDataForm({
   const [phone, setPhone] = useState<string>('');
   const [nik, setNik] = useState<string>('');
   const [birth_place, setBirthPlace] = useState<string>('');
-  const [birth_date, setBirthDate] = useState<Date | undefined>(undefined);
+  const [birth_date, setBirthDate] = useState<string>(''); // Changed to string for date input
   const [gender, setGender] = useState<string>('');
   const [last_education, setLastEducation] = useState<string>('');
 
@@ -72,7 +72,6 @@ export function EmployeeEditGeneralDataForm({
   useEffect(() => {
     console.log('initialData received:', initialData);
     if (initialData) {
-      setAvatar(null); // Reset avatar to null if initialData is provided
       setFirstName(initialData.first_name || '');
       setLastName(initialData.last_name || '');
       setPhone(initialData.phone || '');
@@ -81,25 +80,85 @@ export function EmployeeEditGeneralDataForm({
       setGender(initialData.gender || '');
       setLastEducation(initialData.last_education || '');
 
+      // Handle birth date
       if (initialData.birth_date) {
         try {
-          // Handle both ISO strings and other formats
-          const parsedDate = new Date(initialData.birth_date + 'T00:00:00');
-          if (!isNaN(parsedDate.getTime())) {
-            setBirthDate(parsedDate);
-            console.log('Successfully parsed date:', parsedDate); // Debug log
+          console.log('Raw birth_date from initialData:', initialData.birth_date);
+
+          // Parse the date regardless of format
+          const date = new Date(initialData.birth_date);
+          if (!isNaN(date.getTime())) {
+            // Format as YYYY-MM-DD for the input field
+            const formattedDate = date.toISOString().split('T')[0];
+            console.log('Formatted date:', formattedDate);
+            setBirthDate(formattedDate);
           } else {
-            console.warn('Invalid date received:', initialData.birth_date);
+            console.log('Invalid date:', initialData.birth_date);
+            setBirthDate('');
           }
         } catch (error) {
           console.error('Error parsing birth_date:', error);
+          setBirthDate('');
         }
+      } else {
+        setBirthDate('');
       }
     }
   }, [initialData]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validasi input
+    if (!first_name) {
+      toast.error('First name is required');
+      return;
+    }
+    if (!last_name) {
+      toast.error('Last name is required');
+      return;
+    }
+    if (!phone) {
+      toast.error('Phone number is required');
+      return;
+    }
+    if (!nik) {
+      toast.error('NIK is required');
+      return;
+    }
+    if (nik.length < 16 || nik.length > 16) {
+      toast.error('NIK must be 16 characters');
+      return
+    }
+    if (!birth_place) {
+      toast.error('Place of birth is required');
+      return;
+    }
+    if (!birth_date) {
+      toast.error('Date of birth is required');
+      return;
+    }
+    if (!/^\+?[0-9\s]+$/.test(phone)) {
+      toast.error('Mobile number can only contain numbers');
+      return;
+    }
+    if (phone.length < 10 || phone.length > 15) {
+      toast.error('Mobile number must be between 10 and 15 digits');
+      return;
+    }
+    if (first_name.length < 3) {
+      toast.error('First name must be at least 3 characters long');
+      return;
+    }
+    if (last_name.length < 3) {
+      toast.error('Last name must be at least 3 characters long');
+      return
+    }
+    if (birth_place.length < 3) {
+      toast.error('Place of birth must be at least 3 characters long');
+      return
+    }
+
     setIsSubmitting(true);
     try {
       const formPayload = new FormData();
@@ -114,14 +173,9 @@ export function EmployeeEditGeneralDataForm({
       formPayload.append('gender', gender);
       formPayload.append('last_education', last_education);
 
-      const isoDateString = birth_date ? birth_date.toISOString() : '';
+      // Convert date string to ISO format for API
+      const isoDateString = birth_date ? new Date(birth_date).toISOString() : '';
       formPayload.append('birth_date', isoDateString);
-
-      // await api.patch(`/api/employee/${employeeId}`, formPayload, {
-      //   headers: {
-      //     'Content-Type': 'multipart/form-data',
-      //   },
-      // });
 
       await api.patch(`/api/employee/${employeeId}`, formPayload);
 
@@ -246,31 +300,31 @@ export function EmployeeEditGeneralDataForm({
 
         {/* First Name */}
         <div>
-          <Label htmlFor="first_name">First Name*</Label>
+          <Label htmlFor="first_name">First Name *</Label>
           <Input
             id="first_name"
             value={first_name}
             onChange={(e) => setFirstName(e.target.value)}
             placeholder="Enter first name"
-            required
+
           />
         </div>
 
         {/* Last Name */}
         <div>
-          <Label htmlFor="last_name">Last Name*</Label>
+          <Label htmlFor="last_name">Last Name *</Label>
           <Input
             id="last_name"
             value={last_name}
             onChange={(e) => setLastName(e.target.value)}
             placeholder="Enter last name"
-            required
+
           />
         </div>
 
         {/* Gender */}
         <div>
-          <Label>Gender</Label>
+          <Label>Gender *</Label>
           <Select
             value={gender}
             onValueChange={handleGenderChange}
@@ -294,7 +348,7 @@ export function EmployeeEditGeneralDataForm({
 
         {/* Last Education */}
         <div>
-          <Label>Last Education</Label>
+          <Label>Last Education *</Label>
           <Select
             value={last_education}
             onValueChange={handleEducationChange}
@@ -318,7 +372,7 @@ export function EmployeeEditGeneralDataForm({
 
         {/* Phone Number */}
         <div>
-          <Label htmlFor="phone">Phone Number</Label>
+          <Label htmlFor="phone">Phone Number *</Label>
           <Input
             id="phone"
             value={phone}
@@ -329,19 +383,19 @@ export function EmployeeEditGeneralDataForm({
 
         {/* NIK */}
         <div>
-          <Label htmlFor="nik">NIK*</Label>
+          <Label htmlFor="nik">NIK *</Label>
           <Input
             id="nik"
             value={nik}
             onChange={(e) => setNik(e.target.value)}
             placeholder="Enter NIK"
-            required
+
           />
         </div>
 
         {/* Birth Place */}
         <div>
-          <Label htmlFor="birth_place">Place of Birth</Label>
+          <Label htmlFor="birth_place">Place of birth *</Label>
           <Input
             id="birth_place"
             value={birth_place}
@@ -352,21 +406,21 @@ export function EmployeeEditGeneralDataForm({
 
         {/* Birth Date */}
         <div>
-          <Label htmlFor="birth_date">Date of Birth*</Label>
-          <Input
-            id="birth_date"
-            type="date"
-            value={birth_date ? format(birth_date, 'yyyy-MM-dd') : ''}
-            onChange={(e) => {
-              const selectedDate = e.target.value
-                ? new Date(e.target.value)
-                : undefined;
-              setBirthDate(selectedDate);
-            }}
-            max={format(new Date(), 'yyyy-MM-dd')}
-            min="1900-01-01"
-            required
-          />
+          <Label htmlFor="birth_date">Date of Birth *</Label>
+          <div className="relative">
+            <Input
+              id="birth_date"
+              type="date"
+              value={birth_date}
+              onChange={(e) => setBirthDate(e.target.value)}
+              max={format(new Date(), 'yyyy-MM-dd')}
+              min="1900-01-01"
+              className="pr-4 [&::-webkit-calendar-picker-indicator]:opacity-100 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-2 [&::-webkit-calendar-picker-indicator]:w-4 [&::-webkit-calendar-picker-indicator]:h-4 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+              style={{
+                colorScheme: 'light'
+              }}
+            />
+          </div>
         </div>
 
         {/* Error message */}

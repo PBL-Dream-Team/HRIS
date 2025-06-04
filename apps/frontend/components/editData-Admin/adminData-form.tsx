@@ -59,6 +59,38 @@ export function AdminEditDataForm({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Validasi input
+    if (!first_name) {
+      toast.error('First name is required');
+      return;
+    }
+    if (!last_name) {
+      toast.error('Last name is required');
+      return;
+    }
+    if (!email) {
+      toast.error('Email is required');
+      return;
+    }
+    if (!phone) {
+      toast.error('Mobile number is required');
+      return;
+    }
+    if (!/^\S+@\S+\.\S+$/.test(email)) {
+      toast.error('Please enter a valid email address');
+      return;
+    }
+    if (!/^\+?[0-9\s]+$/.test(phone)) {
+      toast.error('Mobile number can only contain numbers');
+      return;
+    }
+    if (phone.length < 10 || phone.length > 15) {
+      toast.error('Mobile number must be between 10 and 15 digits');
+      return;
+    }
+
+    setIsSubmitting(true);
+
     try {
       const formData = new FormData();
       if (avatar) {
@@ -174,43 +206,39 @@ export function AdminEditDataForm({
         </div>
       </div>
       <div>
-        <Label>First Name</Label>
+        <Label>First Name *</Label>
         <Input
           id="first_name"
           value={first_name}
           onChange={(e) => setFirstName(e.target.value)}
           placeholder="Enter your first name"
-          required
         />
       </div>
       <div>
-        <Label>Last Name</Label>
+        <Label>Last Name *</Label>
         <Input
           id="last_name"
           value={last_name}
           onChange={(e) => setLastName(e.target.value)}
           placeholder="Enter your last name"
-          required
         />
       </div>
       <div>
-        <Label>Email</Label>
+        <Label>Email *</Label>
         <Input
           id="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="Enter your email"
-          required
+          placeholder="Enter your email"        
         />
       </div>
       <div>
-        <Label>Mobile Number</Label>
+        <Label>Mobile Number *</Label>
         <Input
           id="phone"
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
           placeholder="Enter account number"
-          required
         />
       </div>
 

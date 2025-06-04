@@ -123,6 +123,10 @@ export default function AccountClient({
   const [addressDetail, setAddressDetail] = useState('');
   const [isMapLoading, setIsMapLoading] = useState(true);
 
+  const [openEditDataDialog, setOpenEditDataDialog] = useState(false);
+  const [openEditPassDialog, setOpenEditPassialog] = useState(false);
+  const [openEditCompDialog, setOpenEditCompDialog] = useState(false);
+
   const handleLocationSelect = (lat: number, lng: number, address: string) => {
     setLat(lat.toFixed(6));
     setLng(lng.toFixed(6));
@@ -315,7 +319,7 @@ export default function AccountClient({
               />
             </div>
             <div className="col-span-full flex justify-end gap-2">
-              <Dialog>
+              <Dialog open={openEditDataDialog} onOpenChange={setOpenEditDataDialog}>
                 <DialogTrigger asChild>
                   <Button className="w-full md:w-auto">
                     <Pencil className="h-4 w-4 mr-1" /> Edit Profile
@@ -330,11 +334,12 @@ export default function AccountClient({
                     userId={adminData.id}
                     initialData={adminData}
                     onSuccess={handleOperationSuccess}
+                    onClose={() => setOpenEditDataDialog(false)}
                   />
                 </DialogContent>
               </Dialog>
 
-              <Dialog>
+              <Dialog open={openEditPassDialog} onOpenChange={setOpenEditPassialog}>
                 <DialogTrigger asChild>
                   <Button className="w-full md:w-auto">
                     <Pencil className="h-4 w-4 mr-1" /> Change Password
@@ -347,6 +352,7 @@ export default function AccountClient({
                   <EditPassword
                     userId={adminData.id}
                     onSuccess={handleOperationSuccess}
+                    onClose={() => setOpenEditPassialog(false)}
                   />
                 </DialogContent>
               </Dialog>
@@ -451,7 +457,7 @@ export default function AccountClient({
                   </div>
                 </div>
                 <div className="col-span-full flex justify-end mt-2">
-                  <Dialog>
+                  <Dialog open={openEditCompDialog} onOpenChange={setOpenEditCompDialog}>
                     <DialogTrigger asChild>
                       <Button className="w-full md:w-auto">
                         <Pencil className="h-4 w-4 mr-1" /> Edit Data
@@ -471,6 +477,7 @@ export default function AccountClient({
                           loc_long: Number(companyData.loc_long) || 0,
                         }}
                         onSuccess={handleOperationSuccess}
+                        onClose={() => setOpenEditCompDialog(false)}
                       />
                     </DialogContent>
                   </Dialog>
