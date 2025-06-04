@@ -107,7 +107,9 @@ export default function AccountClient({
 }: AccountClientProps) {
   const [user, setUser] = useState({
     name: '',
-    email: '',
+    first_name: '',
+    last_name: '',
+    position: '',
     avatar: '',
   });
   const router = useRouter();
@@ -143,7 +145,9 @@ export default function AccountClient({
 
       setUser({
         name: `${employee.first_name} ${employee.last_name}`,
-        email: employee.email,
+        first_name: employee.first_name || '',
+        last_name: employee.last_name || '',
+        position: employee.position,
         avatar: employee.pict_dir || '/avatars/default.jpg',
       });
 
@@ -370,7 +374,7 @@ export default function AccountClient({
               <Label>Email</Label>
               <Input
                 id="email"
-                value={user.email || ''}
+                value={employeeData.email || ''}
                 readOnly
                 placeholder="Your email"
               />

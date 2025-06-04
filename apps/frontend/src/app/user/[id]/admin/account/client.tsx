@@ -86,7 +86,9 @@ export default function AccountClient({
 }: AccountClientProps) {
   const [user, setUser] = useState({
     name: '',
-    email: '',
+    first_name: '',
+    last_name: '',
+    position: '',
     avatar: '',
   });
   const router = useRouter();
@@ -159,7 +161,9 @@ export default function AccountClient({
 
       setUser({
         name: `${admin.first_name} ${admin.last_name}`,
-        email: admin.email,
+        first_name: admin.first_name,
+        last_name: admin.last_name,
+        position: admin.position,
         avatar: admin.pict_dir || '/avatars/default.jpg',
       });
 
@@ -373,17 +377,14 @@ export default function AccountClient({
               <CardContent className="pt-0">
                 <div className="grid grid-cols-2 gap-x-4 gap-y-3">
                   <Button>
-                    <a href="/pricing">Manage Subscription</a>
+                    <a href="/pricing">Change Subscription</a>
                   </Button>
-                  <Button variant="outline">Cancel</Button>
+                  <Button>
+                    <a href="subscription">Subscription History</a>
+                  </Button>
                 </div>
               </CardContent>
             </Card>
-            <div className="flex justify-end pt-4">
-              <Button>
-                <a href="subscription">Subscription History</a>
-              </Button>
-            </div>
           </div>
         </div>
         <div className="flex flex-col md:flex-row gap-4 p-4 relative">

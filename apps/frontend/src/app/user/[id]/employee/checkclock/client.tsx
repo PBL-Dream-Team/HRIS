@@ -136,7 +136,9 @@ export default function CheckClockClient({
 
   const [user, setUser] = useState({
     name: '',
-    email: '',
+    first_name: '',
+    last_name: '',
+    position: '',
     avatar: '',
     typeId: '',
   });
@@ -167,12 +169,14 @@ export default function CheckClockClient({
     async function fetchUser() {
       try {
         const res = await api.get(`/api/employee/${userId}`);
-        const { first_name, last_name, email, attendance_id, pict_dir } =
+        const { first_name, last_name, position, attendance_id, pict_dir } =
           res.data.data;
 
         setUser({
           name: `${first_name} ${last_name}`,
-          email: email,
+          first_name: first_name,
+          last_name: last_name,
+          position: position,
           avatar: pict_dir || '/avatars/default.jpg',
           typeId: attendance_id,
         });
@@ -228,6 +232,7 @@ export default function CheckClockClient({
       id: attendance.id,
       date: attendance.created_at,
       name: `${employees[0].first_name} ${employees[0].last_name}`,
+      avatarUrl: employees[0]?.pict_dir || undefined,
       clockIn: formatTimeOnly(attendance.check_in),
       clockOut: attendance.check_out
         ? formatTimeOnly(attendance.check_out)
@@ -462,6 +467,7 @@ export default function CheckClockClient({
         open={openSheet}
         onOpenChange={setOpenSheet}
         selectedCheckClock={selectedCheckClock}
+        avatarUrl={employees[0]?.pict_dir || ''}
       />
     </SidebarProvider>
   );

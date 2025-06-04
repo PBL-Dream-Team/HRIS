@@ -100,7 +100,7 @@ export default function AbsenceClient({
   userId,
   companyId,
 }: AbsenceClientProps) {
-  const [user, setUser] = useState({ name: '', email: '', avatar: '' });
+  const [user, setUser] = useState({ name: '', first_name: '', last_name: '', position: '', avatar: '' });
   const [absences, setAbsences] = useState<Absence[]>([]);
   const [employees, setEmployees] = useState<Record<string, any>>({});
   const [currentPage, setCurrentPage] = useState(1);
@@ -149,10 +149,12 @@ export default function AbsenceClient({
     async function fetchData() {
       try {
         const res = await api.get(`/api/employee/${userId}`);
-        const { first_name, last_name, email, pict_dir } = res.data.data;
+        const { first_name, last_name, position, pict_dir } = res.data.data;
         setUser({
           name: `${first_name} ${last_name}`,
-          email,
+          first_name: first_name,
+          last_name: last_name,
+          position,
           avatar: pict_dir || '/avatars/default.jpg',
         });
 

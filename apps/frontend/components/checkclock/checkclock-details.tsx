@@ -30,6 +30,7 @@ interface CheckClockDetailsProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   selectedCheckClock?: CheckClock;
+  avatarUrl?: string;
 }
 
 export default function CheckClockDetails({

@@ -38,15 +38,6 @@ import { enUS } from 'date-fns/locale';
 import { format } from 'date-fns';
 
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-} from '@/components/ui/dropdown-menu';
-
-import {
   Table,
   TableBody,
   TableCell,
@@ -142,7 +133,9 @@ export default function CheckClockClient({
 }: CheckClockClientProps) {
   const [user, setUser] = useState({
     name: '',
-    email: '',
+    first_name: '',
+    last_name: '',
+    position: '',
     avatar: '',
   });
 
@@ -176,11 +169,13 @@ export default function CheckClockClient({
     setError(null);
     try {
       const userRes = await api.get(`/api/employee/${userId}`);
-      const { first_name, last_name, email, pict_dir } = userRes.data.data;
+      const { first_name, last_name, position, pict_dir } = userRes.data.data;
 
       setUser({
         name: `${first_name} ${last_name}`,
-        email: email,
+        first_name: first_name,
+        last_name: last_name,
+        position: position,
         avatar: pict_dir || '/avatars/default.jpg',
       });
 
@@ -543,7 +538,7 @@ export default function CheckClockClient({
           open={openSheet}
           onOpenChange={setOpenSheet}
           selectedCheckClock={selectedCheckClock}
-        // selectedCheckClock={selectedCheckClock.originalData || selectedCheckClock}
+          avatarUrl={employees[selectedCheckClock.employee_id]?.pict_dir || ''}
         />
       )}
     </SidebarProvider>
