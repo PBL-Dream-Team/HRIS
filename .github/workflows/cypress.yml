@@ -1,8 +1,8 @@
-name: Cypress Tests
+name: cypress
 
 on:
   workflow_run:
-    workflows: ["Deploy to VM (staging)"]
+    workflows: ["deploy-staging"]
     types:
       - completed
 
