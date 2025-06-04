@@ -8,9 +8,9 @@ import api from '@/lib/axios';
 const SUBSCRIPTION_IDS: Record<string, string> = {
   Trial: 'bcf1b2a6-bdc2-4b66-98b1-e8a2c0ea2e95',
   'Pay as you go': 'd63b6982-048d-414e-92d4-50357234e010',
-  Bronze: 'd92d0e25-aefc-4732-94a7-5e8068fde7d9',
-  Silver: '5283975f-1e97-4e99-ab39-d316dce5abf0',
-  Gold: 'edd5b74d-2329-4e22-b720-a1801ab02939',
+  Bronze: '3883ceb2-0e1b-416a-a04a-25a1c13ea235',
+  Silver: '570e5b14-c64a-420c-a0a9-2d139a197c4f',
+  Gold: '83ae1693-b69d-42ba-93c4-66eb6efffb6f',
 };
 
 // Hanya metode yang didukung Tripay
@@ -56,26 +56,28 @@ export default function PaymentClient({ company_id }: { company_id: string | nul
     const subscription_id = SUBSCRIPTION_IDS[title] || '';
     const merchant_ref = `HRIS${Math.floor(100000 + Math.random() * 900000)}`;
     const expired = Math.floor(Date.now() / 1000) + 3600; // expired 1 jam dari sekarang
+    const expiryDate = new Date().setHours(new Date().getHours() + expired);
 
     try {
       await api.post(`/api/transaction`,{
-        company_id,
-        subscription_id,
-        total,
+        company_id: company_id,
+        subscription_id: subscription_id,
+        total: total,
         merchantRef: merchant_ref,
-        taxRate: taxRate*100
+        taxRate: taxRate*100,
+        expiresAt: expiryDate
       });
       const res = await api.post(`/api/payment/init`, {
-        company_id,
-        subscription_id,
-        title,
+        company_id: company_id,
+        subscription_id: subscription_id,
+        title: title,
         price: parsedPrice,
-        employeeCount,
-        type,
+        employeeCount: employeeCount,
+        type: type,
         method: paymentMethod,
         amount: total,
-        merchant_ref,
-        expired,
+        merchant_ref: merchant_ref,
+        expired: expired,
       });
 
       if (res.data?.success) {

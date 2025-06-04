@@ -21,7 +21,7 @@ async function main() {
         day_length: 28,
       },
       {
-        // id: "d63b6982-048d-414e-92d4-50357234e010",
+        id: "3883ceb2-0e1b-416a-a04a-25a1c13ea235",
         name: 'Bronze', // Testing only
         max_employee: 14,
         price_per_employee: 1000,
@@ -29,7 +29,7 @@ async function main() {
         day_length: 28,
       },
       {
-        // id: "d63b6982-048d-414e-92d4-50357234e010",
+        id: "570e5b14-c64a-420c-a0a9-2d139a197c4f",
         name: 'Silver',
         max_employee: 30,
         price_per_employee: 1500,
@@ -37,7 +37,7 @@ async function main() {
         day_length: 28,
       },
       {
-        // id: "d63b6982-048d-414e-92d4-50357234e010",
+        id: "83ae1693-b69d-42ba-93c4-66eb6efffb6f",
         name: 'Gold',
         max_employee: 60,
         price_per_employee: 1500,
