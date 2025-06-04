@@ -54,9 +54,7 @@ export default function DashboardClient({
 }: DashboardClientProps) {
   const [user, setUser] = useState({
     name: '',
-    first_name: '',
-    last_name: '',
-    position: '',
+    email: '',
     avatar: '',
   });
 
@@ -71,13 +69,11 @@ export default function DashboardClient({
     const fetchData = async () => {
       try {
         const userRes = await api.get(`/api/employee/${userId}`);
-        const { first_name, last_name, position, pict_dir } = userRes.data.data;
+        const { first_name, last_name, email, pict_dir } = userRes.data.data;
 
         setUser({
           name: `${first_name} ${last_name}`,
-          first_name,
-          last_name,
-          position,
+          email,
           avatar: pict_dir || '/avatars/default.jpg',
         });
 
@@ -149,7 +145,7 @@ export default function DashboardClient({
         </header>
 
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-          <WorkInformation stats={workStats} />
+          <WorkInformation />
           <div className="flex flex-col gap-4">
             <div className="grid gap-4 sm:grid-cols-2">
               <AttendanceSummaryCard />
