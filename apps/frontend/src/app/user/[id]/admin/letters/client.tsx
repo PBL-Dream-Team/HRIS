@@ -58,7 +58,9 @@ type LettersClientProps = {
 
 type UserState = {
   name: string;
-  email: string;
+  first_name: string;
+  last_name: string;
+  position: string;
   avatar: string;
 };
 
@@ -72,7 +74,9 @@ export default function LettersClient({
   // State Hooks
   const [user, setUser] = useState<UserState>({
     name: '',
-    email: '',
+    first_name: '',
+    last_name: '',
+    position: '',
     avatar: '',
   });
   const [employees, setEmployees] = useState<Record<string, any>>({});
@@ -93,10 +97,12 @@ export default function LettersClient({
   const fetchData = useCallback(async () => {
     try {
       const userRes = await api.get(`/api/employee/${userId}`);
-      const { first_name, last_name, email, pict_dir } = userRes.data.data;
+      const { first_name, last_name, position, pict_dir } = userRes.data.data;
       setUser({
         name: `${first_name} ${last_name}`,
-        email: email,
+        first_name: first_name,
+        last_name: last_name,
+        position: position,
         avatar: pict_dir || '/avatars/default.jpg',
       });
 

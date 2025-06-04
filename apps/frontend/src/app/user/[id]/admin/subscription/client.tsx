@@ -80,7 +80,7 @@ export default function SubscriptionClient({
   companyId,
 }: SubscriptionClientProps) {
   // User (top‑right avatar)
-  const [user, setUser] = useState({ name: '', email: '', avatar: '' });
+  const [user, setUser] = useState({ name: '', first_name: '', last_name: '', position: '', avatar: '' });
 
   // Subscription data
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
@@ -105,10 +105,12 @@ export default function SubscriptionClient({
     (async () => {
       try {
         const res = await api.get(`/api/employee/${userId}`);
-        const { first_name, last_name, email, pict_dir } = res.data.data;
+        const { first_name, last_name, position, pict_dir } = res.data.data;
         setUser({
           name: `${first_name} ${last_name}`,
-          email,
+          first_name,
+          last_name,
+          position,
           avatar: pict_dir || '/avatars/default.jpg',
         });
       } catch (err: any) {

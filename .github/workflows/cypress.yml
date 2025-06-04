@@ -7,14 +7,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install dependencies
-        run: npm install
-
-      - name: Reset database with Prisma
-        run: npx prisma migrate reset --force
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-
       - name: Cypress run
         uses: cypress-io/github-action@v6
         with:

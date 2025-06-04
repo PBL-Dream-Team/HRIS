@@ -58,8 +58,23 @@ import { VscSettings } from 'react-icons/vsc';
 import { IoMdAdd, IoMdSearch } from 'react-icons/io';
 import { useRouter } from 'next/navigation';
 import { CheckOutForm } from '@/components/checkout-form';
+import { enUS } from 'date-fns/locale';
+import { format } from 'date-fns';
 
 let checkclocks;
+
+// Fungsi formatWorkHours yang ditambahkan dari admin page
+export function formatWorkHours(hours: number): string {
+  if (hours <= 0) return '0h 0m';
+
+  const totalMinutes = Math.round(hours * 60);
+  const h = Math.floor(totalMinutes / 60);
+  const m = totalMinutes % 60;
+
+  if (h === 0) return `${m}m`;
+  if (m === 0) return `${h}h`;
+  return `${h}h ${m}m`;
+}
 
 export function getTimeRangeInHours(
   startTime: string | Date,
@@ -118,9 +133,12 @@ export default function CheckClockClient({
   userId,
   companyId,
 }: CheckClockClientProps) {
+
   const [user, setUser] = useState({
     name: '',
-    email: '',
+    first_name: '',
+    last_name: '',
+    position: '',
     avatar: '',
     typeId: '',
   });
@@ -134,16 +152,31 @@ export default function CheckClockClient({
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
+  const formatDate = (dateString: string) => {
+    if (!dateString) return 'No date';
+
+    try {
+      // Konversi string ke Date object
+      const date = new Date(dateString);
+      return format(date, 'PPP', { locale: enUS });
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return dateString; // Fallback ke string asli jika error
+    }
+  };
+
   useEffect(() => {
     async function fetchUser() {
       try {
         const res = await api.get(`/api/employee/${userId}`);
-        const { first_name, last_name, email, attendance_id, pict_dir } =
+        const { first_name, last_name, position, attendance_id, pict_dir } =
           res.data.data;
 
         setUser({
           name: `${first_name} ${last_name}`,
-          email: email,
+          first_name: first_name,
+          last_name: last_name,
+          position: position,
           avatar: pict_dir || '/avatars/default.jpg',
           typeId: attendance_id,
         });
@@ -185,17 +218,27 @@ export default function CheckClockClient({
     if (isSameDate(new Date(attendance.created_at), new Date())) {
       dailyLimit = 0;
     }
+
+    // Hitung work hours menggunakan fungsi yang sudah ada
+    let workHoursValue = 0;
+    if (attendance.check_in && attendance.check_out) {
+      workHoursValue = getTimeRangeInHours(
+        formatTimeOnly(attendance.check_in),
+        formatTimeOnly(attendance.check_out)
+      );
+    }
+
     return {
       id: attendance.id,
       date: attendance.created_at,
       name: `${employees[0].first_name} ${employees[0].last_name}`,
+      avatarUrl: employees[0]?.pict_dir || undefined,
       clockIn: formatTimeOnly(attendance.check_in),
       clockOut: attendance.check_out
         ? formatTimeOnly(attendance.check_out)
         : '-',
-      workHours: attendance.check_out
-        ? `${getTimeRangeInHours(formatTimeOnly(attendance.check_in), formatTimeOnly(attendance.check_out)).toFixed(2)}h`
-        : '0h',
+      // Gunakan formatWorkHours yang baru ditambahkan
+      workHours: workHoursValue > 0 ? formatWorkHours(workHoursValue) : '-',
       status: attendance.check_in_status,
       address: attendance.check_out
         ? attendance.check_out_address
@@ -339,7 +382,7 @@ export default function CheckClockClient({
               <TableBody>
                 {checkclocks.map((checkclock) => (
                   <TableRow key={checkclock.id}>
-                    <TableCell>{checkclock.date.replace(/T.*/, '')}</TableCell>
+                    <TableCell>{formatDate(checkclock.date)}</TableCell>
                     <TableCell>
                       {checkclock.clockIn.replace(/.*T/, '')}
                     </TableCell>
@@ -424,6 +467,7 @@ export default function CheckClockClient({
         open={openSheet}
         onOpenChange={setOpenSheet}
         selectedCheckClock={selectedCheckClock}
+        avatarUrl={employees[0]?.pict_dir || ''}
       />
     </SidebarProvider>
   );

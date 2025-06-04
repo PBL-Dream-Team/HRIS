@@ -1,9 +1,76 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import axios from 'axios';
+import * as crypto from 'crypto';
+
 
 @Injectable()
 export class PaymentService {
   constructor(private prisma: PrismaService) {}
+  async createTransaction(data: any, userId:string) {
+    const {
+      subscription_id,
+      title,
+      price,
+      employeeCount,
+      type,
+      method,
+      amount,
+      merchant_ref,
+      expired,
+    } = data;
+
+    const apiKey = process.env.TRIPAY_API_KEY;
+    const privateKey = process.env.TRIPAY_PRIVATE_KEY;
+    const merchantCode = process.env.TRIPAY_MERCHANT_CODE;
+
+    const signature = crypto
+      .createHmac('sha256', privateKey)
+      .update(merchantCode + merchant_ref + amount)
+      .digest('hex');
+
+    const customer = await this.prisma.employee.findFirst({where:{id:userId}});
+
+    const payload = {
+      method: method,
+      merchant_ref: merchant_ref,
+      amount : amount,
+      customer_name: `${customer.first_name} ${customer.last_name}`, // ← bisa ambil dari DB user
+      customer_email: customer.email,
+      customer_phone: customer.phone,
+      order_items: [
+        {
+          sku: subscription_id,
+          name: title,
+          price: price,
+          quantity: type === 'payg' ? employeeCount : 1,
+        },
+      ],
+      expired_time: expired,
+      signature: signature,
+      return_url: process.env.RETURN_URL,
+    };
+
+    const res = await axios.post(
+      'https://tripay.co.id/api/transaction/create',
+      payload,
+      {
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+        },
+        validateStatus: () => true, // bypass status check
+      },
+    );
+
+    await this.prisma.transaction.update({
+      where:{merchantRef:merchant_ref},
+      data:{
+        tripayRef:res.data.reference
+      }
+    });
+
+    return res.data;
+  }
   async tripayCallbackHandler(req: any) {
     try {
       if (req) {

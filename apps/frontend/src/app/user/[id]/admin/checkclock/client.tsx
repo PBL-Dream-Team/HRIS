@@ -34,15 +34,8 @@ import { CheckClockForm } from '@/components/checkclock/checkclock-form';
 import CheckClockDetails from '@/components/checkclock/checkclock-details';
 import { WorkshemeForm } from '@/components/workscheme/workscheme-form';
 import { WorkschemeOverviewContent } from '@/components/workscheme/workscheme-overview';
-
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-} from '@/components/ui/dropdown-menu';
+import { enUS } from 'date-fns/locale';
+import { format } from 'date-fns';
 
 import {
   Table,
@@ -70,7 +63,6 @@ type CheckClockProcessed = {
   workHours: string;
   status: string;
   approval: string;
-  // originalData?: any;
   lat: string;
   long: string;
   location: string;
@@ -82,6 +74,18 @@ type CheckClockClientProps = {
   userId: string;
   companyId: string;
 };
+
+export function formatWorkHours(hours: number): string {
+  if (hours <= 0) return '0h 0m';
+
+  const totalMinutes = Math.round(hours * 60);
+  const h = Math.floor(totalMinutes / 60);
+  const m = totalMinutes % 60;
+
+  if (h === 0) return `${m}m`;
+  if (m === 0) return `${h}h`;
+  return `${h}h ${m}m`;
+}
 
 export function getTimeRangeInHours(
   startTime: string | Date,
@@ -129,7 +133,9 @@ export default function CheckClockClient({
 }: CheckClockClientProps) {
   const [user, setUser] = useState({
     name: '',
-    email: '',
+    first_name: '',
+    last_name: '',
+    position: '',
     avatar: '',
   });
 
@@ -145,16 +151,31 @@ export default function CheckClockClient({
   const [isWorkschemeOverviewOpen, setIsWorkschemeOverviewOpen] =
     useState(false);
 
+  const formatDate = (dateString: string) => {
+    if (!dateString) return 'No date';
+
+    try {
+      // Konversi string ke Date object
+      const date = new Date(dateString);
+      return format(date, 'PPP', { locale: enUS });
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return dateString; // Fallback ke string asli jika error
+    }
+  };
+
   async function fetchData() {
     setIsLoading(true);
     setError(null);
     try {
       const userRes = await api.get(`/api/employee/${userId}`);
-      const { first_name, last_name, email, pict_dir } = userRes.data.data;
+      const { first_name, last_name, position, pict_dir } = userRes.data.data;
 
       setUser({
         name: `${first_name} ${last_name}`,
-        email: email,
+        first_name: first_name,
+        last_name: last_name,
+        position: position,
         avatar: pict_dir || '/avatars/default.jpg',
       });
 
@@ -200,6 +221,16 @@ export default function CheckClockClient({
   const checkclocks = useMemo<CheckClockProcessed[]>(() => {
     return attendances.map((attendance) => {
       const employeeData = employees[attendance.employee_id];
+
+      // Hitung work hours
+      let workHoursValue = 0;
+      if (attendance.check_in && attendance.check_out) {
+        workHoursValue = getTimeRangeInHours(
+          formatTimeOnly(attendance.check_in),
+          formatTimeOnly(attendance.check_out)
+        );
+      }
+
       return {
         id: attendance.id,
         employee_id: attendance.employee_id,
@@ -217,13 +248,10 @@ export default function CheckClockClient({
         clockOut: attendance.check_out
           ? formatTimeOnly(attendance.check_out)
           : '-',
-        workHours:
-          attendance.check_in && attendance.check_out
-            ? `${getTimeRangeInHours(formatTimeOnly(attendance.check_in), formatTimeOnly(attendance.check_out))}h`
-            : '0h',
+        // Gunakan formatter yang baru
+        workHours: workHoursValue > 0 ? formatWorkHours(workHoursValue) : '-',
         status: attendance.check_in_status || 'N/A',
         approval: attendance.approval || 'N/A',
-        // originalData: attendance,
         address: attendance.check_out
           ? attendance.check_out_address
           : attendance.check_in_address,
@@ -379,21 +407,6 @@ export default function CheckClockClient({
               <TableBody>
                 {paginatedCheckclocks.map((checkclock) => {
                   let approveContent;
-                  let statusString;
-
-                  switch (checkclock.status) {
-                    case 'ON_TIME':
-                      statusString = 'On Time';
-                      break;
-                    case 'EARLY':
-                      statusString = 'Early';
-                      break;
-                    case 'LATE':
-                      statusString = 'Late';
-                      break;
-                    default:
-                      statusString = checkclock.status || 'N/A';
-                  }
 
                   switch (checkclock.approval) {
                     case 'PENDING':
@@ -449,7 +462,7 @@ export default function CheckClockClient({
                         <Avatar className="h-8 w-8 rounded-lg">
                           <AvatarImage
                             src={
-                              checkclock.avatarUrl ||
+                              `/storage/employee/${checkclock.avatarUrl}` ||
                               '/avatars/default-avatar.png'
                             }
                             alt={checkclock.name}
@@ -466,7 +479,7 @@ export default function CheckClockClient({
                       <TableCell>{checkclock.name}</TableCell>
                       <TableCell>{checkclock.position}</TableCell>
                       <TableCell>
-                        {checkclock.date.replace(/T.*/, '')}
+                        {formatDate(checkclock.date)}
                       </TableCell>
                       <TableCell>
                         {checkclock.clockIn.replace(/.*T/, '')}
@@ -477,7 +490,21 @@ export default function CheckClockClient({
                       <TableCell>{checkclock.workHours}</TableCell>
                       <TableCell>{approveContent}</TableCell>
                       <TableCell>
-                        <span className="text-black">{statusString}</span>
+                        <div>
+                          <span
+                            className={`px-2 py-1 rounded text-xs text-white 
+                                ${checkclock.status === 'ON_TIME' ? 'bg-green-600' : ''}
+                                ${checkclock.status === 'LATE' ? 'bg-red-600' : ''}
+                                ${checkclock.status === 'EARLY' ? 'bg-yellow-400' : ''}
+                                `}
+                          >
+                            {checkclock.status === 'ON_TIME'
+                              ? 'On Time'
+                              : checkclock.status === 'LATE'
+                                ? 'Late'
+                                : 'Early'}
+                          </span>
+                        </div>
                       </TableCell>
                       <TableCell>
                         <Button
@@ -511,7 +538,7 @@ export default function CheckClockClient({
           open={openSheet}
           onOpenChange={setOpenSheet}
           selectedCheckClock={selectedCheckClock}
-          // selectedCheckClock={selectedCheckClock.originalData || selectedCheckClock}
+          avatarUrl={employees[selectedCheckClock.employee_id]?.pict_dir || ''}
         />
       )}
     </SidebarProvider>

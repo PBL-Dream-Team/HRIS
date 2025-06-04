@@ -66,7 +66,9 @@ export default function GuideBookClient({
 }: GuideBookClientProps) {
   const [user, setUser] = useState({
     name: '',
-    email: '',
+    first_name: '',
+    last_name: '',
+    position: '',
     avatar: '',
   });
 
@@ -74,11 +76,13 @@ export default function GuideBookClient({
     async function fetchUser() {
       try {
         const res = await api.get(`/api/employee/${userId}`);
-        const { first_name, last_name, email, pict_dir } = res.data.data;
+        const { first_name, last_name, position, pict_dir } = res.data.data;
 
         setUser({
           name: `${first_name} ${last_name}`,
-          email: email,
+          first_name: first_name,
+          last_name: last_name,
+          position: position,
           avatar: pict_dir || '/avatars/default.jpg',
         });
       } catch (err: any) {
@@ -992,18 +996,12 @@ export default function GuideBookClient({
             <TabsContent value="letter">
               <Card className="w-full p-6">
                 <CardTitle className="mb-6 text-xl">Letter Management Guide</CardTitle>
-                <Tabs defaultValue="letter_list" className="w-full">
+                <Tabs defaultValue="letter_management" className="w-full">
                   <div className="flex gap-6">
                     {/* Sidebar Navigation */}
                     <div className="w-64 flex-shrink-0">
                       <div className="flex flex-col space-y-1 bg-gray-50 p-2 rounded-lg">
                         <TabsList className="flex flex-col h-auto w-full bg-transparent p-0 space-y-1">
-                          <TabsTrigger
-                            value="letter_list"
-                            className="w-full justify-start text-left p-3 rounded-md bg-white hover:bg-gray-100 data-[state=active]:bg-[#1E3A5F] data-[state=active]:text-white border-0 shadow-none font-medium"
-                          >
-                            Letter List
-                          </TabsTrigger>
                           <TabsTrigger
                             value="letter_management"
                             className="w-full justify-start text-left p-3 rounded-md bg-white hover:bg-gray-100 data-[state=active]:bg-[#1E3A5F] data-[state=active]:text-white border-0 shadow-none font-medium"
@@ -1022,38 +1020,23 @@ export default function GuideBookClient({
 
                     {/* Content Area */}
                     <div className="flex-1 min-h-fit">
-                      {/* Checkclock List */}
-                      <TabsContent value="letter_list" className="mt-0 h-full">
-                        <Card className="w-full h-full">
-                          <CardHeader>
-                            <CardTitle>Letter List Guide</CardTitle>
-                          </CardHeader>
-                          <CardContent>
-                            <div className="space-y-4">
-                              <p>asdgwaubdjagwudyag ahwdoiua wjdbagwda</p>
-                              <div className="bg-blue-50 p-4 rounded-lg">
-                                <h4 className="font-semibold mb-2">Key Features:</h4>
-                                <ul className="list-disc list-inside space-y-1 text-sm">
-                                  <li>bla bla bla</li>
-                                  <li>ble ble ble</li>
-                                  <li>blo blo blo</li>
-                                </ul>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      </TabsContent>
                       {/* Letter Management */}
                       <TabsContent value="letter_management" className="mt-0 h-full">
                         {/* Content */}
                         <Card className="w-full p-6">
                           <CardTitle className="mb-6 text-xl">Letter Management Guide</CardTitle>
-                          <Tabs defaultValue="add_letter" className="w-full">
+                          <Tabs defaultValue="letter_list" className="w-full">
                             <div className="flex gap-6">
                               {/* Sidebar Navigation */}
                               <div className="w-64 flex-shrink-0">
                                 <div className="flex flex-col space-y-1 bg-gray-50 p-2 rounded-lg">
                                   <TabsList className="flex flex-col h-auto w-full bg-transparent p-0 space-y-1">
+                                    <TabsTrigger
+                                      value="letter_list"
+                                      className="w-full justify-start text-left p-3 rounded-md bg-white hover:bg-gray-100 data-[state=active]:bg-[#1E3A5F] data-[state=active]:text-white border-0 shadow-none font-medium"
+                                    >
+                                      Letter List
+                                    </TabsTrigger>
                                     <TabsTrigger
                                       value="add_letter"
                                       className="w-full justify-start text-left p-3 rounded-md bg-white hover:bg-gray-100 data-[state=active]:bg-[#1E3A5F] data-[state=active]:text-white border-0 shadow-none font-medium"
@@ -1073,10 +1056,10 @@ export default function GuideBookClient({
                                       Delete Letter
                                     </TabsTrigger>
                                     <TabsTrigger
-                                      value="letter_information"
+                                      value="letter_details"
                                       className="w-full justify-start text-left p-3 rounded-md bg-white hover:bg-gray-100 data-[state=active]:bg-[#1E3A5F] data-[state=active]:text-white border-0 shadow-none font-medium"
                                     >
-                                      Letter Information
+                                      Letter Details
                                     </TabsTrigger>
                                   </TabsList>
                                 </div>
@@ -1084,6 +1067,27 @@ export default function GuideBookClient({
 
                               {/* Content Area */}
                               <div className="flex-1 min-h-fit">
+                                {/* Letter List */}
+                                <TabsContent value="letter_list" className="mt-0 h-full">
+                                  <Card className="w-full h-full">
+                                    <CardHeader>
+                                      <CardTitle>Letter List Guide</CardTitle>
+                                    </CardHeader>
+                                    <CardContent>
+                                      <div className="space-y-4">
+                                        <p>asdgwaubdjagwudyag ahwdoiua wjdbagwda</p>
+                                        <div className="bg-blue-50 p-4 rounded-lg">
+                                          <h4 className="font-semibold mb-2">Key Features:</h4>
+                                          <ul className="list-disc list-inside space-y-1 text-sm">
+                                            <li>bla bla bla</li>
+                                            <li>ble ble ble</li>
+                                            <li>blo blo blo</li>
+                                          </ul>
+                                        </div>
+                                      </div>
+                                    </CardContent>
+                                  </Card>
+                                </TabsContent>
                                 {/* Add Letter */}
                                 <TabsContent value="add_letter" className="mt-0 h-full">
                                   <Card className="w-full h-fit">
@@ -1147,11 +1151,11 @@ export default function GuideBookClient({
                                     </CardContent>
                                   </Card>
                                 </TabsContent>
-                                {/* Letter Information */}
-                                <TabsContent value="letter_information" className="mt-0 h-full">
+                                {/* Letter Details */}
+                                <TabsContent value="letter_details" className="mt-0 h-full">
                                   <Card className="w-full h-fit">
                                     <CardHeader>
-                                      <CardTitle>Letter Information Guide</CardTitle>
+                                      <CardTitle>Letter Details Information Guide</CardTitle>
                                     </CardHeader>
                                     <CardContent>
                                       <div className="space-y-4">

@@ -114,6 +114,7 @@ async function main() {
         email: 'admin@gmail.com',
         password: await hash('admin123'),
         company_id: '9be1d801-23af-4727-ae39-a2bf74ec00e0',
+        position:"HR",
         is_admin: true,
       },
       {
@@ -125,6 +126,7 @@ async function main() {
         company_id: '9be1d801-23af-4727-ae39-a2bf74ec00e0',
         is_admin: false,
         attendance_id: '1c2e0ec4-3957-4a5c-bc70-e4ad1b99391a',
+        position:"Employee",
         workscheme: 'WFO',
       },
       {
@@ -136,6 +138,7 @@ async function main() {
         is_admin: false,
         attendance_id: '7b6fc280-61fc-4e61-96f1-c41de52d7b8b',
         workscheme: 'HYBRID',
+        position:"Employee"
       },
       {
         first_name: 'HRIS',
@@ -144,6 +147,7 @@ async function main() {
         password: await hash('hrisadmin123'),
         company_id: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
         is_admin: true,
+        position:"HR"
       },
     ],
   });
