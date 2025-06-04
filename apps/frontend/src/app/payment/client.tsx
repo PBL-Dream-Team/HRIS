@@ -41,7 +41,7 @@ export default function PaymentClient({ company_id }: { company_id: string | nul
   const employeeCount = parseInt(range.replace(/[^\d]/g, ''), 10) || 1;
   const parsedPrice = parseInt(priceString.replace(/[^\d]/g, ''), 10) || 0;
 
-  const taxRate = parseFloat(`${process.env.TAX_RATE}`)/100; //.env bandel
+  const taxRate = 0.1; //.env bandel
   const subtotal = type === 'payg' ? parsedPrice * employeeCount : parsedPrice;
   const total = subtotal + subtotal * taxRate;
 
