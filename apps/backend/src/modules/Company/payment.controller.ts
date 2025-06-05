@@ -1,9 +1,11 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { PaymentService } from './payment.service';
 import { TripayTransactionDto } from './dtos/tripay.dto';
 import { GetUser } from '../Auth/decorator';
 import { JwtGuard } from '../Auth/guard';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('payment')
 @Controller('api/payment')
 export class PaymentController {
   constructor(private readonly PaymentService: PaymentService) {}
@@ -25,6 +27,16 @@ export class PaymentController {
         details: result,
       };
     }
+  }
+
+  @Get('/detail/:id')
+  getPaymentDetail(@Param('id') ref: string) {
+      return this.PaymentService.getPaymentDetail(ref);
+  }
+
+  @Get('/check-status/:id')
+  getPaymentStatus(@Param('id') ref: string) {
+      return this.PaymentService.getPaymentStatus(ref);
   }
 
   @Post('/callback')

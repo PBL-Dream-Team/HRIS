@@ -289,6 +289,7 @@ export class AuthService {
           company_id: company.id,
           is_admin: true,
           password: '', // kosong karena login via Google
+          position: "HR"
         },
       });
     }

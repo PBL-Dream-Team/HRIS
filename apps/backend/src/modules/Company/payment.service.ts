@@ -81,6 +81,34 @@ export class PaymentService {
 
     return res.data;
   }
+  async getPaymentDetail(ref: string){
+    const payment = await axios.get(`https://tripay.co.id/api/transaction/detail?reference=${ref}`,
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.TRIPAY_API_KEY}`,
+        },
+        validateStatus: () => true, // bypass status check
+      }
+    );
+
+    return payment.data;
+  }
+
+  async getPaymentStatus(ref:string){
+    const paymentStatus = await axios.get(`https://tripay.co.id/api/transaction/detail?reference=${ref}`,
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.TRIPAY_API_KEY}`,
+        },
+        validateStatus: () => true, // bypass status check
+      }
+    )
+
+    return {
+      status: paymentStatus.data.status,
+      message: `Status transaksi adalah ${paymentStatus.data.status}`
+    };
+  }
   async tripayCallbackHandler(req: any) {
     try {
       if (req) {
