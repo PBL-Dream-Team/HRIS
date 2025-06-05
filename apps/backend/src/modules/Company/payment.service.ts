@@ -123,6 +123,7 @@ export class PaymentService {
 
         await this.prisma.company.update({
           data: {
+            subscription_id: subs.id,
             subs_date_start: newStart.toISOString(),
             subs_date_end: newEnd.toISOString(),
             max_employee: new_emp,
