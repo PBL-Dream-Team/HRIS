@@ -1,5 +1,5 @@
-describe('Accessing the letter page with admin credentials', () => {
-  it('Signs in as admin and navigates to Letters section', () => {
+describe('Accessing the Absence page with admin credentials', () => {
+  it('Signs in as admin and navigates to Absence section', () => {
     cy.visit('/signin');
     cy.get('input[id="email"]').should('not.be.disabled').type('admin@gmail.com');
     cy.get('input[id="password"]').should('not.be.disabled').type('admin123');
@@ -7,7 +7,7 @@ describe('Accessing the letter page with admin credentials', () => {
     cy.url({ timeout: 60000 }).should('include', '/redirect');
     cy.url({ timeout: 60000 }).should('include', '/dashboard');
 
-    cy.contains('button', 'Letters').should('be.visible').click();
-    cy.url({ timeout: 60000 }).should('include', '/letters');
+    cy.contains('button', 'Absence').should('be.visible').click();
+    cy.url({ timeout: 60000 }).should('include', '/absence');
   });
 });
