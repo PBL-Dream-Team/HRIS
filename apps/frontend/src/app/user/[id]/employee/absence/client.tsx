@@ -234,6 +234,13 @@ export default function AbsenceClient({
   const handleDeleteConfirmed = async () => {
     if (!absenceToDelete) return;
 
+    if (absenceToDelete.status !== 'PENDING') {
+      toast.error('Only pending absences can be deleted.');
+      setIsDeleteDialogOpen(false);
+      setAbsenceToDelete(null);
+      return;
+    }
+
     try {
       await api.delete(`/api/absence/${absenceToDelete.id}`);
       toast.success('Absence deleted successfully.');
@@ -408,11 +415,16 @@ export default function AbsenceClient({
                         <Button
                           variant="outline"
                           size="icon"
-                          className="hover:text-white hover:bg-yellow-500"
+                          className={`${abs.status === 'PENDING'
+                            ? 'hover:text-white hover:bg-yellow-500'
+                            : 'bg-gray-300 text-gray-500 cursor-not-allowed border-gray-300 hover:bg-gray-300 hover:text-gray-500'
+                            }`}
                           onClick={() => {
                             setAbsenceToEdit(abs);
                             setOpenEditDialog(true);
                           }}
+                          disabled={abs.status !== 'PENDING'}
+                          title={abs.status !== 'PENDING' ? 'Only pending absences can be edited' : 'Edit absence'}
                         >
                           <Pencil className="h-4 w-4" />
                         </Button>
@@ -420,11 +432,16 @@ export default function AbsenceClient({
                         <Button
                           variant="outline"
                           size="icon"
-                          className="hover:text-white hover:bg-red-600"
+                          className={`${abs.status === 'PENDING'
+                              ? 'hover:text-white hover:bg-yellow-500'
+                              : 'bg-gray-300 text-gray-500 cursor-not-allowed border-gray-300 hover:bg-gray-300 hover:text-gray-500'
+                            }`}
                           onClick={() => {
                             setAbsenceToDelete(abs);
                             setIsDeleteDialogOpen(true);
                           }}
+                          disabled={abs.status !== 'PENDING'}
+                          title={abs.status !== 'PENDING' ? 'Only pending absences can be deleted' : 'Delete absence'}
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>

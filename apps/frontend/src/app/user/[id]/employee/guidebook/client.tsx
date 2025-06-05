@@ -400,8 +400,7 @@ export default function GuideBookClient({
                                           </ul>
                                           <ul className="list-disc list-inside space-y-1 text-sm">
                                             <li>Work Hours</li>
-                                            <li>Status</li>
-                                            <li>Detail Attendance Button</li>
+                                            <li>Status (On Time/Late)</li>
                                           </ul>
                                         </div>
                                       </div>
@@ -559,14 +558,13 @@ export default function GuideBookClient({
                                         <p>The leave request data displayed in the table includes:</p>
                                         <div className="bg-purple-50 p-4 rounded-lg grid grid-cols-2 gap-4">
                                           <ul className="list-disc list-inside space-y-1 text-sm">
-                                            <li>Created At</li>
-                                            <li>Date</li>
+                                            <li>Created At (time)</li>
+                                            <li>Date (Sick/Permission/Leave)</li>
                                             <li>Type</li>
                                           </ul>
                                           <ul className="list-disc list-inside space-y-1 text-sm">
                                             <li>Reason</li>
-                                            <li>Status</li>
-                                            <li>Detail Absence Button</li>
+                                            <li>Status (Approved/Rejected/Pending)</li>
                                           </ul>
                                         </div>
                                       </div>

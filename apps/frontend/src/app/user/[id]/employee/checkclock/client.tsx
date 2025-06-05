@@ -25,14 +25,13 @@ import {
 } from '@/components/ui/dialog';
 
 import { Input } from '@/components/ui/input';
-import { Bell, CalendarArrowUp } from 'lucide-react';
+import { Eye, Bell, CalendarArrowUp, LogIn, LogOut } from 'lucide-react';
 import { NavUser } from '@/components/nav-user';
 import { Button } from '@/components/ui/button';
 import { CheckClockForm } from '@/components/checkclock/checkclock-form';
 import { useState } from 'react';
 import PaginationFooter from '@/components/pagination';
 import CheckClockDetails from '@/components/checkclock/checkclock-details';
-import { Eye } from 'lucide-react';
 import api from '@/lib/axios';
 import { useEffect } from 'react';
 
@@ -152,6 +151,9 @@ export default function CheckClockClient({
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
+  // State untuk mengontrol dialog Add Check Clock
+  const [openAddDialog, setOpenAddDialog] = useState(false);
+
   const formatDate = (dateString: string) => {
     if (!dateString) return 'No date';
 
@@ -165,54 +167,55 @@ export default function CheckClockClient({
     }
   };
 
-  useEffect(() => {
-    async function fetchUser() {
-      try {
-        const res = await api.get(`/api/employee/${userId}`);
-        const { first_name, last_name, position, attendance_id, pict_dir } =
-          res.data.data;
+  // Fungsi untuk fetch data (dipindahkan ke fungsi terpisah untuk reusability)
+  const fetchAllData = async () => {
+    try {
+      const res = await api.get(`/api/employee/${userId}`);
+      const { first_name, last_name, position, attendance_id, pict_dir } =
+        res.data.data;
 
-        setUser({
-          name: `${first_name} ${last_name}`,
-          first_name: first_name,
-          last_name: last_name,
-          position: position,
-          avatar: pict_dir || '/avatars/default.jpg',
-          typeId: attendance_id,
-        });
+      setUser({
+        name: `${first_name} ${last_name}`,
+        first_name: first_name,
+        last_name: last_name,
+        position: position,
+        avatar: pict_dir || '/avatars/default.jpg',
+        typeId: attendance_id,
+      });
 
-        const [attendanceRes, employeeRes, typeRes, companyRes] =
-          await Promise.all([
-            api.get(`api/attendance?employee_id=${userId}`),
-            api.get(`api/employee?id=${userId}`),
-            api.get(`api/attendanceType?company_id=${companyId}`),
-            api.get(`api/company?id=${companyId}`),
-          ]);
+      const [attendanceRes, employeeRes, typeRes, companyRes] =
+        await Promise.all([
+          api.get(`api/attendance?employee_id=${userId}`),
+          api.get(`api/employee?id=${userId}`),
+          api.get(`api/attendanceType?company_id=${companyId}`),
+          api.get(`api/company?id=${companyId}`),
+        ]);
 
-        setEmployee(employeeRes.data ?? []);
+      setEmployee(employeeRes.data ?? []);
 
-        const typeMap: Record<string, any> = {};
-        for (const typ of typeRes.data ?? []) {
-          typeMap[typ.id] = typ;
-        }
-        setAttendanceType(typeMap);
-
-        setAttendance(attendanceRes.data ?? []);
-
-        setCompany(companyRes.data ?? []);
-      } catch (err: any) {
-        console.error(
-          'Error fetching user:',
-          err.response?.data || err.message,
-        );
-        setAttendance([]);
-        setEmployee([]);
-        setAttendanceType([]);
+      const typeMap: Record<string, any> = {};
+      for (const typ of typeRes.data ?? []) {
+        typeMap[typ.id] = typ;
       }
-    }
+      setAttendanceType(typeMap);
 
-    fetchUser();
-  }, [userId]);
+      setAttendance(attendanceRes.data ?? []);
+
+      setCompany(companyRes.data ?? []);
+    } catch (err: any) {
+      console.error(
+        'Error fetching data:',
+        err.response?.data || err.message,
+      );
+      setAttendance([]);
+      setEmployee([]);
+      setAttendanceType([]);
+    }
+  };
+
+  useEffect(() => {
+    fetchAllData();
+  }, [userId, companyId]);
 
   checkclocks = attendances.map((attendance) => {
     if (isSameDate(new Date(attendance.created_at), new Date())) {
@@ -231,7 +234,7 @@ export default function CheckClockClient({
     return {
       id: attendance.id,
       date: attendance.created_at,
-      name: `${employees[0].first_name} ${employees[0].last_name}`,
+      name: `${employees[0]?.first_name || ''} ${employees[0]?.last_name || ''}`,
       avatarUrl: employees[0]?.pict_dir || undefined,
       clockIn: formatTimeOnly(attendance.check_in),
       clockOut: attendance.check_out
@@ -250,9 +253,9 @@ export default function CheckClockClient({
         ? attendance.check_out_long
         : attendance.check_in_long,
       location:
-        attendance.check_in_address == company[0].address
+        attendance.check_in_address == company[0]?.address
           ? 'Office'
-          : employees[0].workscheme != 'WFO'
+          : employees[0]?.workscheme != 'WFO'
             ? 'Outside Office (WFA/Hybrid)'
             : 'Outside Office (WFO)',
     };
@@ -271,6 +274,18 @@ export default function CheckClockClient({
   const handleCheckOut = (id: string) => {
     setCheckOutId(id);
     setOpenCheckOutDialog(true);
+  };
+
+  // Handler untuk success Add Check Clock
+  const handleAddCheckClockSuccess = () => {
+    setOpenAddDialog(false); // Tutup dialog
+    fetchAllData(); // Refresh data
+  };
+
+  // Handler untuk success Check Out
+  const handleCheckOutSuccess = () => {
+    setOpenCheckOutDialog(false); // Tutup dialog
+    fetchAllData(); // Refresh data
   };
 
   return (
@@ -338,7 +353,7 @@ export default function CheckClockClient({
                 <Button className="bg-gray-100 text-black shadow-xs hover:bg-gray-200">
                   <VscSettings /> Filter
                 </Button>
-                <Dialog>
+                <Dialog open={openAddDialog} onOpenChange={setOpenAddDialog}>
                   <DialogTrigger asChild>
                     <Button
                       disabled={dailyLimit === 0}
@@ -347,20 +362,18 @@ export default function CheckClockClient({
                         dailyLimit === 0 ? 'opacity-50 cursor-not-allowed' : ''
                       }
                     >
-                      <IoMdAdd /> Add Check Clock
+                      <LogIn /> Clock In
                     </Button>
                   </DialogTrigger>
                   <DialogContent className="max-w-4xl">
                     <DialogHeader>
-                      <DialogTitle>Add Check Clock</DialogTitle>
+                      <DialogTitle>Clock In</DialogTitle>
                     </DialogHeader>
                     <CheckClockForm
                       employeeId={userId}
                       companyId={companyId}
                       typeId={user.typeId}
-                      onSuccess={() => {
-                        setOpenSheet(false);
-                      }}
+                      onSuccess={handleAddCheckClockSuccess}
                     />
                   </DialogContent>
                 </Dialog>
@@ -429,7 +442,7 @@ export default function CheckClockClient({
                                 className="hover:bg-white-600 bg-green-600 hover:text-white"
                                 onClick={() => handleCheckOut(checkclock.id)}
                               >
-                                <CalendarArrowUp className="h-4 w-4 text-white" />
+                                <LogOut className="h-4 w-4 text-white" />
                               </Button>
                             </DialogTrigger>
                             <DialogContent className="max-w-2xl">
@@ -438,10 +451,7 @@ export default function CheckClockClient({
                               </DialogHeader>
                               <CheckOutForm
                                 attendanceId={checkOutId ?? ''}
-                                onSuccess={() => {
-                                  setOpenCheckOutDialog(false);
-                                  // Optionally refetch attendance data here
-                                }}
+                                onSuccess={handleCheckOutSuccess}
                               />
                             </DialogContent>
                           </Dialog>
