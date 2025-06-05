@@ -32,6 +32,7 @@ export default function PaymentClient({ company_id }: { company_id: string | nul
 
   const [loading, setLoading] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState('SHOPEEPAY');
+  const [phoneNumber, setPhoneNumber] = useState('');
 
   const title = searchParams.get('title') || 'Unknown Package';
   const priceString = searchParams.get('price') || '0';
@@ -79,6 +80,7 @@ export default function PaymentClient({ company_id }: { company_id: string | nul
         amount: total,
         merchant_ref: merchant_ref,
         expired: expired,
+        phone: phoneNumber
       });
 
       if (res.data?.success) {
@@ -137,6 +139,23 @@ export default function PaymentClient({ company_id }: { company_id: string | nul
               </label>
             ))}
           </div>
+
+          
+        </div>
+
+        <div className="mb-4">
+          <label className="block font-medium mb-2" htmlFor="phoneNumber">
+            Phone Number
+          </label>
+          <input
+            id="phoneNumber"
+            type="tel"
+            value={phoneNumber}
+            onChange={(e) => setPhoneNumber(e.target.value)}
+            placeholder="e.g. 081234567890"
+            className="w-full border rounded px-3 py-2 text-sm"
+            required
+          />
         </div>
 
         <Button className="mt-6 w-full" onClick={handleContinue} disabled={loading}>

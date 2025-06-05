@@ -18,6 +18,7 @@ export class PaymentService {
       amount,
       merchant_ref,
       expired,
+      phone
     } = data;
 
     const apiKey = process.env.TRIPAY_API_KEY;
@@ -46,7 +47,7 @@ export class PaymentService {
       amount : amount,
       customer_name: `${customer.first_name} ${customer.last_name}`, // ← bisa ambil dari DB user
       customer_email: customer.email,
-      customer_phone: customer.phone,
+      customer_phone: phone,
       order_items: [
         {
           sku: subscription_id,

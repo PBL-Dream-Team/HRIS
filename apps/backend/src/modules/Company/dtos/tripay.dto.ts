@@ -1,4 +1,4 @@
-import { IsString, IsNumber, IsOptional } from 'class-validator';
+import { IsString, IsNumber, IsOptional, IsNumberString } from 'class-validator';
 
 export class TripayTransactionDto {
   @IsString()
@@ -30,4 +30,8 @@ export class TripayTransactionDto {
 
   @IsNumber()
   expired: number;
+
+  @IsNumberString()
+  @IsOptional()
+  phone: string;
 }
