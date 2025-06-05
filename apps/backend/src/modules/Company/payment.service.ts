@@ -113,12 +113,9 @@ export class PaymentService {
         newEnd.setDate(newStart.getDate() + subs.day_length);
         const new_emp = subs.max_employee
           ? subs.max_employee
-          : transac.total /
-            // Math.round(
-            //   (subs.price_per_employee * (100.0 + transac.taxRate.toNumber())) /
-            //     100,
-            // )
-            subs.price_per_employee
+          : Math.round(
+              (transac.total / subs.price_per_employee)
+            )
             ;
 
         await this.prisma.company.update({

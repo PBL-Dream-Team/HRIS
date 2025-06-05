@@ -56,7 +56,7 @@ const singlePayment = [
   },
 ];
 
-const baseEmployeePrice = 7000;
+const baseEmployeePrice = 1000;
 
 export default function PricingPage() {
   const router = useRouter();

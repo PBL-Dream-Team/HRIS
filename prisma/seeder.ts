@@ -16,7 +16,7 @@ async function main() {
       {
         id: 'd63b6982-048d-414e-92d4-50357234e010',
         name: 'Pay as you go',
-        price_per_employee: 7000,
+        price_per_employee: 1000,
         type: 'PAID',
         day_length: 28,
       },
