@@ -47,7 +47,7 @@ export class PaymentService {
       amount : amount,
       customer_name: `${customer.first_name} ${customer.last_name}`, // ← bisa ambil dari DB user
       customer_email: customer.email,
-      customer_phone: phone,
+      customer_phone: phone ? phone : customer.phone,
       order_items: [
         {
           sku: subscription_id,
