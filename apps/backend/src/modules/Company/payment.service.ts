@@ -7,7 +7,7 @@ import * as crypto from 'crypto';
 @Injectable()
 export class PaymentService {
   constructor(private prisma: PrismaService) {}
-  async createTransaction(data: any, userId:string) {
+  async createTransaction(data: any) {
     const {
       subscription_id,
       title,
@@ -29,7 +29,16 @@ export class PaymentService {
       .update(merchantCode + merchant_ref + amount)
       .digest('hex');
 
-    const customer = await this.prisma.employee.findFirst({where:{id:userId}});
+    //Using @GetUser on controller somehow make every transaction using the same name
+    const transaction = await this.prisma.transaction.findFirst({where:{
+      merchantRef: merchant_ref
+    }});
+    const company = await this.prisma.company.findFirst({where:{
+      id: transaction.company_id
+    }});
+    const customer = await this.prisma.employee.findFirst({where:{
+      AND: [{ company_id: company.id }, { is_admin: true }],
+    }});
 
     const payload = {
       method: method,

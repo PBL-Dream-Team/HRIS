@@ -10,8 +10,8 @@ export class PaymentController {
 
   @UseGuards(JwtGuard)
   @Post('/init')
-  async create(@Body() dto: TripayTransactionDto, @GetUser('sub') id:string) {
-    const result = await this.PaymentService.createTransaction(dto, id);
+  async create(@Body() dto: TripayTransactionDto) {
+    const result = await this.PaymentService.createTransaction(dto);
 
     if (result.success) {
       return {
