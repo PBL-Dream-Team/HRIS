@@ -43,7 +43,8 @@ export default function PaymentClient({ company_id }: { company_id: string | nul
 
   const taxRate = 0.1; //.env bandel
   const subtotal = type === 'payg' ? parsedPrice * employeeCount : parsedPrice;
-  const total = subtotal + subtotal * taxRate;
+  // const total = subtotal + subtotal * taxRate;
+  const total = subtotal;
 
   const handleContinue = async () => {
     if (!company_id) {
@@ -64,7 +65,7 @@ export default function PaymentClient({ company_id }: { company_id: string | nul
         subscription_id: subscription_id,
         total: total,
         merchantRef: merchant_ref,
-        taxRate: taxRate*100,
+        // taxRate: taxRate*100,
         expiresAt: new Date(expiryDate).toISOString()
       });
       const res = await api.post(`/api/payment/init`, {
