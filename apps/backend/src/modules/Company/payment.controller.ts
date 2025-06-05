@@ -3,7 +3,7 @@ import { PaymentService } from './payment.service';
 import { TripayTransactionDto } from './dtos/tripay.dto';
 import { GetUser } from '../Auth/decorator';
 import { JwtGuard } from '../Auth/guard';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('payment')
 @Controller('api/payment')
@@ -30,12 +30,18 @@ export class PaymentController {
   }
 
   @Get('/detail/:id')
-  getPaymentDetail(@Param('id') ref: string) {
+  @ApiOperation({
+    summary:"Get payment detail using merchantRef"
+  })
+  getPaymentDetail(@Param('id') ref: string) { // Remember to pass tripayRef
       return this.PaymentService.getPaymentDetail(ref);
   }
 
   @Get('/check-status/:id')
-  getPaymentStatus(@Param('id') ref: string) {
+   @ApiOperation({
+    summary:"Get payment status using merchantRef"
+  })
+  getPaymentStatus(@Param('id') ref: string) { // Remember to pass tripayRef
       return this.PaymentService.getPaymentStatus(ref);
   }
 
