@@ -13,7 +13,6 @@ const SUBSCRIPTION_IDS: Record<string, string> = {
   Gold: '83ae1693-b69d-42ba-93c4-66eb6efffb6f',
 };
 
-// Hanya metode yang didukung Tripay
 const PAYMENT_METHODS = [
   'BNIVA',
   'BRIVA',
@@ -69,6 +68,7 @@ export default function PaymentClient({ company_id }: { company_id: string | nul
         // taxRate: taxRate*100,
         expiresAt: new Date(expiryDate).toISOString()
       });
+
       const res = await api.post(`/api/payment/init`, {
         company_id: company_id,
         subscription_id: subscription_id,
@@ -84,14 +84,18 @@ export default function PaymentClient({ company_id }: { company_id: string | nul
       });
 
       if (res.data?.success) {
-        router.push(res.data.checkout_url);
+        // Buka Tripay payment page di tab baru
+        window.open(res.data.checkout_url, '_blank');
+        
+        // Redirect ke pending page dengan merchant_ref
+        router.push(`/payment/pending?ref=`, res.data.tripayRef);
       } else {
         console.error('Tripay Error:', res.data);
-        router.push('/payment/callback?status=failed');
+        router.push('/payment/failed');
       }
     } catch (error) {
       console.error('Request Error:', error);
-      router.push('/payment/callback?status=failed');
+      router.push('/payment/failed');
     } finally {
       setLoading(false);
     }
@@ -139,8 +143,6 @@ export default function PaymentClient({ company_id }: { company_id: string | nul
               </label>
             ))}
           </div>
-
-          
         </div>
 
         <div className="mb-4">
