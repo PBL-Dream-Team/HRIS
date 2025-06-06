@@ -116,7 +116,7 @@ export default function PaymentClient({ company_id }: { company_id: string | nul
         // Redirect ke pending page dengan merchant_ref
         router.push(`/payment/pending?ref=${res.data.tripayRef}`);
         // Buka Tripay payment page di tab baru
-        window.open(res.data.checkout_url, '_blank');
+        // window.open(res.data.checkout_url, '_blank');
 
       } else {
         console.error('Tripay Error:', res.data);

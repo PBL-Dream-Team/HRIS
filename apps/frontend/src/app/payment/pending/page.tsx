@@ -193,30 +193,9 @@ export default function PaymentPendingPage() {
                 </div>
               </div>
             )}
-          </div>
 
-          {/* Right Column - Payment Instructions & Actions */}
-          <div className="space-y-6">
-            {paymentDetail.instructions && paymentDetail.instructions.length > 0 && (
-              <div className="bg-blue-50 rounded-lg p-6 text-black border shadow-sm">
-                <h3 className="font-semibold mb-4 text-lg">Payment Instructions</h3>
-                <div className="space-y-4">
-                  {paymentDetail.instructions.map((instruction, index) => (
-                    <div key={index}>
-                      <h4 className="font-medium mb-3 text-blue-800">{instruction.title}</h4>
-                      <ol className="list-decimal list-inside space-y-2 text-sm">
-                        {instruction.steps.map((step, stepIndex) => (
-                          <li key={stepIndex} dangerouslySetInnerHTML={{ __html: step }} />
-                        ))}
-                      </ol>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Action Buttons */}
-            <div className="bg-white rounded-lg p-6 border shadow-sm">
+            {/* Mobile: Action Buttons */}
+            <div className="lg:hidden bg-white rounded-lg p-6 border shadow-sm">
               <div className="space-y-4">
                 {(paymentDetail.pay_url || paymentDetail.checkout_url) && (
                   <Button 
@@ -250,6 +229,65 @@ export default function PaymentPendingPage() {
                 Payment Ref: {ref}
               </p>
             </div>
+          </div>
+
+          {/* Right Column - Payment Instructions */}
+          <div className="space-y-6">
+            {paymentDetail.instructions && paymentDetail.instructions.length > 0 && (
+              <div className="bg-blue-50 rounded-lg p-6 text-black border shadow-sm">
+                <h3 className="font-semibold mb-4 text-lg">Payment Instructions</h3>
+                <div className="space-y-4">
+                  {paymentDetail.instructions.map((instruction, index) => (
+                    <div key={index}>
+                      <h4 className="font-medium mb-3 text-blue-800">{instruction.title}</h4>
+                      <ol className="list-decimal list-inside space-y-2 text-sm">
+                        {instruction.steps.map((step, stepIndex) => (
+                          <li key={stepIndex} dangerouslySetInnerHTML={{ __html: step }} />
+                        ))}
+                      </ol>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Desktop: Action Buttons */}
+        <div className="hidden lg:block mt-8">
+          <div className="bg-white rounded-lg p-6 border shadow-sm">
+            <div className="flex flex-col lg:flex-row gap-4 lg:gap-6">
+              {(paymentDetail.pay_url || paymentDetail.checkout_url) && (
+                <Button 
+                  onClick={openPaymentUrl}
+                  className="flex-1 bg-[#1E3A5F] hover:bg-[#1E3A5F]/80 text-white py-4"
+                  size="lg"
+                >
+                  Complete Payment
+                </Button>
+              )}
+              <Button 
+                onClick={checkStatus} 
+                disabled={checking}
+                variant="outline"
+                className="flex-1 py-4"
+                size="lg"
+              >
+                {checking ? 'Checking...' : 'Check Status'}
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={() => router.push('/dashboard')}
+                className="flex-1 py-4"
+                size="lg"
+              >
+                Back to Dashboard
+              </Button>
+            </div>
+            
+            <p className="text-xs text-gray-500 mt-6 text-center">
+              Payment Ref: {ref}
+            </p>
           </div>
         </div>
       </div>
