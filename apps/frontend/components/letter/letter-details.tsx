@@ -9,6 +9,10 @@ import {
   SheetTitle,
 } from '@/components/ui/sheet';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { enUS } from 'date-fns/locale';
+import { format } from 'date-fns';
+import { Button } from '../ui/button';
+import { Eye } from 'lucide-react';
 
 type Letter = {
   employeeName: string;
@@ -18,6 +22,8 @@ type Letter = {
   description: string;
   validUntil: string;
   status: string;
+  filedir?: string;
+  avatarUrl?: string;
 };
 
 interface LetterDetailsProps {
@@ -32,6 +38,45 @@ export default function LetterDetails({
   selectedLetter,
 }: LetterDetailsProps) {
   const [letter, setLetter] = useState<Letter | null>(null);
+  const formatDate = (dateString: string) => {
+    if (!dateString) return 'No date';
+
+    try {
+      // Konversi string ke Date object
+      const date = new Date(dateString);
+      return format(date, 'PPP', { locale: enUS });
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return dateString; // Fallback ke string asli jika error
+    }
+  };
+
+  const handleViewFile = () => {
+    if (letter?.filedir) {
+      const fileUrl = letter.filedir.startsWith('http')
+        ? letter.filedir
+        : `/storage/letter/${letter.filedir}`;
+      window.open(fileUrl, '_blank');
+    }
+  };
+
+  interface FormatFileName {
+    (filename: string): string;
+  }
+
+  const formatFileName: FormatFileName = (filename) => {
+    const withoutId = filename.replace(/^\d+_/, '');
+
+    const lastDotIndex = withoutId.lastIndexOf('.');
+    const name = lastDotIndex !== -1 ? withoutId.substring(0, lastDotIndex) : withoutId;
+    const extension = lastDotIndex !== -1 ? withoutId.substring(lastDotIndex) : '';
+
+    const shortenedName = name.length > 28
+      ? `${name.substring(0, 28)}-`
+      : name;
+
+    return `${shortenedName}${extension}`;
+  };
 
   useEffect(() => {
     if (!open || !selectedLetter) return;
@@ -53,7 +98,11 @@ export default function LetterDetails({
           description: selectedLetter.desc,
           validUntil: selectedLetter.valid_until,
           status: selectedLetter.is_active ? 'Active' : 'Inactive',
+          filedir: selectedLetter.file_dir,
+          avatarUrl: employee.pict_dir
         };
+
+        console.log('Final letter details:', finalLetter);
 
         setLetter(finalLetter);
       } catch (error) {
@@ -78,7 +127,7 @@ export default function LetterDetails({
           <div className="space-y-4 my-4 px-4">
             <div className="flex items-center gap-3 border rounded-md p-4">
               <Avatar className="h-8 w-8 rounded-lg">
-                <AvatarImage src="/avatars/user.jpg" />
+                <AvatarImage src={`/storage/employee/${letter.avatarUrl}`} />
                 <AvatarFallback className="rounded-lg">
                   {letter.employeeName
                     .split(' ')
@@ -94,17 +143,16 @@ export default function LetterDetails({
                 </p>
               </div>
               <div className='ml-auto flex items-center gap-2 text-sm'>
-                  <div className="ml-auto flex items-center gap-2">
-                    <span
-                      className={`h-2 w-2 rounded-full ${
-                        letter.status === 'Active' ? 'bg-green-500' : 'bg-red-500'
+                <div className="ml-auto flex items-center gap-2">
+                  <span
+                    className={`h-2 w-2 rounded-full ${letter.status === 'Active' ? 'bg-green-500' : 'bg-gray-500'
                       }`}
-                    ></span>
-                    <span className="text-sm font-medium text-muted-foreground">
-                      {letter.status}
-                    </span>
-                  </div>
+                  ></span>
+                  <span className="text-sm font-medium text-muted-foreground">
+                    {letter.status}
+                  </span>
                 </div>
+              </div>
             </div>
 
             <div className="border rounded-md p-4 text-sm space-y-3">
@@ -124,7 +172,34 @@ export default function LetterDetails({
                 </div>
                 <div>
                   <p className="text-muted-foreground text-xs">Valid Until</p>
-                  <p className="font-medium">{letter.validUntil}</p>
+                  <p className="font-medium">{formatDate(letter.validUntil)}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className='border rounded-md p-4 text-sm space-y-3'>
+              <h4 className="font-medium mb-4">File Information</h4>
+              <div>
+                <p className="text-muted-foreground text-xs">File Name</p>
+                <div className='border rounded-md p-2 bg-gray-50 flex items-center gap-2'>
+                  <p className="font-medium mb-0">
+                    {letter.filedir
+                      ? formatFileName(letter.filedir)
+                      : 'No file uploaded'}
+                  </p>
+                  {letter.filedir ? (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={handleViewFile}
+                      className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 ml-auto"
+                    >
+                      <Eye className="w-3 h-3" />
+                    </Button>
+                  ) : (
+                    <span className="ml-2">No file available</span>
+                  )}
                 </div>
               </div>
             </div>
