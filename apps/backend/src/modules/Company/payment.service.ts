@@ -112,7 +112,7 @@ export class PaymentService {
   async tripayCallbackHandler(req: any) {
     try {
       if (req) {
-        const data = req.data;
+        const data = req;
         const transactionData = {
           paymentMethod: data.payment_method,
           paidAt: new Date(parseInt(data.paid_at, 10) * 1000).toISOString(),

@@ -69,6 +69,17 @@ export class AuthService {
     let companyData: any = {};
     let userData: any = {};
 
+    const check = await this.prisma.employee.findFirst({
+      where:{email:dto.email}
+    });
+
+    if(check){
+      return {
+        statusCode: 409,
+        message: "Email already in use"
+      }
+    }
+
     //Company
     if (dto.name) companyData.name = dto.name;
     // companyData.max_employee = 10;
