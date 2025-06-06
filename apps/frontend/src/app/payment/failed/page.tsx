@@ -94,10 +94,10 @@ export default function PaymentFailedPage() {
           </Button>
           <Button 
             variant="outline" 
-            onClick={() => router.push('/dashboard')}
+            onClick={() => router.push('/signin')}
             className="w-full"
           >
-            Back to Dashboard
+            Back to Sign In
           </Button>
         </div>
       </div>

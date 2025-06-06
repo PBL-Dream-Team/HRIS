@@ -277,11 +277,11 @@ export default function PaymentPendingPage() {
               </Button>
               <Button 
                 variant="outline" 
-                onClick={() => router.push('/dashboard')}
+                onClick={() => router.push('/signin')}
                 className="flex-1 py-4"
                 size="lg"
               >
-                Back to Dashboard
+                Back to Sign In
               </Button>
             </div>
             
