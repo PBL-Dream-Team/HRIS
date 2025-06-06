@@ -46,7 +46,7 @@ export default function HrSignUpPage() {
     }
 
     setIsLoading(true);
-    
+
     try {
       const res = await api.post('/api/auth/signup', {
         name: formData.name,
@@ -57,12 +57,21 @@ export default function HrSignUpPage() {
         password: formData.password,
       });
 
-      toast.success(res.data.message || 'Sign up successful!');
-      router.push('/signin');
+      if (res.data.statusCode === 409) {
+        toast.error(res.data.message || 'Email already in use');
+        return;
+      }
+
+      if (res.data.statusCode === 201) {
+        toast.success(res.data.message || 'Sign up successful!');
+        router.push('/signin');
+      } else {
+        toast.error(res.data.message || 'Sign up failed. Please try again.');
+      }
     } catch (error: any) {
       console.error(error);
       toast.error(
-        'Sign up failed. Please check your credentials and try again.',
+        error.response?.data?.message || 'Sign up failed. Please check your credentials and try again.',
       );
     } finally {
       setIsLoading(false);

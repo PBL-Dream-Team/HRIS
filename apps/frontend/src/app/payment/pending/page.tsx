@@ -120,117 +120,138 @@ export default function PaymentPendingPage() {
       </div>
     );
   }
-
   return (
-    <div className="flex items-center justify-center min-h-screen bg-white px-4">
-      <div className="max-w-md w-full text-center text-black border rounded-lg p-6 shadow-sm">
-        <div className="text-yellow-500 text-6xl mb-4">⏳</div>
-        <h2 className="text-xl font-bold mb-4">Payment Pending</h2>
-        <p className="text-gray-600 mb-6">
-          Your payment is being processed. Please complete the payment to continue.
-        </p>
-
-        <div className="bg-gray-50 rounded-lg p-4 mb-6 text-left text-sm">
-          <h3 className="font-semibold mb-3">Payment Details</h3>
-          <div className="space-y-2">
-            <div className="flex justify-between">
-              <span>Reference:</span>
-              <span className="font-mono text-xs">{paymentDetail.reference}</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Merchant Ref:</span>
-              <span className="font-mono text-xs">{paymentDetail.merchant_ref}</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Amount:</span>
-              <span>Rp {paymentDetail.amount?.toLocaleString()}</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Method:</span>
-              <span>{paymentDetail.payment_name || paymentDetail.payment_method}</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Status:</span>
-              <span className={`font-semibold ${
-                paymentDetail.status === 'PAID' ? 'text-green-600' :
-                paymentDetail.status === 'UNPAID' ? 'text-yellow-600' :
-                'text-red-600'
-              }`}>
-                {paymentDetail.status}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span>Expires:</span>
-              <span className="text-xs">
-                {new Date(paymentDetail.expired_time * 1000).toLocaleString()}
-              </span>
-            </div>
-          </div>
+    <div className="min-h-screen bg-white px-4 py-8">
+      <div className="max-w-6xl mx-auto">
+        {/* Header Section */}
+        <div className="text-center mb-8">
+          <div className="text-yellow-500 text-6xl mb-4">⏳</div>
+          <h2 className="text-2xl font-bold mb-4 text-black">Payment Pending</h2>
+          <p className="text-gray-600">
+            Your payment is being processed. Please complete the payment to continue.
+          </p>
         </div>
 
-        {paymentDetail.order_items && paymentDetail.order_items.length > 0 && (
-          <div className="bg-gray-50 rounded-lg p-4 mb-6 text-left text-sm">
-            <h3 className="font-semibold mb-3">Order Items</h3>
-            {paymentDetail.order_items.map((item, index) => (
-              <div key={index} className="space-y-1">
+        {/* Desktop: 2 Column Layout, Mobile: Single Column */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Left Column - Payment Details & Order Items */}
+          <div className="space-y-6">
+            <div className="bg-gray-50 rounded-lg p-6 text-black border shadow-sm">
+              <h3 className="font-semibold mb-4 text-lg">Payment Details</h3>
+              <div className="space-y-3">
                 <div className="flex justify-between">
-                  <span>{item.name}</span>
-                  <span>x{item.quantity}</span>
+                  <span>Reference:</span>
+                  <span className="font-mono text-sm">{paymentDetail.reference}</span>
                 </div>
-                <div className="flex justify-between text-xs text-gray-600">
-                  <span>@Rp {item.price.toLocaleString()}</span>
-                  <span>Rp {item.subtotal.toLocaleString()}</span>
+                <div className="flex justify-between">
+                  <span>Merchant Ref:</span>
+                  <span className="font-mono text-sm">{paymentDetail.merchant_ref}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Amount:</span>
+                  <span className="font-semibold">Rp {paymentDetail.amount?.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Method:</span>
+                  <span>{paymentDetail.payment_name || paymentDetail.payment_method}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Status:</span>
+                  <span className={`font-semibold ${
+                    paymentDetail.status === 'PAID' ? 'text-green-600' :
+                    paymentDetail.status === 'UNPAID' ? 'text-yellow-600' :
+                    'text-red-600'
+                  }`}>
+                    {paymentDetail.status}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Expires:</span>
+                  <span className="text-sm">
+                    {new Date(paymentDetail.expired_time * 1000).toLocaleString()}
+                  </span>
                 </div>
               </div>
-            ))}
-          </div>
-        )}
+            </div>
 
-        {paymentDetail.instructions && paymentDetail.instructions.length > 0 && (
-          <div className="bg-blue-50 rounded-lg p-4 mb-6 text-left text-sm">
-            <h3 className="font-semibold mb-3">Payment Instructions</h3>
-            {paymentDetail.instructions.map((instruction, index) => (
-              <div key={index}>
-                <h4 className="font-medium mb-2">{instruction.title}</h4>
-                <ol className="list-decimal list-inside space-y-1 text-xs">
-                  {instruction.steps.map((step, stepIndex) => (
-                    <li key={stepIndex} dangerouslySetInnerHTML={{ __html: step }} />
+            {paymentDetail.order_items && paymentDetail.order_items.length > 0 && (
+              <div className="bg-gray-50 rounded-lg p-6 text-black border shadow-sm">
+                <h3 className="font-semibold mb-4 text-lg">Order Items</h3>
+                <div className="space-y-4">
+                  {paymentDetail.order_items.map((item, index) => (
+                    <div key={index} className="border-b border-gray-200 pb-3 last:border-b-0 last:pb-0">
+                      <div className="flex justify-between items-start mb-1">
+                        <span className="font-medium">{item.name}</span>
+                        <span className="text-sm">x{item.quantity}</span>
+                      </div>
+                      <div className="flex justify-between text-sm text-gray-600">
+                        <span>@Rp {item.price.toLocaleString()}</span>
+                        <span className="font-medium">Rp {item.subtotal.toLocaleString()}</span>
+                      </div>
+                    </div>
                   ))}
-                </ol>
+                </div>
               </div>
-            ))}
+            )}
           </div>
-        )}
 
-        <div className="space-y-3">
-          {(paymentDetail.pay_url || paymentDetail.checkout_url) && (
-            <Button 
-              onClick={openPaymentUrl}
-              className="w-full bg-blue-600 hover:bg-blue-700"
-            >
-              Complete Payment
-            </Button>
-          )}
-          <Button 
-            onClick={checkStatus} 
-            disabled={checking}
-            variant="outline"
-            className="w-full"
-          >
-            {checking ? 'Checking...' : 'Check Status'}
-          </Button>
-          <Button 
-            variant="outline" 
-            onClick={() => router.push('/dashboard')}
-            className="w-full"
-          >
-            Back to Dashboard
-          </Button>
+          {/* Right Column - Payment Instructions & Actions */}
+          <div className="space-y-6">
+            {paymentDetail.instructions && paymentDetail.instructions.length > 0 && (
+              <div className="bg-blue-50 rounded-lg p-6 text-black border shadow-sm">
+                <h3 className="font-semibold mb-4 text-lg">Payment Instructions</h3>
+                <div className="space-y-4">
+                  {paymentDetail.instructions.map((instruction, index) => (
+                    <div key={index}>
+                      <h4 className="font-medium mb-3 text-blue-800">{instruction.title}</h4>
+                      <ol className="list-decimal list-inside space-y-2 text-sm">
+                        {instruction.steps.map((step, stepIndex) => (
+                          <li key={stepIndex} dangerouslySetInnerHTML={{ __html: step }} />
+                        ))}
+                      </ol>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Action Buttons */}
+            <div className="bg-white rounded-lg p-6 border shadow-sm">
+              <div className="space-y-4">
+                {(paymentDetail.pay_url || paymentDetail.checkout_url) && (
+                  <Button 
+                    onClick={openPaymentUrl}
+                    className="w-full bg-[#1E3A5F] hover:bg-[#1E3A5F]/80 text-white py-3"
+                    size="lg"
+                  >
+                    Complete Payment
+                  </Button>
+                )}
+                <Button 
+                  onClick={checkStatus} 
+                  disabled={checking}
+                  variant="outline"
+                  className="w-full py-3"
+                  size="lg"
+                >
+                  {checking ? 'Checking...' : 'Check Status'}
+                </Button>
+                <Button 
+                  variant="outline" 
+                  onClick={() => router.push('/dashboard')}
+                  className="w-full py-3"
+                  size="lg"
+                >
+                  Back to Dashboard
+                </Button>
+              </div>
+              
+              <p className="text-xs text-gray-500 mt-6 text-center">
+                Payment Ref: {ref}
+              </p>
+            </div>
+          </div>
         </div>
-        
-        <p className="text-xs text-gray-500 mt-4">
-          Payment Ref: {ref}
-        </p>
       </div>
     </div>
   );
