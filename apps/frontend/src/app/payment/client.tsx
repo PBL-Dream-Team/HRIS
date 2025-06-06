@@ -60,7 +60,7 @@ export default function PaymentClient({ company_id }: { company_id: string | nul
     const expiryDate = new Date(expired * 1000).toISOString(); //ISO
 
     try {
-      await api.post(`/api/transaction`,{
+      await api.post(`/api/transaction`, {
         company_id: company_id,
         subscription_id: subscription_id,
         total: total,
@@ -86,9 +86,9 @@ export default function PaymentClient({ company_id }: { company_id: string | nul
       if (res.data?.success) {
         // Buka Tripay payment page di tab baru
         window.open(res.data.checkout_url, '_blank');
-        
+
         // Redirect ke pending page dengan merchant_ref
-        router.push(`/payment/pending?ref=`, res.data.tripayRef);
+        router.push(`/payment/pending?ref=${res.data.tripayRef}`);
       } else {
         console.error('Tripay Error:', res.data);
         router.push('/payment/failed');
