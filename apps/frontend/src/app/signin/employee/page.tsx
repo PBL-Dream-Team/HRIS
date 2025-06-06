@@ -16,10 +16,12 @@ export default function HrLoginPage() {
   const [checked, setChecked] = useState(false);
   const [input, setInput] = useState('');
   const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    setIsLoading(true);
 
     try {
       await api.post(
@@ -35,6 +37,8 @@ export default function HrLoginPage() {
     } catch (error) {
       console.error(error);
       toast.error('Login failed. Please check your credentials and try again.');
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -130,8 +134,9 @@ export default function HrLoginPage() {
             <Button
               type="submit"
               className="w-full bg-[#1E3A5F] hover:bg-blue-500"
+              disabled={isLoading}
             >
-              Sign In
+              {isLoading ? 'Loading...' : 'Sign In'}
             </Button>
 
             <Link href="/signin" passHref>
