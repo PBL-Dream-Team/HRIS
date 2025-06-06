@@ -186,11 +186,13 @@ export default function LettersClient({
   const handleLetterOperationSuccess = useCallback(async () => {
     await fetchData(); // Refresh data
     setOpenAddLetterDialog(false); // Close dialog
+    router.refresh(); // Refresh the page
   }, [fetchData]);
 
   const handleLetterTypeOperationSuccess = useCallback(async () => {
     await fetchData(); // Refresh data
     setOpenAddLetterTypeDialog(false); // Close dialog
+    router.refresh(); // Refresh the page
   }, [fetchData]);
 
   // Column Definition for DataTable
@@ -205,6 +207,7 @@ export default function LettersClient({
       ),
     [handleViewDetails, companyId, router],
   );
+  const [refreshKey, setRefreshKey] = useState(0);
 
   return (
     <SidebarProvider>
@@ -349,6 +352,7 @@ export default function LettersClient({
         open={isLetterDetailsSheetOpen}
         onOpenChange={setIsLetterDetailsSheetOpen}
         selectedLetter={selectedLetter}
+        avatarUrl={selectedLetter && selectedLetter.employee_id ? employees[selectedLetter.employee_id]?.pict_dir || '' : ''}
       />
     </SidebarProvider>
   );

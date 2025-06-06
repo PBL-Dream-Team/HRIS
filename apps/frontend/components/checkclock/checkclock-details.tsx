@@ -83,37 +83,30 @@ export default function CheckClockDetails({
                 </p>
               </div>
               <div className="ml-auto flex items-center gap-2 text-sm">
-                {(() => {
-                  switch (selectedCheckClock.approval) {
-                    case 'APPROVED':
-                      return (
-                        <div className="flex items-center">
-                          <span className="h-2 w-2 rounded-full bg-green-500 inline-block mr-2" />
-                          Approved
-                        </div>
-                      );
-                    case 'DISAPPROVED':
-                      return (
-                        <div className="flex items-center">
-                          <span className="h-2 w-2 rounded-full bg-red-500 inline-block mr-2" />
-                          Disapproved
-                        </div>
-                      );
-                    case 'PENDING':
-                      return (
-                        <div className="flex items-center">
-                          <span className="h-2 w-2 rounded-full bg-yellow-500 inline-block mr-2" />
-                          Pending
-                        </div>
-                      );
-                    default:
-                      return (
-                        <span className="text-gray-500 font-medium">
-                          -
-                        </span>
-                      );
-                  }
-                })()}
+                <p className="font-medium">
+                  {(() => {
+                    switch (selectedCheckClock.status) {
+                      case 'ON_TIME':
+                        return (
+                          <span className=" text-green-600">On Time</span>
+                        );
+                      case 'LATE':
+                        return (
+                          <span className=" text-red-600">Late</span>
+                        );
+                      case 'EARLY':
+                        return (
+                          <span className=" text-yellow-600">Early</span>
+                        );
+                      default:
+                        return (
+                          <span className="text-gray-500 font-medium">
+                            Unknown Status
+                          </span>
+                        );
+                    }
+                  })()}
+                </p>
               </div>
             </div>
 
@@ -128,30 +121,11 @@ export default function CheckClockDetails({
                   </p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground text-xs">Status</p>
+                  <p className="text-muted-foreground text-xs">Work Hours</p>
                   <p className="font-medium">
-                    {(() => {
-                      switch (selectedCheckClock.status) {
-                        case 'ON_TIME':
-                          return (
-                            <span className=" text-green-600">On Time</span>
-                          );
-                        case 'LATE':
-                          return (
-                            <span className=" text-red-600">Late</span>
-                          );
-                        case 'EARLY':
-                          return (
-                            <span className=" text-yellow-600">Early</span>
-                          );
-                        default:
-                          return (
-                            <span className="text-gray-500 font-medium">
-                              Unknown Status
-                            </span>
-                          );
-                      }
-                    })()}
+                    {selectedCheckClock.workHours != '0h'
+                      ? selectedCheckClock.workHours
+                      : '-'}
                   </p>
                 </div>
                 <div>
@@ -164,14 +138,6 @@ export default function CheckClockDetails({
                   <p className="text-muted-foreground text-xs">Clock Out</p>
                   <p className="font-medium">
                     {selectedCheckClock.clockOut.replace(/.*T/, '')}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground text-xs">Work Hours</p>
-                  <p className="font-medium">
-                    {selectedCheckClock.workHours != '0h'
-                      ? selectedCheckClock.workHours
-                      : '-'}
                   </p>
                 </div>
               </div>

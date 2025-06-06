@@ -96,10 +96,6 @@ export function AbsenceEditForm({
       toast.error('Please provide a reason for the absence.');
       return;
     }
-    if (!file) {
-      toast.error('Please upload an evidence picture.');
-      return;
-    }
     
     setLoading(true);
     setError(null);

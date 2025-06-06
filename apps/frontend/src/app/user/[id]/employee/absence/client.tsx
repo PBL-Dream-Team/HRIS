@@ -293,20 +293,6 @@ export default function AbsenceClient({
           </div>
 
           <div className="flex items-center gap-4">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="relative p-2 rounded-md hover:bg-muted">
-                  <Bell className="h-5 w-5" />
-                  <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-red-500" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>Notifications</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>New absence request</DropdownMenuItem>
-                <DropdownMenuItem>Pending approvals</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
             <NavUser user={user} isAdmin={isAdmin} />
           </div>
         </header>
