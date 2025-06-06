@@ -1,20 +1,48 @@
 version: '3.9'
 
 services:
-  app:
-    build: .
-    image: node:20
-    container_name: hris_prod
-    working_dir: /usr/src/app
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/frontend/dockerfile
+    container_name: hris_frontend
     ports:
       - 3000:3000
-      - 4000:4000
-    volumes:
-      - .:/usr/src/app
+    depends_on:
+      - backend
+    environment:
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+      - NEXT_PUBLIC_GOOGLE_CLIENT_ID=${NEXT_PUBLIC_GOOGLE_CLIENT_ID}
+      - NODE_ENV=development
+      - JWT_SECRET=${JWT_SECRET}
+
+  backend:
+    build:
+      context: .
+      dockerfile: docker/backend/dockerfile
+    container_name: hris_backend
+    ports:
+      - 8000:8000
     depends_on:
       - db
     environment:
-      - DATABASE_URL= ${{ secrets.DATABASE_URL }}
+      - DATABASE_URL=postgresql://${DATABASE_USER}:${DATABASE_PASSWORD}@db:5432/hris_dev?schema=public
+      - PORT=8000
+      - JWT_SECRET=${JWT_SECRET}
+      - FRONTEND_URL=${FRONTEND_URL}
+      - NODE_ENV=development
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASS=${SMTP_PASS}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - GOOGLE_CALLBACK_URL=${GOOGLE_CALLBACK_URL}
+      - JWT_ACCESS_TOKEN_EXPIRE=${JWT_ACCESS_TOKEN_EXPIRE}
+      - JWT_REFRESH_TOKEN_EXPIRE=${JWT_REFRESH_TOKEN_EXPIRE}
+      - TRIPAY_PRIVATE_KEY=${TRIPAY_PRIVATE_KEY}
+      - TRIPAY_MERCHAANT_CODE=${TRIPAY_MERCHANT_CODE}
+      - RETURN_URL=${RETURN_URL}
 
   db:
     image: postgres:15
@@ -23,10 +51,9 @@ services:
     ports:
       - 5432:5432
     environment:
-      POSTGRES_USER: ${{ secrets.DATABASE_USER }}
-      POSTGRES_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
       POSTGRES_DB: hris_dev
-      POSTGRES_HOST: ${{ secrets.DATABASE_HOST }}
     volumes:
       - postgres_data:/var/lib/postgresql/data
 

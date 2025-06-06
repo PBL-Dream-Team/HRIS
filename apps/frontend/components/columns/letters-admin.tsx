@@ -12,6 +12,7 @@ import {
 import { LetterForm } from '@/components/letter/letter-form';
 import { parse } from 'date-fns';
 import { id } from 'date-fns/locale';
+import { useState } from 'react';
 
 export type Letter = {
   id: string;
@@ -58,14 +59,14 @@ export const letterColumns = (
       try {
         date = new Date(rawDate);
         if (isNaN(date.getTime())) {
-          date = parse(rawDate, 'dd MMMM yyyy', new Date(), { locale: id });
+          date = parse(rawDate, 'MMMM dd yyyy', new Date(), { locale: id });
         }
       } catch {
         date = undefined;
       }
 
       return date && !isNaN(date.getTime())
-        ? date.toLocaleDateString('id-ID', {
+        ? date.toLocaleDateString('en-US', {
             day: '2-digit',
             month: 'long',
             year: 'numeric',
@@ -95,6 +96,8 @@ export const letterColumns = (
     header: 'Actions',
     cell: ({ row }) => {
       const letter = row.original;
+      const [editDialogOpen, setEditDialogOpen] = useState(false);
+      
       return (
         <div className="flex gap-2">
           <Link href={`/storage/letter/${letter.file_dir}`}>
@@ -116,7 +119,7 @@ export const letterColumns = (
             <Eye className="h-4 w-4" />
           </Button>
 
-          <Dialog>
+          <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
             <DialogTrigger asChild>
               <Button
                 variant="outline"
@@ -134,7 +137,11 @@ export const letterColumns = (
                 mode="edit"
                 companyId={companyId}
                 initialData={letter}
-                onSuccess={() => router.refresh()}
+                onSuccess={() => {
+                  window.location.reload();
+                  router.refresh();
+                  setEditDialogOpen(false);
+                }}
               />
             </DialogContent>
           </Dialog>

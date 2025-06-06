@@ -83,7 +83,7 @@ export default function AttendanceTableCard() {
           <div className="flex items-center gap-2 pb-4">
             <CardTitle className="text-xl">Attendance Summary</CardTitle>
             <div className="absolute right-4 top-4 pr-1 flex items-center">
-              <SelectMonthFilter />
+              {/* <SelectMonthFilter /> */}
               <a href="/user/[id]/employee/checkclock">
                 <button>
                   <ExternalLink className="h-7 w-7 ml-2" />

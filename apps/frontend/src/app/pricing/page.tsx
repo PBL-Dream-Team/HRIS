@@ -31,32 +31,32 @@ const singlePayment = [
     features: [true, true, true, true],
   },
   {
-    title: 'Silver',
+    title: 'Bronze',
     description:
       'An ideal package for startups and small businesses looking to digitize their HR management with essential yet powerful features.',
-    price: 'Rp. 25.000',
-    range: '25 Employee',
+    price: 'Rp. 14.000',
+    range: '14 Employee',
+    features: [true, true, true, true],
+  },
+  {
+    title: 'Silver',
+    description:
+      'Perfect for growing businesses that require more flexibility and additional advanced features to manage their workforce efficiently.',
+    price: 'Rp. 45.000',
+    range: '30 Employee',
     features: [true, true, true, true],
   },
   {
     title: 'Gold',
     description:
-      'Perfect for growing businesses that require more flexibility and additional advanced features to manage their workforce efficiently.',
-    price: 'Rp. 50.000',
-    range: '50 Employee',
-    features: [true, true, true, true],
-  },
-  {
-    title: 'Diamond',
-    description:
       'The best choice for medium to large enterprises aiming for maximum efficiency and full utilization of HRIS capabilities.',
-    price: 'Rp. 100.000',
-    range: '100 Employee',
+    price: 'Rp. 90.000',
+    range: '60 Employee',
     features: [true, true, true, true],
   },
 ];
 
-const baseEmployeePrice = 2000;
+const baseEmployeePrice = 1000;
 
 export default function PricingPage() {
   const router = useRouter();

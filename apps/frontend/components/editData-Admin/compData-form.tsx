@@ -156,6 +156,25 @@ export function EditCompany({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validasi input sebelum submit
+    if (!name) {
+      toast.error('Company name is required');
+      return;
+    }
+    if (!address) {
+      toast.error('Company address is required');
+      return;
+    }
+    if (!loc_lat || !loc_long) {
+      toast.error('Please select a location on the map or search for an address');
+      return;
+    }
+    if (name.length < 3) {
+      toast.error('Company name must be at least 3 characters long');
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -215,7 +234,7 @@ export function EditCompany({
 
         <div className="grid grid-cols-1 gap-4">
           <div>
-            <Label>Company Name</Label>
+            <Label>Company Name *</Label>
             <Input
               id="name"
               value={name}
@@ -225,7 +244,7 @@ export function EditCompany({
           </div>
 
           <div>
-            <Label>Company Address</Label>
+            <Label>Company Address *</Label>
             <div className="flex gap-2">
               <Input
                 value={address}
@@ -254,7 +273,7 @@ export function EditCompany({
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label>Latitude</Label>
+              <Label>Latitude *</Label>
               <Input
                 value={loc_lat}
                 onChange={(e) => setLocLat(e.target.value)}
@@ -263,7 +282,7 @@ export function EditCompany({
               />
             </div>
             <div>
-              <Label>Longitude</Label>
+              <Label>Longitude *</Label>
               <Input
                 value={loc_long}
                 onChange={(e) => setLocLong(e.target.value)}

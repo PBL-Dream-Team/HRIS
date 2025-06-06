@@ -58,7 +58,9 @@ type LettersClientProps = {
 
 type UserState = {
   name: string;
-  email: string;
+  first_name: string;
+  last_name: string;
+  position: string;
   avatar: string;
 };
 
@@ -72,7 +74,9 @@ export default function LettersClient({
   // State Hooks
   const [user, setUser] = useState<UserState>({
     name: '',
-    email: '',
+    first_name: '',
+    last_name: '',
+    position: '',
     avatar: '',
   });
   const [employees, setEmployees] = useState<Record<string, any>>({});
@@ -89,14 +93,20 @@ export default function LettersClient({
   const [isLetterTypesOverviewOpen, setIsLetterTypesOverviewOpen] =
     useState(false);
 
+  // Dialog states - updated
+  const [openAddLetterDialog, setOpenAddLetterDialog] = useState(false);
+  const [openAddLetterTypeDialog, setOpenAddLetterTypeDialog] = useState(false);
+
   // Data Fetching
   const fetchData = useCallback(async () => {
     try {
       const userRes = await api.get(`/api/employee/${userId}`);
-      const { first_name, last_name, email, pict_dir } = userRes.data.data;
+      const { first_name, last_name, position, pict_dir } = userRes.data.data;
       setUser({
         name: `${first_name} ${last_name}`,
-        email: email,
+        first_name: first_name,
+        last_name: last_name,
+        position: position,
         avatar: pict_dir || '/avatars/default.jpg',
       });
 
@@ -172,8 +182,17 @@ export default function LettersClient({
     }
   };
 
-  const handleOperationSuccess = useCallback(async () => {
-    await fetchData();
+  // Updated success handlers
+  const handleLetterOperationSuccess = useCallback(async () => {
+    await fetchData(); // Refresh data
+    setOpenAddLetterDialog(false); // Close dialog
+    router.refresh(); // Refresh the page
+  }, [fetchData]);
+
+  const handleLetterTypeOperationSuccess = useCallback(async () => {
+    await fetchData(); // Refresh data
+    setOpenAddLetterTypeDialog(false); // Close dialog
+    router.refresh(); // Refresh the page
   }, [fetchData]);
 
   // Column Definition for DataTable
@@ -188,6 +207,7 @@ export default function LettersClient({
       ),
     [handleViewDetails, companyId, router],
   );
+  const [refreshKey, setRefreshKey] = useState(0);
 
   return (
     <SidebarProvider>
@@ -245,10 +265,12 @@ export default function LettersClient({
                       />
                     </DialogContent>
                   </Dialog>
-                  {/* Zsada */}
 
-                  {/* Add Letter Type Dialog */}
-                  <Dialog>
+                  {/* Add Letter Type Dialog - Updated */}
+                  <Dialog 
+                    open={openAddLetterTypeDialog} 
+                    onOpenChange={setOpenAddLetterTypeDialog}
+                  >
                     <DialogTrigger asChild>
                       <Button>
                         <MailPlus className="mr-2 h-4 w-4" /> Add Letter Type
@@ -261,13 +283,17 @@ export default function LettersClient({
                       <LetterTypeForm
                         companyId={companyId}
                         mode="create"
-                        onSuccess={handleOperationSuccess}
+                        onSuccess={handleLetterTypeOperationSuccess}
+                        onClose={() => setOpenAddLetterTypeDialog(false)}
                       />
                     </DialogContent>
                   </Dialog>
 
-                  {/* Add Letter Dialog */}
-                  <Dialog>
+                  {/* Add Letter Dialog - Updated */}
+                  <Dialog 
+                    open={openAddLetterDialog} 
+                    onOpenChange={setOpenAddLetterDialog}
+                  >
                     <DialogTrigger asChild>
                       <Button>
                         <IoMdAdd className="mr-2 h-4 w-4" /> Add Letter
@@ -280,7 +306,8 @@ export default function LettersClient({
                       <LetterForm
                         mode="create"
                         companyId={companyId}
-                        onSuccess={handleOperationSuccess}
+                        onSuccess={handleLetterOperationSuccess}
+                        onClose={() => setOpenAddLetterDialog(false)}
                       />
                     </DialogContent>
                   </Dialog>
@@ -325,6 +352,7 @@ export default function LettersClient({
         open={isLetterDetailsSheetOpen}
         onOpenChange={setIsLetterDetailsSheetOpen}
         selectedLetter={selectedLetter}
+        avatarUrl={selectedLetter && selectedLetter.employee_id ? employees[selectedLetter.employee_id]?.pict_dir || '' : ''}
       />
     </SidebarProvider>
   );

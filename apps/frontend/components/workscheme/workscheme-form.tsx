@@ -467,31 +467,8 @@ export function WorkshemeForm({
               <li>
                 • Workspace location is optional for flexible arrangements
               </li>
-              <li>
-                • Time format will be converted to ISO 8601 timestamp for
-                backend
-              </li>
             </ul>
           </div>
-
-          {/* Debug info - Remove in production */}
-          {(checkIn || checkOut) && (
-            <div className="p-2 bg-blue-50 rounded text-xs">
-              <p>
-                <strong>Preview:</strong>
-              </p>
-              {checkIn && (
-                <p>
-                  Check In: {checkIn} → {timeStringToTimestamp(checkIn)}
-                </p>
-              )}
-              {checkOut && (
-                <p>
-                  Check Out: {checkOut} → {timeStringToTimestamp(checkOut)}
-                </p>
-              )}
-            </div>
-          )}
         </div>
       </div>
 

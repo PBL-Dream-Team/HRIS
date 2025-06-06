@@ -3,7 +3,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { createAttendanceDto } from './dtos/createAttendance.dto';
 import { editAttendanceDto } from './dtos/editAttendance.dto';
 import { join } from 'path';
-import { createWriteStream, existsSync, unlinkSync } from 'fs';
+import { createWriteStream} from 'fs';
 
 function isTimeAfter(timeA: Date, timeB: Date): boolean {
   const getTimeOnlyMs = (d: Date) =>
@@ -216,51 +216,5 @@ export class AttendanceService {
     return await this.prisma.attendance.findMany({ where });
   }
 
-  async getMonthlyWorkInfo(employeeId: string, month: number, year: number) {
-    const startDate = new Date(year, month - 1, 1);
-    const endDate = new Date(year, month, 1); // awal bulan berikutnya
-
-    const attendances = await this.prisma.attendance.findMany({
-      where: {
-        employee_id: employeeId,
-        is_deleted: false,
-        created_at: {
-          gte: startDate,
-          lt: endDate,
-        },
-      },
-    });
-
-    let totalWorkMinutes = 0;
-    let onTimeCount = 0;
-    let lateCount = 0;
-
-    for (const attendance of attendances) {
-      if (attendance.check_in && attendance.check_out) {
-        const [inHour, inMin] = attendance.check_in
-          .toDateString()
-          .split(':')
-          .map(Number);
-        const [outHour, outMin] = attendance.check_out
-          .toDateString()
-          .split(':')
-          .map(Number);
-
-        const checkIn = new Date(0, 0, 0, inHour, inMin);
-        const checkOut = new Date(0, 0, 0, outHour, outMin);
-        const diff = (checkOut.getTime() - checkIn.getTime()) / 1000 / 60;
-        totalWorkMinutes += diff;
-      }
-
-      if (attendance.check_in_status === 'ON_TIME') onTimeCount++;
-      else if (attendance.check_in_status === 'LATE') lateCount++;
-    }
-
-    return {
-      workHours: `${Math.floor(totalWorkMinutes / 60)}h ${Math.round(totalWorkMinutes % 60)}m`,
-      onTimeDays: onTimeCount,
-      lateDays: lateCount,
-      leaveDays: 0,
-    };
-  }
+  
 }

@@ -5,15 +5,15 @@ import {
   HttpStatus,
   Post,
   Res,
+  Req,
   Query,
   Get,
   ForbiddenException,
 } from '@nestjs/common';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import { AuthEmailDto } from './dtos';
 import { RegDto } from './dtos';
-import { AuthIdDto } from './dtos';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { ForgotPasswordDto } from './dtos/forgotPassword.dto';
 import { ResetPasswordDto } from './dtos/resetPassword.dto';
@@ -40,12 +40,20 @@ export class AuthController {
 
     if (token['access_token'] != null) {
       res.cookie('jwt', token['access_token'], {
-        //One of my most embarassing logical lapse, can't believe it made me revise my code for hours
         httpOnly: true,
         secure: true,
         sameSite: 'none',
         domain: process.env.COOKIE_DOMAIN || 'localhost',
         maxAge: 1000 * 60 * 60 * 24 * 7,
+      });
+
+      res.cookie('jwt_refresh', token['refresh_token'], {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none',
+        domain: process.env.COOKIE_DOMAIN || 'localhost',
+        maxAge: 1000 * 60 * 60 * 24 * 7,
+        path: '/api/auth/refresh'
       });
 
       return {
@@ -85,7 +93,9 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @Post('logout')
   logout(@Res({ passthrough: true }) res: Response) {
-    res.clearCookie('hris_jwt');
+    res.clearCookie('jwt');
+
+    res.clearCookie('jwt_refresh')
     return {
       statusCode: 204,
       message: 'Logged Out',
@@ -136,6 +146,42 @@ export class AuthController {
       return {
         statusCode: 200,
         message: 'Login successfully',
+      };
+    } else {
+      throw {
+        statusCode: token['statusCode'],
+        message: token['message'],
+      };
+    }
+  }
+
+  @Post('refresh')
+  async tokenRefresh(@Req() req: Request, @Res() res: Response){
+    const token = req.cookies['jwt_refresh'];
+
+    const newToken = this.authService.tokenRefresh(token);
+
+    if (newToken['access_token'] != null) {
+      res.cookie('jwt', token['access_token'], {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none',
+        domain: process.env.COOKIE_DOMAIN || 'localhost',
+        maxAge: 1000 * 60 * 60 * 24 * 7,
+      });
+
+      res.cookie('jwt_refresh', newToken['refresh_token'], {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none',
+        domain: process.env.COOKIE_DOMAIN || 'localhost',
+        maxAge: 1000 * 60 * 60 * 24 * 7,
+        path: '/api/auth/refresh'
+      });
+
+      return {
+        statusCode: 200,
+        message: 'Token refresh successful',
       };
     } else {
       throw {

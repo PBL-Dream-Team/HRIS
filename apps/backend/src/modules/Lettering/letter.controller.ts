@@ -16,7 +16,7 @@ import { editLetterDto } from './dtos/editLetter.dto';
 import { LetterService } from './letter.service';
 import { JwtGuard, SubscriptionGuard } from '../Auth/guard';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
-import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor} from '@nestjs/platform-express';
 import { UploadExtensionInterceptor } from '../../multer/image_upload.interceptor';
 
 @ApiTags('letter')

@@ -7,13 +7,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install dependencies
-        run: npm install
-
-      - name: Reset database with Prisma
-        run: npx prisma migrate reset --force
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      - name: Wait 2 minute before starting tests
+        run: |
+          echo "Waiting 2 minute before starting Cypress tests..."
+          sleep 120
+          echo "Wait completed. Starting Cypress tests..."
 
       - name: Cypress run
         uses: cypress-io/github-action@v6

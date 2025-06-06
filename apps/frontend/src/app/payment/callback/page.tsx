@@ -9,11 +9,17 @@ export default function PaymentCallbackPage() {
 
   useEffect(() => {
     const status = searchParams.get('status'); // success atau failed
+    const tripayReference = searchParams.get('tripay_reference');
+
+    // Use tripay_merchant_ref as the main reference, fallback to tripay_reference
+    const ref = tripayReference;
 
     if (status === 'success') {
-      router.replace('/payment/success');
+      const successUrl = ref ? `/payment/success?ref=${ref}` : '/payment/success';
+      router.replace(successUrl);
     } else {
-      router.replace('/payment/failed');
+      const failedUrl = ref ? `/payment/failed?ref=${ref}` : '/payment/failed';
+      router.replace(failedUrl);
     }
   }, [searchParams, router]);
 

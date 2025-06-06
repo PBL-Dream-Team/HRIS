@@ -18,14 +18,19 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 
-type WorkStats = {
+
+type WorkInformationProps = {
   workHours: string;
   onTimeDays: number;
   lateDays: number;
   leaveDays: number;
 };
-
-export default function WorkInformation({ stats }: { stats: WorkStats }) {
+export default function WorkInformation({
+  workHours,
+  onTimeDays,
+  lateDays,
+  leaveDays,
+}: WorkInformationProps) {
   return (
     <div className="grid auto-rows-min gap-4 md:grid-cols-4 sm:grid-cols-2">
       <Card className="@container/card border-black border-3">
@@ -37,7 +42,7 @@ export default function WorkInformation({ stats }: { stats: WorkStats }) {
             </div>
           </CardTitle>
           <CardDescription className="text-black text-4xl font-semibold">
-            {stats.workHours}
+            {workHours}
           </CardDescription>
         </CardHeader>
       </Card>
@@ -51,7 +56,7 @@ export default function WorkInformation({ stats }: { stats: WorkStats }) {
             </div>
           </CardTitle>
           <CardDescription className="text-[#257047] text-4xl font-semibold">
-            {stats.onTimeDays} days
+            {onTimeDays} days
           </CardDescription>
         </CardHeader>
       </Card>
@@ -65,7 +70,7 @@ export default function WorkInformation({ stats }: { stats: WorkStats }) {
             </div>
           </CardTitle>
           <CardDescription className="text-[#FFAB00] text-4xl font-semibold">
-            {stats.lateDays} days
+            {lateDays} days
           </CardDescription>
         </CardHeader>
       </Card>
@@ -79,7 +84,7 @@ export default function WorkInformation({ stats }: { stats: WorkStats }) {
             </div>
           </CardTitle>
           <CardDescription className="text-[#C11106] text-4xl font-semibold">
-            {stats.lateDays} days
+            {leaveDays} days
           </CardDescription>
         </CardHeader>
       </Card>

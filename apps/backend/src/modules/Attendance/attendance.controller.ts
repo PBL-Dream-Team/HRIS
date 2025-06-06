@@ -8,16 +8,12 @@ import {
   Patch,
   UseGuards,
   Query,
-  UploadedFile,
-  UseInterceptors,
 } from '@nestjs/common';
 import { createAttendanceDto } from './dtos/createAttendance.dto';
 import { editAttendanceDto } from './dtos/editAttendance.dto';
 import { AttendanceService } from './attendance.service';
 import { JwtGuard, SubscriptionGuard } from '../Auth/guard';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
-import { UploadExtensionInterceptor } from '../../multer/image_upload.interceptor';
-import { FileInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('attendance')
 @UseGuards(JwtGuard)
@@ -64,12 +60,4 @@ export class AttendanceController {
     return this.AttendanceService.deleteAttendance(attendanceId);
   }
 
-  @Get(':id/work-info')
-  async getWorkInformation(
-    @Param('id') id: string,
-    @Query('month') month: number,
-    @Query('year') year: number,
-  ) {
-    return this.AttendanceService.getMonthlyWorkInfo(id, month, year);
-  }
 }

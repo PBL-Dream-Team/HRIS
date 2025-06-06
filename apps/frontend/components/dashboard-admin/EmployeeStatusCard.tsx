@@ -79,7 +79,7 @@ export default function EmployeeStatusCard({ data }: Props) {
             </CardDescription>
           </div>
           <div className="absolute right-4 top-4 pr-1">
-            <SelectMonthFilter />
+            {/* <SelectMonthFilter /> */}
           </div>
         </div>
       </CardHeader>

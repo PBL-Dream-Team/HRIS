@@ -23,7 +23,9 @@ export function NavUser({
 }: {
   user: {
     name: string;
-    email: string;
+    first_name: string;
+    last_name: string;
+    position: string;
     avatar: string;
   };
   isAdmin?: boolean;
@@ -47,12 +49,15 @@ export function NavUser({
       <DropdownMenuTrigger asChild>
         <button className="flex items-center gap-2 rounded-lg cursor-pointer focus:outline-none max-w-40">
           <Avatar className="h-8 w-8 rounded-lg">
-            <AvatarImage src={user.avatar} alt={user.name} />
-            <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+            <AvatarImage src={`/storage/employee/${user.avatar}`} alt={user.name} />
+            <AvatarFallback>
+              {user.first_name?.[0]}
+              {user.last_name?.[0]}
+            </AvatarFallback>
           </Avatar>
           <div className="hidden lg:grid text-left text-sm leading-tight">
             <span className="truncate font-medium">{user.name}</span>
-            <span className="truncate text-xs">{user.email}</span>
+            <span className="truncate text-xs">{user.position}</span>
           </div>
         </button>
       </DropdownMenuTrigger>
@@ -71,18 +76,11 @@ export function NavUser({
             </Avatar>
             <div className="grid flex-1 text-left text-sm leading-tight">
               <span className="truncate font-medium">{user.name}</span>
-              <span className="truncate text-xs">{user.email}</span>
+              <span className="truncate text-xs">{user.position}</span>
             </div>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        {/* <DropdownMenuGroup>
-          <DropdownMenuItem>
-            <Sparkles className="mr-2 h-4 w-4" />
-            Upgrade to Pro
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
-        <DropdownMenuSeparator /> */}
         <DropdownMenuGroup>
           <Link href="account" className="w-full">
             <DropdownMenuItem>
@@ -100,10 +98,6 @@ export function NavUser({
               </DropdownMenuItem>
             </Link>
           )}
-          {/* <DropdownMenuItem>
-            <Bell className="mr-2 h-4 w-4" />
-            Notifications
-          </DropdownMenuItem> */}
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem onSelect={handleLogout}>

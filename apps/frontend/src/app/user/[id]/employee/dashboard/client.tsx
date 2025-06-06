@@ -66,7 +66,7 @@ export default function DashboardClient({
   });
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchUser = async () => {
       try {
         const userRes = await api.get(`/api/employee/${userId}`);
         const { first_name, last_name, email, pict_dir } = userRes.data.data;
@@ -76,26 +76,143 @@ export default function DashboardClient({
           email,
           avatar: pict_dir || '/avatars/default.jpg',
         });
-
-        const statsRes = await api.get(`/api/employee/${userId}/work-info`);
-        const { workHours, onTimeDays, lateDays, leaveDays } = statsRes.data;
-
-        setWorkStats({
-          workHours,
-          onTimeDays,
-          lateDays,
-          leaveDays,
-        });
-      } catch (err: any) {
-        console.error(
-          'Error fetching data:',
-          err.response?.data || err.message,
-        );
+      } catch (error) {
+        console.error('Failed to fetch user data:', error);
       }
     };
 
-    fetchData();
+    fetchUser();
   }, [userId]);
+
+  useEffect(() => {
+    const fetchAttendanceData = async () => {
+      try {
+        const now = new Date();
+
+        const res = await api.get(`/api/attendance?employee_id=${userId}`);
+        const attendance = res.data;
+
+        let totalMinutes = 0;
+        let onTime = 0;
+        let late = 0;
+
+        attendance.forEach((record: any) => {
+          const checkInTime = new Date(record.check_in);
+          const checkOutTime = new Date(record.check_out);
+          const workDuration = (checkOutTime.getTime() - checkInTime.getTime()) / (1000 * 60); // in minutes
+          if (workDuration > 0) {
+            totalMinutes += workDuration;
+          }
+
+          if (record.check_in_status === 'ON_TIME') {
+            onTime++;
+          } else if (record.check_in_status === 'LATE') {
+            late++;
+          }
+        });
+
+        const hours = Math.floor(totalMinutes / 60);
+        const minutes = Math.floor(totalMinutes % 60);
+
+        const resAbsence = await api.get(`/api/absence?employee_id=${userId}`);
+        const absences = resAbsence.data;
+
+        // Hitung jumlah LEAVE yang statusnya APPROVED
+        const leaveDays = absences.filter(
+          (a: any) => a.status === 'APPROVED'
+        ).length;
+
+        setWorkStats({
+          workHours: `${hours}h ${minutes}m`,
+          onTimeDays: onTime,
+          lateDays: late,
+          leaveDays,
+        });
+
+
+      } catch (error) {
+        console.error('Failed to fetch attendance data:', error);
+      }
+    };
+
+    fetchAttendanceData();
+  }, [userId]);
+
+  type AttendanceSummary = {
+  onTime: number;
+  late: number;
+  leave: number;
+  sick: number;
+  permit: number;
+};
+  const [attendanceSummary, setAttendanceSummary] = useState<AttendanceSummary>({
+  onTime: 0,
+  late: 0,
+  leave: 0,
+  sick: 0,
+  permit: 0,
+});
+
+useEffect(() => {
+  const fetchAttendanceSummary = async () => {
+    try {
+      // Get attendance
+      const attendanceRes = await api.get(`/api/attendance?employee_id=${userId}`);
+      const attendances = attendanceRes.data;
+
+      let onTime = 0;
+      let late = 0;
+
+      attendances.forEach((record: any) => {
+        if (record.check_in_status === 'ON_TIME') {
+          onTime++;
+        } else if (record.check_in_status === 'LATE') {
+          late++;
+        }
+      });
+
+      // Get absence
+      const absenceRes = await api.get(`/api/absence?employee_id=${userId}`);
+      const absences = absenceRes.data;
+
+      let leave = 0;
+      let sick = 0;
+      let permit = 0;
+
+      absences.forEach((item: any) => {
+        if (item.status === 'APPROVED') {
+          switch (item.type) {
+            case 'LEAVE':
+              leave++;
+              break;
+            case 'SICK':
+              sick++;
+              break;
+            case 'PERMIT':
+              permit++;
+              break;
+            default:
+              break;
+          }
+        }
+      });
+
+      setAttendanceSummary({
+        onTime,
+        late,
+        leave,
+        sick,
+        permit,
+      });
+
+    } catch (error) {
+      console.error('Failed to fetch attendance summary:', error);
+    }
+  };
+
+  fetchAttendanceSummary();
+}, [userId]);
+
 
   return (
     <SidebarProvider>
@@ -145,10 +262,16 @@ export default function DashboardClient({
         </header>
 
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-          <WorkInformation stats={workStats} />
+          <WorkInformation
+            workHours={workStats.workHours}
+            onTimeDays={workStats.onTimeDays}
+            lateDays={workStats.lateDays}
+            leaveDays={workStats.leaveDays}
+          />
           <div className="flex flex-col gap-4">
             <div className="grid gap-4 sm:grid-cols-2">
-              <AttendanceSummaryCard />
+              <AttendanceSummaryCard summary={attendanceSummary} />
+
               <LeaveSummaryCard />
             </div>
             <div className="h-[100px]">

@@ -120,7 +120,7 @@ export default function PricingSection() {
                   className="w-full mt-4"
                   onClick={() => {
                     router.push(
-                      `/payment?title=${plan.title}&price=${plan.price}&range=${plan.range}&type=single`,
+                      `/signup`,
                     );
                   }}
                 >
@@ -185,7 +185,7 @@ export default function PricingSection() {
                   className="w-full mt-4"
                   onClick={() => {
                     router.push(
-                      `/payment?title=${plan.title}&price=${baseEmployeePrice}&range=${employeeCount}&type=payg`,
+                      `/signup`,
                     );
                   }}
                 >

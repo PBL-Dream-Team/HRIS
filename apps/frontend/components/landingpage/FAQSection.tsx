@@ -26,50 +26,47 @@ export function FaqSection() {
       {/* Right: FAQ Content */}
       <div>
         <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-          Pertanyaan yang Sering Diajukan
+          Frequently Asked Questions
         </h2>
         <p className="text-gray-600 text-lg mb-8">
-          Temukan jawaban atas pertanyaan umum seputar platform kami.
+          Find answers to common questions about our platform.
         </p>
 
         <Accordion type="single" collapsible className="text-left space-y-4">
           <AccordionItem value="item-1">
             <AccordionTrigger>
-              Apa itu HRIS dan mengapa penting untuk perusahaan?
+              What is an HRIS and why is it important for companies?
             </AccordionTrigger>
             <AccordionContent>
-              HRIS adalah sistem digital yang membantu mengelola data karyawan,
-              absensi, cuti, payroll, dan lainnya secara efisien.
+              An HRIS is a digital system that helps manage employee data,
+              attendance, leave, payroll, and more efficiently.
             </AccordionContent>
           </AccordionItem>
 
           <AccordionItem value="item-2">
             <AccordionTrigger>
-              Apakah platform ini cocok untuk UKM?
+              Is this platform suitable for small businesses?
             </AccordionTrigger>
             <AccordionContent>
-              Sangat cocok! Sistem kami fleksibel dan scalable untuk berbagai
-              ukuran bisnis.
+              Absolutely! Our system is flexible and scalable for businesses of all sizes.
             </AccordionContent>
           </AccordionItem>
 
           <AccordionItem value="item-3">
             <AccordionTrigger>
-              Apakah saya bisa mencoba sebelum berlangganan?
+              Can I try it before subscribing?
             </AccordionTrigger>
             <AccordionContent>
-              Ya, Anda bisa mencoba secara gratis selama 14 hari tanpa kartu
-              kredit.
+              Yes, you can try it for free for 14 days with no credit card required.
             </AccordionContent>
           </AccordionItem>
 
           <AccordionItem value="item-4">
             <AccordionTrigger>
-              Bagaimana dengan keamanan data karyawan?
+              How is employee data security handled?
             </AccordionTrigger>
             <AccordionContent>
-              Kami menggunakan enkripsi dan praktik keamanan terbaik untuk
-              melindungi data Anda.
+              We use encryption and best security practices to protect your data.
             </AccordionContent>
           </AccordionItem>
         </Accordion>

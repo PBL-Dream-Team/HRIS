@@ -20,7 +20,8 @@ import { format, parse, isValid } from 'date-fns';
 import { toast } from 'sonner';
 
 // Icons
-import { FaFile } from 'react-icons/fa6';
+import { FaFile, FaTrash, FaUpload } from 'react-icons/fa6';
+import {Eye} from 'lucide-react';
 
 // Type Definitions
 type EmployeeOption = {
@@ -43,6 +44,8 @@ export type LetterFormData = {
   valid_until: string;
   is_active: boolean;
   file_url?: string;
+  file_name?: string;
+  file_dir?: string;
 };
 
 type LetterFormProps = {
@@ -54,8 +57,8 @@ type LetterFormProps = {
 };
 
 // Constants
-const DATE_DISPLAY_FORMAT = 'dd/MM/yyyy';
-const DATE_PARSE_FORMAT = 'dd MMMM yyyy';
+const DATE_DISPLAY_FORMAT = 'MM/dd/yyyy';
+const DATE_PARSE_FORMAT = 'MMMM dd yyyy';
 
 export function LetterForm({
   mode,
@@ -81,36 +84,55 @@ export function LetterForm({
 
   // State for loading indicators or errors during option fetching
   const [isLoadingOptions, setIsLoadingOptions] = useState<boolean>(true);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+
+  // Enhanced file state management
+  const [existingFile, setExistingFile] = useState<{
+    url: string;
+    name: string;
+  } | null>(null);
+  const [fileAction, setFileAction] = useState<'keep' | 'replace' | 'remove'>('keep');
 
   // Fetch employees and letter types for select options
-  useEffect(() => {
-    const fetchOptions = async () => {
-      setIsLoadingOptions(true);
-      try {
-        const [empRes, typeRes] = await Promise.all([
-          api.get(`/api/employee?company_id=${companyId}`),
-          api.get(`/api/letterType?company_id=${companyId}`),
-        ]);
-        setEmployees(empRes.data ?? []);
-        setLetterTypes(typeRes.data ?? []);
-      } catch (error) {
-        console.error('Error fetching form options:', error);
-        toast.error('Failed to load employees or letter types.');
-        setEmployees([]);
-        setLetterTypes([]);
-      } finally {
-        setIsLoadingOptions(false);
-      }
-    };
+  const fetchOptions = useCallback(async () => {
+    if (!companyId) return;
 
-    if (companyId) {
-      fetchOptions();
+    setIsLoadingOptions(true);
+    try {
+      const [empRes, typeRes] = await Promise.all([
+        api.get(`/api/employee?company_id=${companyId}`),
+        api.get(`/api/letterType?company_id=${companyId}`),
+      ]);
+
+      setEmployees(empRes.data ?? []);
+      setLetterTypes(typeRes.data ?? []);
+
+      if ((empRes.data ?? []).length === 0) {
+        toast.warning('No employees found for this company.');
+      }
+      if ((typeRes.data ?? []).length === 0) {
+        toast.warning('No letter types found. Please create letter types first.');
+      }
+    } catch (error: any) {
+      console.error('Error fetching form options:', error);
+      toast.error('Failed to load employees or letter types.');
+      setEmployees([]);
+      setLetterTypes([]);
+    } finally {
+      setIsLoadingOptions(false);
     }
   }, [companyId]);
 
-  // Initialize form with initialData when in 'edit' mode and options are loaded
   useEffect(() => {
-    if (mode === 'edit' && initialData && !isLoadingOptions) {
+    fetchOptions();
+  }, [fetchOptions]);
+
+  // Initialize form with initialData when in 'edit' mode
+  useEffect(() => {
+    if (mode === 'edit' && initialData) {
+      console.log('Initializing form with data:', initialData);
+      
       setEmployeeId(initialData.employee_id || '');
       setLetterTypeId(initialData.lettertype_id || '');
       setLetterName(initialData.name || '');
@@ -120,37 +142,172 @@ export function LetterForm({
       let parsedDate: Date | undefined = undefined;
       if (initialData.valid_until) {
         try {
+          // Handle both ISO string and formatted date string
           const dateValue = new Date(initialData.valid_until);
           if (isValid(dateValue)) {
             parsedDate = dateValue;
+          } else {
+            // Try parsing Indonesian formatted date like "11 Juni 2025"
+            const parts = initialData.valid_until.split(' ');
+            if (parts.length >= 3) {
+              const day = parseInt(parts[0]);
+              const monthMap: Record<string, number> = {
+                'January': 0, 'February': 1, 'March': 2, 'April': 3,
+                'May': 4, 'June': 5, 'July': 6, 'August': 7,
+                'September': 8, 'October': 9, 'November': 10, 'December': 11
+              };
+              const month = monthMap[parts[1]];
+              const year = parseInt(parts[2]);
+              if (!isNaN(day) && month !== undefined && !isNaN(year)) {
+                parsedDate = new Date(year, month, day);
+              }
+            }
           }
         } catch (e) {
           console.error('Error parsing date:', e);
         }
       }
+      
+      // Enhanced file handling - Check both file_url and file_dir
+      const fileUrl = initialData.file_url || initialData.file_dir;
+      if (fileUrl) {
+        const fileName = initialData.file_name || 
+                        fileUrl.split('/').pop() || 
+                        'Existing File';
+        console.log('Setting existing file:', { url: fileUrl, name: fileName });
+        setExistingFile({
+          url: fileUrl,
+          name: fileName
+        });
+        setFileAction('keep');
+      } else {
+        // Reset file state if no file URL
+        console.log('No existing file found in initialData');
+        setExistingFile(null);
+        setFileAction('keep');
+      }
+      
       setValidUntilDate(parsedDate);
       setSelectedFile(null);
     }
-  }, [mode, initialData, isLoadingOptions, employees, letterTypes]);
+  }, [mode, initialData]);
+
+  // Validate form fields - returns the first error found
+  const validateForm = useCallback(() => {
+    // Reset form errors
+    setFormErrors({});
+
+    // Check employee selection
+    if (!employeeId.trim()) {
+      return 'Please select an employee.';
+    }
+
+    // Check letter type selection
+    if (!letterTypeId.trim()) {
+      return 'Please select a letter type.';
+    }
+
+    // Check letter name
+    if (!letterName.trim()) {
+      return 'Please input name for letter.';
+    }
+
+    if (letterName.trim().length < 3) {
+      return 'Letter name must be at least 3 characters long.';
+    }
+
+    // Check valid until date
+    if (!validUntilDate) {
+      return 'Valid until date is required.';
+    }
+
+    if (validUntilDate < new Date()) {
+      return 'Valid until date cannot be in the past.';
+    }
+
+    // Check status
+    if (!status) {
+      return 'Please select a letter status.';
+    }
+
+    // Enhanced file validation
+    if (mode === 'create') {
+      if (!selectedFile) {
+        return 'Please select a file to upload.';
+      }
+    } else if (mode === 'edit') {
+      // For edit mode, check if we have any file available
+      if (fileAction === 'remove' && !selectedFile) {
+        return 'Please provide a file for the letter.';
+      }
+      // If no existing file and no selected file, require file
+      if (!existingFile && !selectedFile) {
+        return 'Please provide a file for the letter.';
+      }
+    }
+
+    if (selectedFile) {
+      const maxSize = 10 * 1024 * 1024; // 10MB
+      const allowedTypes = [
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+      ];
+
+      if (selectedFile.size > maxSize) {
+        return 'File size must be less than 10MB.';
+      }
+
+      if (!allowedTypes.includes(selectedFile.type)) {
+        return 'Invalid file type. Only PDF and Word documents are allowed.';
+      }
+    }
+
+    // If all validations pass
+    return null;
+  }, [employeeId, letterTypeId, letterName, validUntilDate, status, selectedFile, mode, existingFile, fileAction]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    setSelectedFile(file || null);
+    if (file) {
+      setSelectedFile(file);
+      setFileAction('replace');
+    }
+  };
+
+  const handleRemoveFile = () => {
+    console.log('Removing file, current state:', { selectedFile, existingFile, fileAction });
+    setSelectedFile(null);
+    if (mode === 'edit' && existingFile) {
+      setFileAction('remove');
+    } else {
+      setFileAction('keep');
+    }
+    // Reset file input
+    const fileInput = document.getElementById('letterFile') as HTMLInputElement;
+    if (fileInput) fileInput.value = '';
+  };
+
+  const handleViewFile = () => {
+    if (existingFile?.url) {
+      const fileUrl = existingFile.url.startsWith('http') 
+        ? existingFile.url 
+        : `/storage/letter/${existingFile.url}`;
+      window.open(fileUrl, '_blank');
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (
-      !employeeId ||
-      !letterTypeId ||
-      !letterName ||
-      !validUntilDate ||
-      !status
-    ) {
-      toast.error('Please fill in all required fields.');
-      return;
+    // Validate form and show first error if any
+    const validationError = validateForm();
+    if (validationError) {
+      toast.error(validationError);
+      return; // Stop execution if validation fails
     }
+
+    setIsSubmitting(true);
 
     const formData = new FormData();
     formData.append('company_id', companyId);
@@ -158,7 +315,9 @@ export function LetterForm({
     formData.append('lettertype_id', letterTypeId);
     formData.append('name', letterName);
     formData.append('desc', letterDesc);
-    formData.append('valid_until', validUntilDate.toISOString());
+    if (validUntilDate) {
+      formData.append('valid_until', validUntilDate.toISOString());
+    }
     formData.append('is_active', status === 'active' ? 'true' : 'false');
 
     console.log('Submitting form data:', {
@@ -167,53 +326,86 @@ export function LetterForm({
       lettertype_id: letterTypeId,
       name: letterName,
       desc: letterDesc,
-      valid_until: validUntilDate.toISOString(),
+      valid_until: validUntilDate ? validUntilDate.toISOString() : '',
       is_active: status,
+      file_action: fileAction,
+      has_existing_file: !!existingFile,
+      has_selected_file: !!selectedFile,
     });
 
+    // Handle file operations based on action
     if (selectedFile) {
       formData.append('file', selectedFile);
-    } else if (mode === 'edit' && initialData?.file_url) {
-      // If no new file is selected in edit mode, and there was an existing file,
-      // you might need to tell the backend not to clear the file.
-      // This depends on your backend API design.
-      // For now, if no new file, no 'file' part is sent.
-      // If your backend clears file if 'file' is not present, you might need a hidden input
-      // like `formData.append('existing_file_url', initialData.file_url)`
-      // or a specific flag like `formData.append('keep_existing_file', 'true')`.
+    } else if (mode === 'edit') {
+      if (fileAction === 'remove') {
+        formData.append('remove_file', 'true');
+      }
+      // If fileAction is 'keep', we don't need to do anything
     }
 
     try {
       if (mode === 'create') {
         await api.post('/api/letter', formData);
       } else if (mode === 'edit' && initialData?.id) {
-        // For PATCH with FormData, some backends might prefer POST with a _method=PATCH field.
-        // Check your API. Standard PATCH might not work as expected with FormData for all servers.
-        // Using POST with a specific endpoint or a `_method` override is safer for file uploads.
-        // Or, if your API supports `PATCH` with `multipart/form-data` that's fine.
         await api.patch(`/api/letter/${initialData.id}`, formData);
       }
 
       toast.success(
         `Letter ${mode === 'create' ? 'created' : 'updated'} successfully!`,
       );
-      onSuccess?.();
-      onClose?.();
+
+      // Call success callback first to refresh data
+      if (onSuccess) {
+        await onSuccess();
+      }
+
+      // Close dialog after successful operation
+      if (onClose) {
+        onClose();
+      }
+
     } catch (error: any) {
       console.error('Error submitting form:', error);
-      // Log FormData entries for debugging if needed
-      // for (const [key, value] of formData.entries()) {
-      //   console.log(`FormData ${key}:`, value);
-      // }
       const errorMessage =
         error.response?.data?.message || 'Something went wrong.';
       toast.error(errorMessage);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  if (isLoadingOptions && mode === 'create') {
-    return <div>Loading form options...</div>;
+  if (isLoadingOptions) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+          <p>Loading form options...</p>
+        </div>
+      </div>
+    );
   }
+
+  // Helper function to get file display info
+  const getFileDisplayInfo = () => {
+    console.log('Getting file display info:', { selectedFile, existingFile, fileAction });
+    
+    if (selectedFile) {
+      return {
+        name: selectedFile.name,
+        isNew: true,
+        icon: <FaFile className="text-2xl text-blue-600 dark:text-blue-400 mb-1" />
+      };
+    } else if (existingFile && fileAction !== 'remove') {
+      return {
+        name: existingFile.name,
+        isNew: false,
+        icon: <FaFile className="text-2xl text-green-600 dark:text-green-400 mb-1" />
+      };
+    }
+    return null;
+  };
+
+  const fileDisplayInfo = getFileDisplayInfo();
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -221,7 +413,7 @@ export function LetterForm({
         {/* Employee Select */}
         <div className="space-y-1">
           <Label htmlFor="employee">Employee *</Label>
-          <Select value={employeeId} onValueChange={setEmployeeId} required>
+          <Select value={employeeId} onValueChange={setEmployeeId}>
             <SelectTrigger id="employee">
               <SelectValue placeholder="- Choose Employee -" />
             </SelectTrigger>
@@ -238,7 +430,7 @@ export function LetterForm({
         {/* Letter Type Select */}
         <div className="space-y-1">
           <Label htmlFor="letterType">Letter Type *</Label>
-          <Select value={letterTypeId} onValueChange={setLetterTypeId} required>
+          <Select value={letterTypeId} onValueChange={setLetterTypeId}>
             <SelectTrigger id="letterType">
               <SelectValue placeholder="- Choose Letter Type -" />
             </SelectTrigger>
@@ -261,46 +453,56 @@ export function LetterForm({
           value={letterName}
           onChange={(e) => setLetterName(e.target.value)}
           placeholder="Enter letter name"
-          required
+          disabled={isSubmitting}
         />
       </div>
 
       {/* Letter Description Input */}
       <div className="space-y-1">
-        <Label htmlFor="letterDescription">Letter Description</Label>
+        <Label htmlFor="letterDescription">Letter Description (optional)</Label>
         <Input
           id="letterDescription"
           value={letterDesc}
           onChange={(e) => setLetterDesc(e.target.value)}
           placeholder="Enter letter description (optional)"
+          disabled={isSubmitting}
         />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* File Upload */}
+        {/* Enhanced File Upload Section */}
         <div className="space-y-1">
           <Label htmlFor="letterFile">
-            Upload Letter File{' '}
-            {mode === 'create' ? '' : '(Optional: Overwrites existing)'}
+            Upload Letter File *
           </Label>
+          
+          {/* File Display Area */}
           <div className="mt-1 relative w-full aspect-[3/1] border-2 border-dashed rounded-lg shadow-sm flex items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-700 transition cursor-pointer">
-            {selectedFile ? (
+            {fileDisplayInfo ? (
               <div className="flex flex-col items-center justify-center text-sm">
-                <FaFile className="text-2xl text-blue-600 dark:text-blue-400 mb-1" />
-                <span className="text-center px-2 break-all">
-                  {selectedFile.name}
+                {fileDisplayInfo.icon}
+                <span className="text-center px-2 break-all font-medium">
+                  {fileDisplayInfo.name}
                 </span>
-              </div>
-            ) : mode === 'edit' && initialData?.file_url ? (
-              <div className="text-sm text-center">
-                <FaFile className="text-2xl text-blue-600 dark:text-blue-400 mb-1 mx-auto" />
-                Existing: {initialData.file_url.split('/').pop()}
+                {fileDisplayInfo.isNew && (
+                  <span className="text-xs text-blue-600 dark:text-blue-400 mt-1">
+                    New file selected
+                  </span>
+                )}
+                {!fileDisplayInfo.isNew && mode === 'edit' && (
+                  <span className="text-xs text-green-600 dark:text-green-400 mt-1">
+                    Current file
+                  </span>
+                )}
               </div>
             ) : (
-              <span className="flex flex-col items-center justify-center text-sm">
-                <FaFile className="text-2xl text-gray-400 dark:text-gray-500 mb-1" />
-                Click to upload
-              </span>
+              <div className="flex flex-col items-center justify-center text-sm">
+                <FaUpload className="text-2xl text-gray-400 dark:text-gray-500 mb-1" />
+                <span>Click to upload file</span>
+                <span className="text-xs text-gray-500 mt-1">
+                  PDF, DOC, DOCX (Max 10MB)
+                </span>
+              </div>
             )}
             <Input
               id="letterFile"
@@ -308,12 +510,60 @@ export function LetterForm({
               accept="application/pdf,.doc,.docx"
               onChange={handleFileChange}
               className="absolute inset-0 opacity-0 w-full h-full cursor-pointer"
+              disabled={isSubmitting}
             />
           </div>
-          {mode === 'edit' && initialData?.file_url && !selectedFile && (
-            <p className="text-xs text-gray-500 mt-1">
-              Leave empty to keep the existing file.
-            </p>
+
+          {/* File Action Buttons */}
+          {fileDisplayInfo && (
+            <div className="flex gap-2 mt-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleRemoveFile}
+                className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
+                disabled={isSubmitting}
+              >
+                <FaTrash className="w-3 h-3 mr-1" />
+                Remove
+              </Button>
+              
+              {existingFile && !selectedFile && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleViewFile}
+                  className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                  disabled={isSubmitting}
+                >
+                  <Eye className="w-3 h-3 mr-1" />
+                  View File
+                </Button>
+              )}
+            </div>
+          )}
+
+          {/* File Status Messages */}
+          {mode === 'edit' && (
+            <div className="text-xs text-gray-500 mt-2">
+              {fileAction === 'keep' && existingFile && (
+                <p className="text-green-600 dark:text-green-400">
+                  ✓ Keeping existing file: {existingFile.name}
+                </p>
+              )}
+              {fileAction === 'replace' && selectedFile && (
+                <p className="text-blue-600 dark:text-blue-400">
+                  ↻ Will replace with: {selectedFile.name}
+                </p>
+              )}
+              {fileAction === 'remove' && (
+                <p className="text-red-600 dark:text-red-400">
+                  ✕ File will be removed
+                </p>
+              )}
+            </div>
           )}
         </div>
 
@@ -322,7 +572,7 @@ export function LetterForm({
           {/* Letter Status Select */}
           <div className="space-y-1">
             <Label htmlFor="letterStatus">Letter Status *</Label>
-            <Select value={status} onValueChange={setStatus} required>
+            <Select value={status} onValueChange={setStatus}>
               <SelectTrigger id="letterStatus">
                 <SelectValue placeholder="- Choose Letter Status -" />
               </SelectTrigger>
@@ -346,7 +596,7 @@ export function LetterForm({
                   : undefined;
                 setValidUntilDate(selected);
               }}
-              required
+              disabled={isSubmitting}
             />
           </div>
         </div>
@@ -359,12 +609,20 @@ export function LetterForm({
             variant="outline"
             onClick={onClose}
             className="w-full sm:w-auto"
+            disabled={isSubmitting}
           >
             Cancel
           </Button>
         )}
-        <Button type="submit" className="w-full sm:w-auto">
-          {mode === 'create' ? 'Submit Letter' : 'Update Letter'}
+        <Button
+          type="submit"
+          className="w-full sm:w-auto"
+          disabled={isSubmitting}
+        >
+          {isSubmitting
+            ? (mode === 'create' ? 'Creating...' : 'Updating...')
+            : (mode === 'create' ? 'Submit Letter' : 'Update Letter')
+          }
         </Button>
       </DialogFooter>
     </form>

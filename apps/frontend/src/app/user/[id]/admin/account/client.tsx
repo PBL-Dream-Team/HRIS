@@ -86,7 +86,9 @@ export default function AccountClient({
 }: AccountClientProps) {
   const [user, setUser] = useState({
     name: '',
-    email: '',
+    first_name: '',
+    last_name: '',
+    position: '',
     avatar: '',
   });
   const router = useRouter();
@@ -120,6 +122,10 @@ export default function AccountClient({
   const [lng, setLng] = useState('');
   const [addressDetail, setAddressDetail] = useState('');
   const [isMapLoading, setIsMapLoading] = useState(true);
+
+  const [openEditDataDialog, setOpenEditDataDialog] = useState(false);
+  const [openEditPassDialog, setOpenEditPassialog] = useState(false);
+  const [openEditCompDialog, setOpenEditCompDialog] = useState(false);
 
   const handleLocationSelect = (lat: number, lng: number, address: string) => {
     setLat(lat.toFixed(6));
@@ -159,7 +165,9 @@ export default function AccountClient({
 
       setUser({
         name: `${admin.first_name} ${admin.last_name}`,
-        email: admin.email,
+        first_name: admin.first_name,
+        last_name: admin.last_name,
+        position: admin.position,
         avatar: admin.pict_dir || '/avatars/default.jpg',
       });
 
@@ -311,7 +319,7 @@ export default function AccountClient({
               />
             </div>
             <div className="col-span-full flex justify-end gap-2">
-              <Dialog>
+              <Dialog open={openEditDataDialog} onOpenChange={setOpenEditDataDialog}>
                 <DialogTrigger asChild>
                   <Button className="w-full md:w-auto">
                     <Pencil className="h-4 w-4 mr-1" /> Edit Profile
@@ -326,11 +334,12 @@ export default function AccountClient({
                     userId={adminData.id}
                     initialData={adminData}
                     onSuccess={handleOperationSuccess}
+                    onClose={() => setOpenEditDataDialog(false)}
                   />
                 </DialogContent>
               </Dialog>
 
-              <Dialog>
+              <Dialog open={openEditPassDialog} onOpenChange={setOpenEditPassialog}>
                 <DialogTrigger asChild>
                   <Button className="w-full md:w-auto">
                     <Pencil className="h-4 w-4 mr-1" /> Change Password
@@ -343,6 +352,7 @@ export default function AccountClient({
                   <EditPassword
                     userId={adminData.id}
                     onSuccess={handleOperationSuccess}
+                    onClose={() => setOpenEditPassialog(false)}
                   />
                 </DialogContent>
               </Dialog>
@@ -373,17 +383,14 @@ export default function AccountClient({
               <CardContent className="pt-0">
                 <div className="grid grid-cols-2 gap-x-4 gap-y-3">
                   <Button>
-                    <a href="/pricing">Manage Subscription</a>
+                    <a href="/pricing">Change Subscription</a>
                   </Button>
-                  <Button variant="outline">Cancel</Button>
+                  <Button>
+                    <a href="subscription">Subscription History</a>
+                  </Button>
                 </div>
               </CardContent>
             </Card>
-            <div className="flex justify-end pt-4">
-              <Button>
-                <a href="subscription">Subscription History</a>
-              </Button>
-            </div>
           </div>
         </div>
         <div className="flex flex-col md:flex-row gap-4 p-4 relative">
@@ -450,7 +457,7 @@ export default function AccountClient({
                   </div>
                 </div>
                 <div className="col-span-full flex justify-end mt-2">
-                  <Dialog>
+                  <Dialog open={openEditCompDialog} onOpenChange={setOpenEditCompDialog}>
                     <DialogTrigger asChild>
                       <Button className="w-full md:w-auto">
                         <Pencil className="h-4 w-4 mr-1" /> Edit Data
@@ -470,6 +477,7 @@ export default function AccountClient({
                           loc_long: Number(companyData.loc_long) || 0,
                         }}
                         onSuccess={handleOperationSuccess}
+                        onClose={() => setOpenEditCompDialog(false)}
                       />
                     </DialogContent>
                   </Dialog>

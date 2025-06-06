@@ -35,7 +35,9 @@ export default function LettersClient({
 }: LettersClientProps) {
   const [user, setUser] = useState({
     name: '',
-    email: '',
+    first_name: '',
+    last_name: '',
+    position: '',
     avatar: '',
   });
 
@@ -49,11 +51,13 @@ export default function LettersClient({
     async function fetchData() {
       try {
         const res = await api.get(`/api/employee/${userId}`);
-        const { first_name, last_name, email, pict_dir } = res.data.data;
+        const { first_name, last_name, position, pict_dir } = res.data.data;
 
         setUser({
           name: `${first_name} ${last_name}`,
-          email: email,
+          first_name: first_name,
+          last_name: last_name,
+          position: position,
           avatar: pict_dir || '/avatars/default.jpg',
         });
 

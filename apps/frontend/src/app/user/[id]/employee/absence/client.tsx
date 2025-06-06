@@ -9,7 +9,6 @@ import { VscSettings } from 'react-icons/vsc';
 import api from '@/lib/axios';
 import { AppSidebar } from '@/components/app-sidebar';
 import { NavUser } from '@/components/nav-user';
-import { AbsenceForm } from '@/components/absence/absence-form';
 import PaginationFooter from '@/components/pagination';
 
 import {
@@ -30,6 +29,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from '@/components/ui/dialog';
 import {
   DropdownMenu,
@@ -51,6 +51,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import AbsenceDetails from '@/components/absence/absence-details';
+import { AbsenceAddForm } from '@/components/absence/absenceAdd-form';
+import { AbsenceEditForm } from '@/components/absence/absenceEdit-form';
+import { Trash2, Pencil } from 'lucide-react';
+import { toast } from 'sonner';
+import { enUS } from 'date-fns/locale';
+import { format } from 'date-fns';
 
 type Absence = {
   id: string;
@@ -61,9 +67,10 @@ type Absence = {
   status: string;
   name: string;
   position: string;
-  type: string;
+  type: AbsenceType;
   address: string;
   created_at: string;
+  filedir: string;
 };
 
 type AbsenceClientProps = {
@@ -72,26 +79,82 @@ type AbsenceClientProps = {
   companyId: string;
 };
 
+type AbsenceType = 'SICK' | 'PERMIT' | 'LEAVE';
+
+export function formatTimeOnly(input: Date | string): string {
+  const pad = (n: number) => n.toString().padStart(2, '0');
+
+  if (typeof input === 'string') {
+    const timePart = input.split('.')[0];
+    if (timePart.includes('T')) {
+      const dateObj = new Date(input);
+      return `${pad(dateObj.getHours())}:${pad(dateObj.getMinutes())}:${pad(dateObj.getSeconds())}`;
+    }
+    return timePart;
+  }
+  return `${pad(input.getHours())}:${pad(input.getMinutes())}:${pad(input.getSeconds())}`;
+}
+
 export default function AbsenceClient({
   isAdmin,
   userId,
   companyId,
 }: AbsenceClientProps) {
-  const [user, setUser] = useState({ name: '', email: '', avatar: '' });
+  const [user, setUser] = useState({ name: '', first_name: '', last_name: '', position: '', avatar: '' });
   const [absences, setAbsences] = useState<Absence[]>([]);
   const [employees, setEmployees] = useState<Record<string, any>>({});
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const router = useRouter();
 
+  const [pictdir, setPictDir] = useState({
+    pictdir: ''
+  });
+
+  const formatDate = (dateString: string) => {
+    if (!dateString) return 'No date';
+
+    try {
+      // Konversi string ke Date object
+      const date = new Date(dateString);
+      return format(date, 'PPP', { locale: enUS });
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return dateString; // Fallback ke string asli jika error
+    }
+  };
+
+  const fetchAbsences = async () => {
+    try {
+      const absenceRes = await api.get(`/api/absence?employee_id=${userId}`);
+      setAbsences(absenceRes.data ?? []);
+
+      const res = await api.get(`/api/employee/${userId}`);
+      const pict = res.data.data;
+
+      setPictDir({
+        pictdir: pict.pict_dir || '',
+      })
+
+    } catch (err: any) {
+      console.error(
+        'Error fetching absences:',
+        err.response?.data || err.message,
+      );
+      setAbsences([]);
+    }
+  };
+
   useEffect(() => {
     async function fetchData() {
       try {
         const res = await api.get(`/api/employee/${userId}`);
-        const { first_name, last_name, email, pict_dir } = res.data.data;
+        const { first_name, last_name, position, pict_dir } = res.data.data;
         setUser({
           name: `${first_name} ${last_name}`,
-          email,
+          first_name: first_name,
+          last_name: last_name,
+          position,
           avatar: pict_dir || '/avatars/default.jpg',
         });
 
@@ -128,11 +191,12 @@ export default function AbsenceClient({
       reason: absence.reason ? absence.reason : '-',
       date: new Date(absence.date).toDateString(),
       status: absence.status,
-      name: `${employee.first_name} ${employee.last_name}`,
-      position: employee.position ? employee.position : 'N/A',
+      name: employee ? `${employee.first_name} ${employee.last_name}` : 'N/A',
+      position: employee?.position ? employee.position : 'N/A',
       type: absence.type,
-      address: employee.address ? employee.address : '-',
-      created_at: new Date(absence.created_at).toDateString(),
+      address: employee?.address ? employee.address : '-',
+      filedir: absence.filedir,
+      created_at: formatTimeOnly(absence.created_at),
     };
   });
 
@@ -147,6 +211,65 @@ export default function AbsenceClient({
   const handleViewDetails = (absence: Absence) => {
     setSelectedAbsence(absence);
     setOpenSheet(true);
+  };
+
+  const [openEditDialog, setOpenEditDialog] = useState(false);
+  const [absenceToEdit, setAbsenceToEdit] = useState<{
+    id: string;
+    type: AbsenceType;
+    date: string;
+    reason: string;
+    filedir: string;
+  }>({
+    id: '',
+    type: 'SICK',
+    date: '',
+    reason: '',
+    filedir: '',
+  });
+
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [absenceToDelete, setAbsenceToDelete] = useState<Absence | null>(null);
+
+  const handleDeleteConfirmed = async () => {
+    if (!absenceToDelete) return;
+
+    if (absenceToDelete.status !== 'PENDING') {
+      toast.error('Only pending absences can be deleted.');
+      setIsDeleteDialogOpen(false);
+      setAbsenceToDelete(null);
+      return;
+    }
+
+    try {
+      await api.delete(`/api/absence/${absenceToDelete.id}`);
+      toast.success('Absence deleted successfully.');
+
+      // Update state dengan menghapus absence yang sudah dihapus
+      setAbsences((prev) =>
+        prev.filter((abs) => abs.id !== absenceToDelete.id),
+      );
+    } catch (err: any) {
+      console.error(
+        'Error deleting absence:',
+        err.response?.data || err.message,
+      );
+      toast.error('Failed to delete absence. Please try again.');
+    } finally {
+      setIsDeleteDialogOpen(false);
+      setAbsenceToDelete(null);
+    }
+  };
+
+  const [openAddDialog, setOpenAddDialog] = useState(false);
+
+  const handleAddAbsenceSuccess = () => {
+    fetchAbsences(); // Refresh data absence
+  };
+
+  const handleEditAbsenceSuccess = () => {
+    fetchAbsences(); // Refresh data absence
+    setOpenEditDialog(false);
   };
 
   return (
@@ -170,20 +293,6 @@ export default function AbsenceClient({
           </div>
 
           <div className="flex items-center gap-4">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="relative p-2 rounded-md hover:bg-muted">
-                  <Bell className="h-5 w-5" />
-                  <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-red-500" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>Notifications</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>New absence request</DropdownMenuItem>
-                <DropdownMenuItem>Pending approvals</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
             <NavUser user={user} isAdmin={isAdmin} />
           </div>
         </header>
@@ -198,11 +307,8 @@ export default function AbsenceClient({
                   <IoMdSearch className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-500" />
                   <Input type="search" placeholder="Search" className="pl-10" />
                 </div>
-                <Button variant="outline">
-                  <VscSettings className="w-4 h-4 mr-1" /> Filter
-                </Button>
 
-                <Dialog>
+                <Dialog open={openAddDialog} onOpenChange={setOpenAddDialog}>
                   <DialogTrigger asChild>
                     <Button>
                       <IoMdAdd /> Add Absence
@@ -212,7 +318,12 @@ export default function AbsenceClient({
                     <DialogHeader>
                       <DialogTitle>Add Absence</DialogTitle>
                     </DialogHeader>
-                    <AbsenceForm employeeId={userId} companyId={companyId} />
+                    <AbsenceAddForm
+                      employeeId={userId}
+                      companyId={companyId}
+                      onSuccess={handleAddAbsenceSuccess}
+                      onClose={() => setOpenAddDialog(false)}
+                    />
                   </DialogContent>
                 </Dialog>
               </div>
@@ -231,19 +342,52 @@ export default function AbsenceClient({
               </TableHeader>
               <TableBody>
                 {displayedAbsences.map((abs, i) => {
-                  const emp = employees[abs.employee_id];
                   return (
-                    <TableRow key={i}>
+                    <TableRow key={abs.id}>
                       <TableCell>
-                        {new Date(abs.created_at).toLocaleDateString()}
+                        {abs.created_at}
                       </TableCell>
                       <TableCell>
-                        {new Date(abs.date).toLocaleDateString()}
+                        {formatDate(abs.date)}
                       </TableCell>
                       <TableCell>{abs.type}</TableCell>
                       <TableCell>{abs.reason}</TableCell>
-                      <TableCell>{abs.status}</TableCell>
                       <TableCell>
+                        <div>
+                          {(() => {
+                            switch (abs.status) {
+                              case 'APPROVED':
+                                return (
+                                  <div className="flex items-center">
+                                    <span className="h-2 w-2 rounded-full bg-green-500 inline-block mr-2" />
+                                    Approved
+                                  </div>
+                                );
+                              case 'REJECTED':
+                                return (
+                                  <div className="flex items-center">
+                                    <span className="h-2 w-2 rounded-full bg-red-500 inline-block mr-2" />
+                                    Rejected
+                                  </div>
+                                );
+                              case 'PENDING':
+                                return (
+                                  <div className="flex items-center">
+                                    <span className="h-2 w-2 rounded-full bg-yellow-500 inline-block mr-2" />
+                                    Pending
+                                  </div>
+                                );
+                              default:
+                                return (
+                                  <span className="text-gray-500 font-medium">
+                                    Unknown Status
+                                  </span>
+                                );
+                            }
+                          })()}
+                        </div>
+                      </TableCell>
+                      <TableCell className="flex gap-2">
                         <Button
                           size="icon"
                           variant="outline"
@@ -252,6 +396,40 @@ export default function AbsenceClient({
                           title="View Details"
                         >
                           <Eye className="w-4 h-4" />
+                        </Button>
+
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className={`${abs.status === 'PENDING'
+                            ? 'hover:text-white hover:bg-yellow-500'
+                            : 'bg-gray-300 text-gray-500 cursor-not-allowed border-gray-300 hover:bg-gray-300 hover:text-gray-500'
+                            }`}
+                          onClick={() => {
+                            setAbsenceToEdit(abs);
+                            setOpenEditDialog(true);
+                          }}
+                          disabled={abs.status !== 'PENDING'}
+                          title={abs.status !== 'PENDING' ? 'Only pending absences can be edited' : 'Edit absence'}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className={`${abs.status === 'PENDING'
+                              ? 'hover:text-white hover:bg-yellow-500'
+                              : 'bg-gray-300 text-gray-500 cursor-not-allowed border-gray-300 hover:bg-gray-300 hover:text-gray-500'
+                            }`}
+                          onClick={() => {
+                            setAbsenceToDelete(abs);
+                            setIsDeleteDialogOpen(true);
+                          }}
+                          disabled={abs.status !== 'PENDING'}
+                          title={abs.status !== 'PENDING' ? 'Only pending absences can be deleted' : 'Delete absence'}
+                        >
+                          <Trash2 className="h-4 w-4" />
                         </Button>
                       </TableCell>
                     </TableRow>
@@ -269,14 +447,55 @@ export default function AbsenceClient({
           </div>
         </main>
       </SidebarInset>
+
+      {/* Absence Details Sheet */}
       {selectedAbsence && (
         <AbsenceDetails
           open={openSheet}
           onOpenChange={setOpenSheet}
           selectedAbsence={selectedAbsence}
-          // selectedCheckClock={selectedCheckClock.originalData || selectedCheckClock}
+          avatarUrl={employees[selectedAbsence.employee_id]?.pict_dir || ''}
         />
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Absence</DialogTitle>
+          </DialogHeader>
+          <div>
+            Are you sure you want to delete this absence record? This action cannot be undone.
+          </div>
+          <DialogFooter className="gap-2 pt-4">
+            <Button
+              variant="outline"
+              onClick={() => setIsDeleteDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleDeleteConfirmed}>
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Absence Dialog */}
+      <Dialog open={openEditDialog} onOpenChange={setOpenEditDialog}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>Edit Absence</DialogTitle>
+          </DialogHeader>
+          <AbsenceEditForm
+            employeeId={userId}
+            companyId={companyId}
+            initialData={absenceToEdit}
+            onSuccess={handleEditAbsenceSuccess}
+            onClose={() => setOpenEditDialog(false)}
+          />
+        </DialogContent>
+      </Dialog>
     </SidebarProvider>
   );
 }

@@ -58,7 +58,7 @@ export default function Navbar() {
 
       {/* Mobile Menu */}
       {isOpen && (
-        <div className="md:hidden px-4 pb-4 space-y-2 bg-white">
+        <div className="md:hidden px-4 pb-4 space-y-2 bg-white shadow-md">
           {navLinks.map((link) => (
             <a
               key={link.href}

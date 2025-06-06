@@ -23,6 +23,7 @@ import {
 export default function HrSignUpPage() {
   const router = useRouter();
   const [checked, setChecked] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     first_name: '',
@@ -44,6 +45,8 @@ export default function HrSignUpPage() {
       return;
     }
 
+    setIsLoading(true);
+
     try {
       const res = await api.post('/api/auth/signup', {
         name: formData.name,
@@ -54,13 +57,24 @@ export default function HrSignUpPage() {
         password: formData.password,
       });
 
-      toast.success(res.data.message || 'Sign up successful!');
-      router.push('/signin');
+      if (res.data.statusCode === 409) {
+        toast.error(res.data.message || 'Email already in use');
+        return;
+      }
+
+      if (res.data.statusCode === 201) {
+        toast.success(res.data.message || 'Sign up successful!');
+        router.push('/signin');
+      } else {
+        toast.error(res.data.message || 'Sign up failed. Please try again.');
+      }
     } catch (error: any) {
       console.error(error);
       toast.error(
-        'Sign up failed. Please check your credentials and try again.',
+        error.response?.data?.message || 'Sign up failed. Please check your credentials and try again.',
       );
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -249,9 +263,9 @@ export default function HrSignUpPage() {
               type="submit"
               onClick={handleSubmit}
               className="w-full bg-[#1E3A5F]"
-              disabled={!checked}
+              disabled={!checked || isLoading}
             >
-              Sign Up
+              {isLoading ? 'Loading...' : 'Sign Up'}
             </Button>
 
             <Button

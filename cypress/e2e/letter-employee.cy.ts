@@ -1,0 +1,12 @@
+describe('Accessing the letter page with admin credentials', () => {
+  it('Signs in as admin and navigates to Letters section', () => {
+    cy.visit('/signin/employee');
+    cy.get('input[id="email"]').should('not.be.disabled').type('setiabudi@gmail.com');
+    cy.get('input[id="password"]').should('not.be.disabled').type('admin123');
+    cy.get('button[type="submit"]').click();
+    cy.url({ timeout: 60000 }).should('include', '/redirect');
+    cy.url({ timeout: 60000 }).should('include', '/dashboard');
+    cy.contains('button', 'Letters').should('be.visible').click();
+    cy.url({ timeout: 60000 }).should('include', '/letters');
+  });
+});

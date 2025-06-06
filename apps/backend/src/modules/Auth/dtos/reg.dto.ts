@@ -3,6 +3,8 @@ import {
   IsNotEmpty,
   IsNumberString,
   IsString,
+  Length,
+  Matches,
 } from '@nestjs/class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -29,8 +31,13 @@ export class RegDto {
   email: string;
 
   @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
+  @Length(8, 20, {
+    message: 'Password must be between 8 and 20 characters',
+  })
+  @Matches(/^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+={}[\]|\\:;"'<>,.?/~`]).+$/, {
+    message:
+      'Password must contain at least one uppercase letter, one number, and one symbol',
+  })
   password: string;
 
   @ApiProperty()

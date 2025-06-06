@@ -38,8 +38,6 @@ type Bank =
   | 'Commonwealth';
 
 type EmployeeEditWorkDataFormProps = {
-  mode: 'edit';
-  companyId: string;
   employeeId: string;
   initialData?: {
     id: string;
@@ -74,6 +72,33 @@ export function EmployeeEditWorkDataForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validasi input
+    if (!account_bank) {
+      toast.error('Bank is required');
+      return;
+    }
+    if (!account_name) {
+      toast.error('Account holder name is required');
+      return;
+    }
+    if (!account_number) {
+      toast.error('Account number is required');
+      return;
+    }
+    if (account_number.length < 10 || account_number.length > 16) {
+      toast.error('Account number must be between 10 and 16 digits');
+      return;
+    }
+    if (!/^\d+$/.test(account_number)) {
+      toast.error('Account number must contain only digits');
+      return;
+    }
+    if (account_name.length < 3) {
+      toast.error('Account holder name must be at least 3 characters long');
+      return;
+    }
+    
     setIsSubmitting(true);
 
     try {
@@ -133,7 +158,7 @@ export function EmployeeEditWorkDataForm({
     >
       {/* Bank Selection */}
       <div>
-        <Label htmlFor="bank-select">Bank</Label>
+        <Label htmlFor="bank-select">Bank *</Label>
         <Select
           value={account_bank}
           onValueChange={handleBankChange}
@@ -157,7 +182,7 @@ export function EmployeeEditWorkDataForm({
 
       {/* Account Name */}
       <div>
-        <Label htmlFor="account_name">Account Holder Name</Label>
+        <Label htmlFor="account_name">Account Holder Name *</Label>
         <Input
           id="account_name"
           value={account_name}
@@ -169,7 +194,7 @@ export function EmployeeEditWorkDataForm({
 
       {/* Account Number */}
       <div className="col-span-full">
-        <Label htmlFor="account_number">Account Number</Label>
+        <Label htmlFor="account_number">Account Number *</Label>
         <Input
           id="account_number"
           value={account_number}

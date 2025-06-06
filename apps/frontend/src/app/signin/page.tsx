@@ -16,9 +16,12 @@ export default function HrLoginPage() {
   const [checked, setChecked] = useState(false);
   const [input, setInput] = useState('');
   const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const router = useRouter();
 
   const handleGoogleSignin = () => {
+    setIsGoogleLoading(true);
     /* global google */
     google.accounts.id.initialize({
       client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!,
@@ -42,6 +45,7 @@ export default function HrLoginPage() {
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    setIsLoading(true);
 
     try {
       await api.post(
@@ -57,6 +61,8 @@ export default function HrLoginPage() {
     } catch (error) {
       console.error(error);
       toast.error('Login failed. Please check your credentials and try again.');
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -85,11 +91,6 @@ export default function HrLoginPage() {
               height={48}
               className="object-contain"
             />
-            <Link href="/pricing">
-              <span className="text-sm font-medium text-blue-900 hover:underline">
-                Try For Free!
-              </span>
-            </Link>
           </div>
 
           <h2 className="text-2xl font-bold mb-2 text-zinc-950">Sign In</h2>
@@ -100,11 +101,11 @@ export default function HrLoginPage() {
           <form className="space-y-4" onSubmit={handleSubmit}>
             {/* Email */}
             <div className="space-y-2">
-              <Label htmlFor="input" className="text-[#1E3A5F]">
+              <Label htmlFor="email" className="text-[#1E3A5F]">
                 Email
               </Label>
               <Input
-                id="input"
+                id="email"
                 type="email"
                 placeholder="Enter your email"
                 value={input}
@@ -148,11 +149,12 @@ export default function HrLoginPage() {
               </Link>
             </div>
 
-            <Button
+                        <Button
               type="submit"
               className="w-full bg-[#1E3A5F] hover:bg-[#1E3A5F]/90"
+              disabled={isLoading}
             >
-              Sign In
+              {isLoading ? 'Loading...' : 'Sign In'}
             </Button>
 
             <Button
@@ -160,15 +162,22 @@ export default function HrLoginPage() {
               variant="outline"
               className="w-full flex items-center justify-center gap-2"
               onClick={handleGoogleSignin}
+              disabled={isGoogleLoading}
             >
-              <Image
-                src="/images/google.png"
-                alt="Google"
-                width={20}
-                height={20}
-                className="object-contain"
-              />
-              <span>Sign in with Google</span>
+              {isGoogleLoading ? (
+                'Loading...'
+              ) : (
+                <>
+                  <Image
+                    src="/images/google.png"
+                    alt="Google"
+                    width={20}
+                    height={20}
+                    className="object-contain"
+                  />
+                  <span>Sign in with Google</span>
+                </>
+              )}
             </Button>
 
             <Link href="/signin/employee" passHref>

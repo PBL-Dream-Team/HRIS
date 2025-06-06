@@ -59,7 +59,9 @@ export default function DashboardClient({
 }: DashboardClientProps) {
   const [user, setUser] = useState({
     name: '',
-    email: '',
+    first_name: '',
+    last_name: '',
+    position: '',
     avatar: '',
   });
 
@@ -67,11 +69,13 @@ export default function DashboardClient({
     async function fetchUser() {
       try {
         const res = await api.get(`/api/employee/${userId}`);
-        const { first_name, last_name, email, pict_dir } = res.data.data;
+        const { first_name, last_name, position, pict_dir } = res.data.data;
 
         setUser({
           name: `${first_name} ${last_name}`,
-          email: email,
+          first_name: first_name,
+          last_name: last_name,
+          position: position,
           avatar: pict_dir || '/avatars/default.jpg',
         });
       } catch (err: any) {
@@ -85,13 +89,18 @@ export default function DashboardClient({
     fetchUser();
   }, [userId]);
 
-  const [employeeCount, setEmployeeCount] = useState<number>(0);
+  const [employeeCount, setEmployeeCount] = useState({
+    total: 0,
+    newEmployees: 0,
+    activeEmployees: 0,
+    absentEmployees: 0,
+  });
 
   useEffect(() => {
     async function fetchEmployeeCount() {
       try {
         const res = await api.get(`/api/employee/count/${companyId}`);
-        setEmployeeCount(res.data.total);
+        setEmployeeCount(res.data);
       } catch (err: any) {
         console.error(
           'Error fetching employee count:',
@@ -134,6 +143,35 @@ export default function DashboardClient({
     }
 
     fetchEmployeeStatus();
+  }, [companyId]);
+
+
+  const [attendanceOverview, setAttendanceOverview] = useState<
+    { attendance: 'onTime' | 'late' | 'leave'; total: number }[]
+  >([]);
+
+  useEffect(() => {
+    async function fetchAttendanceOverview() {
+      try {
+        const res = await api.get(`/api/employee/attendance-count/${companyId}`);
+        const { onTime, late, leave } = res.data;
+
+        const mapped = [
+          { attendance: 'onTime', total: onTime },
+          { attendance: 'late', total: late },
+          { attendance: 'leave', total: leave },
+        ];
+
+        setAttendanceOverview(mapped);
+      } catch (err: any) {
+        console.error(
+          'Error fetching attendance overview:',
+          err.response?.data || err.message,
+        );
+      }
+    }
+
+    fetchAttendanceOverview();
   }, [companyId]);
 
   return (
@@ -190,12 +228,12 @@ export default function DashboardClient({
 
         {/* Content */}
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-          <EmployeeInformation totalEmployees={employeeCount} />
+          <EmployeeInformation employeeInfo={employeeCount} />
           <div className="grid auto-rows-min gap-4 md:grid-cols-2 sm:grid-cols-1">
-            <EmployeeStatisticsCard />
             <EmployeeStatusCard data={employeeStatusData} />
-            <AttendanceOverviewCard />
-            <AttendanceTableCard />
+            <AttendanceOverviewCard attendancesData={attendanceOverview} />
+            {/* <EmployeeStatisticsCard /> */}
+            {/* <AttendanceTableCard /> */}
           </div>
         </div>
       </SidebarInset>

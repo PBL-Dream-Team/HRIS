@@ -1,29 +1,13 @@
+'use client';
+
 import React from 'react';
-
-{
-  /* Import Components */
-}
-
-import { Pie, PieChart, Cell } from 'recharts';
-
+import { Pie, PieChart, Cell, Tooltip } from 'recharts';
 import { Card, CardContent } from '@/components/ui/card';
 
 import {
   ChartConfig,
   ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
 } from '@/components/ui/chart';
-
-{
-  /* Data */
-}
-
-const attendancesData = [
-  { attendance: 'onTime', total: 200, fill: 'hsl(var(--chart-1))' },
-  { attendance: 'late', total: 186, fill: 'hsl(var(--chart-2))' },
-  { attendance: 'leave', total: 50, fill: 'hsl(var(--chart-3))' },
-];
 
 const chartConfig = {
   total: {
@@ -44,14 +28,28 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-{
-  /* Content */
-}
+type AttendanceOverviewCardProps = {
+  attendancesData: {
+    attendance: 'onTime' | 'late' | 'leave';
+    total: number;
+  }[];
+};
 
-export default function AttendanceOverviewCard() {
+export default function AttendanceOverviewCard({
+  attendancesData,
+}: AttendanceOverviewCardProps) {
+  const currentDate = new Date().toLocaleDateString('en-GB', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  });
+
+  const totalSum = attendancesData.reduce((sum, item) => sum + item.total, 0);
+
   return (
     <Card className="@container/card">
       <div className="grid grid-cols-10 h-full items-center p-0">
+        {/* Chart Area */}
         <div className="col-span-4 p-0">
           <CardContent className="flex-1 pt-0 pb-0 pl-6 pr-0 h-full">
             <ChartContainer
@@ -63,7 +61,12 @@ export default function AttendanceOverviewCard() {
                 height={300}
                 margin={{ top: 0, right: 0, left: 0, bottom: 0 }}
               >
-                <Pie data={attendancesData} dataKey="total" outerRadius={80}>
+                <Pie
+                  data={attendancesData}
+                  dataKey="total"
+                  outerRadius={80}
+                  nameKey="attendance"
+                >
                   {attendancesData.map((entry, index) => (
                     <Cell
                       key={`cell-${index}`}
@@ -75,10 +78,30 @@ export default function AttendanceOverviewCard() {
                     />
                   ))}
                 </Pie>
+                <Tooltip
+                  content={({ active, payload }) => {
+                    if (active && payload && payload.length > 0) {
+                      const current = payload[0].payload;
+                      const percentage = ((current.total / totalSum) * 100).toFixed(1);
+
+                      return (
+                        <div className="bg-white rounded shadow p-2 text-sm border border-gray-200">
+                          <div className="font-semibold">
+                            {chartConfig[current.attendance]?.label}
+                          </div>
+                          <div>{`${current.total} (${percentage}%)`}</div>
+                        </div>
+                      );
+                    }
+                    return null;
+                  }}
+                />
               </PieChart>
             </ChartContainer>
           </CardContent>
         </div>
+
+        {/* Detail Area */}
         <div className="col-span-6">
           <CardContent className="flex flex-col gap-4 pt-0 pb-0 pl-6 pr-6">
             <div className="flex justify-between text-lg">
@@ -87,27 +110,23 @@ export default function AttendanceOverviewCard() {
             </div>
             <div className="flex justify-between items-center text-lg">
               <span className="font-semibold">Attendance</span>
-              <span className="text-muted-foreground">02 May 2025</span>
+              <span className="text-muted-foreground">{currentDate}</span>
             </div>
             <hr />
             <div className="flex flex-col gap-3">
-              {attendancesData.slice(0, 4).map((item, index) => (
+              {attendancesData.map((item) => (
                 <div key={item.attendance}>
                   <div className="flex items-center gap-2">
                     <span
                       className="w-3 h-3 rounded-full flex-shrink-0"
                       style={{
                         backgroundColor:
-                          chartConfig[
-                            item.attendance as keyof typeof chartConfig
-                          ]?.color,
+                          chartConfig[item.attendance as keyof typeof chartConfig]
+                            ?.color,
                       }}
                     ></span>
                     <span className="text-sm text-black font-medium">
-                      {
-                        chartConfig[item.attendance as keyof typeof chartConfig]
-                          ?.label
-                      }
+                      {chartConfig[item.attendance as keyof typeof chartConfig]?.label}
                     </span>
                   </div>
                   <span className="text-sm font-medium text-muted-foreground">

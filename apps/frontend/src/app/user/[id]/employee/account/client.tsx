@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { EmployeeEditGeneralDataForm } from '@/components/editData-Employee/generalInformation-form';
 import { EmployeeEditWorkDataForm } from '@/components/editData-Employee/workInformation-form';
 import { EditPassword } from '@/components/editData-Employee/editPass-form';
-import { format, parseISO } from 'date-fns';
+import { format, parseISO, set } from 'date-fns';
 
 import {
   Breadcrumb,
@@ -107,7 +107,9 @@ export default function AccountClient({
 }: AccountClientProps) {
   const [user, setUser] = useState({
     name: '',
-    email: '',
+    first_name: '',
+    last_name: '',
+    position: '',
     avatar: '',
   });
   const router = useRouter();
@@ -135,6 +137,10 @@ export default function AccountClient({
     account_number: '',
   });
 
+  const [openEditGenDialog, setOpenEditGenDialog] = useState(false);
+  const [openEditWorkDialog, setOpenEditWorkDialog] = useState(false);
+  const [openEditPassDialog, setOpenEditPassialog] = useState(false);
+
   // Data Fetching
   const fetchData = useCallback(async () => {
     try {
@@ -143,7 +149,9 @@ export default function AccountClient({
 
       setUser({
         name: `${employee.first_name} ${employee.last_name}`,
-        email: employee.email,
+        first_name: employee.first_name || '',
+        last_name: employee.last_name || '',
+        position: employee.position,
         avatar: employee.pict_dir || '/avatars/default.jpg',
       });
 
@@ -273,33 +281,6 @@ export default function AccountClient({
           </div>
 
           <div className="flex items-center gap-4">
-            {/* Notification */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="relative p-2 rounded-md hover:bg-muted focus:outline-none">
-                  <Bell className="h-5 w-5" />
-                  <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-red-500" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                className="min-w-56 rounded-lg"
-                side="bottom"
-                sideOffset={8}
-                align="end"
-              >
-                <DropdownMenuLabel>Notifications</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>New user registered</DropdownMenuItem>
-                <DropdownMenuItem>Monthly report is ready</DropdownMenuItem>
-                <DropdownMenuItem>Server restarted</DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-center text-blue-600 hover:text-blue-700">
-                  View all
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            {/* Nav-user */}
             <NavUser user={user} isAdmin={isAdmin} />
           </div>
         </header>
@@ -370,7 +351,7 @@ export default function AccountClient({
               <Label>Email</Label>
               <Input
                 id="email"
-                value={user.email || ''}
+                value={employeeData.email || ''}
                 readOnly
                 placeholder="Your email"
               />
@@ -404,7 +385,7 @@ export default function AccountClient({
             </div>
             <div className="col-span-full flex justify-end items-center mt-4">
               <div className="flex items-center gap-2">
-                <Dialog>
+                <Dialog open={openEditGenDialog} onOpenChange={setOpenEditGenDialog}>
                   <DialogTrigger asChild>
                     <Button className="w-full md:w-auto">
                       <Pencil className="h-4 w-4 mr-1" /> Edit Profile
@@ -415,7 +396,6 @@ export default function AccountClient({
                       <DialogTitle>Edit Profile</DialogTitle>
                     </DialogHeader>
                     <EmployeeEditGeneralDataForm
-                      companyId={companyId}
                       employeeId={employeeData.id}
                       initialData={{
                         id: employeeData.id || '',
@@ -432,11 +412,12 @@ export default function AccountClient({
                         email: employeeData.email || '',
                       }}
                       onSuccess={handleOperationSuccess}
+                      onClose={() => setOpenEditGenDialog(false)}
                     />
                   </DialogContent>
                 </Dialog>
 
-                <Dialog>
+                <Dialog open={openEditPassDialog} onOpenChange={setOpenEditPassialog}>
                   <DialogTrigger asChild>
                     <Button className="w-full md:w-auto">
                       <Pencil className="h-4 w-4 mr-1" /> Change Password
@@ -449,6 +430,7 @@ export default function AccountClient({
                     <EditPassword
                       userId={userId}
                       onSuccess={handleOperationSuccess}
+                      onClose={() => setOpenEditPassialog(false)}
                     />
                   </DialogContent>
                 </Dialog>
@@ -535,7 +517,7 @@ export default function AccountClient({
                 />
               </div>
               <div className="col-span-full flex justify-end mt-2">
-                <Dialog>
+                <Dialog open={openEditWorkDialog} onOpenChange={setOpenEditWorkDialog}>
                   <DialogTrigger asChild>
                     <Button className="w-full md:w-auto">
                       <Pencil className="h-4 w-4 mr-1" /> Edit Data
@@ -547,8 +529,6 @@ export default function AccountClient({
                       <DialogTitle>Edit Data</DialogTitle>
                     </DialogHeader>
                     <EmployeeEditWorkDataForm
-                      mode="edit"
-                      companyId={companyId}
                       employeeId={employeeData.id}
                       initialData={{
                         id: employeeData.id || '',
@@ -557,6 +537,7 @@ export default function AccountClient({
                         account_number: employeeWorkData.account_number || '',
                       }}
                       onSuccess={handleOperationSuccess}
+                      onClose={() => setOpenEditWorkDialog(false)}
                     />
                   </DialogContent>
                 </Dialog>

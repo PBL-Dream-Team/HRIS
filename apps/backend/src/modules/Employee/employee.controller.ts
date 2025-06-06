@@ -10,7 +10,6 @@ import {
   Query,
   UploadedFile,
   UseInterceptors,
-  UploadedFiles,
   Res,
 } from '@nestjs/common';
 import { EmployeeService } from './employee.service';
@@ -19,17 +18,17 @@ import { editEmployeeDto } from './dtos/editEmployee.dto';
 import { JwtGuard, SubscriptionGuard } from '../Auth/guard';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { UploadExtensionInterceptor } from '../../multer/image_upload.interceptor';
-import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor} from '@nestjs/platform-express';
 import { UpdatePasswordDto } from './dtos/updatePassword.dto';
 import { Response } from 'express';
 import { join } from 'path';
-import {} from 'multer';
+import { } from 'multer';
 
 @ApiTags('employee')
 @UseGuards(JwtGuard)
 @Controller('api/employee')
 export class EmployeeController {
-  constructor(private readonly employeeService: EmployeeService) {}
+  constructor(private readonly employeeService: EmployeeService) { }
 
   @Post()
   @UseGuards(SubscriptionGuard)
@@ -135,11 +134,6 @@ export class EmployeeController {
     return this.employeeService.countEmployees(companyId);
   }
 
-  @Get('status-summary/:companyId')
-  async getEmployeeStatusByContract(@Param('companyId') companyId: string) {
-    return this.employeeService.getStatusSummary(companyId);
-  }
-
   @Patch(':id/password')
   async updatePassword(
     @Param('id') id: string,
@@ -152,4 +146,11 @@ export class EmployeeController {
   async getStatusCount(@Param('companyId') companyId: string) {
     return this.employeeService.getStatusCountByCompany(companyId);
   }
+
+  @Get('attendance-count/:companyId')
+  async getAttendanceCount(@Param('companyId') companyId: string) {
+    return this.employeeService.getAttendanceCountbyCompany(companyId);
+  }
+
 }
+
