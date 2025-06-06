@@ -75,7 +75,7 @@ export class PaymentService {
     await this.prisma.transaction.update({
       where:{merchantRef:merchant_ref},
       data:{
-        tripayRef:res.data.reference
+        tripayRef:res.data.data.reference
       }
     });
 
@@ -91,7 +91,7 @@ export class PaymentService {
       }
     );
 
-    return payment.data;
+    return payment.data.data;
   }
 
   async getPaymentStatus(ref:string){
@@ -105,20 +105,21 @@ export class PaymentService {
     )
 
     return {
-      status: paymentStatus.data.status,
-      message: `Status transaksi adalah ${paymentStatus.data.status}`
+      status: paymentStatus.data.data.status,
+      message: `Status transaksi adalah ${paymentStatus.data.data.status}`
     };
   }
   async tripayCallbackHandler(req: any) {
     try {
       if (req) {
+        const data = req.data;
         const transactionData = {
-          paymentMethod: req.payment_method,
-          paidAt: new Date(parseInt(req.paid_at, 10) * 1000).toISOString(),
+          paymentMethod: data.payment_method,
+          paidAt: new Date(parseInt(data.paid_at, 10) * 1000).toISOString(),
         };
 
         const transac = await this.prisma.transaction.findFirst({
-          where: { merchantRef: req.merchant_ref },
+          where: { merchantRef: data.merchant_ref },
         });
         const subs = await this.prisma.subscription.findFirst({
           where: { id: transac.subscription_id },

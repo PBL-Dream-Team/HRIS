@@ -19,6 +19,7 @@ export class PaymentController {
       return {
         success: true,
         checkout_url: result.data.checkout_url,
+        tripayRef: result.data.reference
       };
     } else {
       return {
