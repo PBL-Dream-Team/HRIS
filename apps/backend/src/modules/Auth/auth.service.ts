@@ -70,13 +70,15 @@ export class AuthService {
     let userData: any = {};
 
     const check = await this.prisma.employee.findFirst({
-      where:{email:dto.email}
-    });
+        where: {
+          OR: [{ email: dto.email }, { phone: dto.phone }],
+        },
+      });
 
     if(check){
       return {
         statusCode: 409,
-        message: "Email already in use"
+        message: "Email or phone number already in use"
       }
     }
 
