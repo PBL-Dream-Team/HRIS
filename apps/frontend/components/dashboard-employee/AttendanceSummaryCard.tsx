@@ -21,15 +21,6 @@ import {
   ChartTooltipContent,
 } from '@/components/ui/chart';
 
-// Data
-// const attendancesData = [
-//   { attendance: 'onTime', total: 200, fill: 'hsl(var(--chart-1))' },
-//   { attendance: 'late', total: 186, fill: 'hsl(var(--chart-2))' },
-//   { attendance: 'leave', total: 50, fill: 'hsl(var(--chart-3))' },
-//   { attendance: 'sick', total: 30, fill: 'hsl(var(--chart-4))' },
-//   { attendance: 'permit', total: 20, fill: 'hsl(var(--chart-5))' },
-// ];
-
 const chartConfig = {
   total: {
     label: 'Total',
@@ -67,9 +58,15 @@ type AttendanceSummary = {
 // Content
 type AttendanceSummaryCardProps = {
   summary: AttendanceSummary;
+  selectedMonth: string;
+  onChangeMonth: (value: string) => void;
 };
 
-export default function AttendanceSummaryCard({ summary }: AttendanceSummaryCardProps) {
+export default function AttendanceSummaryCard({
+  summary,
+  selectedMonth,
+  onChangeMonth,
+}: AttendanceSummaryCardProps) {
   const attendancesData = [
     { attendance: 'onTime', total: summary.onTime, fill: 'hsl(var(--chart-1))' },
     { attendance: 'late', total: summary.late, fill: 'hsl(var(--chart-2))' },
@@ -83,7 +80,10 @@ export default function AttendanceSummaryCard({ summary }: AttendanceSummaryCard
         <div className="flex items-center gap-2">
           <CardTitle className="text-xl">Attendance Summary</CardTitle>
           <div className="absolute right-4 top-4 pr-1">
-            <SelectMonthFilter />
+            <SelectMonthFilter
+              selectedMonth={selectedMonth}
+              onChange={onChangeMonth}
+            />
           </div>
         </div>
       </CardHeader>
