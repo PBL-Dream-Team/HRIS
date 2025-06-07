@@ -93,7 +93,7 @@ export default function LettersClient({
   const [isLetterTypesOverviewOpen, setIsLetterTypesOverviewOpen] =
     useState(false);
 
-  // Dialog states - updated
+  // Dialog states
   const [openAddLetterDialog, setOpenAddLetterDialog] = useState(false);
   const [openAddLetterTypeDialog, setOpenAddLetterTypeDialog] = useState(false);
 
@@ -267,8 +267,8 @@ export default function LettersClient({
                   </Dialog>
 
                   {/* Add Letter Type Dialog - Updated */}
-                  <Dialog 
-                    open={openAddLetterTypeDialog} 
+                  <Dialog
+                    open={openAddLetterTypeDialog}
                     onOpenChange={setOpenAddLetterTypeDialog}
                   >
                     <DialogTrigger asChild>
@@ -290,8 +290,8 @@ export default function LettersClient({
                   </Dialog>
 
                   {/* Add Letter Dialog - Updated */}
-                  <Dialog 
-                    open={openAddLetterDialog} 
+                  <Dialog
+                    open={openAddLetterDialog}
                     onOpenChange={setOpenAddLetterDialog}
                   >
                     <DialogTrigger asChild>
@@ -352,7 +352,6 @@ export default function LettersClient({
         open={isLetterDetailsSheetOpen}
         onOpenChange={setIsLetterDetailsSheetOpen}
         selectedLetter={selectedLetter}
-        avatarUrl={selectedLetter && selectedLetter.employee_id ? employees[selectedLetter.employee_id]?.pict_dir || '' : ''}
       />
     </SidebarProvider>
   );

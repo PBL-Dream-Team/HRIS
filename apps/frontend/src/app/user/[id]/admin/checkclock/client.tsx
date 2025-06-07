@@ -145,6 +145,12 @@ export default function CheckClockClient({
   const [attendances, setAttendance] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+    setCurrentPage(1); // Reset ke halaman pertama saat pencarian berubah
+  };
 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -271,6 +277,12 @@ export default function CheckClockClient({
     });
   }, [attendances, employees]);
 
+  const filteredCheckclocks = useMemo(() => {
+    return checkclocks.filter((checkclock) =>
+      checkclock.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [checkclocks, searchTerm]);
+
   const [openSheet, setOpenSheet] = useState(false);
   const [selectedCheckClock, setSelectedCheckClock] =
     useState<CheckClockProcessed | null>(null);
@@ -288,8 +300,8 @@ export default function CheckClockClient({
   const paginatedCheckclocks = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
-    return checkclocks.slice(startIndex, endIndex);
-  }, [checkclocks, currentPage, itemsPerPage]);
+    return filteredCheckclocks.slice(startIndex, endIndex);
+  }, [filteredCheckclocks, currentPage, itemsPerPage]);
 
   if (isLoading) {
     // Optional: Render a loading state
@@ -344,32 +356,33 @@ export default function CheckClockClient({
           <div className="border border-gray-300 rounded-md p-4">
             <div className="flex items-center justify-between p-4 border-b">
               <h2 className="text-lg font-semibold">Checkclock Overview</h2>
+              <div className="flex flex-col gap-2 md:flex-row md:flex-wrap md:gap-2">                <Dialog
+                open={isWorkschemeOverviewOpen}
+                onOpenChange={setIsWorkschemeOverviewOpen}
+              >
               <div className="relative w-96 hidden lg:block">
                 <IoMdSearch className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-500" />
-                <Input type="search" placeholder="Search" className="pl-10" />
-                {/* Add onChange handler and state for search functionality */}
+                <Input
+                  type="search"
+                  placeholder="Search by employee name"
+                  className="pl-10"
+                  value={searchTerm}
+                  onChange={handleSearchChange}
+                />
               </div>
-              <div className="flex flex-col gap-2 md:flex-row md:flex-wrap md:gap-2">
-                <Button variant="outline" className="w-full md:w-auto">
-                  <VscSettings className="h-4 w-4 mr-1" /> Filter
-                </Button>
-                <Dialog
-                  open={isWorkschemeOverviewOpen}
-                  onOpenChange={setIsWorkschemeOverviewOpen}
-                >
-                  <DialogTrigger asChild>
-                    <Button>Workscheme Overview</Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-4xl">
-                    <DialogHeader>
-                      <DialogTitle>Workscheme Data</DialogTitle>
-                    </DialogHeader>
-                    <WorkschemeOverviewContent
-                      companyId={companyId}
-                      isVisible={isWorkschemeOverviewOpen}
-                    />
-                  </DialogContent>
-                </Dialog>
+                <DialogTrigger asChild>
+                  <Button>Workscheme Overview</Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-4xl">
+                  <DialogHeader>
+                    <DialogTitle>Workscheme Data</DialogTitle>
+                  </DialogHeader>
+                  <WorkschemeOverviewContent
+                    companyId={companyId}
+                    isVisible={isWorkschemeOverviewOpen}
+                  />
+                </DialogContent>
+              </Dialog>
                 <Dialog>
                   <DialogTrigger asChild>
                     <Button>
@@ -523,7 +536,7 @@ export default function CheckClockClient({
             </Table>
 
             <PaginationFooter
-              totalItems={checkclocks.length}
+              totalItems={filteredCheckclocks.length}
               itemsPerPage={itemsPerPage}
               currentPage={currentPage}
               onPageChange={setCurrentPage}

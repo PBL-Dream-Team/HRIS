@@ -17,6 +17,7 @@ import { toast } from 'sonner';
 
 import api from '@/lib/axios';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { init } from 'next/dist/compiled/webpack/webpack';
 
 type EmployeeFormProps = {
   companyId: string;
@@ -133,6 +134,8 @@ export function EmployeeForm({
   // Isi data saat edit
   useEffect(() => {
     if (mode === 'edit' && initialData) {
+      console.log('Initial data for edit:', initialData);
+
       setWorkScheme(initialData.workscheme || '');
       setFirstName(initialData.first_name || '');
       setLastName(initialData.last_name || '');
@@ -141,6 +144,7 @@ export function EmployeeForm({
       setEmail(initialData.email || '');
       setPassword('');
       setPhoneNumber(initialData.phone || '');
+      setBirthDate(initialData.birth_date);
       setBirthPlace(initialData.birth_place || '');
       setNik(initialData.nik || '');
       setPosition(initialData.position || '');

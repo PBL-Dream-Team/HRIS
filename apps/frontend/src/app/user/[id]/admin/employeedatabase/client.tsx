@@ -18,9 +18,6 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from '@/components/ui/sidebar';
-
-import { Input } from '@/components/ui/input';
-import { Bell } from 'lucide-react';
 import { NavUser } from '@/components/nav-user';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -33,38 +30,17 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
-
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-} from '@/components/ui/dropdown-menu';
-
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
 import { Pencil, Trash2, Eye, Plus } from 'lucide-react';
 import { VscSettings } from 'react-icons/vsc';
-import { IoMdSearch } from 'react-icons/io';
 import { BiImport, BiExport } from 'react-icons/bi';
 
 import { EmployeeForm } from '@/components/employeedatabase/employee-form';
-import PaginationFooter from '@/components/pagination';
 import EmployeeDetails from '@/components/employeedatabase/employee-details';
 import api from '@/lib/axios';
 import { useEffect } from 'react';
 
-import { toast } from 'sonner'; // atau dari 'react-toastify'
+import { toast } from 'sonner';
 import { DataTable } from '@/components/data-table';
 
 type EmployeeDatabaseClientProps = {
@@ -309,32 +285,6 @@ export default function EmployeeDatabaseClient({
           </div>
 
           <div className="flex items-center gap-4">
-            {/* Notification */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="relative p-2 rounded-md hover:bg-muted focus:outline-none">
-                  <Bell className="h-5 w-5" />
-                  <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-red-500" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                className="min-w-56 rounded-lg"
-                side="bottom"
-                sideOffset={8}
-                align="end"
-              >
-                <DropdownMenuLabel>Notifications</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>New user registered</DropdownMenuItem>
-                <DropdownMenuItem>Monthly report is ready</DropdownMenuItem>
-                <DropdownMenuItem>Server restarted</DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-center text-blue-600 hover:text-blue-700">
-                  View all
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
             {/* Nav-user */}
             <NavUser user={user} isAdmin={isAdmin} />
           </div>
