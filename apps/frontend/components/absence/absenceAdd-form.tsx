@@ -130,12 +130,18 @@ export function AbsenceAddForm({
 
           <div>
             <Label htmlFor="date">Date*</Label>
-            <Input
-              id="date"
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-            />
+            <div className="relative">
+              <Input
+                id="date"
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                className="pr-4 [&::-webkit-calendar-picker-indicator]:opacity-100 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-2 [&::-webkit-calendar-picker-indicator]:w-4 [&::-webkit-calendar-picker-indicator]:h-4 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                style={{
+                  colorScheme: 'light',
+                }}
+              />
+            </div>
           </div>
 
           <div>
@@ -153,7 +159,7 @@ export function AbsenceAddForm({
         {/* Right Column */}
         <div className="flex-1 space-y-4">
           <Label>Evidence Picture*</Label>
-          
+
           {/* Image Preview Area */}
           <div className="relative w-full aspect-[8/5] border rounded-lg shadow-sm overflow-hidden bg-gray-50">
             {previewUrl ? (
@@ -185,7 +191,7 @@ export function AbsenceAddForm({
               <MdImage className="text-lg" />
               {hasImage() ? 'Change Image' : 'Upload Image'}
             </Button>
-            
+
             {hasImage() && (
               <Button
                 type="button"
@@ -212,7 +218,7 @@ export function AbsenceAddForm({
             onChange={handleFileChange}
             className="hidden"
           />
-          
+
         </div>
       </div>
 

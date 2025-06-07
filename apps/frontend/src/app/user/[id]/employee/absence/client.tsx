@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Bell, Eye, X, Check } from 'lucide-react';
+import { Eye } from 'lucide-react';
 import { IoMdAdd, IoMdSearch } from 'react-icons/io';
-import { VscSettings } from 'react-icons/vsc';
 
 import api from '@/lib/axios';
 import { AppSidebar } from '@/components/app-sidebar';
@@ -32,14 +31,6 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import {
   Table,
   TableBody,
   TableCell,
@@ -49,7 +40,7 @@ import {
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Label } from '@/components/ui/label';
 import AbsenceDetails from '@/components/absence/absence-details';
 import { AbsenceAddForm } from '@/components/absence/absenceAdd-form';
 import { AbsenceEditForm } from '@/components/absence/absenceEdit-form';
@@ -106,6 +97,7 @@ export default function AbsenceClient({
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const router = useRouter();
+  const [filterDate, setFilterDate] = useState<string>('');
 
   const [pictdir, setPictDir] = useState({
     pictdir: ''
@@ -182,28 +174,41 @@ export default function AbsenceClient({
     fetchData();
   }, [userId]);
 
-  const transformedabsences = absences.map((absence) => {
-    const employee = employees[absence.employee_id];
-    return {
-      id: absence.id,
-      employee_id: absence.employee_id,
-      company_id: absence.company_id,
-      reason: absence.reason ? absence.reason : '-',
-      date: new Date(absence.date).toDateString(),
-      status: absence.status,
-      name: employee ? `${employee.first_name} ${employee.last_name}` : 'N/A',
-      position: employee?.position ? employee.position : 'N/A',
-      type: absence.type,
-      address: employee?.address ? employee.address : '-',
-      filedir: absence.filedir,
-      created_at: formatTimeOnly(absence.created_at),
-    };
-  });
+const transformedabsences = absences.map((absence) => {
+  const employee = employees[absence.employee_id];
+  return {
+    id: absence.id,
+    employee_id: absence.employee_id,
+    company_id: absence.company_id,
+    reason: absence.reason ? absence.reason : '-',
+    date: new Date(absence.date).toDateString(),
+    status: absence.status,
+    name: employee ? `${employee.first_name} ${employee.last_name}` : 'N/A',
+    position: employee?.position ? employee.position : 'N/A',
+    type: absence.type,
+    address: employee?.address ? employee.address : '-',
+    filedir: absence.filedir,
+    created_at: formatTimeOnly(absence.created_at),
+  };
+});
 
-  const displayedAbsences = transformedabsences.slice(
+const filteredAbsences = filterDate
+? transformedabsences.filter((absence) => {
+    const absenceDate = new Date(absence.date);
+    const selectedDate = new Date(filterDate);
+    return (
+      absenceDate.getFullYear() === selectedDate.getFullYear() &&
+      absenceDate.getMonth() === selectedDate.getMonth() &&
+      absenceDate.getDate() === selectedDate.getDate()
+    );
+  })
+: transformedabsences;
+
+  const displayedAbsences = filteredAbsences.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage,
   );
+
 
   const [openSheet, setOpenSheet] = useState(false);
   const [selectedAbsence, setSelectedAbsence] = useState<Absence | null>(null);
@@ -303,9 +308,34 @@ export default function AbsenceClient({
               <h2 className="text-lg font-semibold">Absence Overview</h2>
 
               <div className="flex items-center gap-2">
-                <div className="relative hidden lg:block w-72">
-                  <IoMdSearch className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-500" />
-                  <Input type="search" placeholder="Search" className="pl-10" />
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="filter-date">Filter by date:</Label>
+                  <div className="relative">
+                    <Input
+                      id="filter-date"
+                      type="date"
+                      value={filterDate}
+                      onChange={(e) => setFilterDate(e.target.value)}
+                      className="pr-4 [&::-webkit-calendar-picker-indicator]:opacity-100 
+                               [&::-webkit-calendar-picker-indicator]:absolute 
+                               [&::-webkit-calendar-picker-indicator]:right-2 
+                               [&::-webkit-calendar-picker-indicator]:w-4 
+                               [&::-webkit-calendar-picker-indicator]:h-4 
+                               [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                      style={{
+                        colorScheme: 'light'
+                      }}
+                    />
+                  </div>
+                  {filterDate && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setFilterDate('')}
+                    >
+                      Clear
+                    </Button>
+                  )}
                 </div>
 
                 <Dialog open={openAddDialog} onOpenChange={setOpenAddDialog}>
@@ -419,8 +449,8 @@ export default function AbsenceClient({
                           variant="outline"
                           size="icon"
                           className={`${abs.status === 'PENDING'
-                              ? 'hover:text-white hover:bg-yellow-500'
-                              : 'bg-gray-300 text-gray-500 cursor-not-allowed border-gray-300 hover:bg-gray-300 hover:text-gray-500'
+                            ? 'hover:text-white hover:bg-yellow-500'
+                            : 'bg-gray-300 text-gray-500 cursor-not-allowed border-gray-300 hover:bg-gray-300 hover:text-gray-500'
                             }`}
                           onClick={() => {
                             setAbsenceToDelete(abs);
@@ -439,7 +469,7 @@ export default function AbsenceClient({
             </Table>
 
             <PaginationFooter
-              totalItems={absences.length}
+              totalItems={filteredAbsences.length}
               itemsPerPage={itemsPerPage}
               currentPage={currentPage}
               onPageChange={setCurrentPage}

@@ -46,14 +46,14 @@ export const letterColumns = (
       try {
         date = new Date(rawDate);
         if (isNaN(date.getTime())) {
-          date = parse(rawDate, 'dd MMMM yyyy', new Date(), { locale: id });
+          date = parse(rawDate, 'MMMM dd yyyy', new Date(), { locale: id });
         }
       } catch {
         date = undefined;
       }
 
       return date && !isNaN(date.getTime())
-        ? date.toLocaleDateString('id-ID', {
+        ? date.toLocaleDateString('en-US', {
             day: '2-digit',
             month: 'long',
             year: 'numeric',

@@ -42,12 +42,11 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-
-import { IoMdAdd, IoMdSearch } from 'react-icons/io';
 import { useRouter } from 'next/navigation';
 import { CheckOutForm } from '@/components/checkout-form';
 import { enUS } from 'date-fns/locale';
 import { format } from 'date-fns';
+import { Label } from '@/components/ui/label';
 
 let checkclocks;
 
@@ -121,7 +120,6 @@ export default function CheckClockClient({
   userId,
   companyId,
 }: CheckClockClientProps) {
-
   const [user, setUser] = useState({
     name: '',
     first_name: '',
@@ -139,6 +137,7 @@ export default function CheckClockClient({
   let dailyLimit = 1;
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+  const [filterDate, setFilterDate] = useState<string>('');
 
   // State untuk mengontrol dialog Add Check Clock
   const [openAddDialog, setOpenAddDialog] = useState(false);
@@ -225,6 +224,7 @@ export default function CheckClockClient({
       date: attendance.created_at,
       name: `${employees[0]?.first_name || ''} ${employees[0]?.last_name || ''}`,
       avatarUrl: employees[0]?.pict_dir || undefined,
+      position: employees[0]?.position || '',
       clockIn: formatTimeOnly(attendance.check_in),
       clockOut: attendance.check_out
         ? formatTimeOnly(attendance.check_out)
@@ -249,6 +249,19 @@ export default function CheckClockClient({
             : 'Outside Office (WFO)',
     };
   });
+
+  // Filter checkclocks based on selected date
+  const filteredCheckClocks = filterDate
+    ? checkclocks.filter((checkclock) => {
+        const checkClockDate = new Date(checkclock.date);
+        const selectedDate = new Date(filterDate);
+        return (
+          checkClockDate.getFullYear() === selectedDate.getFullYear() &&
+          checkClockDate.getMonth() === selectedDate.getMonth() &&
+          checkClockDate.getDate() === selectedDate.getDate()
+        );
+      })
+    : checkclocks;
 
   const [openSheet, setOpenSheet] = useState(false);
   const [selectedCheckClock, setselectedCheckClock] = useState<any>(null);
@@ -308,11 +321,38 @@ export default function CheckClockClient({
             {/* Title and Search */}
             <div className="flex items-center justify-between p-4 border-b">
               <div className="text-lg font-semibold">Check Clock Overview</div>
-              <div className="relative w-96 hidden lg:block">
-                <IoMdSearch className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-500" />
-                <Input type="search" placeholder="Search" className="pl-10" />
+              <div className="hidden lg:block">
               </div>
               <div className="flex flex-col gap-2 lg:flex-row lg:items-center lg:gap-4">
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="filter-date">Filter by date:</Label>
+                  <div className="relative">
+                    <Input
+                      id="filter-date"
+                      type="date"
+                      value={filterDate}
+                      onChange={(e) => setFilterDate(e.target.value)}
+                      className="pr-4 [&::-webkit-calendar-picker-indicator]:opacity-100 
+                               [&::-webkit-calendar-picker-indicator]:absolute 
+                               [&::-webkit-calendar-picker-indicator]:right-2 
+                               [&::-webkit-calendar-picker-indicator]:w-4 
+                               [&::-webkit-calendar-picker-indicator]:h-4 
+                               [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                      style={{
+                        colorScheme: 'light'
+                      }}
+                    />
+                  </div>
+                  {filterDate && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setFilterDate('')}
+                    >
+                      Clear
+                    </Button>
+                  )}
+                </div>
                 <Dialog open={openAddDialog} onOpenChange={setOpenAddDialog}>
                   <DialogTrigger asChild>
                     <Button
@@ -353,7 +393,7 @@ export default function CheckClockClient({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {checkclocks.map((checkclock) => (
+                {filteredCheckClocks.map((checkclock) => (
                   <TableRow key={checkclock.id}>
                     <TableCell>{formatDate(checkclock.date)}</TableCell>
                     <TableCell>
@@ -425,7 +465,7 @@ export default function CheckClockClient({
 
             {/* Pagination */}
             <PaginationFooter
-              totalItems={checkclocks.length}
+              totalItems={filteredCheckClocks.length}
               itemsPerPage={itemsPerPage}
               currentPage={currentPage}
               onPageChange={setCurrentPage}

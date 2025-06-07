@@ -25,15 +25,6 @@ import {
 } from '@/components/ui/sidebar';
 
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-} from '@/components/ui/dropdown-menu';
-
-import {
   Dialog,
   DialogTrigger,
   DialogContent,
@@ -47,10 +38,9 @@ import { Card } from '@/components/ui/card';
 import { useEffect, useState, useCallback } from 'react';
 import api from '@/lib/axios';
 import { useRouter } from 'next/navigation';
-import { use } from 'chai';
 
 type EducationType = 'HIGH_SCHOOL' | 'BACHELOR' | 'MASTER' | 'DOCTOR';
-type GenderType = 'M' | 'F';
+type GenderType = 'M' | 'F' | 'O';
 type Bank =
   | 'BRI'
   | 'Mandiri'
@@ -201,6 +191,8 @@ export default function AccountClient({
         return 'Male';
       case 'F':
         return 'Female';
+      case 'O':
+        return 'Other';
       default:
         return genderCode;
     }
@@ -407,7 +399,7 @@ export default function AccountClient({
                         phone: employeeData.phone || '',
                         nik: employeeData.nik || '',
                         birth_place: employeeData.birth_place || '',
-                        birth_date: initialData?.birth_date || '',
+                        birth_date: employeeData.birth_date || '',
                         pict_dir: employeeData.pict_dir || '',
                         email: employeeData.email || '',
                       }}
