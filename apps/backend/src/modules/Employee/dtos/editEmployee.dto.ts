@@ -4,6 +4,7 @@ import {
   IsDate,
   IsEmail,
   IsEnum,
+  IsNotEmpty,
   IsNumberString,
   IsOptional,
   IsString,
@@ -59,7 +60,7 @@ export class editEmployeeDto {
 
   @ApiPropertyOptional()
   @IsNumberString()
-  @IsOptional()
+  @IsNotEmpty()
   phone: string;
 
   @ApiPropertyOptional()
