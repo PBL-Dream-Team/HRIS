@@ -403,7 +403,10 @@ export default function EmployeeDatabaseClient({
                             <BiImport className="mb-2 h-10 w-10 text-blue-500" />
                             <p className="mb-2 text-sm text-gray-700">
                               Drag & drop file here or{' '}
-                              <label htmlFor="employee-import" className="text-blue-600 underline cursor-pointer">
+                              <label
+                                htmlFor="employee-import"
+                                className="text-blue-600 underline cursor-pointer"
+                              >
                                 browse
                               </label>
                             </p>
@@ -421,14 +424,30 @@ export default function EmployeeDatabaseClient({
                                 formData.append('companyId', companyId);
 
                                 try {
-                                  await api.post('/api/employee/list-import', formData, {
-                                    headers: { 'Content-Type': 'multipart/form-data' },
-                                  });
+                                  const res = await api.post(
+                                    '/api/employee/list-import',
+                                    formData,
+                                    {
+                                      headers: {
+                                        'Content-Type': 'multipart/form-data',
+                                      },
+                                    },
+                                  );
+                                  if (res.data?.statusCode !== 201) {
+                                    toast.error(
+                                      res.data?.error ||
+                                        res.data?.message ||
+                                        'Import failed',
+                                    );
+                                    return;
+                                  }
                                   toast.success('Import successful!');
                                   fetchEmployees();
                                   setImportDialogOpen(false);
                                 } catch (err: any) {
-                                  toast.error('Failed to import employee data.');
+                                  toast.error(
+                                    'Failed to import employee data.',
+                                  );
                                   console.error('Import error:', err);
                                 } finally {
                                   setImporting(false);
@@ -437,11 +456,16 @@ export default function EmployeeDatabaseClient({
                               disabled={importing}
                             />
                             {importing && (
-                              <span className="mt-2 text-xs text-gray-500">Importing, please wait...</span>
+                              <span className="mt-2 text-xs text-gray-500">
+                                Importing, please wait...
+                              </span>
                             )}
                             {/* Tampilkan Company ID di bawah upload file */}
                             <div className="mt-4 text-xs text-gray-500">
-                              <span className="font-semibold text-gray-700">Company ID:</span> {companyId}
+                              <span className="font-semibold text-gray-700">
+                                Company ID:
+                              </span>{' '}
+                              {companyId}
                             </div>
                           </div>
                         </div>
