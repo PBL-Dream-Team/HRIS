@@ -153,8 +153,8 @@ export class EmployeeController {
   }
 
   @Post('list-export')
-  async ExportExcel(@Body('companyId') companyId: string, res: Response){
-    const file = this.employeeService.ExportExcel(companyId);
+  async ExportExcel(@Body('companyId') companyId: string, @Res() res: Response) {
+    const file = await this.employeeService.ExportExcel(companyId); // <-- tambahkan await
     res.setHeader('Content-Disposition', 'attachment; filename="employees.xlsx"');
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     res.send(file);
