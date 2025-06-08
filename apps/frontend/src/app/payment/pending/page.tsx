@@ -39,7 +39,7 @@ export default function PaymentPendingPage() {
 
   const fetchPaymentDetail = async () => {
     if (!ref) return;
-    
+
     try {
       const response = await api.get(`/api/payment/detail/${ref}`);
       // API returns data directly, not nested in data.data.data
@@ -53,11 +53,11 @@ export default function PaymentPendingPage() {
 
   const checkStatus = async () => {
     if (!ref) return;
-    
+
     setChecking(true);
     try {
       const response = await api.get(`/api/payment/check-status/${ref}`);
-      
+
       // Check the status field directly from response
       if (response.data.status === 'PAID') {
         router.replace('/payment/success');
@@ -88,7 +88,7 @@ export default function PaymentPendingPage() {
 
   useEffect(() => {
     fetchPaymentDetail();
-    
+
     // Auto check status every 30 seconds
     const interval = setInterval(() => {
       checkStatus();
@@ -158,10 +158,10 @@ export default function PaymentPendingPage() {
                 <div className="flex justify-between">
                   <span>Status:</span>
                   <span className={`font-semibold ${
-                    paymentDetail.status === 'PAID' ? 'text-green-600' :
-                    paymentDetail.status === 'UNPAID' ? 'text-yellow-600' :
-                    'text-red-600'
-                  }`}>
+                      paymentDetail.status === 'PAID' ? 'text-green-600' :
+                      paymentDetail.status === 'UNPAID' ? 'text-yellow-600' :
+                        'text-red-600'
+                    }`}>
                     {paymentDetail.status}
                   </span>
                 </div>
@@ -194,11 +194,11 @@ export default function PaymentPendingPage() {
               </div>
             )}
 
-            {/* Mobile: Action Buttons */}
-            <div className="lg:hidden bg-white rounded-lg p-6 border shadow-sm">
+            {/* Action Buttons */}
+            <div className="bg-white rounded-lg p-6 border shadow-sm">
               <div className="space-y-4">
                 {(paymentDetail.pay_url || paymentDetail.checkout_url) && (
-                  <Button 
+                  <Button
                     onClick={openPaymentUrl}
                     className="w-full bg-[#1E3A5F] hover:bg-[#1E3A5F]/80 text-white py-3"
                     size="lg"
@@ -206,8 +206,8 @@ export default function PaymentPendingPage() {
                     Complete Payment
                   </Button>
                 )}
-                <Button 
-                  onClick={checkStatus} 
+                <Button
+                  onClick={checkStatus}
                   disabled={checking}
                   variant="outline"
                   className="w-full py-3"
@@ -215,16 +215,16 @@ export default function PaymentPendingPage() {
                 >
                   {checking ? 'Checking...' : 'Check Status'}
                 </Button>
-                <Button 
-                  variant="outline" 
-                  onClick={() => router.push('/dashboard')}
+                <Button
+                  variant="outline"
+                  onClick={() => router.push('/signin')}
                   className="w-full py-3"
                   size="lg"
                 >
-                  Back to Dashboard
+                  Back to Sign In
                 </Button>
               </div>
-              
+
               <p className="text-xs text-gray-500 mt-6 text-center">
                 Payment Ref: {ref}
               </p>
@@ -250,44 +250,6 @@ export default function PaymentPendingPage() {
                 </div>
               </div>
             )}
-          </div>
-        </div>
-
-        {/* Desktop: Action Buttons */}
-        <div className="hidden lg:block mt-8">
-          <div className="bg-white rounded-lg p-6 border shadow-sm">
-            <div className="flex flex-col lg:flex-row gap-4 lg:gap-6">
-              {(paymentDetail.pay_url || paymentDetail.checkout_url) && (
-                <Button 
-                  onClick={openPaymentUrl}
-                  className="flex-1 bg-[#1E3A5F] hover:bg-[#1E3A5F]/80 text-white py-4"
-                  size="lg"
-                >
-                  Complete Payment
-                </Button>
-              )}
-              <Button 
-                onClick={checkStatus} 
-                disabled={checking}
-                variant="outline"
-                className="flex-1 py-4"
-                size="lg"
-              >
-                {checking ? 'Checking...' : 'Check Status'}
-              </Button>
-              <Button 
-                variant="outline" 
-                onClick={() => router.push('/signin')}
-                className="flex-1 py-4"
-                size="lg"
-              >
-                Back to Sign In
-              </Button>
-            </div>
-            
-            <p className="text-xs text-gray-500 mt-6 text-center">
-              Payment Ref: {ref}
-            </p>
           </div>
         </div>
       </div>
