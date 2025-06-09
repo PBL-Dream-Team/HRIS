@@ -142,16 +142,26 @@ export default function DashboardClient({
         const res = await api.get(`/api/employee/status-count/${companyId}`);
         const data = res.data;
 
+        // Add null/undefined checks
+        if (!Array.isArray(data)) {
+          console.warn('Employee status data is not an array:', data);
+          setEmployeeStatusData([]);
+          return;
+        }
+
         const colorMap: Record<string, string> = {
           PERMANENT: '#257047',
           CONTRACT: '#FFAB00',
           INTERN: '#2D8EFF',
         };
 
-        const formatted = data.map((item: any) => ({
-          ...item,
-          color: colorMap[item.name] || '#8884d8',
-        }));
+        const formatted = data
+          .filter(item => item && typeof item === 'object' && item.name)
+          .map((item: any) => ({
+            name: String(item.name || ''),
+            total: Number(item.total || 0),
+            color: colorMap[item.name] || '#8884d8',
+          }));
 
         setEmployeeStatusData(formatted);
       } catch (err: any) {
@@ -159,10 +169,13 @@ export default function DashboardClient({
           'Error fetching employee status:',
           err.response?.data || err.message,
         );
+        setEmployeeStatusData([]);
       }
     }
 
-    fetchEmployeeStatus();
+    if (companyId) {
+      fetchEmployeeStatus();
+    }
   }, [companyId]);
 
 
