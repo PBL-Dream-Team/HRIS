@@ -69,15 +69,19 @@ export default function DashboardClient({
     async function fetchUser() {
       try {
         const res = await api.get(`/api/employee/${userId}`);
-        const { first_name, last_name, position, pict_dir } = res.data.data;
+        const userData = res.data?.data;
+        
+        if (userData) {
+          const { first_name, last_name, position, pict_dir } = userData;
 
-        setUser({
-          name: `${first_name} ${last_name}`,
-          first_name: first_name,
-          last_name: last_name,
-          position: position,
-          avatar: pict_dir || '/avatars/default.jpg',
-        });
+          setUser({
+            name: `${first_name || ''} ${last_name || ''}`.trim(),
+            first_name: first_name || '',
+            last_name: last_name || '',
+            position: position || '',
+            avatar: pict_dir || '/avatars/default.jpg',
+          });
+        }
       } catch (err: any) {
         console.error(
           'Error fetching user:',
@@ -86,7 +90,9 @@ export default function DashboardClient({
       }
     }
 
-    fetchUser();
+    if (userId) {
+      fetchUser();
+    }
   }, [userId]);
 
   const [employeeCount, setEmployeeCount] = useState({
@@ -154,7 +160,12 @@ export default function DashboardClient({
     async function fetchAttendanceOverview() {
       try {
         const res = await api.get(`/api/employee/attendance-count/${companyId}`);
-        const { onTime, late, leave } = res.data;
+        const data = res.data;
+        
+        // Add null checks and default values
+        const onTime = data?.onTime ?? 0;
+        const late = data?.late ?? 0;
+        const leave = data?.leave ?? 0;
 
         const mapped = [
           { attendance: 'onTime' as const, total: onTime },
@@ -168,10 +179,18 @@ export default function DashboardClient({
           'Error fetching attendance overview:',
           err.response?.data || err.message,
         );
+        // Set default values on error
+        setAttendanceOverview([
+          { attendance: 'onTime' as const, total: 0 },
+          { attendance: 'late' as const, total: 0 },
+          { attendance: 'leave' as const, total: 0 },
+        ]);
       }
     }
 
-    fetchAttendanceOverview();
+    if (companyId) {
+      fetchAttendanceOverview();
+    }
   }, [companyId]);
 
   return (
