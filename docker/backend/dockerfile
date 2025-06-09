@@ -1,49 +1,33 @@
 # Backend Dockerfile
+
 FROM node:22-alpine AS deps
 WORKDIR /app
-# Copy package files from root directory
 COPY package*.json ./
 RUN npm install
 
-# Build stage
+# Build backend
 FROM node:22-alpine AS builder
 WORKDIR /app
-# Copy all source files from root directory
 COPY . .
 COPY --from=deps /app/node_modules ./node_modules
-
-# Generate Prisma client
 RUN npx prisma generate
-
-# Build backend only
 RUN npm run build:backend
 
-# Production stage
+# Final stage
 FROM node:22-alpine AS runner
 WORKDIR /app
 
-# Copy package files and install all dependencies (including dev dependencies for development mode)
 COPY package*.json ./
 RUN npm install
 
-# Copy Prisma files and generated client
+# Prisma client and schema
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 
-# Copy apps directory for development
-COPY --from=builder /app/apps ./apps
-# COPY --from=builder /app/libs ./libs
+# Copy build output
+COPY --from=builder /app/dist ./dist
 
-# Copy configuration files
-COPY --from=builder /app/tsconfig*.json ./
-COPY --from=builder /app/nest-cli.json ./
-
-# Generate Prisma client again in production stage
-RUN npx prisma generate
-
-# Expose backend port
+# Expose port and run
 EXPOSE 8000
-
-# Start backend service in development mode
-CMD ["npm", "run", "dev:backend"]
+CMD ["node", "dist/apps/backend/main.js"]

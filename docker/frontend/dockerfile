@@ -1,39 +1,43 @@
-# Frontend Dockerfile
+# === Stage 1: Install dependencies ===
 FROM node:22-alpine AS deps
 WORKDIR /app
-# Copy package files from root directory
-COPY package*.json ./
-RUN npm install
 
-# Build stage
+# Copy root package.json dan workspace configs
+COPY package*.json ./
+RUN npm ci --only=production && npm cache clean --force
+
+# === Stage 2: Build ===
 FROM node:22-alpine AS builder
 WORKDIR /app
-# Copy all source files from root directory
+
+# Copy package files
+COPY package*.json ./
+RUN npm ci
+
+# Copy source code
 COPY . .
-COPY --from=deps /app/node_modules ./node_modules
 
-# Build frontend only (uncomment if needed for production)
-# RUN npm run build:frontend
+# Build frontend menggunakan script yang sudah ada
+RUN npm run build:frontend
 
-# Production stage
+# === Stage 3: Production runner ===
 FROM node:22-alpine AS runner
 WORKDIR /app
 
-# Install all dependencies (including dev dependencies for development mode)
-COPY package*.json ./
-RUN npm install
+# Create non-root user
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
 
-# Copy source files (apps directory containing frontend)
-COPY --from=builder /app/apps ./apps
-# COPY --from=builder /app/libs ./libs
+# Copy everything dari builder
+COPY --from=builder --chown=nextjs:nodejs /app ./
 
-# Copy configuration files to root
-COPY --from=builder /app/tsconfig.json ./tsconfig.json
-COPY --from=builder /app/apps/frontend/tsconfig.json ./apps/frontend/tsconfig.json
-COPY --from=builder /app/apps/frontend/next.config.ts ./next.config.ts
+# Install production dependencies
+RUN npm ci --only=production && npm cache clean --force
 
-# Expose frontend port
-EXPOSE 3000
+USER nextjs
 
-# Start frontend service in development mode
-CMD ["npm", "run", "dev:frontend"]
+EXPOSE 8080
+ENV NODE_ENV=production
+ENV PORT=8080
+
+CMD ["npm", "run", "start:frontend"]
