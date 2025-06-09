@@ -58,11 +58,11 @@ export default function DashboardClient({
   companyId,
 }: DashboardClientProps) {
   const [user, setUser] = useState({
-    name: '',
+    name: 'Loading...',
     first_name: '',
     last_name: '',
     position: '',
-    avatar: '',
+    avatar: '/avatars/default.jpg',
   });
 
   useEffect(() => {
@@ -74,12 +74,18 @@ export default function DashboardClient({
         if (userData) {
           const { first_name, last_name, position, pict_dir } = userData;
 
+          // Ensure all values are strings and handle null/undefined
+          const firstName = String(first_name || '');
+          const lastName = String(last_name || '');
+          const userPosition = String(position || '');
+          const userAvatar = String(pict_dir || '/avatars/default.jpg');
+
           setUser({
-            name: `${first_name || ''} ${last_name || ''}`.trim(),
-            first_name: first_name || '',
-            last_name: last_name || '',
-            position: position || '',
-            avatar: pict_dir || '/avatars/default.jpg',
+            name: `${firstName} ${lastName}`.trim() || 'Unknown User',
+            first_name: firstName,
+            last_name: lastName,
+            position: userPosition,
+            avatar: userAvatar,
           });
         }
       } catch (err: any) {
@@ -87,6 +93,14 @@ export default function DashboardClient({
           'Error fetching user:',
           err.response?.data || err.message,
         );
+        // Set default values on error
+        setUser({
+          name: 'Unknown User',
+          first_name: '',
+          last_name: '',
+          position: '',
+          avatar: '/avatars/default.jpg',
+        });
       }
     }
 
