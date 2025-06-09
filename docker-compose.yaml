@@ -7,14 +7,15 @@ services:
       dockerfile: docker/frontend/dockerfile
     container_name: hris_frontend
     ports:
-      - 3000:3000
+      - 8080:8080
     depends_on:
       - backend
     environment:
       - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
       - NEXT_PUBLIC_GOOGLE_CLIENT_ID=${NEXT_PUBLIC_GOOGLE_CLIENT_ID}
-      - NODE_ENV=development
+      - NODE_ENV=production
       - JWT_SECRET=${JWT_SECRET}
+      - PORT=8080
 
   backend:
     build:
@@ -23,14 +24,12 @@ services:
     container_name: hris_backend
     ports:
       - 8000:8000
-    depends_on:
-      - db
     environment:
-      - DATABASE_URL=postgresql://${DATABASE_USER}:${DATABASE_PASSWORD}@db:5432/hris_dev?schema=public
+      - DATABASE_URL=${DATABASE_URL}
       - PORT=8000
       - JWT_SECRET=${JWT_SECRET}
       - FRONTEND_URL=${FRONTEND_URL}
-      - NODE_ENV=development
+      - NODE_ENV=production
       - SMTP_HOST=${SMTP_HOST}
       - SMTP_PORT=${SMTP_PORT}
       - SMTP_USER=${SMTP_USER}
@@ -41,21 +40,5 @@ services:
       - JWT_ACCESS_TOKEN_EXPIRE=${JWT_ACCESS_TOKEN_EXPIRE}
       - JWT_REFRESH_TOKEN_EXPIRE=${JWT_REFRESH_TOKEN_EXPIRE}
       - TRIPAY_PRIVATE_KEY=${TRIPAY_PRIVATE_KEY}
-      - TRIPAY_MERCHAANT_CODE=${TRIPAY_MERCHANT_CODE}
+      - TRIPAY_MERCHANT_CODE=${TRIPAY_MERCHANT_CODE}
       - RETURN_URL=${RETURN_URL}
-
-  db:
-    image: postgres:15
-    container_name: postgres_db
-    restart: always
-    ports:
-      - 5432:5432
-    environment:
-      POSTGRES_USER: ${DATABASE_USER}
-      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
-      POSTGRES_DB: hris_dev
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-
-volumes:
-  postgres_data:
