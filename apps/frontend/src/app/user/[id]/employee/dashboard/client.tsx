@@ -89,6 +89,8 @@ export default function DashboardClient({
     const fetchAttendanceData = async () => {
       try {
         const now = new Date();
+        const currentMonth = now.getMonth();
+        const currentYear = now.getFullYear();
 
         const res = await api.get(`/api/attendance?employee_id=${userId}`);
         const attendance = res.data;
@@ -98,17 +100,23 @@ export default function DashboardClient({
         let late = 0;
 
         attendance.forEach((record: any) => {
-          const checkInTime = new Date(record.check_in);
-          const checkOutTime = new Date(record.check_out);
-          const workDuration = (checkOutTime.getTime() - checkInTime.getTime()) / (1000 * 60); // in minutes
-          if (workDuration > 0) {
-            totalMinutes += workDuration;
-          }
+          const date = new Date(record.created_at);
+          const month = date.getMonth();
+          const year = date.getFullYear();
 
-          if (record.check_in_status === 'ON_TIME') {
-            onTime++;
-          } else if (record.check_in_status === 'LATE') {
-            late++;
+          if (month === currentMonth && year === currentYear && record.approval === 'APPROVED') {
+            const checkInTime = new Date(record.check_in);
+            const checkOutTime = new Date(record.check_out);
+            const workDuration = (checkOutTime.getTime() - checkInTime.getTime()) / (1000 * 60); // in minutes
+            if (workDuration > 0) {
+              totalMinutes += workDuration;
+            }
+
+            if (record.check_in_status === 'ON_TIME') {
+              onTime++;
+            } else if (record.check_in_status === 'LATE') {
+              late++;
+            }
           }
         });
 
@@ -119,9 +127,12 @@ export default function DashboardClient({
         const absences = resAbsence.data;
 
         // Hitung jumlah LEAVE yang statusnya APPROVED
-        const leaveDays = absences.filter(
-          (a: any) => a.status === 'APPROVED'
-        ).length;
+        const leaveDays = absences.filter((a: any) => {
+          const date = new Date(a.created_at);
+          const month = date.getMonth();
+          const year = date.getFullYear();
+          return a.status === 'APPROVED' && month === currentMonth && year === currentYear;
+        }).length;
 
         setWorkStats({
           workHours: `${hours}h ${minutes}m`,
