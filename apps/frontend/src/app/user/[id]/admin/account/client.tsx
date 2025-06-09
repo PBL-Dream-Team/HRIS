@@ -10,9 +10,6 @@ import { Label } from '@/components/ui/label';
 import { AdminEditDataForm } from '@/components/editData-Admin/adminData-form';
 import { EditPassword } from '@/components/editData-Admin/editPass-form';
 import { EditCompany } from '@/components/editData-Admin/compData-form';
-import { EditWfo } from '@/components/editData-Admin/wfoEdit-form';
-import { EditWfa } from '@/components/editData-Admin/wfaEdit-form';
-import { EditHybrid } from '@/components/editData-Admin/hybridEdit-form';
 import { useEffect, useCallback, useState } from 'react';
 import api from '@/lib/axios';
 import { useRouter } from 'next/navigation';
@@ -34,15 +31,6 @@ import {
 } from '@/components/ui/sidebar';
 
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-} from '@/components/ui/dropdown-menu';
-
-import {
   Dialog,
   DialogTrigger,
   DialogContent,
@@ -53,8 +41,6 @@ import {
 import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { use } from 'chai';
-import { id } from 'date-fns/locale';
 
 type AccountClientProps = {
   isAdmin: boolean;
@@ -233,32 +219,6 @@ export default function AccountClient({
           </div>
 
           <div className="flex items-center gap-4">
-            {/* Notification */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="relative p-2 rounded-md hover:bg-muted focus:outline-none">
-                  <Bell className="h-5 w-5" />
-                  <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-red-500" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                className="min-w-56 rounded-lg"
-                side="bottom"
-                sideOffset={8}
-                align="end"
-              >
-                <DropdownMenuLabel>Notifications</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>New user registered</DropdownMenuItem>
-                <DropdownMenuItem>Monthly report is ready</DropdownMenuItem>
-                <DropdownMenuItem>Server restarted</DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-center text-blue-600 hover:text-blue-700">
-                  View all
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
             {/* Nav-user */}
             <NavUser user={user} isAdmin={isAdmin} />
           </div>
@@ -438,21 +398,21 @@ export default function AccountClient({
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label>Langtitude</Label>
+                    <Label>Latitude</Label>
                     <Input
                       id="first_name"
                       value={companyData.loc_lat || ''}
                       readOnly
-                      placeholder="Langtitude of your company"
+                      placeholder="Latitude of your company"
                     />
                   </div>
                   <div>
-                    <Label>Longtitude</Label>
+                    <Label>Longitude</Label>
                     <Input
                       id="last_name"
                       value={companyData.loc_long || ''}
                       readOnly
-                      placeholder="Longtitude of your company"
+                      placeholder="Longitude of your company"
                     />
                   </div>
                 </div>

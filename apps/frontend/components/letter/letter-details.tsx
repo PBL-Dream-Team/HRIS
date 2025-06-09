@@ -180,7 +180,6 @@ export default function LetterDetails({
             <div className='border rounded-md p-4 text-sm space-y-3'>
               <h4 className="font-medium mb-4">File Information</h4>
               <div>
-                <p className="text-muted-foreground text-xs">File Name</p>
                 <div className='border rounded-md p-2 bg-gray-50 flex items-center gap-2'>
                   <p className="font-medium mb-0">
                     {letter.filedir

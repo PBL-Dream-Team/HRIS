@@ -152,5 +152,27 @@ export class EmployeeController {
     return this.employeeService.getAttendanceCountbyCompany(companyId);
   }
 
+  @Post('list-export')
+  async ExportExcel(@Body('companyId') companyId: string, @Res() res: Response) {
+    const file = await this.employeeService.ExportExcel(companyId); // <-- tambahkan await
+    res.setHeader('Content-Disposition', 'attachment; filename="employees.xlsx"');
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.send(file);
+  }
+
+  @Post('list-import')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: { fileSize: 50 * 1024 * 1024 },
+    }),
+    new UploadExtensionInterceptor(['csv','xlsx','xls']),
+  )
+  async ImportExcel(
+    @UploadedFile() file: Express.Multer.File,
+    @Body('companyId') companyId: string
+  ){
+    return this.employeeService.ImportExcel(companyId, file);
+  }
+
 }
 

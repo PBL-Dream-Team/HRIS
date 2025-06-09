@@ -157,9 +157,9 @@ export default function DashboardClient({
         const { onTime, late, leave } = res.data;
 
         const mapped = [
-          { attendance: 'onTime', total: onTime },
-          { attendance: 'late', total: late },
-          { attendance: 'leave', total: leave },
+          { attendance: 'onTime' as const, total: onTime },
+          { attendance: 'late' as const, total: late },
+          { attendance: 'leave' as const, total: leave },
         ];
 
         setAttendanceOverview(mapped);

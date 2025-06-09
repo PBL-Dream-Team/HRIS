@@ -16,7 +16,6 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { contracttype } from './contracttype.enum';
 import { BankCode } from './bankcode.enum';
 import { Transform } from 'class-transformer';
-import { Matches } from 'class-validator';
 
 export class createEmployeeDto {
   @ApiProperty()
@@ -61,7 +60,7 @@ export class createEmployeeDto {
 
   @ApiPropertyOptional()
   @IsNumberString()
-  @IsOptional()
+  @IsNotEmpty()
   phone: string;
 
   @ApiPropertyOptional()

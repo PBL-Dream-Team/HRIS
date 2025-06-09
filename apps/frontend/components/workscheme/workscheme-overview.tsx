@@ -115,7 +115,7 @@ export function WorkschemeOverviewContent({
         `/api/attendanceType/${selectedDeleteId}`,
       );
 
-      if (response.status === 200 || response.data.statusCode === 200) {
+      if (response.data.statusCode === 200) {
         toast.success('Workscheme deleted successfully.');
         fetchWorkschemes();
       } else if (response.data.statusCode === 'P2003') {
@@ -158,9 +158,9 @@ export function WorkschemeOverviewContent({
           <TableHeader>
             <TableRow>
               <TableHead className="w-[20%]">Workscheme Name</TableHead>
-              <TableHead className="w-[15%]">Check In</TableHead>
-              <TableHead className="w-[15%]">Check Out</TableHead>
-              <TableHead className="w-[25%]">Workspace Address</TableHead>
+              <TableHead className="w-[15%]">Clock In</TableHead>
+              <TableHead className="w-[15%]">Clock Out</TableHead>
+              <TableHead className="w-[25%]">Workscheme Address</TableHead>
               <TableHead className="w-[15%]">Location</TableHead>
               <TableHead className="w-[10%]">Actions</TableHead>
             </TableRow>

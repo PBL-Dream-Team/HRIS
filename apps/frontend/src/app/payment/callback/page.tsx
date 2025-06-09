@@ -1,11 +1,10 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-export default function PaymentCallbackPage() {
+function PaymentCallbackContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const status = searchParams.get('status'); // success atau failed
@@ -27,5 +26,17 @@ export default function PaymentCallbackPage() {
     <div className="flex items-center justify-center h-screen">
       <p className="text-xl text-gray-600">Processing your payment result...</p>
     </div>
+  );
+}
+
+export default function PaymentCallbackPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center h-screen">
+        <p className="text-xl text-gray-600">Loading...</p>
+      </div>
+    }>
+      <PaymentCallbackContent />
+    </Suspense>
   );
 }

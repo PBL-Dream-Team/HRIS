@@ -46,6 +46,7 @@ export function WorkshemeForm({
   const [isMapLoading, setIsMapLoading] = useState(true);
   const [isGeocoding, setIsGeocoding] = useState(false);
   const [mapKey, setMapKey] = useState(0);
+  const [timeError, setTimeError] = useState<string>('');
 
   // Helper function to convert ISO timestamp to HH:MM:SS format for display
   const timestampToTimeString = (timestamp: string): string => {
@@ -83,6 +84,55 @@ export function WorkshemeForm({
     return `${baseDate}T${formattedTime}.000${timezone}`;
   };
 
+  // Helper function to convert time string to minutes for comparison
+  const timeToMinutes = (timeString: string): number => {
+    if (!timeString) return 0;
+    
+    const [hours, minutes, seconds] = timeString.split(':').map(Number);
+    return (hours * 60) + minutes + (seconds / 60);
+  };
+
+  // Validate time comparison
+  const validateTimeComparison = (checkInTime: string, checkOutTime: string): boolean => {
+    if (!checkInTime || !checkOutTime) return true; // Skip validation if either is empty
+    
+    const checkInMinutes = timeToMinutes(checkInTime);
+    const checkOutMinutes = timeToMinutes(checkOutTime);
+    
+    if (checkOutMinutes <= checkInMinutes) {
+      setTimeError('Clock out time must be later than clock in time');
+      return false;
+    }
+    
+    // Check if the time difference is reasonable (at least 1 hour)
+    const timeDifferenceHours = (checkOutMinutes - checkInMinutes) / 60;
+    if (timeDifferenceHours < 1) {
+      setTimeError('Work duration must be at least 1 hour');
+      return false;
+    }
+    
+    // Check if work duration is not too long (more than 24 hours)
+    if (timeDifferenceHours > 24) {
+      setTimeError('Work duration cannot exceed 24 hours');
+      return false;
+    }
+    
+    setTimeError('');
+    return true;
+  };
+
+  // Real-time validation when times change
+  useEffect(() => {
+    if (checkIn && checkOut) {
+      const checkInTime = checkIn.includes(':') && checkIn.length === 5 ? `${checkIn}:00` : checkIn;
+      const checkOutTime = checkOut.includes(':') && checkOut.length === 5 ? `${checkOut}:00` : checkOut;
+      
+      validateTimeComparison(checkInTime, checkOutTime);
+    } else {
+      setTimeError('');
+    }
+  }, [checkIn, checkOut]);
+
   useEffect(() => {
     if (mode === 'edit' && initialData) {
       setName(initialData.name);
@@ -100,6 +150,7 @@ export function WorkshemeForm({
       setWorkspaceAddress('');
       setWorkspaceLat('');
       setWorkspaceLong('');
+      setTimeError('');
     }
   }, [mode, initialData]);
 
@@ -214,6 +265,26 @@ export function WorkshemeForm({
     return timeRegex.test(time);
   };
 
+  const handleCheckInChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    // Ensure we maintain HH:MM:SS format
+    if (value.length === 5) {
+      setCheckIn(value + ':00');
+    } else {
+      setCheckIn(value);
+    }
+  };
+
+  const handleCheckOutChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    // Ensure we maintain HH:MM:SS format
+    if (value.length === 5) {
+      setCheckOut(value + ':00');
+    } else {
+      setCheckOut(value);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -242,6 +313,13 @@ export function WorkshemeForm({
 
     if (!validateTimeFormat(checkOutTime)) {
       toast.error('Check out time must be in HH:MM:SS format (e.g., 17:00:00)');
+      setIsLoading(false);
+      return;
+    }
+
+    // Validasi perbandingan waktu
+    if (!validateTimeComparison(checkInTime, checkOutTime)) {
+      toast.error(timeError);
       setIsLoading(false);
       return;
     }
@@ -285,6 +363,7 @@ export function WorkshemeForm({
         setWorkspaceAddress('');
         setWorkspaceLat('');
         setWorkspaceLong('');
+        setTimeError('');
         setMapKey((prev) => prev + 1);
       }
       onSuccess?.();
@@ -308,7 +387,7 @@ export function WorkshemeForm({
         {/* Left Column - Map */}
         <div className="space-y-4">
           <div>
-            <Label>Workspace Location (Optional)</Label>
+            <Label>Workscheme Location (Optional)</Label>
             {isMapLoading && (
               <div className="text-gray-500 text-sm text-center">
                 Loading map...
@@ -337,7 +416,7 @@ export function WorkshemeForm({
           </div>
 
           <div>
-            <Label>Workspace Address</Label>
+            <Label>Workscheme Address</Label>
             <div className="flex gap-2">
               <Input
                 value={workspaceAddress}
@@ -402,53 +481,32 @@ export function WorkshemeForm({
           </div>
 
           <div>
-            <Label htmlFor="check-in">Check In Time *</Label>
+            <Label htmlFor="check-in">Clock In Time *</Label>
             <Input
               id="check-in"
               type="time"
               step="1"
               value={checkIn ? checkIn.substring(0, 8) : ''}
-              onChange={(e) => {
-                const value = e.target.value;
-                // Ensure we maintain HH:MM:SS format
-                if (value.length === 5) {
-                  setCheckIn(value + ':00');
-                } else {
-                  setCheckIn(value);
-                }
-              }}
+              onChange={handleCheckInChange}
               disabled={isLoading}
-              className="w-full"
+              className={`w-full ${timeError ? 'border-red-500' : ''}`}
             />
-            <p className="text-xs text-gray-500 mt-1">
-              Set the standard check-in time for this workscheme (HH:MM:SS
-              format)
-            </p>
           </div>
 
           <div>
-            <Label htmlFor="check-out">Check Out Time *</Label>
+            <Label htmlFor="check-out">Clock Out Time *</Label>
             <Input
               id="check-out"
               type="time"
               step="1"
               value={checkOut ? checkOut.substring(0, 8) : ''}
-              onChange={(e) => {
-                const value = e.target.value;
-                // Ensure we maintain HH:MM:SS format
-                if (value.length === 5) {
-                  setCheckOut(value + ':00');
-                } else {
-                  setCheckOut(value);
-                }
-              }}
+              onChange={handleCheckOutChange}
               disabled={isLoading}
-              className="w-full"
+              className={`w-full ${timeError ? 'border-red-500' : ''}`}
             />
-            <p className="text-xs text-gray-500 mt-1">
-              Set the standard check-out time for this workscheme (HH:MM:SS
-              format)
-            </p>
+            {timeError && (
+              <p className="text-red-500 text-xs mt-1">{timeError}</p>
+            )}
           </div>
 
           <div className="p-4 bg-gray-50 rounded-lg">
@@ -466,6 +524,9 @@ export function WorkshemeForm({
               </li>
               <li>
                 • Workspace location is optional for flexible arrangements
+              </li>
+              <li>
+                • <strong>Time Rules:</strong> Clock out must be later than clock in, minimum 1 hour duration
               </li>
             </ul>
           </div>
@@ -486,7 +547,7 @@ export function WorkshemeForm({
         <Button
           type="submit"
           className="w-24"
-          disabled={isLoading || isGeocoding}
+          disabled={isLoading || isGeocoding || !!timeError}
         >
           {isLoading
             ? mode === 'create'

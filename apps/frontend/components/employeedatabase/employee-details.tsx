@@ -98,7 +98,7 @@ export default function EmployeeDetails({
               <CardHeader>
                 <CardTitle>Personal Information</CardTitle>
               </CardHeader>
-              <CardContent className="grid grid-cols-1 gap-2 text-sm">
+              <CardContent className="grid grid-cols-2 gap-2 text-sm">
                 <div>
                   <span className="text-muted-foreground text-xs">Gender</span>
                   <div className="font-medium">
@@ -111,7 +111,15 @@ export default function EmployeeDetails({
                 </div>
                 <div>
                   <span className="text-muted-foreground text-xs">
-                    Date of Birth
+                    Last Education
+                  </span>
+                  <div className="font-medium">
+                    {selectedEmployee.last_education}
+                  </div>
+                </div>
+                <div>
+                  <span className="text-muted-foreground text-xs">
+                    Birth Date
                   </span>
                   <div className="font-medium">
                     {formatDateIndo(selectedEmployee.birth_date)}
@@ -129,14 +137,6 @@ export default function EmployeeDetails({
                   <span className="text-muted-foreground text-xs">NIK</span>
                   <div className="font-medium">{selectedEmployee.nik}</div>
                 </div>
-                <div>
-                  <span className="text-muted-foreground text-xs">
-                    Last Education
-                  </span>
-                  <div className="font-medium">
-                    {selectedEmployee.last_education}
-                  </div>
-                </div>
               </CardContent>
             </Card>
 
@@ -145,11 +145,7 @@ export default function EmployeeDetails({
               <CardHeader>
                 <CardTitle>Contact Information</CardTitle>
               </CardHeader>
-              <CardContent className="grid grid-cols-1 gap-2 text-sm">
-                <div>
-                  <span className="text-muted-foreground text-xs">Address</span>
-                  <div className="font-medium">{selectedEmployee.address}</div>
-                </div>
+              <CardContent className="grid grid-cols-2 gap-2 text-sm">
                 <div>
                   <span className="text-muted-foreground text-xs">Email</span>
                   <div className="font-medium">{selectedEmployee.email}</div>
@@ -160,6 +156,10 @@ export default function EmployeeDetails({
                   </span>
                   <div className="font-medium">{selectedEmployee.phone}</div>
                 </div>
+                <div>
+                  <span className="text-muted-foreground text-xs">Address</span>
+                  <div className="font-medium">{selectedEmployee.address}</div>
+                </div>
               </CardContent>
             </Card>
 
@@ -168,7 +168,7 @@ export default function EmployeeDetails({
               <CardHeader>
                 <CardTitle>Employment Details</CardTitle>
               </CardHeader>
-              <CardContent className="grid grid-cols-1 gap-2 text-sm">
+              <CardContent className="grid grid-cols-2 gap-2 text-sm">
                 <div>
                   <span className="text-muted-foreground text-xs">
                     Work Scheme
@@ -176,6 +176,12 @@ export default function EmployeeDetails({
                   <div className="font-medium">
                     {selectedEmployee.workscheme}
                   </div>
+                </div>
+                <div>
+                  <span className="text-muted-foreground text-xs">
+                    Contract
+                  </span>
+                  <div className="font-medium">{selectedEmployee.contract}</div>
                 </div>
                 <div>
                   <span className="text-muted-foreground text-xs">
@@ -187,12 +193,6 @@ export default function EmployeeDetails({
                   <span className="text-muted-foreground text-xs">Branch</span>
                   <div className="font-medium">{selectedEmployee.branch}</div>
                 </div>
-                <div>
-                  <span className="text-muted-foreground text-xs">
-                    Contract
-                  </span>
-                  <div className="font-medium">{selectedEmployee.contract}</div>
-                </div>
               </CardContent>
             </Card>
 
@@ -201,7 +201,7 @@ export default function EmployeeDetails({
               <CardHeader>
                 <CardTitle>Bank Information</CardTitle>
               </CardHeader>
-              <CardContent className="grid grid-cols-1 gap-2 text-sm">
+              <CardContent className="grid grid-cols-2 gap-2 text-sm">
                 <div>
                   <span className="text-muted-foreground text-xs">Bank</span>
                   <div className="font-medium">

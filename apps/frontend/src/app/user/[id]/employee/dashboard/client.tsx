@@ -54,7 +54,9 @@ export default function DashboardClient({
 }: DashboardClientProps) {
   const [user, setUser] = useState({
     name: '',
-    email: '',
+    first_name: '',
+    last_name: '',
+    position: '',
     avatar: '',
   });
 
@@ -65,15 +67,18 @@ export default function DashboardClient({
     leaveDays: 0,
   });
 
+
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const userRes = await api.get(`/api/employee/${userId}`);
-        const { first_name, last_name, email, pict_dir } = userRes.data.data;
+        const { first_name, last_name, email, pict_dir, position } = userRes.data.data;
 
         setUser({
           name: `${first_name} ${last_name}`,
-          email,
+          first_name,
+          last_name,
+          position: position || 'Employee', // Provide a default if position is missing
           avatar: pict_dir || '/avatars/default.jpg',
         });
       } catch (error) {
@@ -88,6 +93,8 @@ export default function DashboardClient({
     const fetchAttendanceData = async () => {
       try {
         const now = new Date();
+        const currentMonth = now.getMonth();
+        const currentYear = now.getFullYear();
 
         const res = await api.get(`/api/attendance?employee_id=${userId}`);
         const attendance = res.data;
@@ -97,17 +104,23 @@ export default function DashboardClient({
         let late = 0;
 
         attendance.forEach((record: any) => {
-          const checkInTime = new Date(record.check_in);
-          const checkOutTime = new Date(record.check_out);
-          const workDuration = (checkOutTime.getTime() - checkInTime.getTime()) / (1000 * 60); // in minutes
-          if (workDuration > 0) {
-            totalMinutes += workDuration;
-          }
+          const date = new Date(record.created_at);
+          const month = date.getMonth();
+          const year = date.getFullYear();
 
-          if (record.check_in_status === 'ON_TIME') {
-            onTime++;
-          } else if (record.check_in_status === 'LATE') {
-            late++;
+          if (month === currentMonth && year === currentYear && record.approval === 'APPROVED') {
+            const checkInTime = new Date(record.check_in);
+            const checkOutTime = new Date(record.check_out);
+            const workDuration = (checkOutTime.getTime() - checkInTime.getTime()) / (1000 * 60); // in minutes
+            if (workDuration > 0) {
+              totalMinutes += workDuration;
+            }
+
+            if (record.check_in_status === 'ON_TIME') {
+              onTime++;
+            } else if (record.check_in_status === 'LATE') {
+              late++;
+            }
           }
         });
 
@@ -118,9 +131,12 @@ export default function DashboardClient({
         const absences = resAbsence.data;
 
         // Hitung jumlah LEAVE yang statusnya APPROVED
-        const leaveDays = absences.filter(
-          (a: any) => a.status === 'APPROVED'
-        ).length;
+        const leaveDays = absences.filter((a: any) => {
+          const date = new Date(a.created_at);
+          const month = date.getMonth();
+          const year = date.getFullYear();
+          return a.status === 'APPROVED' && month === currentMonth && year === currentYear;
+        }).length;
 
         setWorkStats({
           workHours: `${hours}h ${minutes}m`,
@@ -139,79 +155,76 @@ export default function DashboardClient({
   }, [userId]);
 
   type AttendanceSummary = {
-  onTime: number;
-  late: number;
-  leave: number;
-  sick: number;
-  permit: number;
-};
-  const [attendanceSummary, setAttendanceSummary] = useState<AttendanceSummary>({
-  onTime: 0,
-  late: 0,
-  leave: 0,
-  sick: 0,
-  permit: 0,
-});
-
-useEffect(() => {
-  const fetchAttendanceSummary = async () => {
-    try {
-      // Get attendance
-      const attendanceRes = await api.get(`/api/attendance?employee_id=${userId}`);
-      const attendances = attendanceRes.data;
-
-      let onTime = 0;
-      let late = 0;
-
-      attendances.forEach((record: any) => {
-        if (record.check_in_status === 'ON_TIME') {
-          onTime++;
-        } else if (record.check_in_status === 'LATE') {
-          late++;
-        }
-      });
-
-      // Get absence
-      const absenceRes = await api.get(`/api/absence?employee_id=${userId}`);
-      const absences = absenceRes.data;
-
-      let leave = 0;
-      let sick = 0;
-      let permit = 0;
-
-      absences.forEach((item: any) => {
-        if (item.status === 'APPROVED') {
-          switch (item.type) {
-            case 'LEAVE':
-              leave++;
-              break;
-            case 'SICK':
-              sick++;
-              break;
-            case 'PERMIT':
-              permit++;
-              break;
-            default:
-              break;
-          }
-        }
-      });
-
-      setAttendanceSummary({
-        onTime,
-        late,
-        leave,
-        sick,
-        permit,
-      });
-
-    } catch (error) {
-      console.error('Failed to fetch attendance summary:', error);
-    }
+    onTime: number;
+    late: number;
+    leave: number;
+    sick: number;
+    permit: number;
   };
+  const [attendanceSummary, setAttendanceSummary] = useState<AttendanceSummary>({
+    onTime: 0,
+    late: 0,
+    leave: 0,
+    sick: 0,
+    permit: 0,
+  });
 
-  fetchAttendanceSummary();
-}, [userId]);
+  const currentDate = new Date();
+  const [selectedMonth, setSelectedMonth] = useState(
+    String(currentDate.getMonth() + 1).padStart(2, '0') // Misal '06'
+  );
+  const [selectedYear, setSelectedYear] = useState(String(currentDate.getFullYear()));
+
+  useEffect(() => {
+    const fetchAttendanceSummary = async () => {
+      try {
+        const attendanceRes = await api.get(`/api/attendance?employee_id=${userId}`);
+        const attendances = attendanceRes.data;
+
+        let onTime = 0;
+        let late = 0;
+
+        attendances.forEach((record: any) => {
+          const date = new Date(record.created_at);
+          const month = String(date.getMonth() + 1).padStart(2, '0');
+          const year = String(date.getFullYear());
+
+          if (month === selectedMonth && year === selectedYear) {
+            if (record.check_in_status === 'ON_TIME') onTime++;
+            else if (record.check_in_status === 'LATE') late++;
+          }
+        });
+
+        const absenceRes = await api.get(`/api/absence?employee_id=${userId}`);
+        const absences = absenceRes.data;
+
+        let leave = 0;
+        let sick = 0;
+        let permit = 0;
+
+        absences.forEach((item: any) => {
+          const date = new Date(item.created_at);
+          const month = String(date.getMonth() + 1).padStart(2, '0');
+          const year = String(date.getFullYear());
+
+          if (item.status === 'APPROVED' && month === selectedMonth && year === selectedYear) {
+            switch (item.type) {
+              case 'LEAVE': leave++; break;
+              case 'SICK': sick++; break;
+              case 'PERMIT': permit++; break;
+            }
+          }
+        });
+
+        setAttendanceSummary({ onTime, late, leave, sick, permit });
+      } catch (error) {
+        console.error('Failed to fetch attendance summary:', error);
+      }
+    };
+
+    fetchAttendanceSummary();
+  }, [userId, selectedMonth, selectedYear]);
+
 
 
   return (
@@ -270,12 +283,16 @@ useEffect(() => {
           />
           <div className="flex flex-col gap-4">
             <div className="grid gap-4 sm:grid-cols-2">
-              <AttendanceSummaryCard summary={attendanceSummary} />
+              <AttendanceSummaryCard
+                summary={attendanceSummary}
+                selectedMonth={selectedMonth}
+                onChangeMonth={setSelectedMonth}
+              />
 
               <LeaveSummaryCard />
             </div>
             <div className="h-[100px]">
-              <WorkHoursOverviewCard />
+              {/* <WorkHoursOverviewCard /> */}
             </div>
           </div>
         </div>

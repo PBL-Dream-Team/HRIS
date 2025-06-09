@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Bell, Eye, X, Check } from 'lucide-react';
+import { Eye, X, Check } from 'lucide-react';
 import { IoMdSearch } from 'react-icons/io';
-import { VscSettings } from 'react-icons/vsc';
 
 import api from '@/lib/axios';
 import { AppSidebar } from '@/components/app-sidebar';
@@ -24,14 +23,6 @@ import {
   SidebarTrigger,
 } from '@/components/ui/sidebar';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import {
   Table,
   TableBody,
   TableCell,
@@ -43,7 +34,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import AbsenceDetails from '@/components/absence/absence-details';
-import { fi } from 'date-fns/locale';
 import { enUS } from 'date-fns/locale';
 import { format } from 'date-fns';
 
@@ -93,6 +83,14 @@ export default function AbsenceClient({
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const router = useRouter();
+
+  // search function
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+    setCurrentPage(1); // Reset ke halaman pertama saat pencarian berubah
+  };
 
   useEffect(() => {
     async function fetchData() {
@@ -149,6 +147,10 @@ export default function AbsenceClient({
     };
   });
 
+  const filteredAbsences = transformedabsences.filter((absence) =>
+    absence.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   const formatDate = (dateString: string) => {
     if (!dateString) return 'No date';
 
@@ -162,7 +164,7 @@ export default function AbsenceClient({
     }
   };
 
-  const displayedAbsences = transformedabsences.slice(
+  const displayedAbsences = filteredAbsences.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage,
   );
@@ -210,20 +212,6 @@ export default function AbsenceClient({
           </div>
 
           <div className="flex items-center gap-4">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="relative p-2 rounded-md hover:bg-muted">
-                  <Bell className="h-5 w-5" />
-                  <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-red-500" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>Notifications</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>New absence request</DropdownMenuItem>
-                <DropdownMenuItem>Pending approvals</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
             <NavUser user={user} isAdmin={isAdmin} />
           </div>
         </header>
@@ -234,13 +222,16 @@ export default function AbsenceClient({
               <h2 className="text-lg font-semibold">Absence Overview</h2>
 
               <div className="flex items-center gap-2">
-                <div className="relative hidden lg:block w-72">
+                <div className="relative hidden lg:block w-96">
                   <IoMdSearch className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-500" />
-                  <Input type="search" placeholder="Search" className="pl-10" />
+                  <Input
+                    type="search"
+                    placeholder="Search by employee name"
+                    className="pl-10"
+                    value={searchTerm}
+                    onChange={handleSearchChange}
+                  />
                 </div>
-                <Button variant="outline">
-                  <VscSettings className="w-4 h-4 mr-1" /> Filter
-                </Button>
               </div>
             </div>
 
@@ -350,7 +341,7 @@ export default function AbsenceClient({
             </Table>
 
             <PaginationFooter
-              totalItems={absences.length}
+              totalItems={filteredAbsences.length}
               itemsPerPage={itemsPerPage}
               currentPage={currentPage}
               onPageChange={setCurrentPage}

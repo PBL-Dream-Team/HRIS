@@ -16,10 +16,9 @@ import { format, parseISO } from 'date-fns';
 import { DialogFooter } from '@/components/ui/dialog';
 import api from '@/lib/axios';
 import { useRouter } from 'next/navigation';
-import { use } from 'chai';
 import { toast } from 'sonner';
 
-type Gender = 'M' | 'F';
+type Gender = 'M' | 'F' | 'O';
 type EducationType = 'HIGH_SCHOOL' | 'BACHELOR' | 'MASTER' | 'DOCTOR';
 
 type EmployeeEditGeneralDataFormProps = {
@@ -76,6 +75,7 @@ export function EmployeeEditGeneralDataForm({
       setLastName(initialData.last_name || '');
       setPhone(initialData.phone || '');
       setNik(initialData.nik || '');
+      setBirthDate(initialData.birth_date || '');
       setBirthPlace(initialData.birth_place || '');
       setGender(initialData.gender || '');
       setLastEducation(initialData.last_education || '');
@@ -336,12 +336,15 @@ export function EmployeeEditGeneralDataForm({
                   ? 'Male'
                   : gender === 'F'
                     ? 'Female'
-                    : 'Select gender'}
+                    : gender === 'O'
+                      ? 'Other' 
+                      : 'Select gender'}
               </SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="M">Male</SelectItem>
               <SelectItem value="F">Female</SelectItem>
+              <SelectItem value="O">Other</SelectItem>
             </SelectContent>
           </Select>
         </div>

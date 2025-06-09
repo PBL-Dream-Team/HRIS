@@ -10,6 +10,11 @@ import { createWriteStream, existsSync, unlinkSync } from 'fs';
 import { join } from 'path';
 import { hash, verify } from 'argon2';
 import { subMonths, startOfDay, endOfDay, format } from 'date-fns';
+import * as XLSX from 'xlsx';
+import { plainToInstance } from 'class-transformer';
+import { validate } from '@nestjs/class-validator';
+import { create } from 'cypress/types/lodash';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class EmployeeService {
@@ -365,6 +370,164 @@ export class EmployeeService {
       late: lateCount,
       leave: leaveCount,
     };
+  }
+
+  async ExportExcel(companyId: string){
+    const employees = await this.prisma.employee.findMany({
+      where:{company_id:companyId, is_admin:false},
+      select:{
+        first_name:true,
+        last_name:true,
+        gender:true,
+        email:true,
+        // password:true,
+        phone:true,
+        address: true,
+        workscheme:true,
+        position:true,
+        branch:true,
+        contract:true,
+        birth_date:true,
+        birth_place:true,
+        nik:true,
+        last_education:true,
+        account_bank:true,
+        account_number:true,
+        account_name:true,
+        created_at:true
+      }
+    });
+
+    if (employees.length === 0) {
+      return {
+        statusCode: 404,
+        message: 'No employee data found to export',
+      };
+    }
+
+    const worksheet = XLSX.utils.json_to_sheet(employees);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Employees');
+
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: 'xlsx',
+      type: 'buffer',
+    });
+
+    return excelBuffer;
+  }
+  async ImportExcel(companyId: string, file?: Express.Multer.File){
+    try{
+      const existingEmployees = await this.prisma.employee.findMany({
+        select: {
+          email: true,
+          phone: true,
+        }})
+        ;
+
+      const existingEmails = new Set(
+        existingEmployees.map(e => e.email?.toLowerCase())
+      );
+      const existingPhones = new Set(
+        existingEmployees.map(e => e.phone)
+      );
+
+
+      if (!file || !file.buffer) {
+        return {
+          statusCode: 400,
+          error: "No file uploaded or file is invalid",
+        };
+      }
+
+      const readFile = XLSX.read(file.buffer, {type:'buffer'});
+      const sheet = readFile.SheetNames[0];
+      const data = readFile.Sheets[sheet];
+
+
+      const parsedData: Record<string, any>[] = XLSX.utils.sheet_to_json(data);
+
+      const requiredColumns = ['first_name', 'last_name','email','password','phone'];
+
+      const rowsWithMissingFields = parsedData
+        .map((row, index) => {
+          const missingFields = requiredColumns.filter(
+            (col) => row[col] === undefined || row[col] === null || row[col] === ''
+          );
+          return {
+            rowIndex: index + 2,
+            missingFields,
+          };
+        })
+        .filter(result => result.missingFields.length > 0);
+      
+      if (rowsWithMissingFields.length > 0) {
+        return {
+          statusCode: 422,
+          error: `Missing required fields: ${rowsWithMissingFields}`,
+        };
+      }
+
+
+
+      let uniqueCheckCount = 0;
+      parsedData.map(row=>{
+        if(existingEmails.has(row.email?.toLowerCase()) || existingPhones.has(row.phone)){
+          uniqueCheckCount++;
+        }
+      });
+
+      if(uniqueCheckCount != 0){
+        return {
+          statusCode: 422,
+          error: 'A phone or email value is not unique',
+        }
+      }
+
+      if(!this.ExcelValidation(parsedData)){
+        return {
+          statusCode: 422,
+          error: 'A value is not in the required form',
+        }
+      }
+
+      const updatedData = await Promise.all(parsedData.map(async row => {
+        row.company_id = companyId;
+        row.password =  await hash(row.password);
+        return {
+          ...row 
+        } as Prisma.EmployeeCreateManyInput;
+      }));
+
+
+      await this.prisma.employee.createMany({
+        data: updatedData,
+        skipDuplicates: true
+      });
+
+      return {
+        statusCode: 201,
+        message: "Employee data created"
+      }
+    } 
+    catch(error){
+      return{
+        statusCode: error?.code || 500,
+        message: error?.message || 'Internal Server Error',
+      }
+    }
+  }
+
+  async ExcelValidation(data:any[]){
+    for(const row of data.entries()){
+      const dto = plainToInstance(createEmployeeDto, row);
+      const error = await validate(dto);
+
+      if(error.length > 0){
+        return false;
+      }
+    }
+    return true; //Is Safe
   }
 
 }

@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useState } from 'react';
 
 {
   /* Import Components */
@@ -47,6 +47,15 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export default function WorkHoursOverviewCard() {
+  const [selectedMonth, setSelectedMonth] = useState<string>(
+    new Date().toISOString().slice(0, 7)
+  ); // YYYY-MM format
+
+  const handleMonthChange = (month: string) => {
+    setSelectedMonth(month);
+    // Add logic here to filter workhoursData based on selected month
+  };
+
   return (
     <Card className="h-[300px]">
       <CardHeader className="relative pb-4">
@@ -56,7 +65,10 @@ export default function WorkHoursOverviewCard() {
             <CardDescription className="text-lg">120h 54m</CardDescription>
           </div>
           <div className="absolute right-4 top-4 pr-1">
-            <SelectMonthFilter />
+            <SelectMonthFilter
+              selectedMonth={selectedMonth}
+              onChange={handleMonthChange}
+            />
           </div>
         </div>
       </CardHeader>

@@ -1,9 +1,5 @@
 import React from 'react';
 
-{
-  /* Import Components */
-}
-
 import SelectMonthFilter from './ui/SelectMonthFilter';
 
 import { Bar, BarChart, CartesianGrid, Cell, XAxis, YAxis } from 'recharts';
@@ -23,34 +19,6 @@ import {
   ChartTooltipContent,
 } from '@/components/ui/chart';
 
-{
-  /* Data */
-}
-
-const employeeDataStatus = [
-  { name: 'Permanent', total: 200, color: '#257047' },
-  { name: 'Contract', total: 50, color: '#FFAB00' },
-  { name: 'Intern', total: 30, color: '#2D8EFF' },
-];
-
-const chartConfig = {
-  Permanent: {
-    label: 'Permanent Employees',
-    color: '#257047',
-  },
-  Contract: {
-    label: 'Contract Employees',
-    color: '#FFAB00',
-  },
-  Intern: {
-    label: 'Intern Employees',
-    color: '#2D8EFF',
-  },
-} satisfies ChartConfig;
-
-{
-  /* Content */
-}
 type Props = {
   data: {
     name: string;
@@ -59,8 +27,19 @@ type Props = {
   }[];
 };
 
+function toTitleCase(str: string) {
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+}
+
 export default function EmployeeStatusCard({ data }: Props) {
-  const chartConfig = data.reduce((acc, curr) => {
+  // Ubah name dari uppercase ke Title Case
+  const formattedData = data.map(item => ({
+    ...item,
+    name: toTitleCase(item.name),
+  }));
+
+  // Mapping chart config sesuai nama yang sudah diubah
+  const chartConfig = formattedData.reduce((acc, curr) => {
     acc[curr.name] = {
       label: `${curr.name} Employees`,
       color: curr.color,
@@ -87,7 +66,7 @@ export default function EmployeeStatusCard({ data }: Props) {
         <ChartContainer config={chartConfig}>
           <BarChart
             accessibilityLayer
-            data={data}
+            data={formattedData}
             margin={{ top: 15, right: 0, left: -25, bottom: 5 }}
           >
             <CartesianGrid vertical={false} />
@@ -100,7 +79,7 @@ export default function EmployeeStatusCard({ data }: Props) {
             <YAxis axisLine={false} tickLine={false} />
             <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
             <Bar dataKey="total" radius={[10, 10, 0, 0]}>
-              {data.map((entry, index) => (
+              {formattedData.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.color} />
               ))}
             </Bar>

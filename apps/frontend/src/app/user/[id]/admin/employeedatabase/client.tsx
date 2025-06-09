@@ -18,9 +18,6 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from '@/components/ui/sidebar';
-
-import { Input } from '@/components/ui/input';
-import { Bell } from 'lucide-react';
 import { NavUser } from '@/components/nav-user';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -33,38 +30,17 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog';
-
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-} from '@/components/ui/dropdown-menu';
-
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
 import { Pencil, Trash2, Eye, Plus } from 'lucide-react';
 import { VscSettings } from 'react-icons/vsc';
-import { IoMdSearch } from 'react-icons/io';
 import { BiImport, BiExport } from 'react-icons/bi';
 
 import { EmployeeForm } from '@/components/employeedatabase/employee-form';
-import PaginationFooter from '@/components/pagination';
 import EmployeeDetails from '@/components/employeedatabase/employee-details';
 import api from '@/lib/axios';
 import { useEffect } from 'react';
 
-import { toast } from 'sonner'; // atau dari 'react-toastify'
+import { toast } from 'sonner';
 import { DataTable } from '@/components/data-table';
 
 type EmployeeDatabaseClientProps = {
@@ -288,6 +264,56 @@ export default function EmployeeDatabaseClient({
     name: `${emp.first_name} ${emp.last_name}`,
   }));
 
+  const handleExport = async () => {
+    try {
+      const response = await api.post(
+        '/api/employee/list-export',
+        { companyId },
+        { responseType: 'blob' },
+      );
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'employees.xlsx');
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode?.removeChild(link);
+    } catch (err: any) {
+      toast.error('Failed to export employee data.');
+      console.error('Export error:', err);
+    }
+  };
+
+  const [importDialogOpen, setImportDialogOpen] = useState(false);
+  const [importing, setImporting] = useState(false);
+
+  const onDrop = async (acceptedFiles: File[]) => {
+    if (!acceptedFiles.length) return;
+    setImporting(true);
+    const file = acceptedFiles[0];
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('companyId', companyId);
+
+    try {
+      const res = await api.post('/api/employee/list-import', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      if (res.data?.statusCode !== 201) {
+        toast.error(res.data?.error || res.data?.message || 'Import failed');
+        return;
+      }
+      toast.success('Import successful!');
+      fetchEmployees();
+      setImportDialogOpen(false);
+    } catch (err: any) {
+      toast.error('Failed to import employee data.');
+      console.error('Import error:', err);
+    } finally {
+      setImporting(false);
+    }
+  };
+
   return (
     <SidebarProvider>
       <AppSidebar isAdmin={isAdmin} />
@@ -309,32 +335,6 @@ export default function EmployeeDatabaseClient({
           </div>
 
           <div className="flex items-center gap-4">
-            {/* Notification */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="relative p-2 rounded-md hover:bg-muted focus:outline-none">
-                  <Bell className="h-5 w-5" />
-                  <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-red-500" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                className="min-w-56 rounded-lg"
-                side="bottom"
-                sideOffset={8}
-                align="end"
-              >
-                <DropdownMenuLabel>Notifications</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>New user registered</DropdownMenuItem>
-                <DropdownMenuItem>Monthly report is ready</DropdownMenuItem>
-                <DropdownMenuItem>Server restarted</DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-center text-blue-600 hover:text-blue-700">
-                  View all
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
             {/* Nav-user */}
             <NavUser user={user} isAdmin={isAdmin} />
           </div>
@@ -356,10 +356,18 @@ export default function EmployeeDatabaseClient({
                     <Button variant="outline" className="w-full md:w-auto">
                       <VscSettings className="h-4 w-4 mr-1" /> Filter
                     </Button>
-                    <Button variant="outline" className="w-full md:w-auto">
+                    <Button
+                      variant="outline"
+                      className="w-full md:w-auto"
+                      onClick={handleExport}
+                    >
                       <BiExport className="h-4 w-4 mr-1" /> Export
                     </Button>
-                    <Button variant="outline" className="w-full md:w-auto">
+                    <Button
+                      variant="outline"
+                      className="w-full md:w-auto"
+                      onClick={() => setImportDialogOpen(true)}
+                    >
                       <BiImport className="h-4 w-4 mr-1" /> Import
                     </Button>
                     <Dialog
@@ -380,6 +388,96 @@ export default function EmployeeDatabaseClient({
                           onSuccess={handleAddEmployeeSuccess}
                           onClose={() => setOpenAddDialog(false)}
                         />
+                      </DialogContent>
+                    </Dialog>
+                    <Dialog
+                      open={importDialogOpen}
+                      onOpenChange={setImportDialogOpen}
+                    >
+                      <DialogContent className="max-w-md">
+                        <DialogHeader>
+                          <DialogTitle>Import Employees</DialogTitle>
+                        </DialogHeader>
+                        <div className="flex flex-col items-center gap-4 py-4">
+                          <div className="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg p-6 w-full bg-gray-50">
+                            <BiImport className="mb-2 h-10 w-10 text-blue-500" />
+                            <p className="mb-2 text-sm text-gray-700">
+                              Drag & drop file here or{' '}
+                              <label
+                                htmlFor="employee-import"
+                                className="text-blue-600 underline cursor-pointer"
+                              >
+                                browse
+                              </label>
+                            </p>
+                            <input
+                              id="employee-import"
+                              type="file"
+                              accept=".xlsx,.xls"
+                              className="hidden"
+                              onChange={async (e) => {
+                                const file = e.target.files?.[0];
+                                if (!file) return;
+                                setImporting(true);
+                                const formData = new FormData();
+                                formData.append('file', file);
+                                formData.append('companyId', companyId);
+
+                                try {
+                                  const res = await api.post(
+                                    '/api/employee/list-import',
+                                    formData,
+                                    {
+                                      headers: {
+                                        'Content-Type': 'multipart/form-data',
+                                      },
+                                    },
+                                  );
+                                  if (res.data?.statusCode !== 201) {
+                                    toast.error(
+                                      res.data?.error ||
+                                        res.data?.message ||
+                                        'Import failed',
+                                    );
+                                    return;
+                                  }
+                                  toast.success('Import successful!');
+                                  fetchEmployees();
+                                  setImportDialogOpen(false);
+                                } catch (err: any) {
+                                  toast.error(
+                                    'Failed to import employee data.',
+                                  );
+                                  console.error('Import error:', err);
+                                } finally {
+                                  setImporting(false);
+                                }
+                              }}
+                              disabled={importing}
+                            />
+                            {importing && (
+                              <span className="mt-2 text-xs text-gray-500">
+                                Importing, please wait...
+                              </span>
+                            )}
+                            {/* Tampilkan Company ID di bawah upload file */}
+                            <div className="mt-4 text-xs text-gray-500">
+                              <span className="font-semibold text-gray-700">
+                                Company ID:
+                              </span>{' '}
+                              {companyId}
+                            </div>
+                          </div>
+                        </div>
+                        <DialogFooter>
+                          <Button
+                            variant="outline"
+                            onClick={() => setImportDialogOpen(false)}
+                            disabled={importing}
+                          >
+                            Cancel
+                          </Button>
+                        </DialogFooter>
                       </DialogContent>
                     </Dialog>
                   </div>

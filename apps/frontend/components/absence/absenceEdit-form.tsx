@@ -96,6 +96,10 @@ export function AbsenceEditForm({
       toast.error('Please provide a reason for the absence.');
       return;
     }
+    if (!file) {
+      toast.error('Please upload an evidence picture.');
+      return;
+    }
     
     setLoading(true);
     setError(null);
@@ -161,13 +165,18 @@ export function AbsenceEditForm({
 
           <div>
             <Label htmlFor="date">Date*</Label>
-            <Input
-              id="date"
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-            
-            />
+            <div className='relative'>
+              <Input
+                id="date"
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                className="pr-4 [&::-webkit-calendar-picker-indicator]:opacity-100 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-2 [&::-webkit-calendar-picker-indicator]:w-4 [&::-webkit-calendar-picker-indicator]:h-4 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                style={{
+                  colorScheme: 'light',
+                }}
+              />
+            </div>
           </div>
 
           <div>
