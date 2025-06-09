@@ -1,13 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import SetNewPasswordForm from '@/components/forgotpassword/set-password';
 import api from '@/lib/axios';
 import { Loader } from 'lucide-react';
 import LinkExpired from '@/components/forgotpassword/link-expired';
 
-export default function ResetPasswordPage() {
+function ResetPasswordContent() {
   const [status, setStatus] = useState<'checking' | 'valid' | 'invalid'>(
     'checking',
   );
@@ -40,4 +40,19 @@ export default function ResetPasswordPage() {
   }
 
   return <SetNewPasswordForm token={token!} />;
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex justify-center items-center min-h-screen">
+          <Loader className="animate-spin w-6 h-6" />
+          <span className="ml-2">Loading...</span>
+        </div>
+      }
+    >
+      <ResetPasswordContent />
+    </Suspense>
+  );
 }
