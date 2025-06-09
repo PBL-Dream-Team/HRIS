@@ -54,7 +54,9 @@ export default function DashboardClient({
 }: DashboardClientProps) {
   const [user, setUser] = useState({
     name: '',
-    email: '',
+    first_name: '',
+    last_name: '',
+    position: '',
     avatar: '',
   });
 
@@ -70,11 +72,13 @@ export default function DashboardClient({
     const fetchUser = async () => {
       try {
         const userRes = await api.get(`/api/employee/${userId}`);
-        const { first_name, last_name, email, pict_dir } = userRes.data.data;
+        const { first_name, last_name, email, pict_dir, position } = userRes.data.data;
 
         setUser({
           name: `${first_name} ${last_name}`,
-          email,
+          first_name,
+          last_name,
+          position: position || 'Employee', // Provide a default if position is missing
           avatar: pict_dir || '/avatars/default.jpg',
         });
       } catch (error) {

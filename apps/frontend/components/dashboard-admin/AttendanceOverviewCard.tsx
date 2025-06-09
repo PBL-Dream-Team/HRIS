@@ -83,11 +83,12 @@ export default function AttendanceOverviewCard({
                     if (active && payload && payload.length > 0) {
                       const current = payload[0].payload;
                       const percentage = ((current.total / totalSum) * 100).toFixed(1);
+                      const attendanceType = current.attendance as keyof typeof chartConfig;
 
                       return (
                         <div className="bg-white rounded shadow p-2 text-sm border border-gray-200">
                           <div className="font-semibold">
-                            {chartConfig[current.attendance]?.label}
+                            {chartConfig[attendanceType]?.label}
                           </div>
                           <div>{`${current.total} (${percentage}%)`}</div>
                         </div>
