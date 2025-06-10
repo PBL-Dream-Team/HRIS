@@ -7,20 +7,14 @@ export function Footer() {
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
         {/* Brand & Description */}
         <div>
-          <div>
-            <div className="w-32 h-16 bg-white rounded-lg flex items-center justify-center mb-4">
-              <Image
-                src="/images/logo.png" // Change this path if necessary
-                alt="HRIS Logo"
-                width={80}
-                height={30}
-                className="object-contain"
-              />
-            </div>
-            <div className="text-xs text-gray-400">
-              <div>Andreagazy</div>
-              <div>(+62) 823-3470-1418</div>
-            </div>
+          <div className="w-32 h-16 bg-white rounded-lg flex items-center justify-center mb-4">
+            <Image
+              src="/images/logo.png" // Change this path if necessary
+              alt="HRIS Logo"
+              width={80}
+              height={30}
+              className="object-contain"
+            />
           </div>
           <p className="text-sm text-gray-300">
             A modern HR management solution to improve your company's efficiency and productivity.
@@ -54,7 +48,7 @@ export function Footer() {
           <h3 className="text-lg font-semibold mb-3">Help</h3>
           <ul className="space-y-2 text-sm text-gray-300">
             <li>
-              <Link href="/contact" className="hover:underline">
+              <Link href="http://wa.me/+62895326254200" className="hover:underline">
                 Contact Us
               </Link>
             </li>
