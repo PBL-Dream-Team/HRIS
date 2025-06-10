@@ -89,7 +89,7 @@ export function AppSidebar({
       },
       {
         title: 'Get Help',
-        url: '#',
+        url: 'http://wa.me/+62895326254200',
         icon: Headset,
       },
     ],
