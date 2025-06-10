@@ -182,12 +182,18 @@ export default function LettersClient({
     }
   };
 
-  // Updated success handlers
+  const [refreshTrigger, setRefreshTrigger] = useState(false);
+
   const handleLetterOperationSuccess = useCallback(async () => {
-    await fetchData(); // Refresh data
-    setOpenAddLetterDialog(false); // Close dialog
-    router.refresh(); // Refresh the page
-  }, [fetchData]);
+    try {
+      const lettersRes = await api.get(`/api/letter?company_id=${companyId}`);
+      setLetters(lettersRes.data ?? []);
+      setRefreshTrigger(prev => !prev); // Toggle untuk memicu efek
+    } catch (error) {
+      console.error('Error refreshing letters:', error);
+      toast.error('Failed to refresh letters data');
+    }
+  }, [companyId]);
 
   const handleLetterTypeOperationSuccess = useCallback(async () => {
     await fetchData(); // Refresh data
@@ -203,7 +209,7 @@ export default function LettersClient({
         setLetterToDelete,
         setIsDeleteDialogOpen,
         companyId,
-        router,
+        handleLetterOperationSuccess,
       ),
     [handleViewDetails, companyId, router],
   );
@@ -238,6 +244,7 @@ export default function LettersClient({
         <main className="flex flex-1 flex-col gap-4 p-10 pt-5">
           <div className="border border-gray-300 rounded-md p-4">
             <DataTable
+              key={refreshKey}
               columns={columns}
               data={transformedLetters}
               searchableColumn="name"

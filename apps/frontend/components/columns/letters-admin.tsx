@@ -31,7 +31,7 @@ export const letterColumns = (
   setLetterToDelete: (letter: Letter) => void,
   setDeleteDialogOpen: (open: boolean) => void,
   companyId: string,
-  router: any,
+  refreshData: () => void,
 ): ColumnDef<Letter>[] => [
   {
     accessorKey: 'name',
@@ -138,9 +138,8 @@ export const letterColumns = (
                 companyId={companyId}
                 initialData={letter}
                 onSuccess={() => {
-                  window.location.reload();
-                  router.refresh();
                   setEditDialogOpen(false);
+                  refreshData();
                 }}
               />
             </DialogContent>
