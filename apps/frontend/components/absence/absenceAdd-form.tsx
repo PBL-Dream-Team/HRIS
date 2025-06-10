@@ -67,6 +67,10 @@ export function AbsenceAddForm({
       toast.error('Please upload an evidence picture.');
       return;
     }
+    if (date < new Date().toISOString().split('T')[0]) {
+      toast.error('The date cannot be in the past.');
+      return;
+    }
 
     setError(null);
     setLoading(true);
@@ -151,7 +155,7 @@ export function AbsenceAddForm({
               type="text"
               value={reason}
               onChange={(e) => setReason(e.target.value)}
-              placeholder="Optional reason"
+              placeholder="Enter Reason"
             />
           </div>
         </div>

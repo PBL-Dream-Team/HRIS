@@ -47,6 +47,7 @@ import { CheckOutForm } from '@/components/checkout-form';
 import { enUS } from 'date-fns/locale';
 import { format } from 'date-fns';
 import { Label } from '@/components/ui/label';
+import { DataTable } from '@/components/data-table';
 
 let checkclocks;
 
@@ -396,6 +397,88 @@ export default function CheckClockClient({
     );
   }
 
+  // DataTable columns for checkclock
+  const checkClockColumns = [
+    {
+      accessorKey: 'date',
+      header: 'Date',
+      cell: ({ row }: any) => formatDate(row.original.date),
+    },
+    {
+      accessorKey: 'clockIn',
+      header: 'Clock In',
+      cell: ({ row }: any) => row.original.clockIn.replace(/.*T/, ''),
+    },
+    {
+      accessorKey: 'clockOut',
+      header: 'Clock Out',
+      cell: ({ row }: any) => row.original.clockOut.replace(/.*T/, ''),
+    },
+    {
+      accessorKey: 'workHours',
+      header: 'Work Hours',
+    },
+    {
+      accessorKey: 'status',
+      header: 'Status',
+      cell: ({ row }: any) => {
+        const status = row.original.status;
+        return (
+          <span
+            className={`px-2 py-1 rounded text-xs text-white \
+              ${status === 'ON_TIME' ? 'bg-green-600' : ''} \
+              ${status === 'LATE' ? 'bg-red-600' : ''} \
+              ${status === 'EARLY' ? 'bg-yellow-600' : ''}`}
+          >
+            {status === 'ON_TIME' ? 'ON TIME' : status === 'LATE' ? 'LATE' : 'EARLY'}
+          </span>
+        );
+      },
+    },
+    {
+      accessorKey: 'actions',
+      header: 'Actions',
+      cell: ({ row }: any) => (
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="icon"
+            className="hover:text-white hover:bg-blue-600"
+            onClick={() => handleViewDetails(row.original)}
+          >
+            <Eye className="h-4 w-4" />
+          </Button>
+          {row.original.clockOut === '-' && (
+            <Dialog
+              open={openCheckOutDialog}
+              onOpenChange={setOpenCheckOutDialog}
+            >
+              <DialogTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="hover:bg-white-600 bg-green-600 hover:text-white"
+                  onClick={() => handleCheckOut(row.original.id)}
+                >
+                  <LogOut className="h-4 w-4 text-white" />
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle>Clock Out</DialogTitle>
+                </DialogHeader>
+                <CheckOutForm
+                  attendanceId={checkOutId ?? ''}
+                  onSuccess={handleCheckOutSuccess}
+                />
+              </DialogContent>
+            </Dialog>
+          )}
+        </div>
+      ),
+    },
+  ];
+
   return (
     <SidebarProvider>
       <AppSidebar isAdmin={isAdmin} />
@@ -424,157 +507,69 @@ export default function CheckClockClient({
 
         <div className="flex flex-1 flex-col gap-4 p-10 pt-5">
           <div className="border border-gray-300 rounded-md p-4">
-            {/* Title and Search */}
-            <div className="flex items-center justify-between p-4 border-b">
-              <div className="text-lg font-semibold">Check Clock Overview</div>
-              <div className="hidden lg:block">
-              </div>
-              <div className="flex flex-col gap-2 lg:flex-row lg:items-center lg:gap-4">
-                <div className="flex items-center gap-2">
-                  <Label htmlFor="filter-date">Filter by date:</Label>
-                  <div className="relative">
-                    <Input
-                      id="filter-date"
-                      type="date"
-                      value={filterDate}
-                      onChange={(e) => setFilterDate(e.target.value)}
-                      className="pr-4 [&::-webkit-calendar-picker-indicator]:opacity-100 
-                               [&::-webkit-calendar-picker-indicator]:absolute 
-                               [&::-webkit-calendar-picker-indicator]:right-2 
-                               [&::-webkit-calendar-picker-indicator]:w-4 
-                               [&::-webkit-calendar-picker-indicator]:h-4 
-                               [&::-webkit-calendar-picker-indicator]:cursor-pointer"
-                      style={{
-                        colorScheme: 'light'
-                      }}
-                    />
+            <DataTable
+              columns={checkClockColumns}
+              data={filteredCheckClocks}
+              searchableColumn="status"
+              title="Check Clock Overview"
+              actions={
+                <div className="flex items-center gap-2 flex-wrap">
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="filter-date">Filter by date:</Label>
+                    <div className="relative">
+                      <Input
+                        id="filter-date"
+                        type="date"
+                        value={filterDate}
+                        onChange={(e) => setFilterDate(e.target.value)}
+                        className="pr-4 [&::-webkit-calendar-picker-indicator]:opacity-100 
+                                 [&::-webkit-calendar-picker-indicator]:absolute 
+                                 [&::-webkit-calendar-picker-indicator]:right-2 
+                                 [&::-webkit-calendar-picker-indicator]:w-4 
+                                 [&::-webkit-calendar-picker-indicator]:h-4 
+                                 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                        style={{ colorScheme: 'light' }}
+                      />
+                    </div>
+                    {filterDate && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setFilterDate('')}
+                      >
+                        Clear
+                      </Button>
+                    )}
                   </div>
-                  {filterDate && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setFilterDate('')}
-                    >
-                      Clear
-                    </Button>
-                  )}
+                  <Dialog open={openAddDialog} onOpenChange={setOpenAddDialog}>
+                    <DialogTrigger asChild>
+                      <Button
+                        disabled={dailyLimit === 0}
+                        variant="outline"
+                        className={dailyLimit === 0 ? 'opacity-50 cursor-not-allowed' : ''}
+                      >
+                        <LogIn /> Clock In
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-4xl">
+                      <DialogHeader>
+                        <DialogTitle>Clock In</DialogTitle>
+                      </DialogHeader>
+                      <CheckClockForm
+                        employeeId={userId}
+                        companyId={companyId}
+                        typeId={user.typeId}
+                        onSuccess={handleAddCheckClockSuccess}
+                      />
+                    </DialogContent>
+                  </Dialog>
                 </div>
-                <Dialog open={openAddDialog} onOpenChange={setOpenAddDialog}>
-                  <DialogTrigger asChild>
-                    <Button
-                      disabled={dailyLimit === 0}
-                      variant="outline"
-                      className={
-                        dailyLimit === 0 ? 'opacity-50 cursor-not-allowed' : ''
-                      }
-                    >
-                      <LogIn /> Clock In
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-4xl">
-                    <DialogHeader>
-                      <DialogTitle>Clock In</DialogTitle>
-                    </DialogHeader>
-                    <CheckClockForm
-                      employeeId={userId}
-                      companyId={companyId}
-                      typeId={user.typeId}
-                      onSuccess={handleAddCheckClockSuccess}
-                    />
-                  </DialogContent>
-                </Dialog>
-              </div>
-            </div>
-
-            {/* Table */}
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Clock In</TableHead>
-                  <TableHead>Clock Out</TableHead>
-                  <TableHead>Work Hours</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredCheckClocks.map((checkclock) => (
-                  <TableRow key={checkclock.id}>
-                    <TableCell>{formatDate(checkclock.date)}</TableCell>
-                    <TableCell>
-                      {checkclock.clockIn.replace(/.*T/, '')}
-                    </TableCell>
-                    <TableCell>
-                      {checkclock.clockOut.replace(/.*T/, '')}
-                    </TableCell>
-                    <TableCell>{checkclock.workHours}</TableCell>
-                    <TableCell>
-                      <div>
-                        <span
-                          className={`px-2 py-1 rounded text-xs text-white 
-                                ${checkclock.status === 'ON_TIME' ? 'bg-green-600' : ''}
-                                ${checkclock.status === 'LATE' ? 'bg-red-600' : ''}
-                                ${checkclock.status === 'EARLY' ? 'bg-yellow-600' : ''}
-                                `}
-                        >
-                          {checkclock.status === 'ON_TIME'
-                            ? 'ON TIME'
-                            : checkclock.status === 'LATE'
-                              ? 'LATE'
-                              : 'EARLY'}
-                        </span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex gap-2">
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="hover:text-white hover:bg-blue-600"
-                          onClick={() => handleViewDetails(checkclock)}
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        {checkclock.clockOut === '-' && (
-                          <Dialog
-                            open={openCheckOutDialog}
-                            onOpenChange={setOpenCheckOutDialog}
-                          >
-                            <DialogTrigger asChild>
-                              <Button
-                                variant="outline"
-                                size="icon"
-                                className="hover:bg-white-600 bg-green-600 hover:text-white"
-                                onClick={() => handleCheckOut(checkclock.id)}
-                              >
-                                <LogOut className="h-4 w-4 text-white" />
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent className="max-w-2xl">
-                              <DialogHeader>
-                                <DialogTitle>Clock Out</DialogTitle>
-                              </DialogHeader>
-                              <CheckOutForm
-                                attendanceId={checkOutId ?? ''}
-                                onSuccess={handleCheckOutSuccess}
-                              />
-                            </DialogContent>
-                          </Dialog>
-                        )}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-
-            {/* Pagination */}
-            <PaginationFooter
-              totalItems={filteredCheckClocks.length}
-              itemsPerPage={itemsPerPage}
-              currentPage={currentPage}
-              onPageChange={setCurrentPage}
+              }
+              pagination={{
+                currentPage,
+                itemsPerPage,
+                onPageChange: setCurrentPage,
+              }}
             />
           </div>
         </div>

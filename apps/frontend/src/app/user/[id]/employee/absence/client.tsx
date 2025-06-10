@@ -9,6 +9,7 @@ import api from '@/lib/axios';
 import { AppSidebar } from '@/components/app-sidebar';
 import { NavUser } from '@/components/nav-user';
 import PaginationFooter from '@/components/pagination';
+import { DataTable } from '@/components/data-table';
 
 import {
   Breadcrumb,
@@ -369,6 +370,81 @@ export default function AbsenceClient({
     setOpenEditDialog(false);
   };
 
+  // DataTable columns for employee absence
+  const absenceColumns = [
+    {
+      accessorKey: 'created_at',
+      header: 'Created At',
+    },
+    {
+      accessorKey: 'date',
+      header: 'On Date',
+      cell: ({ row }: any) => formatDate(row.original.date),
+    },
+    {
+      accessorKey: 'type',
+      header: 'Type',
+    },
+    {
+      accessorKey: 'reason',
+      header: 'Reason',
+    },
+    {
+      accessorKey: 'status',
+      header: 'Status',
+      cell: ({ row }: any) => {
+        const status = row.original.status;
+        let statusContent;
+        switch (status) {
+          case 'APPROVED':
+            statusContent = (
+              <div className="flex items-center">
+                <span className="h-2 w-2 rounded-full bg-green-500 inline-block mr-2" />
+                Approved
+              </div>
+            );
+            break;
+          case 'REJECTED':
+            statusContent = (
+              <div className="flex items-center">
+                <span className="h-2 w-2 rounded-full bg-red-500 inline-block mr-2" />
+                Rejected
+              </div>
+            );
+            break;
+          case 'PENDING':
+            statusContent = (
+              <div className="flex items-center">
+                <span className="h-2 w-2 rounded-full bg-yellow-500 inline-block mr-2" />
+                Pending
+              </div>
+            );
+            break;
+          default:
+            statusContent = (
+              <span className="text-gray-500 font-medium">Unknown Status</span>
+            );
+        }
+        return statusContent;
+      },
+    },
+    {
+      accessorKey: 'actions',
+      header: 'Actions',
+      cell: ({ row }: any) => (
+        <Button
+          size="icon"
+          variant="outline"
+          className="hover:text-white hover:bg-blue-600"
+          onClick={() => handleViewDetails(row.original)}
+          title="View Details"
+        >
+          <Eye className="w-4 h-4" />
+        </Button>
+      ),
+    },
+  ];
+
   // Show loading state
   if (isLoading) {
     return (
@@ -430,175 +506,65 @@ export default function AbsenceClient({
 
         <main className="flex-1 p-10 pt-5">
           <div className="border border-gray-300 rounded-md p-4">
-            <div className="flex justify-between items-center p-4 border-b">
-              <h2 className="text-lg font-semibold">Absence Overview</h2>
-
-              <div className="flex items-center gap-2">
-                <div className="flex items-center gap-2">
-                  <Label htmlFor="filter-date">Filter by date:</Label>
-                  <div className="relative">
-                    <Input
-                      id="filter-date"
-                      type="date"
-                      value={filterDate}
-                      onChange={(e) => setFilterDate(e.target.value)}
-                      className="pr-4 [&::-webkit-calendar-picker-indicator]:opacity-100 
-                               [&::-webkit-calendar-picker-indicator]:absolute 
-                               [&::-webkit-calendar-picker-indicator]:right-2 
-                               [&::-webkit-calendar-picker-indicator]:w-4 
-                               [&::-webkit-calendar-picker-indicator]:h-4 
-                               [&::-webkit-calendar-picker-indicator]:cursor-pointer"
-                      style={{
-                        colorScheme: 'light'
-                      }}
-                    />
+            <DataTable
+              columns={absenceColumns}
+              data={displayedAbsences}
+              searchableColumn="reason"
+              title="Absence Overview"
+              actions={
+                <div className="flex items-center gap-2 flex-wrap">
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="filter-date">Filter by date:</Label>
+                    <div className="relative">
+                      <Input
+                        id="filter-date"
+                        type="date"
+                        value={filterDate}
+                        onChange={(e) => setFilterDate(e.target.value)}
+                        className="pr-4 [&::-webkit-calendar-picker-indicator]:opacity-100 
+                                 [&::-webkit-calendar-picker-indicator]:absolute 
+                                 [&::-webkit-calendar-picker-indicator]:right-2 
+                                 [&::-webkit-calendar-picker-indicator]:w-4 
+                                 [&::-webkit-calendar-picker-indicator]:h-4 
+                                 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                        style={{ colorScheme: 'light' }}
+                      />
+                    </div>
+                    {filterDate && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setFilterDate('')}
+                      >
+                        Clear
+                      </Button>
+                    )}
                   </div>
-                  {filterDate && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setFilterDate('')}
-                    >
-                      Clear
-                    </Button>
-                  )}
+                  <Dialog open={openAddDialog} onOpenChange={setOpenAddDialog}>
+                    <DialogTrigger asChild>
+                      <Button>
+                        <IoMdAdd /> Add Absence
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-4xl">
+                      <DialogHeader>
+                        <DialogTitle>Add Absence</DialogTitle>
+                      </DialogHeader>
+                      <AbsenceAddForm
+                        employeeId={userId}
+                        companyId={companyId}
+                        onSuccess={handleAddAbsenceSuccess}
+                        onClose={() => setOpenAddDialog(false)}
+                      />
+                    </DialogContent>
+                  </Dialog>
                 </div>
-
-                <Dialog open={openAddDialog} onOpenChange={setOpenAddDialog}>
-                  <DialogTrigger asChild>
-                    <Button>
-                      <IoMdAdd /> Add Absence
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-4xl">
-                    <DialogHeader>
-                      <DialogTitle>Add Absence</DialogTitle>
-                    </DialogHeader>
-                    <AbsenceAddForm
-                      employeeId={userId}
-                      companyId={companyId}
-                      onSuccess={handleAddAbsenceSuccess}
-                      onClose={() => setOpenAddDialog(false)}
-                    />
-                  </DialogContent>
-                </Dialog>
-              </div>
-            </div>
-
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Created At</TableHead>
-                  <TableHead>On Date</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Reason</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {displayedAbsences.map((abs, i) => {
-                  return (
-                    <TableRow key={abs.id}>
-                      <TableCell>
-                        {abs.created_at}
-                      </TableCell>
-                      <TableCell>
-                        {formatDate(abs.date)}
-                      </TableCell>
-                      <TableCell>{abs.type}</TableCell>
-                      <TableCell>{abs.reason}</TableCell>
-                      <TableCell>
-                        <div>
-                          {(() => {
-                            switch (abs.status) {
-                              case 'APPROVED':
-                                return (
-                                  <div className="flex items-center">
-                                    <span className="h-2 w-2 rounded-full bg-green-500 inline-block mr-2" />
-                                    Approved
-                                  </div>
-                                );
-                              case 'REJECTED':
-                                return (
-                                  <div className="flex items-center">
-                                    <span className="h-2 w-2 rounded-full bg-red-500 inline-block mr-2" />
-                                    Rejected
-                                  </div>
-                                );
-                              case 'PENDING':
-                                return (
-                                  <div className="flex items-center">
-                                    <span className="h-2 w-2 rounded-full bg-yellow-500 inline-block mr-2" />
-                                    Pending
-                                  </div>
-                                );
-                              default:
-                                return (
-                                  <span className="text-gray-500 font-medium">
-                                    Unknown Status
-                                  </span>
-                                );
-                            }
-                          })()}
-                        </div>
-                      </TableCell>
-                      <TableCell className="flex gap-2">
-                        <Button
-                          size="icon"
-                          variant="outline"
-                          className="hover:text-white hover:bg-blue-600"
-                          onClick={() => handleViewDetails(abs)}
-                          title="View Details"
-                        >
-                          <Eye className="w-4 h-4" />
-                        </Button>
-
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className={`${abs.status === 'PENDING'
-                            ? 'hover:text-white hover:bg-yellow-500'
-                            : 'bg-gray-300 text-gray-500 cursor-not-allowed border-gray-300 hover:bg-gray-300 hover:text-gray-500'
-                            }`}
-                          onClick={() => {
-                            setAbsenceToEdit(abs);
-                            setOpenEditDialog(true);
-                          }}
-                          disabled={abs.status !== 'PENDING'}
-                          title={abs.status !== 'PENDING' ? 'Only pending absences can be edited' : 'Edit absence'}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className={`${abs.status === 'PENDING'
-                            ? 'hover:text-white hover:bg-yellow-500'
-                            : 'bg-gray-300 text-gray-500 cursor-not-allowed border-gray-300 hover:bg-gray-300 hover:text-gray-500'
-                            }`}
-                          onClick={() => {
-                            setAbsenceToDelete(abs);
-                            setIsDeleteDialogOpen(true);
-                          }}
-                          disabled={abs.status !== 'PENDING'}
-                          title={abs.status !== 'PENDING' ? 'Only pending absences can be deleted' : 'Delete absence'}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-
-            <PaginationFooter
-              totalItems={filteredAbsences.length}
-              itemsPerPage={itemsPerPage}
-              currentPage={currentPage}
-              onPageChange={setCurrentPage}
+              }
+              pagination={{
+                currentPage,
+                itemsPerPage,
+                onPageChange: setCurrentPage,
+              }}
             />
           </div>
         </main>
