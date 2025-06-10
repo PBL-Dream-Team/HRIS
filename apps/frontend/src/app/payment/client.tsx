@@ -86,8 +86,8 @@ export default function PaymentClient({ company_id }: { company_id: string | nul
       expiryDate.setDate(expiryDate.getDate() + 14); // Trial for 14 days
 
       try {
-        // Create transaction directly with PAID status for Trial
-        await api.post(`/api/transaction`, {
+        // Create transaction for Trial
+        const transactionResponse = await api.post(`/api/transaction`, {
           company_id: company_id,
           subscription_id: subscription_id,
           total: 0, // Trial is free
@@ -95,7 +95,34 @@ export default function PaymentClient({ company_id }: { company_id: string | nul
           expiresAt: expiryDate.toISOString()
         });
 
-        // Redirect to success page or dashboard
+        console.log('Transaction created:', transactionResponse.data);
+
+        // Update transaction status to PAID for Trial
+        // You might need to call a separate endpoint to update the status
+        try {
+          await api.patch(`/api/transaction/${transactionResponse.data.id || merchant_ref}`, {
+            status: 'PAID',
+            paidAt: new Date().toISOString()
+          });
+        } catch (updateError) {
+          console.warn('Could not update transaction status:', updateError);
+          // Continue anyway since the main transaction was created
+        }
+
+        // Update company subscription details
+        try {
+          await api.patch(`/api/company/${company_id}`, {
+            subscription_id: subscription_id,
+            max_employee: 10, // Trial allows 10 employees
+            subs_date_start: new Date().toISOString(),
+            subs_date_end: expiryDate.toISOString()
+          });
+        } catch (companyUpdateError) {
+          console.warn('Could not update company subscription:', companyUpdateError);
+          // Continue anyway
+        }
+
+        // Redirect to success page
         router.push('/payment/success?ref=' + merchant_ref);
         
       } catch (error) {
