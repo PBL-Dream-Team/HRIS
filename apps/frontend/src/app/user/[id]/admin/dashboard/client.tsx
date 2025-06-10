@@ -88,7 +88,7 @@ export default function DashboardClient({
       try {
         const res = await api.get(`/api/employee/${userId}`);
         const userData = res.data?.data;
-        
+
         if (userData) {
           const { first_name, last_name, position, pict_dir } = userData;
 
@@ -138,7 +138,7 @@ export default function DashboardClient({
         // Fetch employee count
         const countRes = await api.get(`/api/employee/count/${companyId}`);
         const countData = countRes.data || {};
-        
+
         if (mounted) {
           setEmployeeCount({
             total: Number(countData.total || 0),
@@ -149,7 +149,9 @@ export default function DashboardClient({
         }
 
         // Fetch employee status
-        const statusRes = await api.get(`/api/employee/status-count/${companyId}`);
+        const statusRes = await api.get(
+          `/api/employee/status-count/${companyId}`,
+        );
         const statusData = statusRes.data;
 
         if (mounted) {
@@ -161,7 +163,7 @@ export default function DashboardClient({
             };
 
             const formatted = statusData
-              .filter(item => item && typeof item === 'object' && item.name)
+              .filter((item) => item && typeof item === 'object' && item.name)
               .map((item: any) => ({
                 name: String(item.name || 'Unknown'),
                 total: Number(item.total || 0),
@@ -175,9 +177,11 @@ export default function DashboardClient({
         }
 
         // Fetch attendance overview
-        const attendanceRes = await api.get(`/api/employee/attendance-count/${companyId}`);
+        const attendanceRes = await api.get(
+          `/api/employee/attendance-count/${companyId}`,
+        );
         const attendanceData = attendanceRes.data || {};
-        
+
         if (mounted) {
           const onTime = Number(attendanceData.onTime || 0);
           const late = Number(attendanceData.late || 0);
@@ -189,10 +193,12 @@ export default function DashboardClient({
             { attendance: 'leave' as const, total: leave },
           ]);
         }
-
       } catch (err: any) {
-        console.error('Error fetching dashboard data:', err.response?.data || err.message);
-        
+        console.error(
+          'Error fetching dashboard data:',
+          err.response?.data || err.message,
+        );
+
         if (mounted) {
           // Set safe default values on error
           setEmployeeCount({
