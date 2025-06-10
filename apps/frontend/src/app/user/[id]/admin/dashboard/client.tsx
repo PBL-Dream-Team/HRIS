@@ -36,8 +36,6 @@ import {
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 
-import { IoMdSearch } from 'react-icons/io';
-
 const data = {
   user: {
     name: 'Admin',
@@ -57,6 +55,7 @@ export default function DashboardClient({
   userId,
   companyId,
 }: DashboardClientProps) {
+  const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState({
     name: 'Loading...',
     first_name: '',
@@ -64,6 +63,25 @@ export default function DashboardClient({
     position: '',
     avatar: '/avatars/default.jpg',
   });
+
+  const [employeeCount, setEmployeeCount] = useState({
+    total: 0,
+    newEmployees: 0,
+    activeEmployees: 0,
+    absentEmployees: 0,
+  });
+
+  const [employeeStatusData, setEmployeeStatusData] = useState<
+    { name: string; total: number; color: string }[]
+  >([]);
+
+  const [attendanceOverview, setAttendanceOverview] = useState<
+    { attendance: 'onTime' | 'late' | 'leave'; total: number }[]
+  >([
+    { attendance: 'onTime' as const, total: 0 },
+    { attendance: 'late' as const, total: 0 },
+    { attendance: 'leave' as const, total: 0 },
+  ]);
 
   useEffect(() => {
     async function fetchUser() {
@@ -93,7 +111,6 @@ export default function DashboardClient({
           'Error fetching user:',
           err.response?.data || err.message,
         );
-        // Set default values on error
         setUser({
           name: 'Unknown User',
           first_name: '',
@@ -109,116 +126,115 @@ export default function DashboardClient({
     }
   }, [userId]);
 
-  const [employeeCount, setEmployeeCount] = useState({
-    total: 0,
-    newEmployees: 0,
-    activeEmployees: 0,
-    absentEmployees: 0,
-  });
-
   useEffect(() => {
-    async function fetchEmployeeCount() {
+    let mounted = true;
+
+    async function fetchAllData() {
+      if (!companyId) return;
+
       try {
-        const res = await api.get(`/api/employee/count/${companyId}`);
-        setEmployeeCount(res.data);
-      } catch (err: any) {
-        console.error(
-          'Error fetching employee count:',
-          err.response?.data || err.message,
-        );
-      }
-    }
+        setIsLoading(true);
 
-    fetchEmployeeCount();
-  }, [companyId]);
-
-  const [employeeStatusData, setEmployeeStatusData] = useState<
-    { name: string; total: number; color: string }[]
-  >([]);
-
-  useEffect(() => {
-    async function fetchEmployeeStatus() {
-      try {
-        const res = await api.get(`/api/employee/status-count/${companyId}`);
-        const data = res.data;
-
-        // Add null/undefined checks
-        if (!Array.isArray(data)) {
-          console.warn('Employee status data is not an array:', data);
-          setEmployeeStatusData([]);
-          return;
+        // Fetch employee count
+        const countRes = await api.get(`/api/employee/count/${companyId}`);
+        const countData = countRes.data || {};
+        
+        if (mounted) {
+          setEmployeeCount({
+            total: Number(countData.total || 0),
+            newEmployees: Number(countData.newEmployees || 0),
+            activeEmployees: Number(countData.activeEmployees || 0),
+            absentEmployees: Number(countData.absentEmployees || 0),
+          });
         }
 
-        const colorMap: Record<string, string> = {
-          PERMANENT: '#257047',
-          CONTRACT: '#FFAB00',
-          INTERN: '#2D8EFF',
-        };
+        // Fetch employee status
+        const statusRes = await api.get(`/api/employee/status-count/${companyId}`);
+        const statusData = statusRes.data;
 
-        const formatted = data
-          .filter(item => item && typeof item === 'object' && item.name)
-          .map((item: any) => ({
-            name: String(item.name || ''),
-            total: Number(item.total || 0),
-            color: colorMap[item.name] || '#8884d8',
-          }));
+        if (mounted) {
+          if (Array.isArray(statusData) && statusData.length > 0) {
+            const colorMap: Record<string, string> = {
+              PERMANENT: '#257047',
+              CONTRACT: '#FFAB00',
+              INTERN: '#2D8EFF',
+            };
 
-        setEmployeeStatusData(formatted);
-      } catch (err: any) {
-        console.error(
-          'Error fetching employee status:',
-          err.response?.data || err.message,
-        );
-        setEmployeeStatusData([]);
-      }
-    }
+            const formatted = statusData
+              .filter(item => item && typeof item === 'object' && item.name)
+              .map((item: any) => ({
+                name: String(item.name || 'Unknown'),
+                total: Number(item.total || 0),
+                color: colorMap[item.name] || '#8884d8',
+              }));
 
-    if (companyId) {
-      fetchEmployeeStatus();
-    }
-  }, [companyId]);
+            setEmployeeStatusData(formatted);
+          } else {
+            setEmployeeStatusData([]);
+          }
+        }
 
-
-  const [attendanceOverview, setAttendanceOverview] = useState<
-    { attendance: 'onTime' | 'late' | 'leave'; total: number }[]
-  >([]);
-
-  useEffect(() => {
-    async function fetchAttendanceOverview() {
-      try {
-        const res = await api.get(`/api/employee/attendance-count/${companyId}`);
-        const data = res.data;
+        // Fetch attendance overview
+        const attendanceRes = await api.get(`/api/employee/attendance-count/${companyId}`);
+        const attendanceData = attendanceRes.data || {};
         
-        // Add null checks and default values
-        const onTime = data?.onTime ?? 0;
-        const late = data?.late ?? 0;
-        const leave = data?.leave ?? 0;
+        if (mounted) {
+          const onTime = Number(attendanceData.onTime || 0);
+          const late = Number(attendanceData.late || 0);
+          const leave = Number(attendanceData.leave || 0);
 
-        const mapped = [
-          { attendance: 'onTime' as const, total: onTime },
-          { attendance: 'late' as const, total: late },
-          { attendance: 'leave' as const, total: leave },
-        ];
+          setAttendanceOverview([
+            { attendance: 'onTime' as const, total: onTime },
+            { attendance: 'late' as const, total: late },
+            { attendance: 'leave' as const, total: leave },
+          ]);
+        }
 
-        setAttendanceOverview(mapped);
       } catch (err: any) {
-        console.error(
-          'Error fetching attendance overview:',
-          err.response?.data || err.message,
-        );
-        // Set default values on error
-        setAttendanceOverview([
-          { attendance: 'onTime' as const, total: 0 },
-          { attendance: 'late' as const, total: 0 },
-          { attendance: 'leave' as const, total: 0 },
-        ]);
+        console.error('Error fetching dashboard data:', err.response?.data || err.message);
+        
+        if (mounted) {
+          // Set safe default values on error
+          setEmployeeCount({
+            total: 0,
+            newEmployees: 0,
+            activeEmployees: 0,
+            absentEmployees: 0,
+          });
+          setEmployeeStatusData([]);
+          setAttendanceOverview([
+            { attendance: 'onTime' as const, total: 0 },
+            { attendance: 'late' as const, total: 0 },
+            { attendance: 'leave' as const, total: 0 },
+          ]);
+        }
+      } finally {
+        if (mounted) {
+          setIsLoading(false);
+        }
       }
     }
 
-    if (companyId) {
-      fetchAttendanceOverview();
-    }
+    fetchAllData();
+
+    return () => {
+      mounted = false;
+    };
   }, [companyId]);
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <SidebarProvider>
+        <AppSidebar isAdmin={isAdmin} />
+        <SidebarInset>
+          <div className="flex items-center justify-center h-screen">
+            <div className="text-lg">Loading dashboard...</div>
+          </div>
+        </SidebarInset>
+      </SidebarProvider>
+    );
+  }
 
   return (
     <SidebarProvider>
@@ -241,7 +257,6 @@ export default function DashboardClient({
           </div>
 
           <div className="flex items-center gap-4">
-            {/* Notification */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="relative p-2 rounded-md hover:bg-muted focus:outline-none">
@@ -267,19 +282,15 @@ export default function DashboardClient({
               </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* Nav-user */}
             <NavUser user={user} isAdmin={isAdmin} />
           </div>
         </header>
 
-        {/* Content */}
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
           <EmployeeInformation employeeInfo={employeeCount} />
           <div className="grid auto-rows-min gap-4 md:grid-cols-2 sm:grid-cols-1">
             <EmployeeStatusCard data={employeeStatusData} />
             <AttendanceOverviewCard attendancesData={attendanceOverview} />
-            {/* <EmployeeStatisticsCard /> */}
-            {/* <AttendanceTableCard /> */}
           </div>
         </div>
       </SidebarInset>

@@ -29,8 +29,8 @@ export function NavMain({
         <SidebarMenu>
           {items.map((item) => {
             const isActive = pathname.includes(item.url);
-            console.log('Current pathname:', pathname);
-            console.log(`Checking ${item.url}: isActive = ${isActive}`); // Debugging - periksa kondisi isActive
+            // console.log('Current pathname:', pathname);
+            // console.log(`Checking ${item.url}: isActive = ${isActive}`); // Debugging - periksa kondisi isActive
             return (
               <SidebarMenuItem key={item.title}>
                 <Link href={item.url} className="w-full">

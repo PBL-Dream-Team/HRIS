@@ -24,7 +24,7 @@ export async function redirectAfterLogin() {
     console.error('Invalid token during login redirect:', err);
     redirect('/signin');
   }
-  console.log('Decoded JWT:', decoded);
+  // console.log('Decoded JWT:', decoded);
 
   const { sub, is_admin, company_subs_id } = decoded;
 
