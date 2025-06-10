@@ -76,6 +76,41 @@ export default function PaymentClient({ company_id }: { company_id: string | nul
       return;
     }
 
+    // Check if it's Trial package - skip payment gateway
+    if (title === 'Trial') {
+      setLoading(true);
+      
+      const subscription_id = SUBSCRIPTION_IDS[title] || '';
+      const merchant_ref = `HRIS${Math.floor(100000 + Math.random() * 900000)}`;
+      const expiryDate = new Date();
+      expiryDate.setDate(expiryDate.getDate() + 14); // Trial for 14 days
+
+      try {
+        // Create transaction directly with PAID status for Trial
+        await api.post(`/api/transaction`, {
+          company_id: company_id,
+          subscription_id: subscription_id,
+          total: 0, // Trial is free
+          merchantRef: merchant_ref,
+          status: 'PAID', // Set as paid since it's free trial
+          paymentMethod: 'TRIAL', // Special payment method for trial
+          paidAt: new Date().toISOString(),
+          expiresAt: expiryDate.toISOString()
+        });
+
+        // Redirect to success page or dashboard
+        router.push('/payment/success?ref=' + merchant_ref);
+        
+      } catch (error) {
+        console.error('Trial activation error:', error);
+        router.push('/payment/failed');
+      } finally {
+        setLoading(false);
+      }
+      return;
+    }
+
+    // For non-trial packages, require phone number
     if (!phoneNumber.trim()) {
       alert('Please enter your phone number');
       return;
@@ -157,79 +192,93 @@ export default function PaymentClient({ company_id }: { company_id: string | nul
             <div className="flex justify-between font-semibold text-base"><span>Total</span><span>Rp {formatCurrency(total)}</span></div>
           </div>          {/* Payment Method and Phone Number Column */}
           <div className="mt-6 lg:mt-0 lg:pl-6 space-y-4">
-            <div>
-              <label className="block font-medium mb-3">Payment Method</label>
-              {total < 25000 && (
-                <div className="mb-3 p-2 bg-yellow-50 border border-yellow-200 rounded-lg">
-                  <p className="text-sm text-yellow-800">
-                    💡 Virtual Account payments require minimum Rp 25,000
-                  </p>
+            {title !== 'Trial' && (
+              <>
+                <div>
+                  <label className="block font-medium mb-3">Payment Method</label>
+                  {total < 25000 && (
+                    <div className="mb-3 p-2 bg-yellow-50 border border-yellow-200 rounded-lg">
+                      <p className="text-sm text-yellow-800">
+                        💡 Virtual Account payments require minimum Rp 25,000
+                      </p>
+                    </div>
+                  )}
+                  <div className="grid grid-cols-3 gap-2 lg:grid-cols-2 lg:gap-3">
+                    {PAYMENT_METHODS.map((method) => {
+                      const isAvailable = isPaymentMethodAvailable(method.id);
+                      return (
+                        <label key={method.id} className={`flex flex-col lg:flex-row items-center lg:space-x-3 p-3 border rounded-lg transition-colors ${
+                          !isAvailable 
+                            ? 'border-gray-300 bg-gray-100 cursor-not-allowed opacity-50' 
+                            : paymentMethod === method.id 
+                              ? 'border-blue-500 bg-blue-50 cursor-pointer' 
+                              : 'border-gray-200 hover:bg-gray-50 cursor-pointer'
+                        }`}>
+                          <input
+                            type="radio"
+                            value={method.id}
+                            checked={paymentMethod === method.id}
+                            onChange={(e) => setPaymentMethod(e.target.value)}
+                            disabled={!isAvailable}
+                            className="w-4 h-4 text-blue-600 mb-2 lg:mb-0 lg:flex-shrink-0 disabled:opacity-50"
+                          />
+                          <Image
+                            src={method.image}
+                            alt={method.name}
+                            width={48}
+                            height={32}
+                            className="flex-shrink-0"
+                          />
+                          <span className="hidden lg:block lg:flex-1 text-sm">{method.name}</span>
+                          {!isAvailable && (
+                            <span className="hidden lg:block text-xs text-red-500">Min. Rp 25,000</span>
+                          )}
+                        </label>
+                      );
+                    })}
+                  </div>
                 </div>
-              )}
-              <div className="grid grid-cols-3 gap-2 lg:grid-cols-2 lg:gap-3">
-                {PAYMENT_METHODS.map((method) => {
-                  const isAvailable = isPaymentMethodAvailable(method.id);
-                  return (
-                    <label key={method.id} className={`flex flex-col lg:flex-row items-center lg:space-x-3 p-3 border rounded-lg transition-colors ${
-                      !isAvailable 
-                        ? 'border-gray-300 bg-gray-100 cursor-not-allowed opacity-50' 
-                        : paymentMethod === method.id 
-                          ? 'border-blue-500 bg-blue-50 cursor-pointer' 
-                          : 'border-gray-200 hover:bg-gray-50 cursor-pointer'
-                    }`}>
-                      <input
-                        type="radio"
-                        value={method.id}
-                        checked={paymentMethod === method.id}
-                        onChange={(e) => setPaymentMethod(e.target.value)}
-                        disabled={!isAvailable}
-                        className="w-4 h-4 text-blue-600 mb-2 lg:mb-0 lg:flex-shrink-0 disabled:opacity-50"
-                      />
-                      <Image
-                        src={method.image}
-                        alt={method.name}
-                        width={48}
-                        height={32}
-                        className="flex-shrink-0"
-                      />
-                      <span className="hidden lg:block lg:flex-1 text-sm">{method.name}</span>
-                      {!isAvailable && (
-                        <span className="hidden lg:block text-xs text-red-500">Min. Rp 25,000</span>
-                      )}
-                    </label>
-                  );
-                })}
-              </div>
-            </div>
 
-            <div>
-              <label className="block font-medium mb-2" htmlFor="phoneNumber">
-                Phone Number *
-              </label>
-              <input
-                id="phoneNumber"
-                type="tel"
-                value={phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value)}
-                placeholder="e.g. 081234567890"
-                className={`w-full border rounded px-3 py-2 text-sm ${
-                  !phoneNumber.trim() && phoneNumber !== '' 
-                    ? 'border-red-300 focus:border-red-500' 
-                    : 'border-gray-300 focus:border-blue-500'
-                } focus:outline-none focus:ring-1 focus:ring-opacity-50`}
-                required
-              />
-              {!phoneNumber.trim() && phoneNumber !== '' && (
-                <p className="text-red-500 text-xs mt-1">Phone number is required</p>
-              )}
-            </div>
+                <div>
+                  <label className="block font-medium mb-2" htmlFor="phoneNumber">
+                    Phone Number *
+                  </label>
+                  <input
+                    id="phoneNumber"
+                    type="tel"
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    placeholder="e.g. 081234567890"
+                    className={`w-full border rounded px-3 py-2 text-sm ${
+                      !phoneNumber.trim() && phoneNumber !== '' 
+                        ? 'border-red-300 focus:border-red-500' 
+                        : 'border-gray-300 focus:border-blue-500'
+                    } focus:outline-none focus:ring-1 focus:ring-opacity-50`}
+                    required
+                  />
+                  {!phoneNumber.trim() && phoneNumber !== '' && (
+                    <p className="text-red-500 text-xs mt-1">Phone number is required</p>
+                  )}
+                </div>
+              </>
+            )}
+
+            {title === 'Trial' && (
+              <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                <h3 className="font-medium text-green-800 mb-2">🎉 Free Trial Package</h3>
+                <p className="text-sm text-green-700">
+                  You've selected the Trial package. No payment is required! 
+                  Click the button below to activate your 14-day free trial.
+                </p>
+              </div>
+            )}
 
             <Button 
               className="w-full" 
               onClick={handleContinue} 
-              disabled={loading || !phoneNumber.trim()}
+              disabled={loading || (title !== 'Trial' && !phoneNumber.trim())}
             >
-              {loading ? 'Processing...' : 'Continue to Payment'}
+              {loading ? 'Processing...' : title === 'Trial' ? 'Activate Free Trial' : 'Continue to Payment'}
             </Button>
           </div>
         </div>
