@@ -77,6 +77,7 @@ export default function AbsenceClient({
     last_name: '',
     position: '',
     avatar: '/avatars/default.jpg',
+    compName: '',
   });
   const [absences, setAbsences] = useState<Absence[]>([]);
   const [employees, setEmployees] = useState<Record<string, any>>({});
@@ -106,15 +107,19 @@ export default function AbsenceClient({
         // Fetch user data
         const userRes = await api.get(`/api/employee/${userId}`);
         const userData = userRes.data?.data;
+        const compRes = await api.get(`/api/company/${companyId}`);
+        const companyData = compRes.data?.data;
 
-        if (mounted && userData) {
+        if (mounted && userData && companyData) {
           const { first_name, last_name, position, pict_dir } = userData;
+          const { name } = companyData;
 
           // Ensure all values are strings and handle null/undefined
           const firstName = String(first_name || '');
           const lastName = String(last_name || '');
           const userPosition = String(position || '');
           const userAvatar = String(pict_dir || '/avatars/default.jpg');
+          const companyName = String(name || 'Unknown Company');
 
           setUser({
             name: `${firstName} ${lastName}`.trim() || 'Unknown User',
@@ -122,6 +127,7 @@ export default function AbsenceClient({
             last_name: lastName,
             position: userPosition,
             avatar: userAvatar,
+            compName: name,
           });
         }
 
@@ -189,6 +195,7 @@ export default function AbsenceClient({
             last_name: '',
             position: '',
             avatar: '/avatars/default.jpg',
+            compName: ''
           });
           setAbsences([]);
           setEmployees({});
@@ -330,12 +337,15 @@ export default function AbsenceClient({
         let statusContent;
         switch (status) {
           case 'PENDING':
-            statusContent = 'Pending';
+            statusContent = (<div className="flex items-center">
+                <span className="h-2 w-2 rounded-full bg-yellow-500 inline-block mr-2" />
+                Pending
+              </div>);
             break;
           case 'APPROVED':
             statusContent = (
               <div className="flex items-center">
-                <span className="h-2 w-2 rounded-full bg-green-600 inline-block mr-2" />
+                <span className="h-2 w-2 rounded-full bg-green-500 inline-block mr-2" />
                 Approved
               </div>
             );

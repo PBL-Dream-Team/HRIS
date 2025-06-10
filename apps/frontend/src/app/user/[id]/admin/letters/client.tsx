@@ -62,6 +62,7 @@ type UserState = {
   last_name: string;
   position: string;
   avatar: string;
+  compName: string;
 };
 
 export default function LettersClient({
@@ -80,6 +81,7 @@ export default function LettersClient({
     last_name: '',
     position: '',
     avatar: '/avatars/default.jpg',
+    compName: '',
   });
   const [employees, setEmployees] = useState<Record<string, any>>({});
   const [letterTypeMap, setLetterTypeMap] = useState<Record<string, any>>({});
@@ -112,15 +114,19 @@ export default function LettersClient({
       // Fetch user data
       const userRes = await api.get(`/api/employee/${userId}`);
       const userData = userRes.data?.data;
+      const compRes = await api.get(`/api/company/${companyId}`);
+      const compData = compRes.data?.data;
 
       if (mounted && userData) {
         const { first_name, last_name, position, pict_dir } = userData;
+        const { name } = compData;
 
         // Ensure all values are strings and handle null/undefined
         const firstName = String(first_name || '');
         const lastName = String(last_name || '');
         const userPosition = String(position || '');
         const userAvatar = String(pict_dir || '/avatars/default.jpg');
+        const compName = String(name || '')
 
         setUser({
           name: `${firstName} ${lastName}`.trim() || 'Unknown User',
@@ -128,6 +134,7 @@ export default function LettersClient({
           last_name: lastName,
           position: userPosition,
           avatar: userAvatar,
+          compName: compName,
         });
       }
 
@@ -198,6 +205,7 @@ export default function LettersClient({
           last_name: '',
           position: '',
           avatar: '/avatars/default.jpg',
+          compName: 'Unknown Company'
         });
         setEmployees({});
         setLetterTypeMap({});

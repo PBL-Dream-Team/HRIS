@@ -47,6 +47,7 @@ export default function GuideBookClient({
     last_name: '',
     position: '',
     avatar: '',
+    compName: '',
   });
 
   useEffect(() => {
@@ -54,6 +55,8 @@ export default function GuideBookClient({
       try {
         const res = await api.get(`/api/employee/${userId}`);
         const { first_name, last_name, position, pict_dir } = res.data.data;
+        const compRes = await api.get(`/api/company/${companyId}`);
+        const { name } = compRes.data.data;
 
         setUser({
           name: `${first_name} ${last_name}`,
@@ -61,6 +64,7 @@ export default function GuideBookClient({
           last_name: last_name,
           position: position,
           avatar: pict_dir || '/avatars/default.jpg',
+          compName: name || '',
         });
       } catch (err: any) {
         console.error(

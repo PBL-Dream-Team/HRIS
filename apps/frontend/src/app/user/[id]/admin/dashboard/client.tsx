@@ -62,6 +62,7 @@ export default function DashboardClient({
     last_name: '',
     position: '',
     avatar: '/avatars/default.jpg',
+    compName: '',
   });
 
   const [employeeCount, setEmployeeCount] = useState({
@@ -88,15 +89,19 @@ export default function DashboardClient({
       try {
         const res = await api.get(`/api/employee/${userId}`);
         const userData = res.data?.data;
-
-        if (userData) {
+        const compRes = await api.get(`/api/company/${companyId}`);
+        const compData = compRes.data?.data;
+        
+        if (userData && compData) {
           const { first_name, last_name, position, pict_dir } = userData;
+          const { name } = compData;
 
           // Ensure all values are strings and handle null/undefined
           const firstName = String(first_name || '');
           const lastName = String(last_name || '');
           const userPosition = String(position || '');
           const userAvatar = String(pict_dir || '/avatars/default.jpg');
+          const compName = String(name || 'Unknown Company');
 
           setUser({
             name: `${firstName} ${lastName}`.trim() || 'Unknown User',
@@ -104,6 +109,7 @@ export default function DashboardClient({
             last_name: lastName,
             position: userPosition,
             avatar: userAvatar,
+            compName: compName || 'Unknown Company',
           });
         }
       } catch (err: any) {
@@ -117,6 +123,7 @@ export default function DashboardClient({
           last_name: '',
           position: '',
           avatar: '/avatars/default.jpg',
+          compName: '',
         });
       }
     }
@@ -266,31 +273,6 @@ export default function DashboardClient({
           </div>
 
           <div className="flex items-center gap-4">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="relative p-2 rounded-md hover:bg-muted focus:outline-none">
-                  <Bell className="h-5 w-5" />
-                  <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-red-500" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                className="min-w-56 rounded-lg"
-                side="bottom"
-                sideOffset={8}
-                align="end"
-              >
-                <DropdownMenuLabel>Notifications</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>New user registered</DropdownMenuItem>
-                <DropdownMenuItem>Monthly report is ready</DropdownMenuItem>
-                <DropdownMenuItem>Server restarted</DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-center text-blue-600 hover:text-blue-700">
-                  View all
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
             <NavUser user={user} isAdmin={isAdmin} />
           </div>
         </header>

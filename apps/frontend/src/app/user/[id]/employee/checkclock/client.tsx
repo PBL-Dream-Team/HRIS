@@ -127,6 +127,7 @@ export default function CheckClockClient({
     position: '',
     avatar: '',
     typeId: '',
+    compName: '',
   });
 
   const router = useRouter();
@@ -161,6 +162,8 @@ export default function CheckClockClient({
       const res = await api.get(`/api/employee/${userId}`);
       const { first_name, last_name, position, attendance_id, pict_dir } =
         res.data.data;
+        const compRes = await api.get(`/api/company/${companyId}`);
+      const { name } = compRes.data.data;
 
       setUser({
         name: `${first_name} ${last_name}`,
@@ -169,6 +172,7 @@ export default function CheckClockClient({
         position: position,
         avatar: pict_dir || '/avatars/default.jpg',
         typeId: attendance_id,
+        compName: name,
       });
 
       const [attendanceRes, employeeRes, typeRes, companyRes] =

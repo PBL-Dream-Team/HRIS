@@ -63,6 +63,7 @@ export default function EmployeeDatabaseClient({
     last_name: '',
     position: '',
     avatar: '/avatars/default.jpg',
+    compName: '',
   });
 
   const [employees, setEmployees] = useState<any[]>([]);
@@ -86,15 +87,19 @@ export default function EmployeeDatabaseClient({
         // Fetch user data
         const userRes = await api.get(`/api/employee/${userId}`);
         const userData = userRes.data?.data;
+        const compRes = await api.get(`/api/company/${companyId}`);
+        const compData = compRes.data?.data;
 
-        if (mounted && userData) {
+        if (mounted && userData && compData) {
           const { first_name, last_name, position, pict_dir } = userData;
+          const { name } = compData;
 
           // Ensure all values are strings and handle null/undefined
           const firstName = String(first_name || '');
           const lastName = String(last_name || '');
           const userPosition = String(position || '');
           const userAvatar = String(pict_dir || '/avatars/default.jpg');
+          const compName = String(name || 'Unknown Company');
 
           setUser({
             name: `${firstName} ${lastName}`.trim() || 'Unknown User',
@@ -102,6 +107,7 @@ export default function EmployeeDatabaseClient({
             last_name: lastName,
             position: userPosition,
             avatar: userAvatar,
+            compName: compName,
           });
         }
 
@@ -147,6 +153,7 @@ export default function EmployeeDatabaseClient({
             last_name: '',
             position: '',
             avatar: '/avatars/default.jpg',
+            compName: '',
           });
           setEmployees([]);
         }
