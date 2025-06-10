@@ -49,10 +49,12 @@ export default function GuideBookClient({
     avatar: '',
     compName: '',
   });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchUser() {
       try {
+        setLoading(true);
         const res = await api.get(`/api/employee/${userId}`);
         const { first_name, last_name, position, pict_dir } = res.data.data;
         const compRes = await api.get(`/api/company/${companyId}`);
@@ -71,11 +73,30 @@ export default function GuideBookClient({
           'Error fetching user:',
           err.response?.data || err.message,
         );
+      } finally {
+        setLoading(false);
       }
     }
 
     fetchUser();
   }, [userId]);
+
+
+  if (loading) {
+    return (
+      <SidebarProvider>
+        <AppSidebar isAdmin={isAdmin} />
+        <SidebarInset>
+          <div className="flex items-center justify-center h-screen">
+            <div className="flex flex-col items-center gap-4">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+              <div className="text-lg">Loading guidebook...</div>
+            </div>
+          </div>
+        </SidebarInset>
+      </SidebarProvider>
+    );
+  }
 
   return (
     <SidebarProvider>

@@ -91,7 +91,18 @@ export default function AbsenceClient({
   userId,
   companyId,
 }: AbsenceClientProps) {
-  const [user, setUser] = useState({ name: '', first_name: '', last_name: '', position: '', avatar: '', compName: '' });
+  // Add loading and error states
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  
+  const [user, setUser] = useState({ 
+    name: 'Loading...', 
+    first_name: '', 
+    last_name: '', 
+    position: '', 
+    avatar: '/avatars/default.jpg', 
+    compName: '' 
+  });
   const [absences, setAbsences] = useState<Absence[]>([]);
   const [employees, setEmployees] = useState<Record<string, any>>({});
   const [currentPage, setCurrentPage] = useState(1);
@@ -107,12 +118,11 @@ export default function AbsenceClient({
     if (!dateString) return 'No date';
 
     try {
-      // Konversi string ke Date object
       const date = new Date(dateString);
       return format(date, 'PPP', { locale: enUS });
     } catch (error) {
       console.error('Error formatting date:', error);
-      return dateString; // Fallback ke string asli jika error
+      return dateString;
     }
   };
 
@@ -138,80 +148,160 @@ export default function AbsenceClient({
   };
 
   useEffect(() => {
-    async function fetchData() {
-      try {
-        const res = await api.get(`/api/employee/${userId}`);
-        const { first_name, last_name, position, pict_dir } = res.data.data;
-        const compRes = await api.get(`/api/company/${companyId}`);
-        const { name } = compRes.data.data;
-        setUser({
-          name: `${first_name} ${last_name}`,
-          first_name: first_name,
-          last_name: last_name,
-          position,
-          avatar: pict_dir || '/avatars/default.jpg',
-          compName: name,
-        });
+    let mounted = true;
 
+    async function fetchData() {
+      if (!userId || !companyId) return;
+
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        // Fetch user data with null safety
+        const res = await api.get(`/api/employee/${userId}`);
+        const userData = res.data?.data;
+        const compRes = await api.get(`/api/company/${companyId}`);
+        const companyData = compRes.data?.data;
+
+        if (mounted && userData && companyData) {
+          const { first_name, last_name, position, pict_dir } = userData;
+          const { name } = companyData;
+
+          // Ensure all values are strings and handle null/undefined
+          const firstName = String(first_name || '');
+          const lastName = String(last_name || '');
+          const userPosition = String(position || '');
+          const userAvatar = String(pict_dir || '/avatars/default.jpg');
+          const companyName = String(name || 'Unknown Company');
+
+          setUser({
+            name: `${firstName} ${lastName}`.trim() || 'Unknown User',
+            first_name: firstName,
+            last_name: lastName,
+            position: userPosition,
+            avatar: userAvatar,
+            compName: companyName,
+          });
+
+          setPictDir({
+            pictdir: String(pict_dir || ''),
+          });
+        }
+
+        // Fetch absences and employees data
         const [absenceRes, employeeRes] = await Promise.all([
           api.get(`/api/absence?employee_id=${userId}`),
           api.get(`/api/employee?id=${userId}`),
         ]);
 
-        const employeeMap: Record<string, any> = {};
-        for (const emp of employeeRes.data ?? []) {
-          employeeMap[emp.id] = emp;
-        }
+        if (mounted) {
+          // Process employee data with null safety
+          const employeeMap: Record<string, any> = {};
+          const employeeData = Array.isArray(employeeRes.data) 
+            ? employeeRes.data 
+            : [];
 
-        setEmployees(employeeMap);
-        setAbsences(absenceRes.data ?? []);
+          for (const emp of employeeData) {
+            if (emp && emp.id) {
+              employeeMap[emp.id] = {
+                ...emp,
+                first_name: String(emp.first_name || ''),
+                last_name: String(emp.last_name || ''),
+                position: String(emp.position || ''),
+                address: String(emp.address || ''),
+                pict_dir: String(emp.pict_dir || ''),
+              };
+            }
+          }
+          setEmployees(employeeMap);
+
+          // Process absence data with null safety
+          const absenceData = Array.isArray(absenceRes.data) 
+            ? absenceRes.data 
+            : [];
+          const validAbsences = absenceData
+            .filter(abs => abs && typeof abs === 'object' && abs.id && abs.employee_id)
+            .map(abs => ({
+              ...abs,
+              reason: String(abs.reason || ''),
+              status: String(abs.status || 'PENDING'),
+              type: String(abs.type || ''),
+              filedir: String(abs.filedir || ''),
+            }));
+
+          setAbsences(validAbsences);
+        }
       } catch (err: any) {
         console.error(
           'Error fetching data:',
           err.response?.data || err.message,
         );
-        setAbsences([]);
+
+        if (mounted) {
+          setError('Failed to fetch absence data. Please try again.');
+          // Set safe default values on error
+          setUser({
+            name: 'Unknown User',
+            first_name: '',
+            last_name: '',
+            position: '',
+            avatar: '/avatars/default.jpg',
+            compName: ''
+          });
+          setAbsences([]);
+          setEmployees({});
+        }
+      } finally {
+        if (mounted) {
+          setIsLoading(false);
+        }
       }
     }
 
     fetchData();
-  }, [userId]);
 
-const transformedabsences = absences.map((absence) => {
-  const employee = employees[absence.employee_id];
-  return {
-    id: absence.id,
-    employee_id: absence.employee_id,
-    company_id: absence.company_id,
-    reason: absence.reason ? absence.reason : '-',
-    date: new Date(absence.date).toDateString(),
-    status: absence.status,
-    name: employee ? `${employee.first_name} ${employee.last_name}` : 'N/A',
-    position: employee?.position ? employee.position : 'N/A',
-    type: absence.type,
-    address: employee?.address ? employee.address : '-',
-    filedir: absence.filedir,
-    created_at: formatTimeOnly(absence.created_at),
-  };
-});
+    return () => {
+      mounted = false;
+    };
+  }, [userId, companyId]);
 
-const filteredAbsences = filterDate
-? transformedabsences.filter((absence) => {
-    const absenceDate = new Date(absence.date);
-    const selectedDate = new Date(filterDate);
-    return (
-      absenceDate.getFullYear() === selectedDate.getFullYear() &&
-      absenceDate.getMonth() === selectedDate.getMonth() &&
-      absenceDate.getDate() === selectedDate.getDate()
-    );
-  })
-: transformedabsences;
+  // Safe data transformation with null checks
+  const transformedabsences = absences.map((absence) => {
+    const employee = employees[absence.employee_id];
+    return {
+      id: String(absence.id || ''),
+      employee_id: String(absence.employee_id || ''),
+      company_id: String(absence.company_id || ''),
+      reason: String(absence.reason || '-'),
+      date: absence.date ? new Date(absence.date).toDateString() : 'No date',
+      status: String(absence.status || 'PENDING'),
+      name: employee 
+        ? `${String(employee.first_name || '')} ${String(employee.last_name || '')}`.trim() || 'Unknown Employee'
+        : 'Unknown Employee',
+      position: String(employee?.position || 'N/A'),
+      type: absence.type,
+      address: String(employee?.address || '-'),
+      filedir: String(absence.filedir || ''),
+      created_at: absence.created_at ? formatTimeOnly(absence.created_at) : 'No date',
+    };
+  });
+
+  const filteredAbsences = filterDate
+    ? transformedabsences.filter((absence) => {
+        const absenceDate = new Date(absence.date);
+        const selectedDate = new Date(filterDate);
+        return (
+          absenceDate.getFullYear() === selectedDate.getFullYear() &&
+          absenceDate.getMonth() === selectedDate.getMonth() &&
+          absenceDate.getDate() === selectedDate.getDate()
+        );
+      })
+    : transformedabsences;
 
   const displayedAbsences = filteredAbsences.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage,
   );
-
 
   const [openSheet, setOpenSheet] = useState(false);
   const [selectedAbsence, setSelectedAbsence] = useState<Absence | null>(null);
@@ -253,7 +343,6 @@ const filteredAbsences = filterDate
       await api.delete(`/api/absence/${absenceToDelete.id}`);
       toast.success('Absence deleted successfully.');
 
-      // Update state dengan menghapus absence yang sudah dihapus
       setAbsences((prev) =>
         prev.filter((abs) => abs.id !== absenceToDelete.id),
       );
@@ -272,13 +361,47 @@ const filteredAbsences = filterDate
   const [openAddDialog, setOpenAddDialog] = useState(false);
 
   const handleAddAbsenceSuccess = () => {
-    fetchAbsences(); // Refresh data absence
+    fetchAbsences();
   };
 
   const handleEditAbsenceSuccess = () => {
-    fetchAbsences(); // Refresh data absence
+    fetchAbsences();
     setOpenEditDialog(false);
   };
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <SidebarProvider>
+        <AppSidebar isAdmin={isAdmin} />
+        <SidebarInset>
+          <div className="flex items-center justify-center h-screen">
+            <div className="flex flex-col items-center gap-4">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+              <div className="text-lg">Loading absence data...</div>
+            </div>
+          </div>
+        </SidebarInset>
+      </SidebarProvider>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <SidebarProvider>
+        <AppSidebar isAdmin={isAdmin} />
+        <SidebarInset>
+          <div className="flex items-center justify-center h-screen">
+            <div className="text-center">
+              <div className="text-lg text-red-500 mb-4">{error}</div>
+              <Button onClick={() => window.location.reload()}>Try Again</Button>
+            </div>
+          </div>
+        </SidebarInset>
+      </SidebarProvider>
+    );
+  }
 
   return (
     <SidebarProvider>
@@ -481,7 +604,6 @@ const filteredAbsences = filterDate
         </main>
       </SidebarInset>
 
-      {/* Absence Details Sheet */}
       {selectedAbsence && (
         <AbsenceDetails
           open={openSheet}
@@ -491,7 +613,6 @@ const filteredAbsences = filterDate
         />
       )}
 
-      {/* Delete Confirmation Dialog */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -514,7 +635,6 @@ const filteredAbsences = filterDate
         </DialogContent>
       </Dialog>
 
-      {/* Edit Absence Dialog */}
       <Dialog open={openEditDialog} onOpenChange={setOpenEditDialog}>
         <DialogContent className="max-w-4xl">
           <DialogHeader>
