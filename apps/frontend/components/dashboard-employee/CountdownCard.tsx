@@ -188,6 +188,7 @@ export default function CountdownCard({ userId, companyId }: CountdownCardProps)
                     last_name: last_name,
                     position,
                     avatar: pict_dir || '/avatars/default.jpg',
+                    typeId: '', // Tambahkan baris ini agar sesuai dengan tipe user
                 });
 
                 const [absenceRes, employeeRes] = await Promise.all([
