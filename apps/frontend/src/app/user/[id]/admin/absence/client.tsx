@@ -9,6 +9,7 @@ import api from '@/lib/axios';
 import { AppSidebar } from '@/components/app-sidebar';
 import { NavUser } from '@/components/nav-user';
 import PaginationFooter from '@/components/pagination';
+import { DataTable } from '@/components/data-table';
 
 import {
   Breadcrumb,
@@ -22,14 +23,6 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from '@/components/ui/sidebar';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -284,6 +277,100 @@ export default function AbsenceClient({
     }
   };
 
+  const absenceColumns = [
+    {
+      accessorKey: 'avatar',
+      header: 'Avatar',
+      cell: ({ row }: any) => {
+        const emp = employees[row.original.employee_id];
+        return (
+          <Avatar className="h-8 w-8 rounded-lg">
+            <AvatarImage
+              src={
+                emp?.pict_dir
+                  ? `/storage/employee/${emp.pict_dir}`
+                  : '/avatars/default.jpg'
+              }
+              alt={row.original.name}
+            />
+            <AvatarFallback>
+              {String(emp?.first_name?.[0] || '')}
+              {String(emp?.last_name?.[0] || '')}
+            </AvatarFallback>
+          </Avatar>
+        );
+      },
+    },
+    {
+      accessorKey: 'name',
+      header: 'Name',
+    },
+    {
+      accessorKey: 'position',
+      header: 'Position',
+    },
+    {
+      accessorKey: 'created_at',
+      header: 'Created At',
+    },
+    {
+      accessorKey: 'date',
+      header: 'On Date',
+      cell: ({ row }: any) => formatDate(row.original.date),
+    },
+    {
+      accessorKey: 'reason',
+      header: 'Reason',
+    },
+    {
+      accessorKey: 'status',
+      header: 'Status',
+      cell: ({ row }: any) => {
+        const status = row.original.status;
+        let statusContent;
+        switch (status) {
+          case 'PENDING':
+            statusContent = 'Pending';
+            break;
+          case 'APPROVED':
+            statusContent = (
+              <div className="flex items-center">
+                <span className="h-2 w-2 rounded-full bg-green-600 inline-block mr-2" />
+                Approved
+              </div>
+            );
+            break;
+          case 'REJECTED':
+            statusContent = (
+              <div className="flex items-center">
+                <span className="h-2 w-2 rounded-full bg-red-500 inline-block mr-2" />
+                Rejected
+              </div>
+            );
+            break;
+          default:
+            statusContent = status || 'N/A';
+        }
+        return statusContent;
+      },
+    },
+    {
+      accessorKey: 'actions',
+      header: 'Actions',
+      cell: ({ row }: any) => (
+        <Button
+          size="icon"
+          variant="outline"
+          className="hover:text-white hover:bg-blue-600"
+          onClick={() => handleViewDetails(row.original)}
+          title="View Details"
+        >
+          <Eye className="w-4 h-4" />
+        </Button>
+      ),
+    },
+  ];
+
   // Show loading state
   if (isLoading) {
     return (
@@ -345,135 +432,16 @@ export default function AbsenceClient({
 
         <main className="flex-1 p-10 pt-5">
           <div className="border border-gray-300 rounded-md p-4">
-            <div className="flex justify-between items-center p-4 border-b">
-              <h2 className="text-lg font-semibold">Absence Overview</h2>
-
-              <div className="flex items-center gap-2">
-                <div className="relative hidden lg:block w-96">
-                  <IoMdSearch className="absolute top-1/2 left-3 transform -translate-y-1/2 text-gray-500" />
-                  <Input
-                    type="search"
-                    placeholder="Search by employee name"
-                    className="pl-10"
-                    value={searchTerm}
-                    onChange={handleSearchChange}
-                  />
-                </div>
-              </div>
-            </div>
-
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Avatar</TableHead>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Position</TableHead>
-                  <TableHead>Created At</TableHead>
-                  <TableHead>On Date</TableHead>
-                  <TableHead>Reason</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {displayedAbsences.map((abs, i) => {
-                  const emp = employees[abs.employee_id];
-                  let approveContent;
-
-                  switch (abs.status) {
-                    case 'PENDING':
-                      approveContent = (
-                        <div className="flex gap-1">
-                          <Button
-                            size="icon"
-                            variant="outline"
-                            title="Approve"
-                            onClick={() => handleApproval(abs.id, 'APPROVED')}
-                          >
-                            <Check className="text-green-600 w-4 h-4" />
-                          </Button>
-                          <Button
-                            size="icon"
-                            variant="outline"
-                            title="Reject"
-                            onClick={() => handleApproval(abs.id, 'REJECTED')}
-                          >
-                            <X className="text-red-600 w-4 h-4" />
-                          </Button>
-                        </div>
-                      );
-                      break;
-                    case 'APPROVED':
-                      approveContent = (
-                        <div className="flex items-center">
-                          <span className="h-2 w-2 rounded-full bg-green-600 inline-block mr-2" />
-                          Approved
-                        </div>
-                      );
-                      break;
-                    case 'REJECTED':
-                      approveContent = (
-                        <div className="flex items-center">
-                          <span className="h-2 w-2 rounded-full bg-red-500 inline-block mr-2" />
-                          Rejected
-                        </div>
-                      );
-                      break;
-                    default:
-                      approveContent = abs.status || 'N/A';
-                  }
-
-                  // Safe avatar fallback with null checks
-                  const empFirstName = String(emp?.first_name || '');
-                  const empLastName = String(emp?.last_name || '');
-                  const avatarFallback =
-                    empFirstName && empLastName
-                      ? (empFirstName[0] + empLastName[0]).toUpperCase()
-                      : 'NA';
-
-                  return (
-                    <TableRow key={i}>
-                      <TableCell>
-                        <Avatar className="h-8 w-8 rounded-lg">
-                          <AvatarImage
-                            src={
-                              emp?.pict_dir
-                                ? `/storage/employee/${emp.pict_dir}`
-                                : '/avatars/default.jpg'
-                            }
-                            alt={abs.name}
-                          />
-                          <AvatarFallback>{avatarFallback}</AvatarFallback>
-                        </Avatar>
-                      </TableCell>
-                      <TableCell>{abs.name}</TableCell>
-                      <TableCell>{abs.position}</TableCell>
-                      <TableCell>{abs.created_at}</TableCell>
-                      <TableCell>{formatDate(abs.date)}</TableCell>
-                      <TableCell>{abs.reason}</TableCell>
-                      <TableCell>{approveContent}</TableCell>
-                      <TableCell>
-                        <Button
-                          size="icon"
-                          variant="outline"
-                          className="hover:text-white hover:bg-blue-600"
-                          onClick={() => handleViewDetails(abs)}
-                          title="View Details"
-                        >
-                          <Eye className="w-4 h-4" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-
-            <PaginationFooter
-              totalItems={filteredAbsences.length}
-              itemsPerPage={itemsPerPage}
-              currentPage={currentPage}
-              onPageChange={setCurrentPage}
+            <DataTable
+              columns={absenceColumns}
+              data={displayedAbsences}
+              searchableColumn="name"
+              title="Absence Overview"
+              pagination={{
+                currentPage,
+                itemsPerPage,
+                onPageChange: setCurrentPage,
+              }}
             />
           </div>
         </main>
