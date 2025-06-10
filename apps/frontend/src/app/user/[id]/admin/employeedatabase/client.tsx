@@ -67,6 +67,13 @@ export default function EmployeeDatabaseClient({
 
   const [employees, setEmployees] = useState<any[]>([]);
 
+  const [employeeCount, setEmployeeCount] = useState({
+    total: 0,
+    newEmployees: 0,
+    activeEmployees: 0,
+    absentEmployees: 0,
+  });
+
   useEffect(() => {
     let mounted = true;
 
@@ -108,11 +115,13 @@ export default function EmployeeDatabaseClient({
           const employeesData = Array.isArray(employeesRes.data) ? employeesRes.data : [];
           
           // Filter out any null/undefined employees and ensure required fields exist
+          // Tambahkan filter agar is_admin: true tidak ditampilkan
           const validEmployees = employeesData.filter(emp => 
             emp && 
             typeof emp === 'object' && 
             emp.id &&
-            (emp.first_name || emp.last_name)
+            (emp.first_name || emp.last_name) &&
+            emp.is_admin !== true
           ).map(emp => ({
             ...emp,
             first_name: String(emp.first_name || ''),
@@ -155,6 +164,36 @@ export default function EmployeeDatabaseClient({
     };
   }, [userId, companyId]);
 
+  useEffect(() => {
+    let mounted = true;
+    async function fetchEmployeeCount() {
+      if (!companyId) return;
+      try {
+        const countRes = await api.get(`/api/employee/count/${companyId}`);
+        const countData = countRes.data || {};
+        if (mounted) {
+          setEmployeeCount({
+            total: Number(countData.total || 0),
+            newEmployees: Number(countData.newEmployees || 0),
+            activeEmployees: Number(countData.activeEmployees || 0),
+            absentEmployees: Number(countData.absentEmployees || 0),
+          });
+        }
+      } catch (err) {
+        if (mounted) {
+          setEmployeeCount({
+            total: 0,
+            newEmployees: 0,
+            activeEmployees: 0,
+            absentEmployees: 0,
+          });
+        }
+      }
+    }
+    fetchEmployeeCount();
+    return () => { mounted = false; };
+  }, [companyId]);
+
   // Update fetchEmployees function to handle loading state
   const fetchEmployees = async () => {
     try {
@@ -168,7 +207,8 @@ export default function EmployeeDatabaseClient({
         emp && 
         typeof emp === 'object' && 
         emp.id &&
-        (emp.first_name || emp.last_name)
+        (emp.first_name || emp.last_name) &&
+        emp.is_admin !== true
       ).map(emp => ({
         ...emp,
         first_name: String(emp.first_name || ''),
@@ -455,7 +495,7 @@ export default function EmployeeDatabaseClient({
           </div>
         </header>
         <div className="flex flex-1 flex-col gap-4 p-10 pt-5">
-          <EmployeeInformation employees={employees} />
+          <EmployeeInformation employeeInfo={employeeCount} />
 
           <div className="border border-gray-300 rounded-md p-4">
             {/* DataTable for Employee */}
@@ -468,9 +508,6 @@ export default function EmployeeDatabaseClient({
                 <>
                   {/* Buttons */}
                   <div className="flex flex-col gap-2 md:flex-row md:flex-wrap md:gap-2">
-                    <Button variant="outline" className="w-full md:w-auto">
-                      <VscSettings className="h-4 w-4 mr-1" /> Filter
-                    </Button>
                     <Button
                       variant="outline"
                       className="w-full md:w-auto"
