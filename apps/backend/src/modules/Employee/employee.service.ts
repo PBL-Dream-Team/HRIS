@@ -27,7 +27,7 @@ export class EmployeeService {
       const filename = `${Date.now()}_${file.originalname}`;
       data.pict_dir = filename;
     }
-    data.position = "Employee";
+    data.position = data.position ? data.position : "Employee";
     data.password = await hash(dto.password);
 
     try {
@@ -494,6 +494,7 @@ export class EmployeeService {
       const updatedData = await Promise.all(parsedData.map(async row => {
         row.company_id = companyId;
         row.password =  await hash(row.password);
+        row.position = row.position ? row.position : 'Employee'
         return {
           ...row 
         } as Prisma.EmployeeCreateManyInput;
