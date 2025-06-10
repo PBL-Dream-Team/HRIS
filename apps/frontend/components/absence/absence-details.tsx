@@ -34,6 +34,8 @@ export default function AbsenceDetails({
   selectedAbsence,
   avatarUrl,
 }: AbsenceDetailsProps) {
+  console.log('Selected Absence:', selectedAbsence);
+
   const formatDate = (dateString: string) => {
     if (!dateString) return 'No date';
 
