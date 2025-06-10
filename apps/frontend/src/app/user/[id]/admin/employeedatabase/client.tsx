@@ -494,7 +494,7 @@ export default function EmployeeDatabaseClient({
             <NavUser user={user} isAdmin={isAdmin} />
           </div>
         </header>
-        <div className="flex flex-1 flex-col gap-4 p-10 pt-5">
+        <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
           <EmployeeInformation employeeInfo={employeeCount} />
 
           <div className="border border-gray-300 rounded-md p-4">
