@@ -29,6 +29,24 @@ type CountdownCardProps = {
     companyId: string;
 };
 
+
+type Absence = {
+    id: string;
+    employee_id: string;
+    company_id: string;
+    reason: string;
+    date: string;
+    status: string;
+    name: string;
+    position: string;
+    type: AbsenceType;
+    address: string;
+    created_at: string;
+    filedir: string;
+};
+
+
+
 export default function CountdownCard({ userId, companyId }: CountdownCardProps) {
     const [user, setUser] = useState({
         name: '',
@@ -49,6 +67,12 @@ export default function CountdownCard({ userId, companyId }: CountdownCardProps)
     const [openClockInDialog, setOpenClockInDialog] = useState(false);
     const [openAbsenceDialog, setOpenAbsenceDialog] = useState(false);
 
+    const [absences, setAbsences] = useState<Absence[]>([]);
+    const [employees, setEmployees] = useState<Record<string, any>>({});
+
+    const [pictdir, setPictDir] = useState({
+        pictdir: ''
+    });
     // Untuk daily limit clock in
     let dailyLimit = 1;
 
@@ -74,7 +98,7 @@ export default function CountdownCard({ userId, companyId }: CountdownCardProps)
         }).format(date);
 
     // Fetch data seperti di client.tsx
-    const fetchAllData = async () => {
+    const fetchAllCheckclockData = async () => {
         try {
             const res = await api.get(`/api/employee/${userId}`);
             const { first_name, last_name, position, attendance_id, pict_dir } =
@@ -121,7 +145,7 @@ export default function CountdownCard({ userId, companyId }: CountdownCardProps)
     };
 
     useEffect(() => {
-        fetchAllData();
+        fetchAllCheckclockData();
     }, [userId, companyId]);
 
     // Cek daily limit
@@ -131,10 +155,75 @@ export default function CountdownCard({ userId, companyId }: CountdownCardProps)
         }
     });
 
+    const fetchAbsences = async () => {
+        try {
+            const absenceRes = await api.get(`/api/absence?employee_id=${userId}`);
+            setAbsences(absenceRes.data ?? []);
+
+            const res = await api.get(`/api/employee/${userId}`);
+            const pict = res.data.data;
+
+            setPictDir({
+                pictdir: pict.pict_dir || '',
+            })
+
+        } catch (err: any) {
+            console.error(
+                'Error fetching absences:',
+                err.response?.data || err.message,
+            );
+            setAbsences([]);
+        }
+    };
+
+    useEffect(() => {
+        async function fetchData() {
+            try {
+                const res = await api.get(`/api/employee/${userId}`);
+                const { first_name, last_name, position, pict_dir } = res.data.data;
+                setUser({
+                    name: `${first_name} ${last_name}`,
+                    first_name: first_name,
+                    last_name: last_name,
+                    position,
+                    avatar: pict_dir || '/avatars/default.jpg',
+                });
+
+                const [absenceRes, employeeRes] = await Promise.all([
+                    api.get(`/api/absence?employee_id=${userId}`),
+                    api.get(`/api/employee?id=${userId}`),
+                ]);
+
+                const employeeMap: Record<string, any> = {};
+                for (const emp of employeeRes.data ?? []) {
+                    employeeMap[emp.id] = emp;
+                }
+
+                setEmployees(employeeMap);
+                setAbsences(absenceRes.data ?? []);
+            } catch (err: any) {
+                console.error(
+                    'Error fetching data:',
+                    err.response?.data || err.message,
+                );
+                setAbsences([]);
+            }
+        }
+
+        fetchData();
+    }, [userId]);
+
+
     const handleAddCheckClockSuccess = () => {
         setOpenClockInDialog(false); // Tutup dialog
-        fetchAllData(); // Refresh data
+        fetchAllCheckclockData(); // Refresh data
     };
+
+    const handleAddAbsenceSuccess = () => {
+        setOpenAbsenceDialog(false); // Tutup dialog
+        fetchAbsences(); // Refresh data absence
+    };
+
 
     if (!hasMounted) return null;
 
@@ -232,12 +321,12 @@ export default function CountdownCard({ userId, companyId }: CountdownCardProps)
                                             <DialogHeader>
                                                 <DialogTitle>Add Absence</DialogTitle>
                                             </DialogHeader>
-                                            {/* <AbsenceAddForm
+                                            <AbsenceAddForm
                                                 employeeId={userId}
                                                 companyId={companyId}
                                                 onSuccess={handleAddAbsenceSuccess}
                                                 onClose={() => setOpenAbsenceDialog(false)}
-                                            /> */}
+                                            />
                                         </DialogContent>
                                     </Dialog>
                                 </div>
