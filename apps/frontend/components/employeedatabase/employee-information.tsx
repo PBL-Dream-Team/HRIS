@@ -32,12 +32,12 @@ export default function EmployeeInformation({ employeeInfo }: { employeeInfo: { 
   }, []);
 
   return (
-    <div className="grid auto-rows-min gap-4 md:grid-cols-4 sm:grid-cols-2">
+    <div className="grid auto-rows-min gap-4 grid-cols-2 sm:grid-cols-2 md:grid-cols-4">
       <Card className="@container/card">
         <CardHeader className="relative">
           <CardTitle>
             <div className="flex items-center gap-2">
-              <User className="h-8 w-8" />
+              <User className="h-8 w-8 hidden sm:block" />
               <h1 className="text-xl">Total Employees</h1>
             </div>
           </CardTitle>
@@ -54,7 +54,7 @@ export default function EmployeeInformation({ employeeInfo }: { employeeInfo: { 
         <CardHeader className="relative">
           <CardTitle>
             <div className="flex items-center gap-2">
-              <UserPlus className="h-8 w-8" />
+              <UserPlus className="h-8 w-8 hidden sm:block" />
               <h1 className="text-xl">New Employees</h1>
             </div>
           </CardTitle>
@@ -71,7 +71,7 @@ export default function EmployeeInformation({ employeeInfo }: { employeeInfo: { 
         <CardHeader className="relative">
           <CardTitle>
             <div className="flex items-center gap-2">
-              <UserCheck className="h-8 w-8" />
+              <UserCheck className="h-8 w-8 hidden sm:block" />
               <h1 className="text-xl">Active Employees</h1>
             </div>
           </CardTitle>
@@ -88,7 +88,7 @@ export default function EmployeeInformation({ employeeInfo }: { employeeInfo: { 
         <CardHeader className="relative">
           <CardTitle>
             <div className="flex items-center gap-2">
-              <UserMinus className="h-8 w-8" />
+              <UserMinus className="h-8 w-8 hidden sm:block" />
               <h1 className="text-xl">Absent Employees</h1>
             </div>
           </CardTitle>
