@@ -58,6 +58,15 @@ export default function CountdownCard({ userId, companyId }: CountdownCardProps)
         typeId: '',
     });
 
+    const [userAbsence, setUserAbsence] = useState({
+        name: '',
+        first_name: '',
+        last_name: '',
+        position: '',
+        avatar: '',
+        typeId: '',
+    });
+
     const [employee, setEmployee] = useState<any[]>([]);
     const [attendance, setAttendance] = useState<any[]>([]);
     const [attendanceType, setAttendanceType] = useState<Record<string, any>>({});
@@ -182,7 +191,7 @@ export default function CountdownCard({ userId, companyId }: CountdownCardProps)
             try {
                 const res = await api.get(`/api/employee/${userId}`);
                 const { first_name, last_name, position, pict_dir } = res.data.data;
-                setUser({
+                setUserAbsence({
                     name: `${first_name} ${last_name}`,
                     first_name: first_name,
                     last_name: last_name,

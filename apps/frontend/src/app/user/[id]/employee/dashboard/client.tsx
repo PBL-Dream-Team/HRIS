@@ -280,13 +280,13 @@ export default function DashboardClient({
           />
           <div className="flex flex-col gap-4">
             <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
+              <CountdownCard userId={userId} companyId={companyId} />
               <AttendanceSummaryCard
                 summary={attendanceSummary}
                 selectedMonth={selectedMonth}
                 onChangeMonth={setSelectedMonth}
               />
 
-              <CountdownCard userId={userId} companyId={companyId} />
               {/* <LeaveSummaryCard /> */}
             </div>
             <div className="h-[100px]">{/* <WorkHoursOverviewCard /> */}</div>
