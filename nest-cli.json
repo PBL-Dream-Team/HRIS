@@ -18,7 +18,7 @@
         "assets": [
           {
             "include": "templates/**/*",
-            "outDir": "dist/apps/backend/templates"
+            "outDir": "dist/apps/backend"
           }
         ]
       }
