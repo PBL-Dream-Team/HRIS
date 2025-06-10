@@ -78,6 +78,7 @@ export default function AccountClient({
     last_name: '',
     position: '',
     avatar: '/avatars/default.jpg',
+    compName: '',
   });
   const router = useRouter();
 
@@ -156,6 +157,7 @@ export default function AccountClient({
             last_name: String(initialData.last_name || ''),
             position: 'Admin', // Default for admin
             avatar: String(initialData.pict_dir || '/avatars/default.jpg'),
+            compName: String(initialData.company_name || ''),
           });
 
           setAdminData({
@@ -217,6 +219,7 @@ export default function AccountClient({
           last_name: lastName,
           position: String(admin.position || 'Admin'),
           avatar: userAvatar,
+          compName: String(company.name || ''),
         });
 
         setAdminData({
@@ -257,6 +260,7 @@ export default function AccountClient({
           last_name: '',
           position: '',
           avatar: '/avatars/default.jpg',
+          compName: '',
         });
         setAdminData({
           id: '',

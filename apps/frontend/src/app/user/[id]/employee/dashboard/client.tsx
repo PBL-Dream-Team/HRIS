@@ -59,6 +59,7 @@ export default function DashboardClient({
     last_name: '',
     position: '',
     avatar: '',
+    compName: '',
   });
 
   const [workStats, setWorkStats] = useState<WorkStats>({
@@ -72,8 +73,9 @@ export default function DashboardClient({
     const fetchUser = async () => {
       try {
         const userRes = await api.get(`/api/employee/${userId}`);
-        const { first_name, last_name, email, pict_dir, position } =
-          userRes.data.data;
+        const { first_name, last_name, email, pict_dir, position } = userRes.data.data;
+        const compRes = await api.get(`/api/company/${companyId}`);
+        const { name } = compRes.data.data;
 
         setUser({
           name: `${first_name} ${last_name}`,
@@ -81,6 +83,7 @@ export default function DashboardClient({
           last_name,
           position: position || 'Employee', // Provide a default if position is missing
           avatar: pict_dir || '/avatars/default.jpg',
+          compName: name || 'Unknown Company',
         });
       } catch (error) {
         console.error('Failed to fetch user data:', error);

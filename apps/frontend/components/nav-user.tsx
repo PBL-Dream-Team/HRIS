@@ -16,6 +16,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { toast } from 'sonner';
+import { ChevronDown, Building2 } from 'lucide-react';
 
 export function NavUser({
   user,
@@ -27,6 +28,7 @@ export function NavUser({
     last_name: string;
     position: string;
     avatar: string;
+    compName: string;
   };
   isAdmin?: boolean;
 }) {
@@ -46,6 +48,12 @@ export function NavUser({
 
   return (
     <DropdownMenu>
+        <div className='lg:flex items-center gap-1 pr-2'>
+          <Building2 className='h-4 w-4'/>
+          <span className="hidden lg:block text-sm font-medium whitespace-nowrap">
+            {user.compName}
+          </span>
+        </div>
       <DropdownMenuTrigger asChild>
         <button className="flex items-center gap-2 rounded-lg cursor-pointer focus:outline-none max-w-40">
           <Avatar className="h-8 w-8 rounded-lg">
@@ -59,6 +67,7 @@ export function NavUser({
             <span className="truncate font-medium">{user.name}</span>
             <span className="truncate text-xs">{user.position}</span>
           </div>
+          <ChevronDown className="ml-2 h-4 w-4 text-muted-foreground" />
         </button>
       </DropdownMenuTrigger>
 

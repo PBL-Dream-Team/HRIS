@@ -129,6 +129,7 @@ export default function CheckClockClient({
     last_name: '',
     position: '',
     avatar: '/avatars/default.jpg',
+    compName: '',
   });
 
   const [employees, setEmployee] = useState<Record<string, any>>({});
@@ -157,15 +158,19 @@ export default function CheckClockClient({
       // Fetch user data
       const userRes = await api.get(`/api/employee/${userId}`);
       const userData = userRes.data?.data;
+      const compRes = await api.get(`/api/company/${companyId}`);
+      const compData = compRes.data?.data;
 
-      if (mounted && userData) {
+      if (mounted && userData && compData) {
         const { first_name, last_name, position, pict_dir } = userData;
+        const { name } = compData;
 
         // Ensure all values are strings and handle null/undefined
         const firstName = String(first_name || '');
         const lastName = String(last_name || '');
         const userPosition = String(position || '');
         const userAvatar = String(pict_dir || '/avatars/default.jpg');
+        const compName = String(name || 'Unknown Company')
 
         setUser({
           name: `${firstName} ${lastName}`.trim() || 'Unknown User',
@@ -173,6 +178,7 @@ export default function CheckClockClient({
           last_name: lastName,
           position: userPosition,
           avatar: userAvatar,
+          compName: compName || 'Unknown Company',
         });
       }
 
@@ -241,6 +247,7 @@ export default function CheckClockClient({
           last_name: '',
           position: '',
           avatar: '/avatars/default.jpg',
+          compName: '',
         });
         setAttendance([]);
         setEmployee({});

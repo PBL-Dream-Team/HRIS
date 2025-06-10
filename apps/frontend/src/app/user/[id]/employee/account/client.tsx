@@ -101,6 +101,7 @@ export default function AccountClient({
     last_name: '',
     position: '',
     avatar: '',
+    compName: '',
   });
   const router = useRouter();
 
@@ -136,6 +137,8 @@ export default function AccountClient({
     try {
       const res = await api.get(`/api/employee/${userId}`);
       const employee = res.data.data;
+      const compRes = await api.get(`/api/company/${companyId}`);
+      const { name } = compRes.data.data;
 
       setUser({
         name: `${employee.first_name} ${employee.last_name}`,
@@ -143,6 +146,7 @@ export default function AccountClient({
         last_name: employee.last_name || '',
         position: employee.position,
         avatar: employee.pict_dir || '/avatars/default.jpg',
+        compName: name || '',
       });
 
       setEmployeeData({

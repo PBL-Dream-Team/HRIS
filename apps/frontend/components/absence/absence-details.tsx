@@ -58,7 +58,7 @@ export default function AbsenceDetails({
           <SheetTitle>Absence Details</SheetTitle>
         </SheetHeader>
 
-        {selectedAbsence && avatarUrl && (
+        {selectedAbsence && (
           <div className="space-y-4 my-4 px-4">
             {/* Header Info */}
             <div className="flex items-center gap-3 border rounded-md p-4">
