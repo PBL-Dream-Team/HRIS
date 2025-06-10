@@ -431,17 +431,54 @@ export default function AbsenceClient({
     {
       accessorKey: 'actions',
       header: 'Actions',
-      cell: ({ row }: any) => (
-        <Button
-          size="icon"
-          variant="outline"
-          className="hover:text-white hover:bg-blue-600"
-          onClick={() => handleViewDetails(row.original)}
-          title="View Details"
-        >
-          <Eye className="w-4 h-4" />
-        </Button>
-      ),
+      cell: ({ row }: any) => {
+        const status = row.original.status;
+        return (
+          <div className="flex gap-1">
+            <Button
+              size="icon"
+              variant="outline"
+              className="hover:text-white hover:bg-blue-600"
+              onClick={() => handleViewDetails(row.original)}
+              title="View Details"
+            >
+              <Eye className="w-4 h-4" />
+            </Button>
+            <Button
+              size="icon"
+              variant="outline"
+              className={`hover:text-white hover:bg-yellow-500${status !== 'PENDING' ? ' bg-gray-400 text-white cursor-not-allowed' : ''}`}
+              onClick={() => {
+                setAbsenceToEdit({
+                  id: row.original.id,
+                  type: row.original.type,
+                  date: row.original.date,
+                  reason: row.original.reason,
+                  filedir: row.original.filedir,
+                });
+                setOpenEditDialog(true);
+              }}
+              title="Edit"
+              disabled={status !== 'PENDING'}
+            >
+              <Pencil className="w-4 h-4" />
+            </Button>
+            <Button
+              size="icon"
+              variant="outline"
+              className={`hover:text-white hover:bg-red-600${status !== 'PENDING' ? ' bg-gray-400 text-white cursor-not-allowed' : ''}`}
+              onClick={() => {
+                setAbsenceToDelete(row.original);
+                setIsDeleteDialogOpen(true);
+              }}
+              title="Delete"
+              disabled={status !== 'PENDING'}
+            >
+              <Trash2 className="w-4 h-4" />
+            </Button>
+          </div>
+        );
+      },
     },
   ];
 
