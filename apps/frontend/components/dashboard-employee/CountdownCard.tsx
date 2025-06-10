@@ -20,6 +20,7 @@ import {
 } from '@/components/ui/dialog';
 import { CheckClockForm } from '../checkclock/checkclock-form';
 import { AbsenceAddForm } from '../absence/absenceAdd-form';
+import { CheckOutForm } from '@/components/checkout-form';
 
 import api from '@/lib/axios';
 import { formatWorkHours, getTimeRangeInHours, formatTimeOnly, isSameDate } from '@/src/app/user/[id]/employee/checkclock/client';
@@ -76,6 +77,8 @@ export default function CountdownCard({ userId, companyId }: CountdownCardProps)
     const [hasMounted, setHasMounted] = useState(false);
     const [openClockInDialog, setOpenClockInDialog] = useState(false);
     const [openAbsenceDialog, setOpenAbsenceDialog] = useState(false);
+    const [openCheckOutDialog, setOpenCheckOutDialog] = useState(false);
+    const [todayAttendance, setTodayAttendance] = useState<any | null>(null);
 
     const [absences, setAbsences] = useState<Absence[]>([]);
     const [employees, setEmployees] = useState<Record<string, any>>({});
@@ -224,6 +227,15 @@ export default function CountdownCard({ userId, companyId }: CountdownCardProps)
         fetchData();
     }, [userId]);
 
+    useEffect(() => {
+        const today = attendance.find(
+            (att: any) =>
+                isSameDate(new Date(att.created_at), new Date()) &&
+                att.check_in &&
+                !att.check_out
+        );
+        setTodayAttendance(today || null);
+    }, [attendance]);
 
     const handleAddCheckClockSuccess = () => {
         setOpenClockInDialog(false); // Tutup dialog
@@ -238,45 +250,31 @@ export default function CountdownCard({ userId, companyId }: CountdownCardProps)
 
     if (!hasMounted) return null;
 
-
     return (
         <Card>
             <CardHeader className="pb-5">
-                <CardTitle className="text-xl">Countdown</CardTitle>
+                <CardTitle className="text-xl">Check Clock</CardTitle>
             </CardHeader>
             <CardContent>
                 <div className="flex flex-col gap-4">
-                    {/* Card Atas - Countdown Waktu */}
-                    <Card>
-                        <CardHeader className="flex flex-row justify-between items-center">
-                            <div className="flex items-center gap-2">
-                                <span className="w-3 h-3 rounded-full flex-shrink-0 bg-[#1E3A5F]"></span>
-                                <CardTitle className="text-lg font-medium text-muted-foreground">
-                                    Countdown
-                                </CardTitle>
-                            </div>
-                            <div className="text-sm text-muted-foreground">
-                                {formatDate(currentTime)}
-                            </div>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="items-center flex flex-col text-3xl font-semibold">
-                                {formatTime(currentTime)}
-                            </div>
-                        </CardContent>
-                    </Card>
+                    {/* Bagian Atas: Waktu dan Tanggal Sekarang */}
+                    <div className="flex flex-col items-center justify-center py-6">
+                        <span className="text-5xl font-bold text-primary">
+                            {formatTime(currentTime)}
+                        </span>
+                        <span className="text-lg text-muted-foreground mt-2">
+                            {formatDate(currentTime)}
+                        </span>
+                    </div>
 
-                    {/* 2 Card Bawah */}
-                    <div className="grid gap-4 sm:grid-cols-2">
-                        {/* Kiri: Clock In */}
+                    {/* 3 Card Bawah */}
+                    <div className="grid gap-4 sm:grid-cols-3">
+                        {/* Card 1: Clock In */}
                         <Card>
-                            <CardHeader className="flex flex-row">
-                                <div className="flex items-center gap-2">
-                                    <span className="w-3 h-3 rounded-full flex-shrink-0 bg-[#1E3A5F]"></span>
-                                    <CardTitle className="text-lg font-medium text-muted-foreground">
-                                        Clock In
-                                    </CardTitle>
-                                </div>
+                            <CardHeader>
+                                <CardTitle className="text-lg font-medium text-muted-foreground">
+                                    Clock In
+                                </CardTitle>
                             </CardHeader>
                             <CardContent>
                                 <div className="items-center flex flex-col">
@@ -309,15 +307,55 @@ export default function CountdownCard({ userId, companyId }: CountdownCardProps)
                             </CardContent>
                         </Card>
 
-                        {/* Kanan: Add Absence */}
+                        {/* Card 2: Check Out */}
                         <Card>
-                            <CardHeader className="flex flex-row">
-                                <div className="flex items-center gap-2">
-                                    <span className="w-3 h-3 rounded-full flex-shrink-0 bg-[#1E3A5F]"></span>
-                                    <CardTitle className="text-lg font-medium text-muted-foreground">
-                                        Add Absence
-                                    </CardTitle>
+                            <CardHeader>
+                                <CardTitle className="text-lg font-medium text-muted-foreground">
+                                    Clock Out
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="items-center flex flex-col">
+                                    <Dialog open={openCheckOutDialog} onOpenChange={setOpenCheckOutDialog}>
+                                        <DialogTrigger asChild>
+                                            <Button
+                                                variant="outline"
+                                                disabled={!todayAttendance}
+                                                className={!todayAttendance ? 'opacity-50 cursor-not-allowed' : ''}
+                                            >
+                                                <LogIn className="mr-2 h-4 w-4" />
+                                                Clock Out
+                                            </Button>
+                                        </DialogTrigger>
+                                        <DialogContent className="max-w-4xl">
+                                            <DialogHeader>
+                                                <DialogTitle>Check Out</DialogTitle>
+                                            </DialogHeader>
+                                            {todayAttendance ? (
+                                                <CheckOutForm
+                                                    attendanceId={todayAttendance.id}
+                                                    onSuccess={() => {
+                                                        setOpenCheckOutDialog(false);
+                                                        fetchAllCheckclockData();
+                                                    }}
+                                                />
+                                            ) : (
+                                                <div className="text-center text-muted-foreground">
+                                                    Anda sudah melakukan check out hari ini atau belum clock in.
+                                                </div>
+                                            )}
+                                        </DialogContent>
+                                    </Dialog>
                                 </div>
+                            </CardContent>
+                        </Card>
+
+                        {/* Card 3: Add Absence */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="text-lg font-medium text-muted-foreground">
+                                    Add Absence
+                                </CardTitle>
                             </CardHeader>
                             <CardContent>
                                 <div className="items-center flex flex-col">
