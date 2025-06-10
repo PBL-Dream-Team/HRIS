@@ -300,32 +300,6 @@ export default function SubscriptionClient({
           </div>
 
           <div className="flex items-center gap-4">
-            {/* Notification bell */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="relative p-2 rounded-md hover:bg-muted focus:outline-none">
-                  <Bell className="h-5 w-5" />
-                  <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-red-500" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                className="min-w-56 rounded-lg"
-                side="bottom"
-                sideOffset={8}
-                align="end"
-              >
-                <DropdownMenuLabel>Notifications</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>New user registered</DropdownMenuItem>
-                <DropdownMenuItem>Monthly report is ready</DropdownMenuItem>
-                <DropdownMenuItem>Server restarted</DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-center text-blue-600 hover:text-blue-700">
-                  View all
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
             {/* Avatar */}
             <NavUser user={user} isAdmin={isAdmin} />
           </div>
