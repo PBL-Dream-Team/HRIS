@@ -1,0 +1,22 @@
+name: deploy-production
+
+on: [push]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: SSH into GCP VM and deploy
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.PRODUCTION_VM_HOST }}
+          username: ${{ secrets.PRODUCTION_VM_USER }}
+          key: ${{ secrets.PRODUCTION_VM_SSH_KEY }}
+          script: |
+            cd HRIS
+            git pull
+            rm -rf dist
+            npm run build
+            pm2 restart all
+            sudo systemctl restart nginx
