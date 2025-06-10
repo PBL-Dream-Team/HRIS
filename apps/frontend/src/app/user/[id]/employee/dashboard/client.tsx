@@ -33,6 +33,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
+import CountdownCard from '@/components/dashboard-employee/CountdownCard';
 
 type DashboardClientProps = {
   isAdmin: boolean;
@@ -289,7 +290,12 @@ export default function DashboardClient({
                 onChangeMonth={setSelectedMonth}
               />
 
-              <LeaveSummaryCard />
+              <CountdownCard
+                userId={userId}
+                companyId={companyId}
+              />
+              {/* <LeaveSummaryCard /> */}
+
             </div>
             <div className="h-[100px]">
               {/* <WorkHoursOverviewCard /> */}
