@@ -92,22 +92,23 @@ export default function PaymentClient({ company_id }: { company_id: string | nul
           subscription_id: subscription_id,
           total: 0, // Trial is free
           merchantRef: merchant_ref,
-          expiresAt: expiryDate.toISOString()
+          expiresAt: expiryDate.toISOString(),
+          status: 'PAID'
         });
 
         console.log('Transaction created:', transactionResponse.data);
 
-        // Update transaction status to PAID for Trial
-        // You might need to call a separate endpoint to update the status
-        try {
-          await api.patch(`/api/transaction/${transactionResponse.data.id || merchant_ref}`, {
-            status: 'PAID',
-            paidAt: new Date().toISOString()
-          });
-        } catch (updateError) {
-          console.warn('Could not update transaction status:', updateError);
-          // Continue anyway since the main transaction was created
-        }
+        // // Update transaction status to PAID for Trial
+        // // You might need to call a separate endpoint to update the status
+        // try {
+        //   await api.patch(`/api/transaction/${transactionResponse.data.id || merchant_ref}`, {
+        //     status: 'PAID',
+        //     paidAt: new Date().toISOString()
+        //   });
+        // } catch (updateError) {
+        //   console.warn('Could not update transaction status:', updateError);
+        //   // Continue anyway since the main transaction was created
+        // }
 
         // Update company subscription details
         try {

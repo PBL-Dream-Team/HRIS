@@ -1,5 +1,6 @@
 import {
   IsDecimal,
+  IsEnum,
   IsInt,
   IsNotEmpty,
   IsNumber,
@@ -10,6 +11,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Decimal } from '@prisma/client/runtime/library';
 import { Transform } from 'class-transformer';
 import { IsOptional, IsString, Matches } from 'class-validator';
+import { transactionStatus } from './transactionStatus.enum';
 
 export class createTransactionDto {
   @ApiProperty()
@@ -48,4 +50,9 @@ export class createTransactionDto {
   })
   @IsOptional()
   expiresAt;
+
+  @ApiPropertyOptional()
+  @IsEnum(transactionStatus)
+  @IsOptional()
+  status: transactionStatus;
 }
