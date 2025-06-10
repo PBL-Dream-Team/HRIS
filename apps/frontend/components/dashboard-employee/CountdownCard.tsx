@@ -46,6 +46,7 @@ type Absence = {
 };
 
 
+type AbsenceType = 'SICK' | 'PERMIT' | 'LEAVE';
 
 export default function CountdownCard({ userId, companyId }: CountdownCardProps) {
     const [user, setUser] = useState({
