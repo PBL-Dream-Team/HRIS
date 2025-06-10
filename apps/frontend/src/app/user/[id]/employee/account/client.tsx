@@ -95,12 +95,15 @@ export default function AccountClient({
   companyId,
   initialData,
 }: AccountClientProps) {
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  
   const [user, setUser] = useState({
-    name: '',
+    name: 'Loading...',
     first_name: '',
     last_name: '',
     position: '',
-    avatar: '',
+    avatar: '/avatars/default.jpg',
     compName: '',
   });
   const router = useRouter();
@@ -130,52 +133,156 @@ export default function AccountClient({
 
   const [openEditGenDialog, setOpenEditGenDialog] = useState(false);
   const [openEditWorkDialog, setOpenEditWorkDialog] = useState(false);
-  const [openEditPassDialog, setOpenEditPassialog] = useState(false);
+  const [openEditPassDialog, setOpenEditPassDialog] = useState(false);
 
   // Data Fetching
   const fetchData = useCallback(async () => {
+    let mounted = true;
+
+    if (!userId) return;
+
     try {
+      setIsLoading(true);
+      setError(null);
+
+      // If initialData is provided, use it first
+      if (initialData) {
+        if (mounted) {
+          setUser({
+            name: `${String(initialData.first_name || '')} ${String(initialData.last_name || '')}`.trim() || 'Unknown User',
+            first_name: String(initialData.first_name || ''),
+            last_name: String(initialData.last_name || ''),
+            position: String(initialData.position || ''),
+            avatar: String(initialData.pict_dir || '/avatars/default.jpg'),
+            compName: '',
+          });
+
+          setEmployeeData({
+            first_name: String(initialData.first_name || ''),
+            last_name: String(initialData.last_name || ''),
+            gender: String(initialData.gender || ''),
+            last_education: String(initialData.last_education || ''),
+            phone: String(initialData.phone || ''),
+            email: String(initialData.email || ''),
+            nik: String(initialData.nik || ''),
+            birth_place: String(initialData.birth_place || ''),
+            birth_date: String(initialData.birth_date?.split('T')[0] || ''),
+            id: String(initialData.id || ''),
+            pict_dir: String(initialData.pict_dir || ''),
+          });
+
+          setEmployeeWorkData({
+            position: String(initialData.position || ''),
+            branch: String(initialData.branch || ''),
+            contract: String(initialData.contract || ''),
+            workscheme: String(initialData.workscheme || ''),
+            account_bank: String(initialData.account_bank || ''),
+            account_name: String(initialData.account_name || ''),
+            account_number: String(initialData.account_number || ''),
+          });
+
+          setIsLoading(false);
+          return;
+        }
+      }
+
+      // Fetch data from API if no initialData
       const res = await api.get(`/api/employee/${userId}`);
-      const employee = res.data.data;
+      const employee = res.data?.data;
+
+      if (!employee) {
+        throw new Error('Failed to fetch employee data');
+      }
+
+      // Fetch company data
       const compRes = await api.get(`/api/company/${companyId}`);
-      const { name } = compRes.data.data;
+      const { name } = compRes.data?.data || {};
 
-      setUser({
-        name: `${employee.first_name} ${employee.last_name}`,
-        first_name: employee.first_name || '',
-        last_name: employee.last_name || '',
-        position: employee.position,
-        avatar: employee.pict_dir || '/avatars/default.jpg',
-        compName: name || '',
-      });
+      if (mounted) {
+        const firstName = String(employee.first_name || '');
+        const lastName = String(employee.last_name || '');
+        const userAvatar = String(employee.pict_dir || '/avatars/default.jpg');
 
-      setEmployeeData({
-        first_name: employee.first_name || '',
-        last_name: employee.last_name || '',
-        gender: employee.gender || '',
-        last_education: employee.last_education || '',
-        phone: employee.phone || '',
-        email: employee.email || '',
-        nik: employee.nik || '',
-        birth_place: employee.birth_place || '',
-        birth_date: employee.birth_date?.split('T')[0] || '',
-        id: employee.id || '',
-        pict_dir: employee.pict_dir || '',
-      });
+        setUser({
+          name: `${firstName} ${lastName}`.trim() || 'Unknown User',
+          first_name: firstName,
+          last_name: lastName,
+          position: String(employee.position || ''),
+          avatar: userAvatar,
+          compName: name || 'Unknown Company',
+        });
 
-      setEmployeeWorkData({
-        position: employee.position || '',
-        branch: employee.branch || '',
-        contract: employee.contract || '',
-        workscheme: employee.workscheme || '',
-        account_bank: employee.account_bank || '',
-        account_name: employee.account_name || '',
-        account_number: employee.account_number || '',
-      });
+        setEmployeeData({
+          first_name: firstName,
+          last_name: lastName,
+          gender: String(employee.gender || ''),
+          last_education: String(employee.last_education || ''),
+          phone: String(employee.phone || ''),
+          email: String(employee.email || ''),
+          nik: String(employee.nik || ''),
+          birth_place: String(employee.birth_place || ''),
+          birth_date: String(employee.birth_date?.split('T')[0] || ''),
+          id: String(employee.id || ''),
+          pict_dir: String(employee.pict_dir || ''),
+        });
+
+        setEmployeeWorkData({
+          position: String(employee.position || ''),
+          branch: String(employee.branch || ''),
+          contract: String(employee.contract || ''),
+          workscheme: String(employee.workscheme || ''),
+          account_bank: String(employee.account_bank || ''),
+          account_name: String(employee.account_name || ''),
+          account_number: String(employee.account_number || ''),
+        });
+      }
     } catch (err: any) {
       console.error('Error fetching user:', err.response?.data || err.message);
+      
+      if (mounted) {
+        setError('Failed to fetch employee data. Please try again.');
+        // Set safe default values on error
+        setUser({
+          name: 'Unknown User',
+          first_name: '',
+          last_name: '',
+          position: '',
+          avatar: '/avatars/default.jpg',
+          compName: 'Unknown Company',
+        });
+        setEmployeeData({
+          first_name: '',
+          last_name: '',
+          gender: '',
+          last_education: '',
+          email: '',
+          phone: '',
+          nik: '',
+          birth_place: '',
+          birth_date: '',
+          id: '',
+          pict_dir: '',
+        });
+        setEmployeeWorkData({
+          position: '',
+          branch: '',
+          contract: '',
+          workscheme: '',
+          account_bank: '',
+          account_name: '',
+          account_number: '',
+        });
+      }
+    } finally {
+      if (mounted) {
+        setIsLoading(false);
+      }
     }
-  }, [userId, companyId]);
+
+    return () => {
+      mounted = false;
+    };
+  }, [userId, companyId, initialData]);
 
   useEffect(() => {
     fetchData();
@@ -255,6 +362,40 @@ export default function AccountClient({
   };
 
   const [open, setOpen] = useState(false);
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <SidebarProvider>
+        <AppSidebar isAdmin={isAdmin} />
+        <SidebarInset>
+          <div className="flex items-center justify-center h-screen">
+            <div className="flex flex-col items-center gap-4">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+              <div className="text-lg">Loading account data...</div>
+            </div>
+          </div>
+        </SidebarInset>
+      </SidebarProvider>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <SidebarProvider>
+        <AppSidebar isAdmin={isAdmin} />
+        <SidebarInset>
+          <div className="flex items-center justify-center h-screen">
+            <div className="text-center">
+              <div className="text-lg text-red-500 mb-4">{error}</div>
+              <Button onClick={() => fetchData()}>Try Again</Button>
+            </div>
+          </div>
+        </SidebarInset>
+      </SidebarProvider>
+    );
+  }
 
   return (
     <SidebarProvider>
@@ -413,7 +554,7 @@ export default function AccountClient({
                   </DialogContent>
                 </Dialog>
 
-                <Dialog open={openEditPassDialog} onOpenChange={setOpenEditPassialog}>
+                <Dialog open={openEditPassDialog} onOpenChange={setOpenEditPassDialog}>
                   <DialogTrigger asChild>
                     <Button className="w-full md:w-auto">
                       <Pencil className="h-4 w-4 mr-1" /> Change Password
@@ -426,7 +567,7 @@ export default function AccountClient({
                     <EditPassword
                       userId={userId}
                       onSuccess={handleOperationSuccess}
-                      onClose={() => setOpenEditPassialog(false)}
+                      onClose={() => setOpenEditPassDialog(false)}
                     />
                   </DialogContent>
                 </Dialog>

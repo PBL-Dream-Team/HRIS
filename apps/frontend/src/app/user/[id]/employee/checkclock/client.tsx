@@ -120,15 +120,17 @@ export default function CheckClockClient({
   userId,
   companyId,
 }: CheckClockClientProps) {
+  const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState({
-    name: '',
+    name: 'Loading...',
     first_name: '',
     last_name: '',
     position: '',
-    avatar: '',
+    avatar: '/avatars/default.jpg',
     typeId: '',
-    compName: '',
+    compName: 'Loading...',
   });
+  const [error, setError] = useState<string | null>(null);
 
   const router = useRouter();
   const [employees, setEmployee] = useState<any[]>([]);
@@ -158,22 +160,37 @@ export default function CheckClockClient({
 
   // Fungsi untuk fetch data (dipindahkan ke fungsi terpisah untuk reusability)
   const fetchAllData = async () => {
+    let mounted = true;
+
     try {
+      setIsLoading(true);
+      setError(null);
+
       const res = await api.get(`/api/employee/${userId}`);
       const { first_name, last_name, position, attendance_id, pict_dir } =
         res.data.data;
-        const compRes = await api.get(`/api/company/${companyId}`);
+      const compRes = await api.get(`/api/company/${companyId}`);
       const { name } = compRes.data.data;
 
-      setUser({
-        name: `${first_name} ${last_name}`,
-        first_name: first_name,
-        last_name: last_name,
-        position: position,
-        avatar: pict_dir || '/avatars/default.jpg',
-        typeId: attendance_id,
-        compName: name,
-      });
+      if (mounted) {
+        // Ensure all values are strings and handle null/undefined
+        const firstName = String(first_name || '');
+        const lastName = String(last_name || '');
+        const userPosition = String(position || '');
+        const userAvatar = String(pict_dir || '/avatars/default.jpg');
+        const compName = String(name || 'Unknown Company');
+        const typeId = String(attendance_id || '');
+
+        setUser({
+          name: `${firstName} ${lastName}`.trim() || 'Unknown User',
+          first_name: firstName,
+          last_name: lastName,
+          position: userPosition,
+          avatar: userAvatar,
+          typeId: typeId,
+          compName: compName,
+        });
+      }
 
       const [attendanceRes, employeeRes, typeRes, companyRes] =
         await Promise.all([
@@ -183,30 +200,70 @@ export default function CheckClockClient({
           api.get(`api/company?id=${companyId}`),
         ]);
 
-      setEmployee(employeeRes.data ?? []);
+      if (mounted) {
+        // Process data with null safety
+        const employeeData = Array.isArray(employeeRes.data) ? employeeRes.data : [];
+        setEmployee(employeeData);
 
-      const typeMap: Record<string, any> = {};
-      for (const typ of typeRes.data ?? []) {
-        typeMap[typ.id] = typ;
+        const typeMap: Record<string, any> = {};
+        const typeData = Array.isArray(typeRes.data) ? typeRes.data : [];
+        for (const typ of typeData) {
+          if (typ && typ.id) {
+            typeMap[typ.id] = typ;
+          }
+        }
+        setAttendanceType(typeMap);
+
+        const attendanceData = Array.isArray(attendanceRes.data) ? attendanceRes.data : [];
+        const validAttendances = attendanceData.filter(att =>
+          att &&
+          typeof att === 'object' &&
+          att.id &&
+          att.employee_id
+        );
+        setAttendance(validAttendances);
+
+        const companyData = Array.isArray(companyRes.data) ? companyRes.data : [];
+        setCompany(companyData);
       }
-      setAttendanceType(typeMap);
-
-      setAttendance(attendanceRes.data ?? []);
-
-      setCompany(companyRes.data ?? []);
     } catch (err: any) {
       console.error(
         'Error fetching data:',
         err.response?.data || err.message,
       );
-      setAttendance([]);
-      setEmployee([]);
-      setAttendanceType([]);
+
+      if (mounted) {
+        setError('Failed to fetch data. Please try again.');
+        // Set safe default values on error
+        setUser({
+          name: 'Unknown User',
+          first_name: '',
+          last_name: '',
+          position: '',
+          avatar: '/avatars/default.jpg',
+          typeId: '',
+          compName: 'Unknown Company',
+        });
+        setAttendance([]);
+        setEmployee([]);
+        setAttendanceType({});
+        setCompany([]);
+      }
+    } finally {
+      if (mounted) {
+        setIsLoading(false);
+      }
     }
+
+    return () => {
+      mounted = false;
+    };
   };
 
   useEffect(() => {
-    fetchAllData();
+    if (userId && companyId) {
+      fetchAllData();
+    }
   }, [userId, companyId]);
 
   checkclocks = attendances.map((attendance) => {
@@ -223,34 +280,45 @@ export default function CheckClockClient({
       );
     }
 
+    const employeeData = employees[0];
+
     return {
-      id: attendance.id,
+      id: String(attendance.id || ''),
       date: attendance.created_at,
-      name: `${employees[0]?.first_name || ''} ${employees[0]?.last_name || ''}`,
-      avatarUrl: employees[0]?.pict_dir || undefined,
-      position: employees[0]?.position || '',
+      name: employeeData 
+        ? `${employeeData.first_name || ''} ${employeeData.last_name || ''}`.trim() || 'Unknown Employee'
+        : 'Unknown Employee',
+      avatarUrl: employeeData?.pict_dir || undefined,
+      position: String(employeeData?.position || 'N/A'),
       clockIn: formatTimeOnly(attendance.check_in),
       clockOut: attendance.check_out
         ? formatTimeOnly(attendance.check_out)
         : '-',
       // Gunakan formatWorkHours yang baru ditambahkan
       workHours: workHoursValue > 0 ? formatWorkHours(workHoursValue) : '-',
-      status: attendance.check_in_status,
+      status: String(attendance.check_in_status || 'N/A'),
       address: attendance.check_out
-        ? attendance.check_out_address
-        : attendance.check_in_address,
+        ? String(attendance.check_out_address || '')
+        : String(attendance.check_in_address || ''),
       lat: attendance.check_out
-        ? attendance.check_out_lat
-        : attendance.check_in_lat,
+        ? String(attendance.check_out_lat || '')
+        : String(attendance.check_in_lat || ''),
       long: attendance.check_out
-        ? attendance.check_out_long
-        : attendance.check_in_long,
-      location:
-        attendance.check_in_address == company[0]?.address
-          ? 'Office'
-          : employees[0]?.workscheme != 'WFO'
-            ? 'Outside Office (WFA/Hybrid)'
-            : 'Outside Office (WFO)',
+        ? String(attendance.check_out_long || '')
+        : String(attendance.check_in_long || ''),
+      location: (() => {
+        const checkInAddress = String(attendance.check_in_address || '');
+        const companyAddress = String(company[0]?.address || '');
+        const workscheme = String(employeeData?.workscheme || '');
+
+        if (checkInAddress === companyAddress) {
+          return 'Office';
+        } else if (workscheme !== 'WFO') {
+          return 'Outside Office (WFA/Hybrid)';
+        } else {
+          return 'Outside Office (WFO)';
+        }
+      })(),
     };
   });
 
@@ -293,6 +361,40 @@ export default function CheckClockClient({
     setOpenCheckOutDialog(false); // Tutup dialog
     fetchAllData(); // Refresh data
   };
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <SidebarProvider>
+        <AppSidebar isAdmin={isAdmin} />
+        <SidebarInset>
+          <div className="flex items-center justify-center h-screen">
+            <div className="flex flex-col items-center gap-4">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+              <div className="text-lg">Loading checkclock data...</div>
+            </div>
+          </div>
+        </SidebarInset>
+      </SidebarProvider>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <SidebarProvider>
+        <AppSidebar isAdmin={isAdmin} />
+        <SidebarInset>
+          <div className="flex items-center justify-center h-screen">
+            <div className="text-center">
+              <div className="text-lg text-red-500 mb-4">{error}</div>
+              <Button onClick={() => fetchAllData()}>Try Again</Button>
+            </div>
+          </div>
+        </SidebarInset>
+      </SidebarProvider>
+    );
+  }
 
   return (
     <SidebarProvider>

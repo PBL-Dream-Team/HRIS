@@ -53,12 +53,13 @@ export default function DashboardClient({
   userId,
   companyId,
 }: DashboardClientProps) {
+  const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState({
-    name: '',
+    name: 'Loading...',
     first_name: '',
     last_name: '',
     position: '',
-    avatar: '',
+    avatar: '/avatars/default.jpg',
     compName: '',
   });
 
@@ -81,21 +82,37 @@ export default function DashboardClient({
           name: `${first_name} ${last_name}`,
           first_name,
           last_name,
-          position: position || 'Employee', // Provide a default if position is missing
+          position: position || 'Employee',
           avatar: pict_dir || '/avatars/default.jpg',
           compName: name || 'Unknown Company',
         });
       } catch (error) {
         console.error('Failed to fetch user data:', error);
+        setUser({
+          name: 'Unknown User',
+          first_name: '',
+          last_name: '',
+          position: '',
+          avatar: '/avatars/default.jpg',
+          compName: 'Unknown Company',
+        });
       }
     };
 
-    fetchUser();
+    if (userId) {
+      fetchUser();
+    }
   }, [userId]);
 
   useEffect(() => {
+    let mounted = true;
+
     const fetchAttendanceData = async () => {
+      if (!userId) return;
+
       try {
+        setIsLoading(true);
+
         const now = new Date();
         const currentMonth = now.getMonth();
         const currentYear = now.getFullYear();
@@ -151,18 +168,36 @@ export default function DashboardClient({
           );
         }).length;
 
-        setWorkStats({
-          workHours: `${hours}h ${minutes}m`,
-          onTimeDays: onTime,
-          lateDays: late,
-          leaveDays,
-        });
+        if (mounted) {
+          setWorkStats({
+            workHours: `${hours}h ${minutes}m`,
+            onTimeDays: onTime,
+            lateDays: late,
+            leaveDays,
+          });
+        }
       } catch (error) {
         console.error('Failed to fetch attendance data:', error);
+        if (mounted) {
+          setWorkStats({
+            workHours: '0h 0m',
+            onTimeDays: 0,
+            lateDays: 0,
+            leaveDays: 0,
+          });
+        }
+      } finally {
+        if (mounted) {
+          setIsLoading(false);
+        }
       }
     };
 
     fetchAttendanceData();
+
+    return () => {
+      mounted = false;
+    };
   }, [userId]);
 
   type AttendanceSummary = {
@@ -191,7 +226,11 @@ export default function DashboardClient({
   );
 
   useEffect(() => {
+    let mounted = true;
+
     const fetchAttendanceSummary = async () => {
+      if (!userId) return;
+
       try {
         const attendanceRes = await api.get(
           `/api/attendance?employee_id=${userId}`,
@@ -243,14 +282,46 @@ export default function DashboardClient({
           }
         });
 
-        setAttendanceSummary({ onTime, late, leave, sick, permit });
+        if (mounted) {
+          setAttendanceSummary({ onTime, late, leave, sick, permit });
+        }
       } catch (error) {
         console.error('Failed to fetch attendance summary:', error);
+        if (mounted) {
+          setAttendanceSummary({
+            onTime: 0,
+            late: 0,
+            leave: 0,
+            sick: 0,
+            permit: 0,
+          });
+        }
       }
     };
 
     fetchAttendanceSummary();
+
+    return () => {
+      mounted = false;
+    };
   }, [userId, selectedMonth, selectedYear]);
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <SidebarProvider>
+        <AppSidebar isAdmin={isAdmin} />
+        <SidebarInset>
+          <div className="flex items-center justify-center h-screen">
+            <div className="flex flex-col items-center gap-4">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+              <div className="text-lg">Loading dashboard...</div>
+            </div>
+          </div>
+        </SidebarInset>
+      </SidebarProvider>
+    );
+  }
 
   return (
     <SidebarProvider>
