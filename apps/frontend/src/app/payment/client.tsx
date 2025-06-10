@@ -92,9 +92,6 @@ export default function PaymentClient({ company_id }: { company_id: string | nul
           subscription_id: subscription_id,
           total: 0, // Trial is free
           merchantRef: merchant_ref,
-          status: 'PAID', // Set as paid since it's free trial
-          paymentMethod: 'TRIAL', // Special payment method for trial
-          paidAt: new Date().toISOString(),
           expiresAt: expiryDate.toISOString()
         });
 
