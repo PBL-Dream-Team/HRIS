@@ -49,12 +49,6 @@ export function HowToUseSection() {
           </Card>
         ))}
       </div>
-
-      <Link href="/how-it-works">
-        <Button size="lg" className="text-lg px-6 py-4">
-          See More
-        </Button>
-      </Link>
     </div>
   );
 }
