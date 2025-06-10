@@ -157,16 +157,19 @@ export default function SubscriptionClient({
       });
 
       if (mounted) {
-        const transactionData = transactionRes.data?.data;
+        const transactionData = transactionRes.data;
         
-        if (Array.isArray(transactionData)) {
+        // Check if data is directly an array (not nested in .data property)
+        const transactions = Array.isArray(transactionData) ? transactionData : transactionData?.data;
+        
+        if (Array.isArray(transactions)) {
           const fmt: Intl.DateTimeFormatOptions = {
             day: '2-digit',
             month: 'long',
             year: 'numeric',
           };
 
-          const rows: Subscription[] = transactionData
+          const rows: Subscription[] = transactions
             .filter(item => item && typeof item === 'object' && item.id)
             .map((item: any) => {
               // Get subscription type from SUBSCRIPTION_TYPES mapping
@@ -198,9 +201,10 @@ export default function SubscriptionClient({
               };
             });
 
+          console.log('Processed subscriptions:', rows); // Debug log
           setSubscriptions(rows);
         } else {
-          console.warn('Transaction data is not an array:', transactionData);
+          console.warn('Transaction data is not an array:', transactions);
           setSubscriptions([]);
         }
       }
