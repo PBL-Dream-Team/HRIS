@@ -72,12 +72,14 @@ export default function LettersClient({
   const router = useRouter();
 
   // State Hooks
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [user, setUser] = useState<UserState>({
-    name: '',
+    name: 'Loading...',
     first_name: '',
     last_name: '',
     position: '',
-    avatar: '',
+    avatar: '/avatars/default.jpg',
   });
   const [employees, setEmployees] = useState<Record<string, any>>({});
   const [letterTypeMap, setLetterTypeMap] = useState<Record<string, any>>({});
@@ -99,62 +101,144 @@ export default function LettersClient({
 
   // Data Fetching
   const fetchData = useCallback(async () => {
-    try {
-      const userRes = await api.get(`/api/employee/${userId}`);
-      const { first_name, last_name, position, pict_dir } = userRes.data.data;
-      setUser({
-        name: `${first_name} ${last_name}`,
-        first_name: first_name,
-        last_name: last_name,
-        position: position,
-        avatar: pict_dir || '/avatars/default.jpg',
-      });
+    let mounted = true;
 
+    if (!userId || !companyId) return;
+
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      // Fetch user data
+      const userRes = await api.get(`/api/employee/${userId}`);
+      const userData = userRes.data?.data;
+
+      if (mounted && userData) {
+        const { first_name, last_name, position, pict_dir } = userData;
+
+        // Ensure all values are strings and handle null/undefined
+        const firstName = String(first_name || '');
+        const lastName = String(last_name || '');
+        const userPosition = String(position || '');
+        const userAvatar = String(pict_dir || '/avatars/default.jpg');
+
+        setUser({
+          name: `${firstName} ${lastName}`.trim() || 'Unknown User',
+          first_name: firstName,
+          last_name: lastName,
+          position: userPosition,
+          avatar: userAvatar,
+        });
+      }
+
+      // Fetch all other data
       const [lettersRes, employeesRes, typesRes] = await Promise.all([
         api.get(`/api/letter?company_id=${companyId}`),
         api.get(`/api/employee?company_id=${companyId}`),
         api.get(`/api/letterType?company_id=${companyId}`),
       ]);
 
-      const employeeMap: Record<string, any> = {};
-      (employeesRes.data ?? []).forEach((emp: any) => {
-        employeeMap[emp.id] = emp;
-      });
-      setEmployees(employeeMap);
+      if (mounted) {
+        // Process employee data with null safety
+        const employeeMap: Record<string, any> = {};
+        const employeeData = Array.isArray(employeesRes.data) ? employeesRes.data : [];
+        
+        employeeData.forEach((emp: any) => {
+          if (emp && emp.id) {
+            employeeMap[emp.id] = {
+              ...emp,
+              first_name: String(emp.first_name || ''),
+              last_name: String(emp.last_name || ''),
+              position: String(emp.position || ''),
+            };
+          }
+        });
+        setEmployees(employeeMap);
 
-      const typeMap: Record<string, any> = {};
-      (typesRes.data ?? []).forEach((type: any) => {
-        typeMap[type.id] = type;
-      });
-      setLetterTypeMap(typeMap);
+        // Process letter type data with null safety
+        const typeMap: Record<string, any> = {};
+        const typeData = Array.isArray(typesRes.data) ? typesRes.data : [];
+        
+        typeData.forEach((type: any) => {
+          if (type && type.id) {
+            typeMap[type.id] = {
+              ...type,
+              name: String(type.name || 'Unknown Type'),
+            };
+          }
+        });
+        setLetterTypeMap(typeMap);
 
-      setLetters(lettersRes.data ?? []);
+        // Process letters data with null safety
+        const lettersData = Array.isArray(lettersRes.data) ? lettersRes.data : [];
+        const validLetters = lettersData.filter(letter => 
+          letter && 
+          typeof letter === 'object' && 
+          letter.id &&
+          letter.employee_id
+        ).map(letter => ({
+          ...letter,
+          employee_id: String(letter.employee_id || ''),
+          lettertype_id: String(letter.lettertype_id || ''),
+          valid_until: letter.valid_until || new Date().toISOString(),
+        }));
+        
+        setLetters(validLetters);
+      }
+
     } catch (err: any) {
-      console.error('Error fetching data:', err.response?.data || err.message);
-      toast.error(
-        'Failed to load data. Please check the console for more details.',
-      );
+      console.error('Error fetching letters data:', err.response?.data || err.message);
+      
+      if (mounted) {
+        setError('Failed to fetch letters data. Please try again.');
+        // Set safe default values on error
+        setUser({
+          name: 'Unknown User',
+          first_name: '',
+          last_name: '',
+          position: '',
+          avatar: '/avatars/default.jpg',
+        });
+        setEmployees({});
+        setLetterTypeMap({});
+        setLetters([]);
+      }
+    } finally {
+      if (mounted) {
+        setIsLoading(false);
+      }
     }
+
+    return () => {
+      mounted = false;
+    };
   }, [userId, companyId]);
 
   useEffect(() => {
     fetchData();
   }, [fetchData]);
 
-  // Data Transformation
+  // Data Transformation with null safety
   const transformedLetters = useMemo((): Letter[] => {
-    return letters.map((letter) => ({
-      ...letter,
-      employee_name: employees[letter.employee_id]
-        ? `${employees[letter.employee_id].first_name} ${employees[letter.employee_id].last_name}`
-        : 'Unknown',
-      letter_type: letterTypeMap[letter.lettertype_id]?.name || 'Unknown',
-      valid_until: new Date(letter.valid_until).toLocaleDateString('id-ID', {
-        day: '2-digit',
-        month: 'long',
-        year: 'numeric',
-      }),
-    }));
+    return letters.map((letter) => {
+      const employee = employees[letter.employee_id];
+      const letterType = letterTypeMap[letter.lettertype_id];
+
+      return {
+        ...letter,
+        employee_name: employee
+          ? `${String(employee.first_name || '')} ${String(employee.last_name || '')}`.trim() || 'Unknown Employee'
+          : 'Unknown Employee',
+        letter_type: String(letterType?.name || 'Unknown Type'),
+        valid_until: letter.valid_until 
+          ? new Date(letter.valid_until).toLocaleDateString('id-ID', {
+              day: '2-digit',
+              month: 'long',
+              year: 'numeric',
+            })
+          : 'No Date',
+      };
+    });
   }, [letters, employees, letterTypeMap]);
 
   // Event Handlers
@@ -187,8 +271,9 @@ export default function LettersClient({
   const handleLetterOperationSuccess = useCallback(async () => {
     try {
       const lettersRes = await api.get(`/api/letter?company_id=${companyId}`);
-      setLetters(lettersRes.data ?? []);
-      setRefreshTrigger(prev => !prev); // Toggle untuk memicu efek
+      const lettersData = Array.isArray(lettersRes.data) ? lettersRes.data : [];
+      setLetters(lettersData);
+      setRefreshTrigger(prev => !prev);
     } catch (error) {
       console.error('Error refreshing letters:', error);
       toast.error('Failed to refresh letters data');
@@ -199,7 +284,7 @@ export default function LettersClient({
     await fetchData(); // Refresh data
     setOpenAddLetterTypeDialog(false); // Close dialog
     router.refresh(); // Refresh the page
-  }, [fetchData]);
+  }, [fetchData, router]);
 
   // Column Definition for DataTable
   const columns = useMemo(
@@ -211,9 +296,43 @@ export default function LettersClient({
         companyId,
         handleLetterOperationSuccess,
       ),
-    [handleViewDetails, companyId, router],
+    [handleViewDetails, companyId, handleLetterOperationSuccess],
   );
   const [refreshKey, setRefreshKey] = useState(0);
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <SidebarProvider>
+        <AppSidebar isAdmin={isAdmin} />
+        <SidebarInset>
+          <div className="flex items-center justify-center h-screen">
+            <div className="flex flex-col items-center gap-4">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+              <div className="text-lg">Loading letters data...</div>
+            </div>
+          </div>
+        </SidebarInset>
+      </SidebarProvider>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <SidebarProvider>
+        <AppSidebar isAdmin={isAdmin} />
+        <SidebarInset>
+          <div className="flex items-center justify-center h-screen">
+            <div className="text-center">
+              <div className="text-lg text-red-500 mb-4">{error}</div>
+              <Button onClick={() => fetchData()}>Try Again</Button>
+            </div>
+          </div>
+        </SidebarInset>
+      </SidebarProvider>
+    );
+  }
 
   return (
     <SidebarProvider>
@@ -273,7 +392,7 @@ export default function LettersClient({
                     </DialogContent>
                   </Dialog>
 
-                  {/* Add Letter Type Dialog - Updated */}
+                  {/* Add Letter Type Dialog */}
                   <Dialog
                     open={openAddLetterTypeDialog}
                     onOpenChange={setOpenAddLetterTypeDialog}
@@ -296,7 +415,7 @@ export default function LettersClient({
                     </DialogContent>
                   </Dialog>
 
-                  {/* Add Letter Dialog - Updated */}
+                  {/* Add Letter Dialog */}
                   <Dialog
                     open={openAddLetterDialog}
                     onOpenChange={setOpenAddLetterDialog}

@@ -131,12 +131,13 @@ export default function CheckClockClient({
   userId,
   companyId,
 }: CheckClockClientProps) {
+  const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState({
-    name: '',
+    name: 'Loading...',
     first_name: '',
     last_name: '',
     position: '',
-    avatar: '',
+    avatar: '/avatars/default.jpg',
   });
 
   const [employees, setEmployee] = useState<Record<string, any>>({});
@@ -146,76 +147,136 @@ export default function CheckClockClient({
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const [searchTerm, setSearchTerm] = useState('');
+  const [error, setError] = useState<string | null>(null);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
     setCurrentPage(1); // Reset ke halaman pertama saat pencarian berubah
   };
 
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [isWorkschemeOverviewOpen, setIsWorkschemeOverviewOpen] =
-    useState(false);
+  const [isWorkschemeOverviewOpen, setIsWorkschemeOverviewOpen] = useState(false);
 
   const formatDate = (dateString: string) => {
     if (!dateString) return 'No date';
 
     try {
-      // Konversi string ke Date object
       const date = new Date(dateString);
       return format(date, 'PPP', { locale: enUS });
     } catch (error) {
       console.error('Error formatting date:', error);
-      return dateString; // Fallback ke string asli jika error
+      return dateString;
     }
   };
 
   async function fetchData() {
-    setIsLoading(true);
-    setError(null);
+    let mounted = true;
+
     try {
+      setIsLoading(true);
+      setError(null);
+
+      // Fetch user data
       const userRes = await api.get(`/api/employee/${userId}`);
-      const { first_name, last_name, position, pict_dir } = userRes.data.data;
+      const userData = userRes.data?.data;
 
-      setUser({
-        name: `${first_name} ${last_name}`,
-        first_name: first_name,
-        last_name: last_name,
-        position: position,
-        avatar: pict_dir || '/avatars/default.jpg',
-      });
+      if (mounted && userData) {
+        const { first_name, last_name, position, pict_dir } = userData;
 
-      const [attendanceRes, employeeRes, typeRes, companyRes] =
-        await Promise.all([
-          api.get(`api/attendance?company_id=${companyId}`),
-          api.get(`api/employee?company_id=${companyId}`),
-          api.get(`api/attendanceType?company_id=${companyId}`),
-          api.get(`api/company?id=${companyId}`),
-        ]);
+        // Ensure all values are strings and handle null/undefined
+        const firstName = String(first_name || '');
+        const lastName = String(last_name || '');
+        const userPosition = String(position || '');
+        const userAvatar = String(pict_dir || '/avatars/default.jpg');
 
-      const employeeMap: Record<string, any> = {};
-      for (const emp of employeeRes.data ?? []) {
-        employeeMap[emp.id] = emp;
+        setUser({
+          name: `${firstName} ${lastName}`.trim() || 'Unknown User',
+          first_name: firstName,
+          last_name: lastName,
+          position: userPosition,
+          avatar: userAvatar,
+        });
       }
-      setEmployee(employeeMap);
 
-      const typeMap: Record<string, any> = {};
-      for (const typ of typeRes.data ?? []) {
-        typeMap[typ.id] = typ;
+      // Fetch all other data
+      const [attendanceRes, employeeRes, typeRes, companyRes] = await Promise.all([
+        api.get(`api/attendance?company_id=${companyId}`),
+        api.get(`api/employee?company_id=${companyId}`),
+        api.get(`api/attendanceType?company_id=${companyId}`),
+        api.get(`api/company?id=${companyId}`),
+      ]);
+
+      if (mounted) {
+        // Process employee data with null safety
+        const employeeMap: Record<string, any> = {};
+        const employeeData = Array.isArray(employeeRes.data) ? employeeRes.data : [];
+        
+        for (const emp of employeeData) {
+          if (emp && emp.id) {
+            employeeMap[emp.id] = {
+              ...emp,
+              first_name: String(emp.first_name || ''),
+              last_name: String(emp.last_name || ''),
+              position: String(emp.position || ''),
+              pict_dir: String(emp.pict_dir || ''),
+              workscheme: String(emp.workscheme || ''),
+            };
+          }
+        }
+        setEmployee(employeeMap);
+
+        // Process attendance type data with null safety
+        const typeMap: Record<string, any> = {};
+        const typeData = Array.isArray(typeRes.data) ? typeRes.data : [];
+        
+        for (const typ of typeData) {
+          if (typ && typ.id) {
+            typeMap[typ.id] = typ;
+          }
+        }
+        setAttendanceType(typeMap);
+
+        // Process attendance data with null safety
+        const attendanceData = Array.isArray(attendanceRes.data) ? attendanceRes.data : [];
+        const validAttendances = attendanceData.filter(att => 
+          att && 
+          typeof att === 'object' && 
+          att.id && 
+          att.employee_id
+        );
+        setAttendance(validAttendances);
+
+        // Process company data with null safety
+        const companyData = Array.isArray(companyRes.data) ? companyRes.data : [];
+        setCompany(companyData);
       }
-      setAttendanceType(typeMap);
 
-      setAttendance(attendanceRes.data ?? []);
-      setCompany(companyRes.data ?? []);
     } catch (err: any) {
       console.error('Error fetching data:', err.response?.data || err.message);
-      setError('Failed to fetch data. Please try again.');
-      setAttendance([]);
-      setEmployee({});
-      setAttendanceType({});
+      
+      if (mounted) {
+        setError('Failed to fetch data. Please try again.');
+        // Set safe default values on error
+        setUser({
+          name: 'Unknown User',
+          first_name: '',
+          last_name: '',
+          position: '',
+          avatar: '/avatars/default.jpg',
+        });
+        setAttendance([]);
+        setEmployee({});
+        setAttendanceType({});
+        setCompany([]);
+      }
     } finally {
-      setIsLoading(false);
+      if (mounted) {
+        setIsLoading(false);
+      }
     }
+
+    return () => {
+      mounted = false;
+    };
   }
 
   useEffect(() => {
@@ -228,7 +289,7 @@ export default function CheckClockClient({
     return attendances.map((attendance) => {
       const employeeData = employees[attendance.employee_id];
 
-      // Hitung work hours
+      // Hitung work hours dengan null safety
       let workHoursValue = 0;
       if (attendance.check_in && attendance.check_out) {
         workHoursValue = getTimeRangeInHours(
@@ -238,13 +299,13 @@ export default function CheckClockClient({
       }
 
       return {
-        id: attendance.id,
-        employee_id: attendance.employee_id,
+        id: String(attendance.id || ''),
+        employee_id: String(attendance.employee_id || ''),
         name: employeeData
-          ? `${employeeData.first_name} ${employeeData.last_name}`
+          ? `${employeeData.first_name} ${employeeData.last_name}`.trim() || 'Unknown Employee'
           : 'Unknown Employee',
         avatarUrl: employeeData?.pict_dir || undefined,
-        position: employeeData.position ? `${employeeData.position}` : 'N/A',
+        position: String(employeeData?.position || 'N/A'),
         date: attendance.created_at
           ? new Date(attendance.created_at).toLocaleDateString()
           : 'N/A',
@@ -254,28 +315,34 @@ export default function CheckClockClient({
         clockOut: attendance.check_out
           ? formatTimeOnly(attendance.check_out)
           : '-',
-        // Gunakan formatter yang baru
         workHours: workHoursValue > 0 ? formatWorkHours(workHoursValue) : '-',
-        status: attendance.check_in_status || 'N/A',
-        approval: attendance.approval || 'N/A',
+        status: String(attendance.check_in_status || 'N/A'),
+        approval: String(attendance.approval || 'N/A'),
         address: attendance.check_out
-          ? attendance.check_out_address
-          : attendance.check_in_address,
+          ? String(attendance.check_out_address || '')
+          : String(attendance.check_in_address || ''),
         lat: attendance.check_out
-          ? attendance.check_out_lat
-          : attendance.check_in_lat,
+          ? String(attendance.check_out_lat || '')
+          : String(attendance.check_in_lat || ''),
         long: attendance.check_out
-          ? attendance.check_out_long
-          : attendance.check_in_long,
-        location:
-          attendance.check_in_address == company[0].address
-            ? 'Office'
-            : employeeData.workscheme != 'WFO'
-              ? 'Outside Office (WFA/Hybrid)'
-              : 'Outside Office (WFO)',
+          ? String(attendance.check_out_long || '')
+          : String(attendance.check_in_long || ''),
+        location: (() => {
+          const checkInAddress = String(attendance.check_in_address || '');
+          const companyAddress = String(company[0]?.address || '');
+          const workscheme = String(employeeData?.workscheme || '');
+          
+          if (checkInAddress === companyAddress) {
+            return 'Office';
+          } else if (workscheme !== 'WFO') {
+            return 'Outside Office (WFA/Hybrid)';
+          } else {
+            return 'Outside Office (WFO)';
+          }
+        })(),
       };
     });
-  }, [attendances, employees]);
+  }, [attendances, employees, company]);
 
   const filteredCheckclocks = useMemo(() => {
     return checkclocks.filter((checkclock) =>
@@ -284,8 +351,7 @@ export default function CheckClockClient({
   }, [checkclocks, searchTerm]);
 
   const [openSheet, setOpenSheet] = useState(false);
-  const [selectedCheckClock, setSelectedCheckClock] =
-    useState<CheckClockProcessed | null>(null);
+  const [selectedCheckClock, setSelectedCheckClock] = useState<CheckClockProcessed | null>(null);
 
   const handleViewDetails = (checkclock: CheckClockProcessed) => {
     setSelectedCheckClock(checkclock);
@@ -294,7 +360,7 @@ export default function CheckClockClient({
 
   const handleOperationSuccess = useCallback(async () => {
     await fetchData();
-  }, [fetchData]);
+  }, []);
 
   // Pagination logic
   const paginatedCheckclocks = useMemo(() => {
@@ -302,16 +368,6 @@ export default function CheckClockClient({
     const endIndex = startIndex + itemsPerPage;
     return filteredCheckclocks.slice(startIndex, endIndex);
   }, [filteredCheckclocks, currentPage, itemsPerPage]);
-
-  if (isLoading) {
-    // Optional: Render a loading state
-    return <div className="p-10">Loading...</div>;
-  }
-
-  if (error) {
-    // Optional: Render an error message
-    return <div className="p-10 text-red-500">{error}</div>;
-  }
 
   const handleApproval = async (
     id: string,
@@ -326,6 +382,40 @@ export default function CheckClockClient({
       console.error('Approval failed:', err);
     }
   };
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <SidebarProvider>
+        <AppSidebar isAdmin={isAdmin} />
+        <SidebarInset>
+          <div className="flex items-center justify-center h-screen">
+            <div className="flex flex-col items-center gap-4">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+              <div className="text-lg">Loading checkclock data...</div>
+            </div>
+          </div>
+        </SidebarInset>
+      </SidebarProvider>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <SidebarProvider>
+        <AppSidebar isAdmin={isAdmin} />
+        <SidebarInset>
+          <div className="flex items-center justify-center h-screen">
+            <div className="text-center">
+              <div className="text-lg text-red-500 mb-4">{error}</div>
+              <Button onClick={() => fetchData()}>Try Again</Button>
+            </div>
+          </div>
+        </SidebarInset>
+      </SidebarProvider>
+    );
+  }
 
   return (
     <SidebarProvider>

@@ -55,52 +55,135 @@ export default function EmployeeDatabaseClient({
   companyId,
 }: EmployeeDatabaseClientProps) {
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(true);
 
   const [user, setUser] = useState({
-    name: '',
+    name: 'Loading...',
     first_name: '',
     last_name: '',
     position: '',
-    avatar: '',
+    avatar: '/avatars/default.jpg',
   });
-
-  useEffect(() => {
-    async function fetchUser() {
-      try {
-        const res = await api.get(`/api/employee/${userId}`);
-        const { first_name, last_name, position, pict_dir } = res.data.data;
-
-        setUser({
-          name: `${first_name} ${last_name}`,
-          first_name: first_name,
-          last_name: last_name,
-          position: position,
-          avatar: pict_dir || '/avatars/default.jpg',
-        });
-      } catch (err: any) {
-        console.error(
-          'Error fetching user:',
-          err.response?.data || err.message,
-        );
-      }
-    }
-
-    fetchUser();
-  }, [userId]);
 
   const [employees, setEmployees] = useState<any[]>([]);
 
+  useEffect(() => {
+    let mounted = true;
+
+    async function fetchInitialData() {
+      if (!userId || !companyId) return;
+
+      try {
+        setIsLoading(true);
+
+        // Fetch user data
+        const userRes = await api.get(`/api/employee/${userId}`);
+        const userData = userRes.data?.data;
+
+        if (mounted && userData) {
+          const { first_name, last_name, position, pict_dir } = userData;
+
+          // Ensure all values are strings and handle null/undefined
+          const firstName = String(first_name || '');
+          const lastName = String(last_name || '');
+          const userPosition = String(position || '');
+          const userAvatar = String(pict_dir || '/avatars/default.jpg');
+
+          setUser({
+            name: `${firstName} ${lastName}`.trim() || 'Unknown User',
+            first_name: firstName,
+            last_name: lastName,
+            position: userPosition,
+            avatar: userAvatar,
+          });
+        }
+
+        // Fetch employees data
+        const employeesRes = await api.get('/api/employee', {
+          params: { company_id: companyId },
+        });
+
+        if (mounted) {
+          // Ensure employees data is an array and handle null values
+          const employeesData = Array.isArray(employeesRes.data) ? employeesRes.data : [];
+          
+          // Filter out any null/undefined employees and ensure required fields exist
+          const validEmployees = employeesData.filter(emp => 
+            emp && 
+            typeof emp === 'object' && 
+            emp.id &&
+            (emp.first_name || emp.last_name)
+          ).map(emp => ({
+            ...emp,
+            first_name: String(emp.first_name || ''),
+            last_name: String(emp.last_name || ''),
+            gender: String(emp.gender || ''),
+            phone: String(emp.phone || ''),
+            branch: String(emp.branch || ''),
+            position: String(emp.position || ''),
+            pict_dir: String(emp.pict_dir || ''),
+          }));
+
+          setEmployees(validEmployees);
+        }
+
+      } catch (err: any) {
+        console.error('Error fetching initial data:', err.response?.data || err.message);
+        
+        if (mounted) {
+          // Set safe default values on error
+          setUser({
+            name: 'Unknown User',
+            first_name: '',
+            last_name: '',
+            position: '',
+            avatar: '/avatars/default.jpg',
+          });
+          setEmployees([]);
+        }
+      } finally {
+        if (mounted) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    fetchInitialData();
+
+    return () => {
+      mounted = false;
+    };
+  }, [userId, companyId]);
+
+  // Update fetchEmployees function to handle loading state
   const fetchEmployees = async () => {
     try {
       const res = await api.get('/api/employee', {
-        params: { company_id: companyId }, // tambahkan filter company_id
+        params: { company_id: companyId },
       });
-      setEmployees(res.data);
+      
+      const employeesData = Array.isArray(res.data) ? res.data : [];
+      
+      const validEmployees = employeesData.filter(emp => 
+        emp && 
+        typeof emp === 'object' && 
+        emp.id &&
+        (emp.first_name || emp.last_name)
+      ).map(emp => ({
+        ...emp,
+        first_name: String(emp.first_name || ''),
+        last_name: String(emp.last_name || ''),
+        gender: String(emp.gender || ''),
+        phone: String(emp.phone || ''),
+        branch: String(emp.branch || ''),
+        position: String(emp.position || ''),
+        pict_dir: String(emp.pict_dir || ''),
+      }));
+
+      setEmployees(validEmployees);
     } catch (err: any) {
-      console.error(
-        'Error fetching employees:',
-        err.response?.data || err.message,
-      );
+      console.error('Error fetching employees:', err.response?.data || err.message);
+      setEmployees([]);
     }
   };
 
@@ -167,48 +250,59 @@ export default function EmployeeDatabaseClient({
     {
       accessorKey: 'pict_dir',
       header: 'Avatar',
-      cell: ({ row }: any) => (
-        <Avatar className="h-8 w-8 rounded-lg">
-          <AvatarImage
-            src={`/storage/employee/${row.original.pict_dir}`}
-            alt={`${row.original.first_name} ${row.original.last_name}`}
-          />
-          <AvatarFallback className="rounded-lg">
-            {`${row.original.first_name} ${row.original.last_name}`
-              .split(' ')
-              .map((n: string) => n[0])
-              .join('')}
-          </AvatarFallback>
-        </Avatar>
-      ),
+      cell: ({ row }: any) => {
+        const firstName = String(row.original.first_name || '');
+        const lastName = String(row.original.last_name || '');
+        const fullName = `${firstName} ${lastName}`.trim() || 'Unknown';
+        
+        return (
+          <Avatar className="h-8 w-8 rounded-lg">
+            <AvatarImage
+              src={row.original.pict_dir ? `/storage/employee/${row.original.pict_dir}` : '/avatars/default.jpg'}
+              alt={fullName}
+            />
+            <AvatarFallback className="rounded-lg">
+              {fullName
+                .split(' ')
+                .map((n: string) => n[0])
+                .join('')
+                .toUpperCase() || 'UN'}
+            </AvatarFallback>
+          </Avatar>
+        );
+      },
     },
     {
       accessorKey: 'name',
       header: 'Name',
-      cell: ({ row }: any) =>
-        `${row.original.first_name} ${row.original.last_name}`,
+      cell: ({ row }: any) => {
+        const firstName = String(row.original.first_name || '');
+        const lastName = String(row.original.last_name || '');
+        return `${firstName} ${lastName}`.trim() || 'Unknown User';
+      },
     },
     {
       accessorKey: 'gender',
       header: 'Gender',
-      cell: ({ row }: any) =>
-        row.original.gender === 'M'
-          ? 'Male'
-          : row.original.gender === 'F'
-            ? 'Female'
-            : 'Other',
+      cell: ({ row }: any) => {
+        const gender = String(row.original.gender || '').toUpperCase();
+        return gender === 'M' ? 'Male' : gender === 'F' ? 'Female' : 'Other';
+      },
     },
     {
       accessorKey: 'phone',
       header: 'Mobile Number',
+      cell: ({ row }: any) => String(row.original.phone || '-'),
     },
     {
       accessorKey: 'branch',
       header: 'Branch',
+      cell: ({ row }: any) => String(row.original.branch || '-'),
     },
     {
       accessorKey: 'position',
       header: 'Position',
+      cell: ({ row }: any) => String(row.original.position || '-'),
     },
     {
       accessorKey: 'actions',
@@ -259,10 +353,14 @@ export default function EmployeeDatabaseClient({
   );
 
   // Tambahkan setelah employees didefinisikan
-  const employeesWithName = employees.map((emp) => ({
-    ...emp,
-    name: `${emp.first_name} ${emp.last_name}`,
-  }));
+  const employeesWithName = employees.map((emp) => {
+    const firstName = String(emp.first_name || '');
+    const lastName = String(emp.last_name || '');
+    return {
+      ...emp,
+      name: `${firstName} ${lastName}`.trim() || 'Unknown User',
+    };
+  });
 
   const handleExport = async () => {
     try {
@@ -313,6 +411,23 @@ export default function EmployeeDatabaseClient({
       setImporting(false);
     }
   };
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <SidebarProvider>
+        <AppSidebar isAdmin={isAdmin} />
+        <SidebarInset>
+          <div className="flex items-center justify-center h-screen">
+            <div className="flex flex-col items-center gap-4">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+              <div className="text-lg">Loading employee data...</div>
+            </div>
+          </div>
+        </SidebarInset>
+      </SidebarProvider>
+    );
+  }
 
   return (
     <SidebarProvider>

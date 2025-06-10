@@ -229,7 +229,10 @@ export default function DashboardClient({
         <AppSidebar isAdmin={isAdmin} />
         <SidebarInset>
           <div className="flex items-center justify-center h-screen">
-            <div className="text-lg">Loading dashboard...</div>
+            <div className="flex flex-col items-center gap-4">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+              <div className="text-lg">Loading dashboard...</div>
+            </div>
           </div>
         </SidebarInset>
       </SidebarProvider>
