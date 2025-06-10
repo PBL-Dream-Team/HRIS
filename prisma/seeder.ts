@@ -226,7 +226,7 @@ async function main() {
         contract: 'PERMANENT',
         position:"Employee",
         last_education: 'BACHELOR',
-        created_at: '2025-05-02T21:22:35.544+07:00',
+        created_at: '2025-06-02T21:22:35.544+07:00',
       },
       {
         id:'55c6b70e-c924-43df-bd65-f2f70e535e59',
@@ -241,7 +241,7 @@ async function main() {
         contract: 'PERMANENT',
         position:"Employee",
         last_education: 'BACHELOR',
-        created_at: '2025-05-02T21:22:35.544+07:00',
+        created_at: '2025-06-02T21:22:35.544+07:00',
       },
       {
         id:'ad9e0a45-2811-4f64-9363-d1b40c113b8f',
@@ -256,7 +256,7 @@ async function main() {
         contract: 'CONTRACT',
         position:"Employee",
         last_education: 'BACHELOR',
-        created_at: '2025-05-02T21:22:35.544+07:00',
+        created_at: '2025-06-02T21:22:35.544+07:00',
       },
       {
         id:'3b586a4c-0b82-4c32-b30d-0b14d87c5b20',
