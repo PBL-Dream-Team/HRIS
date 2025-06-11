@@ -17,7 +17,16 @@ import {
   /* Content */
 }
 
-export default function EmployeeInformation({ employeeInfo }: { employeeInfo: { total: number; newEmployees: number; activeEmployees: number; absentEmployees: number } }) {
+export default function EmployeeInformation({
+  employeeInfo,
+}: {
+  employeeInfo: {
+    total: number;
+    newEmployees: number;
+    activeEmployees: number;
+    absentEmployees: number;
+  };
+}) {
   const [formattedDate, setFormattedDate] = useState('');
 
   useEffect(() => {

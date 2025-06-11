@@ -201,7 +201,16 @@ export function EmployeeForm({
     formData.append('account_name', accountName);
     formData.append(
       'birth_date',
-      birthDate ? birthDate.toISOString().split('T')[0] : '',
+      birthDate
+        ? (birthDate instanceof Date
+            ? !isNaN(birthDate.getTime())
+              ? birthDate.toISOString().split('T')[0]
+              : ''
+            : (() => {
+                const d = new Date(birthDate);
+                return !isNaN(d.getTime()) ? d.toISOString().split('T')[0] : '';
+              })())
+        : '',
     );
 
     try {
