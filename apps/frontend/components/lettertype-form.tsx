@@ -94,7 +94,10 @@ export function LetterTypeForm({
     <form onSubmit={handleSubmit}>
       <div className="space-y-4">
         <div>
-          <Label htmlFor="letterTypeName">Letter Type Name *</Label>
+          <Label htmlFor="letterTypeName">
+            Letter Type Name
+            <span className="text-red-600"> *</span>
+          </Label>
           <Input
             id="letterTypeName"
             type="text"
@@ -105,8 +108,11 @@ export function LetterTypeForm({
           />
         </div>
         <div>
-          <Label htmlFor="letterTypeContent">Content *</Label>
-          <Input // Menggunakan Textarea untuk konten yang mungkin lebih panjang
+          <Label htmlFor="letterTypeContent">
+            Content
+            <span className="text-red-600"> *</span>
+          </Label>
+          <Input
             id="letterTypeContent"
             placeholder="Enter content for the letter type"
             value={content}
@@ -116,9 +122,10 @@ export function LetterTypeForm({
         </div>
       </div>
       <DialogFooter className="gap-2 pt-6 sm:justify-end">
-        {onClose && ( // Tombol cancel jika onClose disediakan
+        {onClose && (
           <Button
             type="button"
+            className="w-24"
             variant="outline"
             onClick={onClose}
             disabled={isLoading}

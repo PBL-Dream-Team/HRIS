@@ -18,7 +18,6 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 
-
 type WorkInformationProps = {
   workHours: string;
   onTimeDays: number;
@@ -32,8 +31,8 @@ export default function WorkInformation({
   leaveDays,
 }: WorkInformationProps) {
   return (
-    <div className="grid auto-rows-min gap-4 md:grid-cols-4 sm:grid-cols-2">
-      <Card className="@container/card border-black border-3">
+    <div className="grid auto-rows-min gap-4 grid-cols-2 sm:grid-cols-2 md:grid-cols-4">
+      <Card className="@container/card">
         <CardHeader className="relative">
           <CardTitle>
             <div className="flex items-center gap-2">
@@ -47,7 +46,7 @@ export default function WorkInformation({
         </CardHeader>
       </Card>
 
-      <Card className="@container/card border-black border-3">
+      <Card className="@container/card">
         <CardHeader className="relative">
           <CardTitle>
             <div className="flex items-center gap-2">
@@ -61,7 +60,7 @@ export default function WorkInformation({
         </CardHeader>
       </Card>
 
-      <Card className="@container/card border-black border-3">
+      <Card className="@container/card">
         <CardHeader className="relative">
           <CardTitle>
             <div className="flex items-center gap-2">
@@ -75,7 +74,7 @@ export default function WorkInformation({
         </CardHeader>
       </Card>
 
-      <Card className="@container/card border-black border-3">
+      <Card className="@container/card">
         <CardHeader className="relative">
           <CardTitle>
             <div className="flex items-center gap-2">

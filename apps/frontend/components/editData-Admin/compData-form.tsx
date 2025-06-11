@@ -234,7 +234,10 @@ export function EditCompany({
 
         <div className="grid grid-cols-1 gap-4">
           <div>
-            <Label>Company Name *</Label>
+            <Label>
+              Company Name 
+              <span className='text-red-600'> *</span>
+            </Label>
             <Input
               id="name"
               value={name}
@@ -244,7 +247,10 @@ export function EditCompany({
           </div>
 
           <div>
-            <Label>Company Address *</Label>
+            <Label>
+              Company Address 
+              <span className='text-red-600'> *</span>
+            </Label>
             <div className="flex gap-2">
               <Input
                 value={address}
@@ -273,7 +279,7 @@ export function EditCompany({
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label>Latitude *</Label>
+              <Label>Latitude</Label>
               <Input
                 value={loc_lat}
                 onChange={(e) => setLocLat(e.target.value)}
@@ -282,7 +288,7 @@ export function EditCompany({
               />
             </div>
             <div>
-              <Label>Longitude *</Label>
+              <Label>Longitude</Label>
               <Input
                 value={loc_long}
                 onChange={(e) => setLocLong(e.target.value)}

@@ -32,6 +32,7 @@ interface Workscheme {
   workspace_lat: number | string;
   workspace_long: number | string;
   company_id: string;
+  workscheme: 'WFO' | 'WFA' | 'HYBRID'; // Add this property
 }
 
 type WorkschemeOverviewContentProps = {
@@ -122,7 +123,7 @@ export function WorkschemeOverviewContent({
         toast.error('Workscheme is still used by existing attendance records.');
       } else {
         toast.error(
-          `Unexpected response: ${response.data.message || 'Unknown error'}`,
+          `Error: ${response.data.message || 'Unknown error'}`,
         );
       }
     } catch (error: any) {
@@ -172,15 +173,15 @@ export function WorkschemeOverviewContent({
                   <div className="flex flex-col">
                     <span>{workscheme.name}</span>
                     <span className="text-xs text-gray-500">
-                      {workscheme.name.toLowerCase().includes('wfo') &&
+                      {workscheme.workscheme.toLowerCase().includes('wfo') &&
                         '🏢 Office'}
-                      {workscheme.name.toLowerCase().includes('wfa') &&
+                      {workscheme.workscheme.toLowerCase().includes('wfa') &&
                         '🌍 Anywhere'}
-                      {workscheme.name.toLowerCase().includes('hybrid') &&
+                      {workscheme.workscheme.toLowerCase().includes('hybrid') &&
                         '🔄 Hybrid'}
-                      {!workscheme.name.toLowerCase().includes('wfo') &&
-                        !workscheme.name.toLowerCase().includes('wfa') &&
-                        !workscheme.name.toLowerCase().includes('hybrid') &&
+                      {!workscheme.workscheme.toLowerCase().includes('wfo') &&
+                        !workscheme.workscheme.toLowerCase().includes('wfa') &&
+                        !workscheme.workscheme.toLowerCase().includes('hybrid') &&
                         '📋 Custom'}
                     </span>
                   </div>
@@ -275,7 +276,10 @@ export function WorkschemeOverviewContent({
             <WorkshemeForm
               companyId={companyId}
               mode="edit"
-              initialData={editData}
+              initialData={{
+                ...editData,
+                workscheme: editData.workscheme || 'WFO' // Provide default if missing
+              }}
               onSuccess={() => {
                 fetchWorkschemes();
                 setIsDialogOpen(false);

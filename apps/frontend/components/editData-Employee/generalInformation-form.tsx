@@ -300,7 +300,9 @@ export function EmployeeEditGeneralDataForm({
 
         {/* First Name */}
         <div>
-          <Label htmlFor="first_name">First Name *</Label>
+          <Label htmlFor="first_name">First Name 
+            <span className='text-red-600'> *</span>
+          </Label>
           <Input
             id="first_name"
             value={first_name}
@@ -312,7 +314,10 @@ export function EmployeeEditGeneralDataForm({
 
         {/* Last Name */}
         <div>
-          <Label htmlFor="last_name">Last Name *</Label>
+          <Label htmlFor="last_name">
+            Last Name 
+            <span className='text-red-600'> *</span>
+          </Label>
           <Input
             id="last_name"
             value={last_name}
@@ -324,7 +329,10 @@ export function EmployeeEditGeneralDataForm({
 
         {/* Gender */}
         <div>
-          <Label>Gender *</Label>
+          <Label>
+            Gender 
+            <span className='text-red-600'> *</span>
+          </Label>
           <Select
             value={gender}
             onValueChange={handleGenderChange}
@@ -351,7 +359,10 @@ export function EmployeeEditGeneralDataForm({
 
         {/* Last Education */}
         <div>
-          <Label>Last Education *</Label>
+          <Label>
+            Last Education 
+            <span className='text-red-600'> *</span>
+          </Label>
           <Select
             value={last_education}
             onValueChange={handleEducationChange}
@@ -375,7 +386,10 @@ export function EmployeeEditGeneralDataForm({
 
         {/* Phone Number */}
         <div>
-          <Label htmlFor="phone">Phone Number *</Label>
+          <Label htmlFor="phone">
+            Phone Number 
+            <span className='text-red-600'> *</span>
+          </Label>
           <Input
             id="phone"
             value={phone}
@@ -386,7 +400,10 @@ export function EmployeeEditGeneralDataForm({
 
         {/* NIK */}
         <div>
-          <Label htmlFor="nik">NIK *</Label>
+          <Label htmlFor="nik">
+            NIK 
+            <span className='text-red-600'> *</span>
+          </Label>
           <Input
             id="nik"
             value={nik}
@@ -398,7 +415,10 @@ export function EmployeeEditGeneralDataForm({
 
         {/* Birth Place */}
         <div>
-          <Label htmlFor="birth_place">Place of birth *</Label>
+          <Label htmlFor="birth_place">
+            Place of birth 
+            <span className='text-red-600'> *</span>
+          </Label>
           <Input
             id="birth_place"
             value={birth_place}
@@ -409,7 +429,10 @@ export function EmployeeEditGeneralDataForm({
 
         {/* Birth Date */}
         <div>
-          <Label htmlFor="birth_date">Date of Birth *</Label>
+          <Label htmlFor="birth_date">
+            Date of Birth 
+            <span className='text-red-600'> *</span>
+          </Label>
           <div className="relative">
             <Input
               id="birth_date"

@@ -27,11 +27,6 @@ export const letterColumns = (
     enableColumnFilter: true,
   },
   {
-    accessorKey: 'employee_name',
-    header: 'Employee Name',
-    enableSorting: true,
-  },
-  {
     accessorKey: 'letter_type',
     header: 'Letter Type',
     enableSorting: true,

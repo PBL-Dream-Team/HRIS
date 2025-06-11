@@ -1,14 +1,17 @@
 import {
   IsDate,
+  IsEnum,
   IsLatitude,
   IsLongitude,
   IsNotEmpty,
+  IsOptional,
   IsString,
   IsUUID,
   Matches,
 } from '@nestjs/class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
+import { workscheme } from './workscheme.enum';
 
 export class createAttendanceTypeDto {
   @ApiProperty()
@@ -40,6 +43,11 @@ export class createAttendanceTypeDto {
   })
   @IsNotEmpty()
   check_out: Date;
+
+  @ApiPropertyOptional()
+  @IsEnum(workscheme, { message: '' })
+  @IsOptional()
+  workscheme: workscheme;
 
   @ApiProperty()
   @IsString()

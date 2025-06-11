@@ -35,33 +35,34 @@ export function TeamSwitcher({
         <img
           src={activeTeam.logo}
           alt={activeTeam.name}
-          className="size-6 object-contain"
+          className="h-6 w-6 object-contain mx-auto my-auto"
         />
       );
     } else {
       const LogoIcon = activeTeam.logo;
-      return <LogoIcon className="size-6" />;
+      return <LogoIcon className="h-6 w-6 mx-auto my-auto" />;
     }
   };
 
   return (
     <SidebarMenu>
       <SidebarMenuItem>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <SidebarMenuButton
-              size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-            >
-              <div className="text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center">
-                {renderLogo()}
-              </div>
-              <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{activeTeam.name}</span>
-              </div>
-            </SidebarMenuButton>
-          </DropdownMenuTrigger>
-        </DropdownMenu>
+        <div className="flex h-12 min-w-8 flex-1 items-center gap-2 overflow-hidden rounded-md px-1.5 text-left outline-none ring-sidebar-ring transition-all hover:bg-transparent focus-visible:ring-2 data-[disabled]:pointer-events-none data-[state=open]:hover:bg-transparent data-[disabled]:opacity-50 group-has-[[data-sidebar=menu-button]]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active]:bg-transparent data-[state=open]:bg-transparent lg:text-sm lg:leading-6 group-data-[collapsible=icon]:!size-8 group-data-[collapsible=icon]:!p-2 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 cursor-default">
+          <div className="text-sidebar-primary-foreground flex aspect-square size-8 h-full items-center justify-center">
+            {typeof activeTeam.logo === 'string' ? (
+              <img
+                src={activeTeam.logo}
+                alt={activeTeam.name}
+                className="h-6 w-6 object-contain block"
+              />
+            ) : (
+              (() => { const LogoIcon = activeTeam.logo; return <LogoIcon className="h-6 w-6 block" />; })()
+            )}
+          </div>
+          <div className="grid flex-1 text-left text-sm leading-tight">
+            <span className="truncate font-medium">{activeTeam.name}</span>
+          </div>
+        </div>
       </SidebarMenuItem>
     </SidebarMenu>
   );

@@ -31,7 +31,7 @@ export const letterColumns = (
   setLetterToDelete: (letter: Letter) => void,
   setDeleteDialogOpen: (open: boolean) => void,
   companyId: string,
-  router: any,
+  refreshData: () => void,
 ): ColumnDef<Letter>[] => [
   {
     accessorKey: 'name',
@@ -129,7 +129,7 @@ export const letterColumns = (
                 <Pencil className="h-4 w-4" />
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl">
+            <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Edit Letter</DialogTitle>
               </DialogHeader>
@@ -138,9 +138,8 @@ export const letterColumns = (
                 companyId={companyId}
                 initialData={letter}
                 onSuccess={() => {
-                  window.location.reload();
-                  router.refresh();
                   setEditDialogOpen(false);
+                  refreshData();
                 }}
               />
             </DialogContent>

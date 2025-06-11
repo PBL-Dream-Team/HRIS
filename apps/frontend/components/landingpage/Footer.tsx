@@ -48,7 +48,7 @@ export function Footer() {
           <h3 className="text-lg font-semibold mb-3">Help</h3>
           <ul className="space-y-2 text-sm text-gray-300">
             <li>
-              <Link href="/contact" className="hover:underline">
+              <Link href="http://wa.me/+62895326254200" className="hover:underline">
                 Contact Us
               </Link>
             </li>

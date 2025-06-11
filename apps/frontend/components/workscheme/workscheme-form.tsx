@@ -9,6 +9,7 @@ import api from '@/lib/axios';
 import { toast } from 'sonner';
 import MapPicker from '@/components/clickable-map/map-picker';
 import { Search } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface WorkshemeForm {
   id: string;
@@ -19,7 +20,11 @@ interface WorkshemeForm {
   workspace_lat: number | string;
   workspace_long: number | string;
   company_id: string;
+  workscheme: WorkSchemeType;
 }
+
+// Tambahkan enum WorkSchemeType
+export type WorkSchemeType = 'WFO' | 'WFA' | 'HYBRID';
 
 type WorkshemeFormProps = {
   companyId: string;
@@ -28,6 +33,12 @@ type WorkshemeFormProps = {
   onSuccess?: () => void;
   onClose?: () => void;
 };
+
+const workschemeOptions = [
+  { value: 'WFO', label: 'WFO' },
+  { value: 'WFA', label: 'WFA' },
+  { value: 'HYBRID', label: 'Hybrid' },
+];
 
 export function WorkshemeForm({
   companyId,
@@ -42,6 +53,7 @@ export function WorkshemeForm({
   const [workspaceAddress, setWorkspaceAddress] = useState('');
   const [workspaceLat, setWorkspaceLat] = useState<string>('');
   const [workspaceLong, setWorkspaceLong] = useState<string>('');
+  const [workscheme, setWorkscheme] = useState<WorkSchemeType | ''>('');
   const [isLoading, setIsLoading] = useState(false);
   const [isMapLoading, setIsMapLoading] = useState(true);
   const [isGeocoding, setIsGeocoding] = useState(false);
@@ -87,36 +99,39 @@ export function WorkshemeForm({
   // Helper function to convert time string to minutes for comparison
   const timeToMinutes = (timeString: string): number => {
     if (!timeString) return 0;
-    
+
     const [hours, minutes, seconds] = timeString.split(':').map(Number);
-    return (hours * 60) + minutes + (seconds / 60);
+    return hours * 60 + minutes + seconds / 60;
   };
 
   // Validate time comparison
-  const validateTimeComparison = (checkInTime: string, checkOutTime: string): boolean => {
+  const validateTimeComparison = (
+    checkInTime: string,
+    checkOutTime: string,
+  ): boolean => {
     if (!checkInTime || !checkOutTime) return true; // Skip validation if either is empty
-    
+
     const checkInMinutes = timeToMinutes(checkInTime);
     const checkOutMinutes = timeToMinutes(checkOutTime);
-    
+
     if (checkOutMinutes <= checkInMinutes) {
       setTimeError('Clock out time must be later than clock in time');
       return false;
     }
-    
+
     // Check if the time difference is reasonable (at least 1 hour)
     const timeDifferenceHours = (checkOutMinutes - checkInMinutes) / 60;
     if (timeDifferenceHours < 1) {
       setTimeError('Work duration must be at least 1 hour');
       return false;
     }
-    
+
     // Check if work duration is not too long (more than 24 hours)
     if (timeDifferenceHours > 24) {
       setTimeError('Work duration cannot exceed 24 hours');
       return false;
     }
-    
+
     setTimeError('');
     return true;
   };
@@ -124,9 +139,15 @@ export function WorkshemeForm({
   // Real-time validation when times change
   useEffect(() => {
     if (checkIn && checkOut) {
-      const checkInTime = checkIn.includes(':') && checkIn.length === 5 ? `${checkIn}:00` : checkIn;
-      const checkOutTime = checkOut.includes(':') && checkOut.length === 5 ? `${checkOut}:00` : checkOut;
-      
+      const checkInTime =
+        checkIn.includes(':') && checkIn.length === 5
+          ? `${checkIn}:00`
+          : checkIn;
+      const checkOutTime =
+        checkOut.includes(':') && checkOut.length === 5
+          ? `${checkOut}:00`
+          : checkOut;
+
       validateTimeComparison(checkInTime, checkOutTime);
     } else {
       setTimeError('');
@@ -142,6 +163,7 @@ export function WorkshemeForm({
       setWorkspaceAddress(initialData.workspace_address || '');
       setWorkspaceLat(initialData.workspace_lat?.toString() || '');
       setWorkspaceLong(initialData.workspace_long?.toString() || '');
+      setWorkscheme(initialData.workscheme || '');
     } else {
       // Reset form for create mode
       setName('');
@@ -150,6 +172,7 @@ export function WorkshemeForm({
       setWorkspaceAddress('');
       setWorkspaceLat('');
       setWorkspaceLong('');
+      setWorkscheme('');
       setTimeError('');
     }
   }, [mode, initialData]);
@@ -335,7 +358,8 @@ export function WorkshemeForm({
       const checkInTimestamp = timeStringToTimestamp(checkInTime);
       const checkOutTimestamp = timeStringToTimestamp(checkOutTime);
 
-      const payload = {
+      // Build payload, only include workscheme if valid
+      const payload: any = {
         name,
         check_in: checkInTimestamp,
         check_out: checkOutTimestamp,
@@ -344,15 +368,18 @@ export function WorkshemeForm({
         workspace_long: workspaceLong ? parseFloat(workspaceLong) : null,
         company_id: companyId,
       };
+      if (workscheme === 'WFO' || workscheme === 'WFA' || workscheme === 'HYBRID') {
+        payload.workscheme = workscheme;
+      }
 
       console.log('Payload being sent:', payload);
 
       if (mode === 'create') {
         await api.post('/api/attendanceType', payload);
-        toast.success('Attendance type created successfully!');
+        toast.success('Workscheme created successfully!');
       } else if (mode === 'edit' && initialData?.id) {
         await api.patch(`/api/attendanceType/${initialData.id}`, payload);
-        toast.success('Attendance type updated successfully!');
+        toast.success('Workscheme updated successfully!');
       }
 
       if (mode === 'create') {
@@ -363,6 +390,7 @@ export function WorkshemeForm({
         setWorkspaceAddress('');
         setWorkspaceLat('');
         setWorkspaceLong('');
+        setWorkscheme('');
         setTimeError('');
         setMapKey((prev) => prev + 1);
       }
@@ -416,7 +444,10 @@ export function WorkshemeForm({
           </div>
 
           <div>
-            <Label>Workscheme Address</Label>
+            <Label>
+              Workscheme Address
+              <span className="text-red-600"> *</span>
+            </Label>
             <div className="flex gap-2">
               <Input
                 value={workspaceAddress}
@@ -469,7 +500,10 @@ export function WorkshemeForm({
         {/* Right Column - Form Fields */}
         <div className="space-y-4">
           <div>
-            <Label htmlFor="workscheme-name">Workscheme Name *</Label>
+            <Label htmlFor="workscheme-name">
+              Workscheme Name
+              <span className="text-red-600"> *</span>
+            </Label>
             <Input
               id="workscheme-name"
               type="text"
@@ -481,7 +515,10 @@ export function WorkshemeForm({
           </div>
 
           <div>
-            <Label htmlFor="check-in">Clock In Time *</Label>
+            <Label htmlFor="check-in">
+              Clock In Time
+              <span className="text-red-600"> *</span>
+            </Label>
             <Input
               id="check-in"
               type="time"
@@ -494,7 +531,10 @@ export function WorkshemeForm({
           </div>
 
           <div>
-            <Label htmlFor="check-out">Clock Out Time *</Label>
+            <Label htmlFor="check-out">
+              Clock Out Time
+              <span className="text-red-600"> *</span>
+            </Label>
             <Input
               id="check-out"
               type="time"
@@ -507,6 +547,31 @@ export function WorkshemeForm({
             {timeError && (
               <p className="text-red-500 text-xs mt-1">{timeError}</p>
             )}
+          </div>
+
+          <div>
+            <Label>
+              Workscheme
+              <span className="text-red-600"> *</span>
+            </Label>
+            <Select
+              value={workscheme}
+              onValueChange={value => setWorkscheme(value as WorkSchemeType)}
+              key={`workscheme-${workscheme}`}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select workscheme">
+                  {workschemeOptions.find((opt) => opt.value === workscheme)?.label || 'Select workscheme'}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {workschemeOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="p-4 bg-gray-50 rounded-lg">
@@ -526,7 +591,8 @@ export function WorkshemeForm({
                 • Workspace location is optional for flexible arrangements
               </li>
               <li>
-                • <strong>Time Rules:</strong> Clock out must be later than clock in, minimum 1 hour duration
+                • <strong>Time Rules:</strong> Clock out must be later than
+                clock in, minimum 1 hour duration
               </li>
             </ul>
           </div>
@@ -537,6 +603,7 @@ export function WorkshemeForm({
         {onClose && (
           <Button
             type="button"
+            className="w-24"
             variant="outline"
             onClick={onClose}
             disabled={isLoading}

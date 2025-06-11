@@ -33,6 +33,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
+import CountdownCard from '@/components/dashboard-employee/CountdownCard';
 
 type DashboardClientProps = {
   isAdmin: boolean;
@@ -52,12 +53,14 @@ export default function DashboardClient({
   userId,
   companyId,
 }: DashboardClientProps) {
+  const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState({
-    name: '',
+    name: 'Loading...',
     first_name: '',
     last_name: '',
     position: '',
-    avatar: '',
+    avatar: '/avatars/default.jpg',
+    compName: '',
   });
 
   const [workStats, setWorkStats] = useState<WorkStats>({
@@ -67,31 +70,49 @@ export default function DashboardClient({
     leaveDays: 0,
   });
 
-
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const userRes = await api.get(`/api/employee/${userId}`);
         const { first_name, last_name, email, pict_dir, position } = userRes.data.data;
+        const compRes = await api.get(`/api/company/${companyId}`);
+        const { name } = compRes.data.data;
 
         setUser({
           name: `${first_name} ${last_name}`,
           first_name,
           last_name,
-          position: position || 'Employee', // Provide a default if position is missing
+          position: position || 'Employee',
           avatar: pict_dir || '/avatars/default.jpg',
+          compName: name || 'Unknown Company',
         });
       } catch (error) {
         console.error('Failed to fetch user data:', error);
+        setUser({
+          name: 'Unknown User',
+          first_name: '',
+          last_name: '',
+          position: '',
+          avatar: '/avatars/default.jpg',
+          compName: 'Unknown Company',
+        });
       }
     };
 
-    fetchUser();
+    if (userId) {
+      fetchUser();
+    }
   }, [userId]);
 
   useEffect(() => {
+    let mounted = true;
+
     const fetchAttendanceData = async () => {
+      if (!userId) return;
+
       try {
+        setIsLoading(true);
+
         const now = new Date();
         const currentMonth = now.getMonth();
         const currentYear = now.getFullYear();
@@ -108,10 +129,15 @@ export default function DashboardClient({
           const month = date.getMonth();
           const year = date.getFullYear();
 
-          if (month === currentMonth && year === currentYear && record.approval === 'APPROVED') {
+          if (
+            month === currentMonth &&
+            year === currentYear &&
+            record.approval === 'APPROVED'
+          ) {
             const checkInTime = new Date(record.check_in);
             const checkOutTime = new Date(record.check_out);
-            const workDuration = (checkOutTime.getTime() - checkInTime.getTime()) / (1000 * 60); // in minutes
+            const workDuration =
+              (checkOutTime.getTime() - checkInTime.getTime()) / (1000 * 60); // in minutes
             if (workDuration > 0) {
               totalMinutes += workDuration;
             }
@@ -135,23 +161,43 @@ export default function DashboardClient({
           const date = new Date(a.created_at);
           const month = date.getMonth();
           const year = date.getFullYear();
-          return a.status === 'APPROVED' && month === currentMonth && year === currentYear;
+          return (
+            a.status === 'APPROVED' &&
+            month === currentMonth &&
+            year === currentYear
+          );
         }).length;
 
-        setWorkStats({
-          workHours: `${hours}h ${minutes}m`,
-          onTimeDays: onTime,
-          lateDays: late,
-          leaveDays,
-        });
-
-
+        if (mounted) {
+          setWorkStats({
+            workHours: `${hours}h ${minutes}m`,
+            onTimeDays: onTime,
+            lateDays: late,
+            leaveDays,
+          });
+        }
       } catch (error) {
         console.error('Failed to fetch attendance data:', error);
+        if (mounted) {
+          setWorkStats({
+            workHours: '0h 0m',
+            onTimeDays: 0,
+            lateDays: 0,
+            leaveDays: 0,
+          });
+        }
+      } finally {
+        if (mounted) {
+          setIsLoading(false);
+        }
       }
     };
 
     fetchAttendanceData();
+
+    return () => {
+      mounted = false;
+    };
   }, [userId]);
 
   type AttendanceSummary = {
@@ -161,24 +207,34 @@ export default function DashboardClient({
     sick: number;
     permit: number;
   };
-  const [attendanceSummary, setAttendanceSummary] = useState<AttendanceSummary>({
-    onTime: 0,
-    late: 0,
-    leave: 0,
-    sick: 0,
-    permit: 0,
-  });
+  const [attendanceSummary, setAttendanceSummary] = useState<AttendanceSummary>(
+    {
+      onTime: 0,
+      late: 0,
+      leave: 0,
+      sick: 0,
+      permit: 0,
+    },
+  );
 
   const currentDate = new Date();
   const [selectedMonth, setSelectedMonth] = useState(
-    String(currentDate.getMonth() + 1).padStart(2, '0') // Misal '06'
+    String(currentDate.getMonth() + 1).padStart(2, '0'), // Misal '06'
   );
-  const [selectedYear, setSelectedYear] = useState(String(currentDate.getFullYear()));
+  const [selectedYear, setSelectedYear] = useState(
+    String(currentDate.getFullYear()),
+  );
 
   useEffect(() => {
+    let mounted = true;
+
     const fetchAttendanceSummary = async () => {
+      if (!userId) return;
+
       try {
-        const attendanceRes = await api.get(`/api/attendance?employee_id=${userId}`);
+        const attendanceRes = await api.get(
+          `/api/attendance?employee_id=${userId}`,
+        );
         const attendances = attendanceRes.data;
 
         let onTime = 0;
@@ -188,8 +244,8 @@ export default function DashboardClient({
           const date = new Date(record.created_at);
           const month = String(date.getMonth() + 1).padStart(2, '0');
           const year = String(date.getFullYear());
-
-          if (month === selectedMonth && year === selectedYear) {
+          
+          if (month === selectedMonth && year === selectedYear && record.approval === 'APPROVED') {
             if (record.check_in_status === 'ON_TIME') onTime++;
             else if (record.check_in_status === 'LATE') late++;
           }
@@ -207,25 +263,65 @@ export default function DashboardClient({
           const month = String(date.getMonth() + 1).padStart(2, '0');
           const year = String(date.getFullYear());
 
-          if (item.status === 'APPROVED' && month === selectedMonth && year === selectedYear) {
+          if (
+            item.status === 'APPROVED' &&
+            month === selectedMonth &&
+            year === selectedYear
+          ) {
             switch (item.type) {
-              case 'LEAVE': leave++; break;
-              case 'SICK': sick++; break;
-              case 'PERMIT': permit++; break;
+              case 'LEAVE':
+                leave++;
+                break;
+              case 'SICK':
+                sick++;
+                break;
+              case 'PERMIT':
+                permit++;
+                break;
             }
           }
         });
 
-        setAttendanceSummary({ onTime, late, leave, sick, permit });
+        if (mounted) {
+          setAttendanceSummary({ onTime, late, leave, sick, permit });
+        }
       } catch (error) {
         console.error('Failed to fetch attendance summary:', error);
+        if (mounted) {
+          setAttendanceSummary({
+            onTime: 0,
+            late: 0,
+            leave: 0,
+            sick: 0,
+            permit: 0,
+          });
+        }
       }
     };
 
     fetchAttendanceSummary();
+
+    return () => {
+      mounted = false;
+    };
   }, [userId, selectedMonth, selectedYear]);
 
-
+  // Show loading state
+  if (isLoading) {
+    return (
+      <SidebarProvider>
+        <AppSidebar isAdmin={isAdmin} />
+        <SidebarInset>
+          <div className="flex items-center justify-center h-screen">
+            <div className="flex flex-col items-center gap-4">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+              <div className="text-lg">Loading dashboard...</div>
+            </div>
+          </div>
+        </SidebarInset>
+      </SidebarProvider>
+    );
+  }
 
   return (
     <SidebarProvider>
@@ -245,31 +341,6 @@ export default function DashboardClient({
           </div>
 
           <div className="flex items-center gap-4">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="relative p-2 rounded-md hover:bg-muted focus:outline-none">
-                  <Bell className="h-5 w-5" />
-                  <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-red-500" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                className="min-w-56 rounded-lg"
-                side="bottom"
-                sideOffset={8}
-                align="end"
-              >
-                <DropdownMenuLabel>Notifications</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>New user registered</DropdownMenuItem>
-                <DropdownMenuItem>Monthly report is ready</DropdownMenuItem>
-                <DropdownMenuItem>Server restarted</DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-center text-blue-600 hover:text-blue-700">
-                  View all
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
             <NavUser user={user} isAdmin={isAdmin} />
           </div>
         </header>
@@ -282,18 +353,17 @@ export default function DashboardClient({
             leaveDays={workStats.leaveDays}
           />
           <div className="flex flex-col gap-4">
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
+              <CountdownCard userId={userId} companyId={companyId} />
               <AttendanceSummaryCard
                 summary={attendanceSummary}
                 selectedMonth={selectedMonth}
                 onChangeMonth={setSelectedMonth}
               />
 
-              <LeaveSummaryCard />
+              {/* <LeaveSummaryCard /> */}
             </div>
-            <div className="h-[100px]">
-              {/* <WorkHoursOverviewCard /> */}
-            </div>
+            <div className="h-[100px]">{/* <WorkHoursOverviewCard /> */}</div>
           </div>
         </div>
       </SidebarInset>

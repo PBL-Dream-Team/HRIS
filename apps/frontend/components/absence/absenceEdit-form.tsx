@@ -96,7 +96,7 @@ export function AbsenceEditForm({
       toast.error('Please provide a reason for the absence.');
       return;
     }
-    if (!file) {
+    if (!file && !existingFileUrl) {
       toast.error('Please upload an evidence picture.');
       return;
     }
@@ -145,7 +145,10 @@ export function AbsenceEditForm({
         {/* Left Column */}
         <div className="flex-1 space-y-4">
           <div>
-            <Label htmlFor="absentType">Absent Type*</Label>
+            <Label htmlFor="absentType">
+              Absent Type
+              <span className='text-red-600'> *</span>
+            </Label>
             <Select 
               value={absentType}
               onValueChange={setAbsentType}
@@ -164,7 +167,10 @@ export function AbsenceEditForm({
           </div>
 
           <div>
-            <Label htmlFor="date">Date*</Label>
+            <Label htmlFor="date">
+              Date
+              <span className='text-red-600'> *</span>
+            </Label>
             <div className='relative'>
               <Input
                 id="date"
@@ -180,7 +186,10 @@ export function AbsenceEditForm({
           </div>
 
           <div>
-            <Label htmlFor="reason">Reason*</Label>
+            <Label htmlFor="reason">
+              Reason
+              <span className='text-red-600'> *</span>
+            </Label>
             <Input
               id="reason"
               type="text"
@@ -194,7 +203,10 @@ export function AbsenceEditForm({
 
         {/* Right Column */}
         <div className="flex-1 space-y-4">
-          <Label>Evidence Picture*</Label>
+          <Label>
+            Evidence Picture 
+            <span className='text-red-600'> *</span>
+          </Label>
           
           {/* Image Preview Area */}
           <div className="relative w-full aspect-[8/5] border rounded-lg shadow-sm overflow-hidden bg-gray-50">
@@ -260,16 +272,16 @@ export function AbsenceEditForm({
 
       {error && <p className="text-red-600 mt-2">{error}</p>}
 
-      <DialogFooter className="mt-6 sm:justify-end">
+      <DialogFooter className="mt-6 flex flex-row gap-2 justify-end">
         <Button 
           type="button" 
           variant="outline" 
           onClick={onClose}
-          className="mr-2"
+          className="w-fit"
         >
           Cancel
         </Button>
-        <Button type="submit" className="w-full sm:w-24" disabled={loading}>
+        <Button type="submit" className="w-fit sm:w-24" disabled={loading}>
           {loading ? 'Saving...' : 'Save'}
         </Button>
       </DialogFooter>

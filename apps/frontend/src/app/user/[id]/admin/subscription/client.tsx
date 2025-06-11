@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 'use client';
 
 import { AppSidebar } from '@/components/app-sidebar';
@@ -26,7 +25,7 @@ import { Input } from '@/components/ui/input';
 import { Bell, Eye } from 'lucide-react';
 import { NavUser } from '@/components/nav-user';
 import { Button } from '@/components/ui/button';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import PaginationFooter from '@/components/pagination';
 import SubscriptionDetails from '@/components/subscription-details';
 import api from '@/lib/axios';
@@ -56,6 +55,7 @@ export type Subscription = {
   paymentMethod: string;
   status: string; // 'Active' | 'Expired' | 'Pending'
   tripayRef: string;
+  type: string; // Add this field for subscription type
 };
 
 type SubscriptionClientProps = {
@@ -79,8 +79,19 @@ export default function SubscriptionClient({
   userId,
   companyId,
 }: SubscriptionClientProps) {
+  // State Hooks
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  
   // User (top‑right avatar)
-  const [user, setUser] = useState({ name: '', first_name: '', last_name: '', position: '', avatar: '' });
+  const [user, setUser] = useState({
+    name: 'Loading...',
+    first_name: '',
+    last_name: '',
+    position: '',
+    avatar: '/avatars/default.jpg',
+    compName: '',
+  });
 
   // Subscription data
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
@@ -100,69 +111,134 @@ export default function SubscriptionClient({
     [subscriptions, currentPage],
   );
 
-  // Fetch user profile
-  useEffect(() => {
-    (async () => {
-      try {
-        const res = await api.get(`/api/employee/${userId}`);
-        const { first_name, last_name, position, pict_dir } = res.data.data;
+  // Data Fetching
+  const fetchData = useCallback(async () => {
+    let mounted = true;
+
+    if (!userId || !companyId) return;
+
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      // Fetch user data and company data
+      const [userRes, compRes] = await Promise.all([
+        api.get(`/api/employee/${userId}`),
+        api.get(`/api/company/${companyId}`)
+      ]);
+      
+      const userData = userRes.data?.data;
+      const companyData = compRes.data?.data;
+
+      if (mounted && userData && companyData) {
+        const { first_name, last_name, position, pict_dir } = userData;
+        const { name: companyName } = companyData;
+
+        // Ensure all values are strings and handle null/undefined
+        const firstName = String(first_name || '');
+        const lastName = String(last_name || '');
+        const userPosition = String(position || '');
+        const userAvatar = String(pict_dir || '/avatars/default.jpg');
+        const compName = String(companyName || 'Unknown Company');
+
         setUser({
-          name: `${first_name} ${last_name}`,
-          first_name,
-          last_name,
-          position,
-          avatar: pict_dir || '/avatars/default.jpg',
+          name: `${firstName} ${lastName}`.trim() || 'Unknown User',
+          first_name: firstName,
+          last_name: lastName,
+          position: userPosition,
+          avatar: userAvatar,
+          compName: compName, // Add company name
         });
-      } catch (err: any) {
-        console.error('Error fetching user:', err.response?.data || err.message);
       }
-    })();
-  }, [userId]);
 
-  // Fetch subscriptions (from /api/transaction)
-  useEffect(() => {
-    (async () => {
-      try {
-        const res = await api.get('/api/transaction', {
-          params: { company_id: companyId },
-        });
+      // Fetch subscriptions (from /api/transaction)
+      const transactionRes = await api.get('/api/transaction', {
+        params: { company_id: companyId },
+      });
 
-        const rows: Subscription[] = res.data.data.map((item: any) => {
+      if (mounted) {
+        const transactionData = transactionRes.data;
+        
+        // Check if data is directly an array (not nested in .data property)
+        const transactions = Array.isArray(transactionData) ? transactionData : transactionData?.data;
+        
+        if (Array.isArray(transactions)) {
           const fmt: Intl.DateTimeFormatOptions = {
             day: '2-digit',
             month: 'long',
             year: 'numeric',
           };
 
-          return {
-            id: item.id,
-            company_id: item.company_id,
-            subscription_id: item.subscription_id,
-            merchantRef: item.merchantRef,
-            paidAt: item.paidAt,
-            paymentMethod: item.paymentMethod,
-            status: item.status,
-            tripayRef: item.tripayRef,
+          const rows: Subscription[] = transactions
+            .filter(item => item && typeof item === 'object' && item.id)
+            .map((item: any) => {
+              // Get subscription type from SUBSCRIPTION_TYPES mapping
+              const subscriptionId = String(item.subscription_id || '');
+              const subscriptionType = SUBSCRIPTION_TYPES[subscriptionId] || 'Unknown Plan';
 
-            // Derived
-            startDate: new Date(item.created_at).toLocaleDateString('en-GB', fmt),
-            endDate: item.expiresAt
-              ? new Date(item.expiresAt).toLocaleDateString('en-GB', fmt)
-              : '-',
-            price: `Rp ${Number(item.total).toLocaleString('id-ID')}`,
-            type: SUBSCRIPTION_TYPES[item.subscription_id] || item.subscription_id,
-          };
-        });
+              return {
+                id: String(item.id || ''),
+                company_id: String(item.company_id || ''),
+                subscription_id: subscriptionId,
+                merchantRef: String(item.merchantRef || ''),
+                paidAt: String(item.paidAt || ''),
+                paymentMethod: String(item.paymentMethod || ''),
+                status: String(item.status || 'Unknown'),
+                tripayRef: String(item.tripayRef || ''),
+                expiresAt: String(item.expiresAt || ''),
+                type: subscriptionType, // Add subscription type
 
-        setSubscriptions(rows);
-      } catch (err: any) {
-        console.error(
-          'Error fetching transactions:',
-          err.response?.data || err.message,
-        );
+                // Derived fields with null safety
+                startDate: item.created_at 
+                  ? new Date(item.created_at).toLocaleDateString('en-GB', fmt)
+                  : 'No date',
+                endDate: item.expiresAt
+                  ? new Date(item.expiresAt).toLocaleDateString('en-GB', fmt)
+                  : 'No expiry date',
+                price: item.total 
+                  ? `Rp ${Number(item.total).toLocaleString('id-ID')}`
+                  : 'Rp 0',
+              };
+            });
+
+          console.log('Processed subscriptions:', rows); // Debug log
+          setSubscriptions(rows);
+        } else {
+          console.warn('Transaction data is not an array:', transactions);
+          setSubscriptions([]);
+        }
       }
-    })();
-  }, [companyId]);
+
+    } catch (err: any) {
+      console.error('Error fetching subscription data:', err.response?.data || err.message);
+      
+      if (mounted) {
+        setError('Failed to fetch subscription data. Please try again.');
+        // Set safe default values on error
+        setUser({
+          name: 'Unknown User',
+          first_name: '',
+          last_name: '',
+          position: '',
+          avatar: '/avatars/default.jpg',
+          compName: 'Unknown Company',
+        });
+        setSubscriptions([]);
+      }
+    } finally {
+      if (mounted) {
+        setIsLoading(false);
+      }
+    }
+
+    return () => {
+      mounted = false;
+    };
+  }, [userId, companyId]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   // Helpers
   const handleViewDetails = (subscription: Subscription) => {
@@ -170,7 +246,41 @@ export default function SubscriptionClient({
     setOpenSheet(true);
   };
 
-  // Render
+  // Show loading state
+  if (isLoading) {
+    return (
+      <SidebarProvider>
+        <AppSidebar isAdmin={isAdmin} />
+        <SidebarInset>
+          <div className="flex items-center justify-center h-screen">
+            <div className="flex flex-col items-center gap-4">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+              <div className="text-lg">Loading subscription data...</div>
+            </div>
+          </div>
+        </SidebarInset>
+      </SidebarProvider>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <SidebarProvider>
+        <AppSidebar isAdmin={isAdmin} />
+        <SidebarInset>
+          <div className="flex items-center justify-center h-screen">
+            <div className="text-center">
+              <div className="text-lg text-red-500 mb-4">{error}</div>
+              <Button onClick={() => fetchData()}>Try Again</Button>
+            </div>
+          </div>
+        </SidebarInset>
+      </SidebarProvider>
+    );
+  }
+
+  // Render main content
   return (
     <SidebarProvider>
       <AppSidebar isAdmin={isAdmin} />
@@ -190,32 +300,6 @@ export default function SubscriptionClient({
           </div>
 
           <div className="flex items-center gap-4">
-            {/* Notification bell */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="relative p-2 rounded-md hover:bg-muted focus:outline-none">
-                  <Bell className="h-5 w-5" />
-                  <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-red-500" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                className="min-w-56 rounded-lg"
-                side="bottom"
-                sideOffset={8}
-                align="end"
-              >
-                <DropdownMenuLabel>Notifications</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>New user registered</DropdownMenuItem>
-                <DropdownMenuItem>Monthly report is ready</DropdownMenuItem>
-                <DropdownMenuItem>Server restarted</DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-center text-blue-600 hover:text-blue-700">
-                  View all
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
             {/* Avatar */}
             <NavUser user={user} isAdmin={isAdmin} />
           </div>
@@ -239,53 +323,97 @@ export default function SubscriptionClient({
             </div>
 
             {/* Table */}
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Date Start</TableHead>
-                  <TableHead>Date End</TableHead>
-                  <TableHead>Price</TableHead>
-                  {/* <TableHead>Type</TableHead> */}
-                  <TableHead>Status</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {paginatedSubscriptions.map((subscription) => (
-                  <TableRow key={subscription.id}>
-                    <TableCell>{subscription.startDate}</TableCell>
-                    <TableCell>{subscription.endDate}</TableCell>
-                    <TableCell>{subscription.price}</TableCell>
-                    {/* <TableCell>{subscription.type}</TableCell> */}
-                    <TableCell>
-                      <span
-                        className={`px-2 py-1 rounded text-xs text-white ${subscription.status === 'Active' ? 'bg-green-600' : ''} ${subscription.status === 'Expired' ? 'bg-red-600' : ''}`}
-                      >
-                        {subscription.status}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        className="hover:text-white hover:bg-blue-600"
-                        onClick={() => handleViewDetails(subscription)}
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                    </TableCell>
+            {subscriptions.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <p>No subscription history found.</p>
+              </div>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Type</TableHead>
+                    <TableHead>Date Start</TableHead>
+                    <TableHead>Date End</TableHead>
+                    <TableHead>Price</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Actions</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {paginatedSubscriptions.map((subscription) => {
+                    // Safe status rendering with null checks
+                    const status = String(subscription.status || 'Unknown');
+                    let statusClass = 'bg-gray-600'; // default
+                    
+                    if (status === 'Active' || status === 'ACTIVE') {
+                      statusClass = 'bg-green-600';
+                    } else if (status === 'Expired' || status === 'EXPIRED') {
+                      statusClass = 'bg-red-600';
+                    } else if (status === 'Pending' || status === 'PENDING') {
+                      statusClass = 'bg-yellow-600';
+                    }
+
+                    // Style subscription type with different colors
+                    let typeClass = 'bg-blue-100 text-blue-800'; // default
+                    const type = subscription.type;
+                    
+                    if (type === 'Trial') {
+                      typeClass = 'bg-gray-100 text-gray-800';
+                    } else if (type === 'Pay as You Go') {
+                      typeClass = 'bg-green-100 text-green-800';
+                    } else if (type === 'Bronze') {
+                      typeClass = 'bg-orange-100 text-orange-800';
+                    } else if (type === 'Silver') {
+                      typeClass = 'bg-gray-100 text-gray-600';
+                    } else if (type === 'Gold') {
+                      typeClass = 'bg-yellow-100 text-yellow-800';
+                    }
+
+                    return (
+                      <TableRow key={subscription.id}>
+                        <TableCell>
+                          <span
+                            className={`px-2 py-1 rounded text-xs font-medium ${typeClass}`}
+                          >
+                            {subscription.type}
+                          </span>
+                        </TableCell>
+                        <TableCell>{subscription.startDate}</TableCell>
+                        <TableCell>{subscription.endDate}</TableCell>
+                        <TableCell>{subscription.price}</TableCell>
+                        <TableCell>
+                          <span
+                            className={`px-2 py-1 rounded text-xs text-white ${statusClass}`}
+                          >
+                            {status}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="hover:text-white hover:bg-blue-600"
+                            onClick={() => handleViewDetails(subscription)}
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            )}
 
             {/* Pagination */}
-            <PaginationFooter
-              totalItems={subscriptions.length}
-              itemsPerPage={itemsPerPage}
-              currentPage={currentPage}
-              onPageChange={setCurrentPage}
-            />
+            {subscriptions.length > 0 && (
+              <PaginationFooter
+                totalItems={subscriptions.length}
+                itemsPerPage={itemsPerPage}
+                currentPage={currentPage}
+                onPageChange={setCurrentPage}
+              />
+            )}
           </div>
         </div>
       </SidebarInset>

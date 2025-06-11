@@ -20,22 +20,22 @@ import { Transform } from 'class-transformer';
 export class createEmployeeDto {
   @ApiProperty()
   @IsUUID()
-  @IsNotEmpty()
+  @IsNotEmpty( { message: 'company_id must be fille' })
   company_id: string;
 
-  @ApiPropertyOptional()
-  @IsEnum(workscheme, { message: '' })
-  @IsOptional()
+  @ApiProperty()
+  @IsEnum(workscheme)
+  @IsNotEmpty( { message: 'workscheme must be filled' })
   workscheme: workscheme;
 
   @ApiProperty()
   @IsString()
-  @IsNotEmpty()
+  @IsNotEmpty( { message: 'first name must be filled'})
   first_name: string;
 
   @ApiProperty()
   @IsString()
-  @IsNotEmpty()
+  @IsNotEmpty( { message: 'last name must be filled'})
   last_name: string;
 
   @ApiPropertyOptional()
@@ -68,9 +68,9 @@ export class createEmployeeDto {
   @IsOptional()
   is_admin: boolean;
 
-  @ApiPropertyOptional()
+  @ApiProperty()
   @IsUUID()
-  @IsOptional()
+  @IsNotEmpty({message: 'attendance_id must be filled'})
   attendance_id: string;
 
   @ApiPropertyOptional()

@@ -16,6 +16,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { toast } from 'sonner';
+import { ChevronDown, Building2 } from 'lucide-react';
 
 export function NavUser({
   user,
@@ -27,6 +28,7 @@ export function NavUser({
     last_name: string;
     position: string;
     avatar: string;
+    compName: string;
   };
   isAdmin?: boolean;
 }) {
@@ -46,6 +48,13 @@ export function NavUser({
 
   return (
     <DropdownMenu>
+      {/* company information 1 */}
+      <div className='hidden lg:flex items-center gap-2 text-left text-sm'>
+        <Building2 className='h-4 w-4' />
+        <span className="text-sm font-medium whitespace-nowrap">
+          {user.compName.length > 10 ? user.compName.slice(0, 10) + '…' : user.compName}
+        </span>
+      </div>
       <DropdownMenuTrigger asChild>
         <button className="flex items-center gap-2 rounded-lg cursor-pointer focus:outline-none max-w-40">
           <Avatar className="h-8 w-8 rounded-lg">
@@ -56,9 +65,10 @@ export function NavUser({
             </AvatarFallback>
           </Avatar>
           <div className="hidden lg:grid text-left text-sm leading-tight">
-            <span className="truncate font-medium">{user.name}</span>
+            <span className="truncate font-medium">{user.name.length > 10 ? user.name.slice(0, 10) + '…' : user.name}</span>
             <span className="truncate text-xs">{user.position}</span>
           </div>
+          <ChevronDown className="ml-2 h-5 w-5 text-muted-foreground" />
         </button>
       </DropdownMenuTrigger>
 
@@ -71,13 +81,26 @@ export function NavUser({
         <DropdownMenuLabel className="p-0 font-normal">
           <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
             <Avatar className="h-8 w-8 rounded-lg">
-              <AvatarImage src={user.avatar} alt={user.name} />
-              <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+              <AvatarImage src={`/storage/employee/${user.avatar}`} alt={user.name} />
+              <AvatarFallback>
+                {user.first_name?.[0]}
+                {user.last_name?.[0]}
+              </AvatarFallback>
             </Avatar>
             <div className="grid flex-1 text-left text-sm leading-tight">
-              <span className="truncate font-medium">{user.name}</span>
+              <span className="truncate font-medium">{user.name.length > 20 ? user.name.slice(0, 20) + '…' : user.name}</span>
               <span className="truncate text-xs">{user.position}</span>
             </div>
+          </div>
+        </DropdownMenuLabel>
+        {/* <DropdownMenuSeparator /> */}
+        {/* company information 2 */}
+        <DropdownMenuLabel className="block lg:hidden">
+          <div className='flex items-center gap-2 text-left text-sm'>
+            <Building2 className='h-7 w-7' />
+            <span className="text-sm font-medium whitespace-nowrap">
+              {user.compName.length > 10 ? user.compName.slice(0, 10) + '…' : user.compName}
+            </span>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />

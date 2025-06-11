@@ -8,9 +8,11 @@ export class AttendanceTypeService {
   constructor(private prisma: PrismaService) {}
 
   async createAttendanceType(dto: createAttendanceTypeDto) {
+    const data : any = {...dto};
+    if(dto.workscheme) data.workscheme = dto.workscheme.toUpperCase();
     try {
       const attendanceType = await this.prisma.attendanceType.create({
-        data: dto,
+        data: data,
       });
       return {
         statusCode: 201,
@@ -52,11 +54,20 @@ export class AttendanceTypeService {
     attendanceTypeId: string,
     dto: editAttendanceTypeDto,
   ) {
+    const data : any = {...dto};
+    if(dto.workscheme) data.workscheme = dto.workscheme.toUpperCase();
+    
     try {
       const attendanceType = await this.prisma.attendanceType.update({
         where: { id: attendanceTypeId },
-        data: dto,
+        data: data,
       });
+      if(dto.workscheme){
+        await this.prisma.employee.updateMany({
+          data:{workscheme:dto.workscheme},
+          where:{attendance_id:attendanceType.id}
+        });
+      }
       return {
         statusCode: 200,
         message: 'AttendanceType updated successfully',
@@ -73,9 +84,31 @@ export class AttendanceTypeService {
 
   async deleteAttendanceType(attendanceTypeId: string) {
     try {
+      // await this.prisma.employee.updateMany({
+      //   data:{
+      //     workscheme: null
+      //   },
+      //   where:{
+      //     id: attendanceTypeId
+      //   }
+      // })
+      const empCount = await this.prisma.employee.findFirst({
+        where:{
+          attendance_id: attendanceTypeId
+        }
+      });
+
+      if(empCount){
+        return {
+          statusCode: 409,
+          message:"Attendance type still being used"
+        }
+      }
       await this.prisma.attendanceType.delete({
         where: { id: attendanceTypeId },
       });
+
+      
       return {
         statusCode: 200,
         message: 'AttendanceType deleted successfully',

@@ -9,6 +9,7 @@ import {
   BookMarked,
   UsersIcon,
   UserCheck,
+  LogOut
 } from 'lucide-react';
 
 import { NavMain } from '@/components/nav-main';
@@ -20,12 +21,27 @@ import {
   SidebarRail,
 } from '@/components/ui/sidebar';
 import { NavSecondary } from './nav-secondary';
+import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
+import api from '@/lib/axios';
 
 // This is sample data
 export function AppSidebar({
   isAdmin = false,
   ...props
 }: { isAdmin?: boolean } & React.ComponentProps<typeof Sidebar>) {
+  const router = useRouter();
+  const handleLogout = async () => {
+    try {
+      const res = await api.post('/api/auth/logout', {
+        withCredentials: true,
+      });
+      toast.success(res.data.message);
+      router.push('/signin');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
   const data = {
     user: {
       name: 'shadcn',
@@ -47,12 +63,12 @@ export function AppSidebar({
       },
       ...(isAdmin
         ? [
-            {
-              title: 'Employee',
-              url: 'employeedatabase',
-              icon: UsersIcon,
-            },
-          ]
+          {
+            title: 'Employee',
+            url: 'employeedatabase',
+            icon: UsersIcon,
+          },
+        ]
         : []),
       {
         title: 'Checkclock',
@@ -89,9 +105,15 @@ export function AppSidebar({
       },
       {
         title: 'Get Help',
-        url: '#',
+        url: 'http://wa.me/+62895326254200',
         icon: Headset,
       },
+      {
+        title: 'Logout',
+        url: '#logout',
+        icon: LogOut,
+        onClick: handleLogout,
+      }
     ],
   };
   return (

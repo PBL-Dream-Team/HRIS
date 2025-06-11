@@ -27,16 +27,42 @@ type Props = {
   }[];
 };
 
-function toTitleCase(str: string) {
+function toTitleCase(str: string | null | undefined) {
+  if (!str || typeof str !== 'string') return '';
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 }
 
 export default function EmployeeStatusCard({ data }: Props) {
+  // Add safety check
+  if (!Array.isArray(data) || data.length === 0) {
+    return (
+      <Card>
+        <CardHeader className="relative pb-4">
+          <div className="flex items-center gap-2">
+            <div>
+              <CardTitle className="text-xl">Employee Status</CardTitle>
+              <CardDescription className="text-md">
+                Current Number of Employees
+              </CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center py-8 text-muted-foreground">
+            No employee status data available
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   // Ubah name dari uppercase ke Title Case
-  const formattedData = data.map(item => ({
-    ...item,
-    name: toTitleCase(item.name),
-  }));
+  const formattedData = data
+    .filter(item => item && item.name) // Filter out null items
+    .map(item => ({
+      ...item,
+      name: toTitleCase(item.name),
+    }));
 
   // Mapping chart config sesuai nama yang sudah diubah
   const chartConfig = formattedData.reduce((acc, curr) => {

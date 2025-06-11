@@ -70,12 +70,15 @@ export default function AccountClient({
   companyId,
   initialData,
 }: AccountClientProps) {
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [user, setUser] = useState({
-    name: '',
+    name: 'Loading...',
     first_name: '',
     last_name: '',
     position: '',
-    avatar: '',
+    avatar: '/avatars/default.jpg',
+    compName: '',
   });
   const router = useRouter();
 
@@ -124,70 +127,174 @@ export default function AccountClient({
   };
 
   const formatDate = (dateString: string) => {
-    if (!dateString) return 'No date';
+    if (!dateString || dateString === 'No date') return 'No date';
 
     try {
-      // Konversi string ke Date object
       const date = new Date(dateString);
       return format(date, 'PPP', { locale: enUS });
     } catch (error) {
       console.error('Error formatting date:', error);
-      return dateString; // Fallback ke string asli jika error
+      return dateString;
     }
   };
 
   // Data Fetching
   const fetchData = useCallback(async () => {
+    let mounted = true;
+
+    if (!userId || !companyId) return;
+
     try {
-      const resUser = await api.get(`/api/employee/${userId}`);
-      const resCompany = await api.get(`/api/company/${companyId}`);
-      const admin = resUser.data.data;
-      const company = resCompany.data.data;
+      setIsLoading(true);
+      setError(null);
 
-      const resSubs = await api.get(
-        `/api/subscription/${company.subscription_id}`,
-      );
-      const subscription = resSubs.data.data;
+      // If initialData is provided, use it first
+      if (initialData) {
+        if (mounted) {
+          setUser({
+            name: `${String(initialData.first_name || '')} ${String(initialData.last_name || '')}`.trim() || 'Unknown User',
+            first_name: String(initialData.first_name || ''),
+            last_name: String(initialData.last_name || ''),
+            position: 'Admin', // Default for admin
+            avatar: String(initialData.pict_dir || '/avatars/default.jpg'),
+            compName: String(initialData.company_name || ''),
+          });
 
-      setUser({
-        name: `${admin.first_name} ${admin.last_name}`,
-        first_name: admin.first_name,
-        last_name: admin.last_name,
-        position: admin.position,
-        avatar: admin.pict_dir || '/avatars/default.jpg',
-      });
+          setAdminData({
+            id: String(initialData.id || ''),
+            first_name: String(initialData.first_name || ''),
+            last_name: String(initialData.last_name || ''),
+            email: String(initialData.email || ''),
+            phone: String(initialData.phone || ''),
+            pict_dir: String(initialData.pict_dir || ''),
+          });
 
-      setAdminData({
-        id: admin.id,
-        first_name: admin.first_name,
-        last_name: admin.last_name,
-        email: admin.email,
-        phone: admin.phone,
-        pict_dir: admin.pict_dir || '',
-      });
+          setSubsData({
+            companyId: companyId,
+            subscription_id: String(initialData.subscription_id || ''),
+            subscription_type: String(initialData.subscription_type || ''),
+            subs_date_start: String(initialData.subs_date_start || ''),
+            subs_date_end: String(initialData.subs_date_end || ''),
+          });
 
-      setSubsData({
-        companyId: company.id || '',
-        subscription_id: company.subscription_id || '',
-        subscription_type: subscription.name || '',
-        subs_date_start: company.subs_date_start || '',
-        subs_date_end: company.subs_date_end || '',
-      });
+          setCompanyData({
+            id: companyId,
+            name: String(initialData.company_name || ''),
+            address: String(initialData.company_address || ''),
+            loc_lat: String(initialData.loc_lat || ''),
+            loc_long: String(initialData.loc_long || ''),
+          });
 
-      setCompanyData({
-        id: company.id || '',
-        name: company.name || '',
-        address: company.address || '',
-        loc_lat: company.loc_lat || '',
-        loc_long: company.loc_long || '',
-      });
+          setIsLoading(false);
+          return;
+        }
+      }
+
+      // Fetch data from API if no initialData
+      const [resUser, resCompany] = await Promise.all([
+        api.get(`/api/employee/${userId}`),
+        api.get(`/api/company/${companyId}`),
+      ]);
+
+      const admin = resUser.data?.data;
+      const company = resCompany.data?.data;
+
+      if (!admin || !company) {
+        throw new Error('Failed to fetch user or company data');
+      }
+
+      // Fetch subscription data
+      const resSubs = await api.get(`/api/subscription/${company.subscription_id}`);
+      const subscription = resSubs.data?.data;
+
+      if (mounted) {
+        // Set user data with null safety
+        const firstName = String(admin.first_name || '');
+        const lastName = String(admin.last_name || '');
+        const userAvatar = String(admin.pict_dir || '/avatars/default.jpg');
+
+        setUser({
+          name: `${firstName} ${lastName}`.trim() || 'Unknown User',
+          first_name: firstName,
+          last_name: lastName,
+          position: String(admin.position || 'Admin'),
+          avatar: userAvatar,
+          compName: String(company.name || ''),
+        });
+
+        setAdminData({
+          id: String(admin.id || ''),
+          first_name: firstName,
+          last_name: lastName,
+          email: String(admin.email || ''),
+          phone: String(admin.phone || ''),
+          pict_dir: String(admin.pict_dir || ''),
+        });
+
+        setSubsData({
+          companyId: String(company.id || ''),
+          subscription_id: String(company.subscription_id || ''),
+          subscription_type: String(subscription?.name || 'Unknown Plan'),
+          subs_date_start: String(company.subs_date_start || ''),
+          subs_date_end: String(company.subs_date_end || ''),
+        });
+
+        setCompanyData({
+          id: String(company.id || ''),
+          name: String(company.name || ''),
+          address: String(company.address || ''),
+          loc_lat: String(company.loc_lat || ''),
+          loc_long: String(company.loc_long || ''),
+        });
+      }
+
     } catch (err: any) {
-      console.error(
-        'Error fetching user data:',
-        err.response?.data || err.message,
-      );
+      console.error('Error fetching account data:', err.response?.data || err.message);
+      
+      if (mounted) {
+        setError('Failed to fetch account data. Please try again.');
+        // Set safe default values on error
+        setUser({
+          name: 'Unknown User',
+          first_name: '',
+          last_name: '',
+          position: '',
+          avatar: '/avatars/default.jpg',
+          compName: '',
+        });
+        setAdminData({
+          id: '',
+          first_name: '',
+          last_name: '',
+          email: '',
+          phone: '',
+          pict_dir: '',
+        });
+        setSubsData({
+          companyId: '',
+          subscription_id: '',
+          subscription_type: '',
+          subs_date_start: '',
+          subs_date_end: '',
+        });
+        setCompanyData({
+          id: '',
+          name: '',
+          address: '',
+          loc_lat: '',
+          loc_long: '',
+        });
+      }
+    } finally {
+      if (mounted) {
+        setIsLoading(false);
+      }
     }
-  }, [userId, companyId]);
+
+    return () => {
+      mounted = false;
+    };
+  }, [userId, companyId, initialData]);
 
   useEffect(() => {
     fetchData();
@@ -198,6 +305,41 @@ export default function AccountClient({
   }, [fetchData]);
 
   const [avatar, setAvatar] = useState<File | null>(null);
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <SidebarProvider>
+        <AppSidebar isAdmin={isAdmin} />
+        <SidebarInset>
+          <div className="flex items-center justify-center h-screen">
+            <div className="flex flex-col items-center gap-4">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+              <div className="text-lg">Loading account data...</div>
+            </div>
+          </div>
+        </SidebarInset>
+      </SidebarProvider>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <SidebarProvider>
+        <AppSidebar isAdmin={isAdmin} />
+        <SidebarInset>
+          <div className="flex items-center justify-center h-screen">
+            <div className="text-center">
+              <div className="text-lg text-red-500 mb-4">{error}</div>
+              <Button onClick={() => fetchData()}>Try Again</Button>
+            </div>
+          </div>
+        </SidebarInset>
+      </SidebarProvider>
+    );
+  }
+
   return (
     <SidebarProvider>
       <AppSidebar isAdmin={isAdmin} />
@@ -219,7 +361,6 @@ export default function AccountClient({
           </div>
 
           <div className="flex items-center gap-4">
-            {/* Nav-user */}
             <NavUser user={user} isAdmin={isAdmin} />
           </div>
         </header>
@@ -233,12 +374,12 @@ export default function AccountClient({
             <div className="col-span-full flex items-center gap-4">
               <Avatar className="w-25 h-25">
                 <AvatarImage
-                  src={'/storage/employee/' + adminData.pict_dir}
+                  src={adminData.pict_dir ? `/storage/employee/${adminData.pict_dir}` : '/avatars/default.jpg'}
                   alt={adminData.first_name || 'Avatar'}
                 />
                 <AvatarFallback>
-                  {adminData.first_name?.[0]}
-                  {adminData.last_name?.[0]}
+                  {adminData.first_name?.[0] || 'U'}
+                  {adminData.last_name?.[0] || 'N'}
                 </AvatarFallback>
               </Avatar>
             </div>
@@ -330,7 +471,7 @@ export default function AccountClient({
                   Joined at : {formatDate(subsData.subs_date_start)}
                 </p>
                 <CardTitle className="text-xl">
-                  {subsData.subscription_type}
+                  {subsData.subscription_type || 'Unknown Plan'}
                 </CardTitle>
                 <div className="flex items-center gap-2">
                   <CalendarIcon className="w-4 h-4 text-muted-foreground" />
@@ -353,6 +494,7 @@ export default function AccountClient({
             </Card>
           </div>
         </div>
+        
         <div className="flex flex-col md:flex-row gap-4 p-4 relative">
           <div className="w-full h-fit gap-4 border-2 p-4 bg-white rounded-lg shadow">
             <h1 className="text-lg font-semibold mb-2">Company Information</h1>
@@ -366,8 +508,8 @@ export default function AccountClient({
                 {companyData.loc_lat && companyData.loc_long ? (
                   <MapDisplay
                     position={{
-                      lat: parseFloat(companyData.loc_lat),
-                      lng: parseFloat(companyData.loc_long),
+                      lat: parseFloat(companyData.loc_lat) || 0,
+                      lng: parseFloat(companyData.loc_long) || 0,
                     }}
                     onLoad={handleMapLoad}
                   />
@@ -381,7 +523,7 @@ export default function AccountClient({
                 <div>
                   <Label>Company Name</Label>
                   <Input
-                    id="first_name"
+                    id="company_name"
                     value={companyData.name || ''}
                     readOnly
                     placeholder="Company name"
@@ -390,7 +532,7 @@ export default function AccountClient({
                 <div>
                   <Label>Company Address</Label>
                   <Input
-                    id="last_name"
+                    id="company_address"
                     value={companyData.address || ''}
                     readOnly
                     placeholder="Address detail of your company"
@@ -400,7 +542,7 @@ export default function AccountClient({
                   <div>
                     <Label>Latitude</Label>
                     <Input
-                      id="first_name"
+                      id="lat"
                       value={companyData.loc_lat || ''}
                       readOnly
                       placeholder="Latitude of your company"
@@ -409,7 +551,7 @@ export default function AccountClient({
                   <div>
                     <Label>Longitude</Label>
                     <Input
-                      id="last_name"
+                      id="lng"
                       value={companyData.loc_long || ''}
                       readOnly
                       placeholder="Longitude of your company"
@@ -444,8 +586,6 @@ export default function AccountClient({
                 </div>
               </div>
             </div>
-
-            {/* Attendance Type */}
           </div>
         </div>
       </SidebarInset>

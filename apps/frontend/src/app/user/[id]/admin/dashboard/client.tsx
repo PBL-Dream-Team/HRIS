@@ -36,8 +36,6 @@ import {
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 
-import { IoMdSearch } from 'react-icons/io';
-
 const data = {
   user: {
     name: 'Admin',
@@ -57,37 +55,15 @@ export default function DashboardClient({
   userId,
   companyId,
 }: DashboardClientProps) {
+  const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState({
-    name: '',
+    name: 'Loading...',
     first_name: '',
     last_name: '',
     position: '',
-    avatar: '',
+    avatar: '/avatars/default.jpg',
+    compName: '',
   });
-
-  useEffect(() => {
-    async function fetchUser() {
-      try {
-        const res = await api.get(`/api/employee/${userId}`);
-        const { first_name, last_name, position, pict_dir } = res.data.data;
-
-        setUser({
-          name: `${first_name} ${last_name}`,
-          first_name: first_name,
-          last_name: last_name,
-          position: position,
-          avatar: pict_dir || '/avatars/default.jpg',
-        });
-      } catch (err: any) {
-        console.error(
-          'Error fetching user:',
-          err.response?.data || err.message,
-        );
-      }
-    }
-
-    fetchUser();
-  }, [userId]);
 
   const [employeeCount, setEmployeeCount] = useState({
     total: 0,
@@ -96,83 +72,185 @@ export default function DashboardClient({
     absentEmployees: 0,
   });
 
-  useEffect(() => {
-    async function fetchEmployeeCount() {
-      try {
-        const res = await api.get(`/api/employee/count/${companyId}`);
-        setEmployeeCount(res.data);
-      } catch (err: any) {
-        console.error(
-          'Error fetching employee count:',
-          err.response?.data || err.message,
-        );
-      }
-    }
-
-    fetchEmployeeCount();
-  }, [companyId]);
-
   const [employeeStatusData, setEmployeeStatusData] = useState<
     { name: string; total: number; color: string }[]
   >([]);
 
-  useEffect(() => {
-    async function fetchEmployeeStatus() {
-      try {
-        const res = await api.get(`/api/employee/status-count/${companyId}`);
-        const data = res.data;
-
-        const colorMap: Record<string, string> = {
-          PERMANENT: '#257047',
-          CONTRACT: '#FFAB00',
-          INTERN: '#2D8EFF',
-        };
-
-        const formatted = data.map((item: any) => ({
-          ...item,
-          color: colorMap[item.name] || '#8884d8',
-        }));
-
-        setEmployeeStatusData(formatted);
-      } catch (err: any) {
-        console.error(
-          'Error fetching employee status:',
-          err.response?.data || err.message,
-        );
-      }
-    }
-
-    fetchEmployeeStatus();
-  }, [companyId]);
-
-
   const [attendanceOverview, setAttendanceOverview] = useState<
     { attendance: 'onTime' | 'late' | 'leave'; total: number }[]
-  >([]);
+  >([
+    { attendance: 'onTime' as const, total: 0 },
+    { attendance: 'late' as const, total: 0 },
+    { attendance: 'leave' as const, total: 0 },
+  ]);
 
   useEffect(() => {
-    async function fetchAttendanceOverview() {
+    async function fetchUser() {
       try {
-        const res = await api.get(`/api/employee/attendance-count/${companyId}`);
-        const { onTime, late, leave } = res.data;
+        const res = await api.get(`/api/employee/${userId}`);
+        const userData = res.data?.data;
+        const compRes = await api.get(`/api/company/${companyId}`);
+        const compData = compRes.data?.data;
+        
+        if (userData && compData) {
+          const { first_name, last_name, position, pict_dir } = userData;
+          const { name } = compData;
 
-        const mapped = [
-          { attendance: 'onTime' as const, total: onTime },
-          { attendance: 'late' as const, total: late },
-          { attendance: 'leave' as const, total: leave },
-        ];
+          // Ensure all values are strings and handle null/undefined
+          const firstName = String(first_name || '');
+          const lastName = String(last_name || '');
+          const userPosition = String(position || '');
+          const userAvatar = String(pict_dir || '/avatars/default.jpg');
+          const compName = String(name || 'Unknown Company');
 
-        setAttendanceOverview(mapped);
+          setUser({
+            name: `${firstName} ${lastName}`.trim() || 'Unknown User',
+            first_name: firstName,
+            last_name: lastName,
+            position: userPosition,
+            avatar: userAvatar,
+            compName: compName || 'Unknown Company',
+          });
+        }
       } catch (err: any) {
         console.error(
-          'Error fetching attendance overview:',
+          'Error fetching user:',
           err.response?.data || err.message,
         );
+        setUser({
+          name: 'Unknown User',
+          first_name: '',
+          last_name: '',
+          position: '',
+          avatar: '/avatars/default.jpg',
+          compName: '',
+        });
       }
     }
 
-    fetchAttendanceOverview();
+    if (userId) {
+      fetchUser();
+    }
+  }, [userId]);
+
+  useEffect(() => {
+    let mounted = true;
+
+    async function fetchAllData() {
+      if (!companyId) return;
+
+      try {
+        setIsLoading(true);
+
+        // Fetch employee count
+        const countRes = await api.get(`/api/employee/count/${companyId}`);
+        const countData = countRes.data || {};
+
+        if (mounted) {
+          setEmployeeCount({
+            total: Number(countData.total || 0),
+            newEmployees: Number(countData.newEmployees || 0),
+            activeEmployees: Number(countData.activeEmployees || 0),
+            absentEmployees: Number(countData.absentEmployees || 0),
+          });
+        }
+
+        // Fetch employee status
+        const statusRes = await api.get(
+          `/api/employee/status-count/${companyId}`,
+        );
+        const statusData = statusRes.data;
+
+        if (mounted) {
+          if (Array.isArray(statusData) && statusData.length > 0) {
+            const colorMap: Record<string, string> = {
+              PERMANENT: '#257047',
+              CONTRACT: '#FFAB00',
+              INTERN: '#2D8EFF',
+            };
+
+            const formatted = statusData
+              .filter((item) => item && typeof item === 'object' && item.name)
+              .map((item: any) => ({
+                name: String(item.name || 'Unknown'),
+                total: Number(item.total || 0),
+                color: colorMap[item.name] || '#8884d8',
+              }));
+
+            setEmployeeStatusData(formatted);
+          } else {
+            setEmployeeStatusData([]);
+          }
+        }
+
+        // Fetch attendance overview
+        const attendanceRes = await api.get(
+          `/api/employee/attendance-count/${companyId}`,
+        );
+        const attendanceData = attendanceRes.data || {};
+
+        if (mounted) {
+          const onTime = Number(attendanceData.onTime || 0);
+          const late = Number(attendanceData.late || 0);
+          const leave = Number(attendanceData.leave || 0);
+
+          setAttendanceOverview([
+            { attendance: 'onTime' as const, total: onTime },
+            { attendance: 'late' as const, total: late },
+            { attendance: 'leave' as const, total: leave },
+          ]);
+        }
+      } catch (err: any) {
+        console.error(
+          'Error fetching dashboard data:',
+          err.response?.data || err.message,
+        );
+
+        if (mounted) {
+          // Set safe default values on error
+          setEmployeeCount({
+            total: 0,
+            newEmployees: 0,
+            activeEmployees: 0,
+            absentEmployees: 0,
+          });
+          setEmployeeStatusData([]);
+          setAttendanceOverview([
+            { attendance: 'onTime' as const, total: 0 },
+            { attendance: 'late' as const, total: 0 },
+            { attendance: 'leave' as const, total: 0 },
+          ]);
+        }
+      } finally {
+        if (mounted) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    fetchAllData();
+
+    return () => {
+      mounted = false;
+    };
   }, [companyId]);
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <SidebarProvider>
+        <AppSidebar isAdmin={isAdmin} />
+        <SidebarInset>
+          <div className="flex items-center justify-center h-screen">
+            <div className="flex flex-col items-center gap-4">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+              <div className="text-lg">Loading dashboard...</div>
+            </div>
+          </div>
+        </SidebarInset>
+      </SidebarProvider>
+    );
+  }
 
   return (
     <SidebarProvider>
@@ -195,45 +273,15 @@ export default function DashboardClient({
           </div>
 
           <div className="flex items-center gap-4">
-            {/* Notification */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="relative p-2 rounded-md hover:bg-muted focus:outline-none">
-                  <Bell className="h-5 w-5" />
-                  <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-red-500" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                className="min-w-56 rounded-lg"
-                side="bottom"
-                sideOffset={8}
-                align="end"
-              >
-                <DropdownMenuLabel>Notifications</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>New user registered</DropdownMenuItem>
-                <DropdownMenuItem>Monthly report is ready</DropdownMenuItem>
-                <DropdownMenuItem>Server restarted</DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-center text-blue-600 hover:text-blue-700">
-                  View all
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            {/* Nav-user */}
             <NavUser user={user} isAdmin={isAdmin} />
           </div>
         </header>
 
-        {/* Content */}
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
           <EmployeeInformation employeeInfo={employeeCount} />
           <div className="grid auto-rows-min gap-4 md:grid-cols-2 sm:grid-cols-1">
             <EmployeeStatusCard data={employeeStatusData} />
             <AttendanceOverviewCard attendancesData={attendanceOverview} />
-            {/* <EmployeeStatisticsCard /> */}
-            {/* <AttendanceTableCard /> */}
           </div>
         </div>
       </SidebarInset>

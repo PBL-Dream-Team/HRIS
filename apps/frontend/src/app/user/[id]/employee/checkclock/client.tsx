@@ -47,6 +47,7 @@ import { CheckOutForm } from '@/components/checkout-form';
 import { enUS } from 'date-fns/locale';
 import { format } from 'date-fns';
 import { Label } from '@/components/ui/label';
+import { DataTable } from '@/components/data-table';
 
 let checkclocks;
 
@@ -120,14 +121,17 @@ export default function CheckClockClient({
   userId,
   companyId,
 }: CheckClockClientProps) {
+  const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState({
-    name: '',
+    name: 'Loading...',
     first_name: '',
     last_name: '',
     position: '',
-    avatar: '',
+    avatar: '/avatars/default.jpg',
     typeId: '',
+    compName: 'Loading...',
   });
+  const [error, setError] = useState<string | null>(null);
 
   const router = useRouter();
   const [employees, setEmployee] = useState<any[]>([]);
@@ -157,19 +161,37 @@ export default function CheckClockClient({
 
   // Fungsi untuk fetch data (dipindahkan ke fungsi terpisah untuk reusability)
   const fetchAllData = async () => {
+    let mounted = true;
+
     try {
+      setIsLoading(true);
+      setError(null);
+
       const res = await api.get(`/api/employee/${userId}`);
       const { first_name, last_name, position, attendance_id, pict_dir } =
         res.data.data;
+      const compRes = await api.get(`/api/company/${companyId}`);
+      const { name } = compRes.data.data;
 
-      setUser({
-        name: `${first_name} ${last_name}`,
-        first_name: first_name,
-        last_name: last_name,
-        position: position,
-        avatar: pict_dir || '/avatars/default.jpg',
-        typeId: attendance_id,
-      });
+      if (mounted) {
+        // Ensure all values are strings and handle null/undefined
+        const firstName = String(first_name || '');
+        const lastName = String(last_name || '');
+        const userPosition = String(position || '');
+        const userAvatar = String(pict_dir || '/avatars/default.jpg');
+        const compName = String(name || 'Unknown Company');
+        const typeId = String(attendance_id || '');
+
+        setUser({
+          name: `${firstName} ${lastName}`.trim() || 'Unknown User',
+          first_name: firstName,
+          last_name: lastName,
+          position: userPosition,
+          avatar: userAvatar,
+          typeId: typeId,
+          compName: compName,
+        });
+      }
 
       const [attendanceRes, employeeRes, typeRes, companyRes] =
         await Promise.all([
@@ -179,30 +201,70 @@ export default function CheckClockClient({
           api.get(`api/company?id=${companyId}`),
         ]);
 
-      setEmployee(employeeRes.data ?? []);
+      if (mounted) {
+        // Process data with null safety
+        const employeeData = Array.isArray(employeeRes.data) ? employeeRes.data : [];
+        setEmployee(employeeData);
 
-      const typeMap: Record<string, any> = {};
-      for (const typ of typeRes.data ?? []) {
-        typeMap[typ.id] = typ;
+        const typeMap: Record<string, any> = {};
+        const typeData = Array.isArray(typeRes.data) ? typeRes.data : [];
+        for (const typ of typeData) {
+          if (typ && typ.id) {
+            typeMap[typ.id] = typ;
+          }
+        }
+        setAttendanceType(typeMap);
+
+        const attendanceData = Array.isArray(attendanceRes.data) ? attendanceRes.data : [];
+        const validAttendances = attendanceData.filter(att =>
+          att &&
+          typeof att === 'object' &&
+          att.id &&
+          att.employee_id
+        );
+        setAttendance(validAttendances);
+
+        const companyData = Array.isArray(companyRes.data) ? companyRes.data : [];
+        setCompany(companyData);
       }
-      setAttendanceType(typeMap);
-
-      setAttendance(attendanceRes.data ?? []);
-
-      setCompany(companyRes.data ?? []);
     } catch (err: any) {
       console.error(
         'Error fetching data:',
         err.response?.data || err.message,
       );
-      setAttendance([]);
-      setEmployee([]);
-      setAttendanceType([]);
+
+      if (mounted) {
+        setError('Failed to fetch data. Please try again.');
+        // Set safe default values on error
+        setUser({
+          name: 'Unknown User',
+          first_name: '',
+          last_name: '',
+          position: '',
+          avatar: '/avatars/default.jpg',
+          typeId: '',
+          compName: 'Unknown Company',
+        });
+        setAttendance([]);
+        setEmployee([]);
+        setAttendanceType({});
+        setCompany([]);
+      }
+    } finally {
+      if (mounted) {
+        setIsLoading(false);
+      }
     }
+
+    return () => {
+      mounted = false;
+    };
   };
 
   useEffect(() => {
-    fetchAllData();
+    if (userId && companyId) {
+      fetchAllData();
+    }
   }, [userId, companyId]);
 
   checkclocks = attendances.map((attendance) => {
@@ -219,34 +281,45 @@ export default function CheckClockClient({
       );
     }
 
+    const employeeData = employees[0];
+
     return {
-      id: attendance.id,
+      id: String(attendance.id || ''),
       date: attendance.created_at,
-      name: `${employees[0]?.first_name || ''} ${employees[0]?.last_name || ''}`,
-      avatarUrl: employees[0]?.pict_dir || undefined,
-      position: employees[0]?.position || '',
+      name: employeeData 
+        ? `${employeeData.first_name || ''} ${employeeData.last_name || ''}`.trim() || 'Unknown Employee'
+        : 'Unknown Employee',
+      avatarUrl: employeeData?.pict_dir || undefined,
+      position: String(employeeData?.position || 'N/A'),
       clockIn: formatTimeOnly(attendance.check_in),
       clockOut: attendance.check_out
         ? formatTimeOnly(attendance.check_out)
         : '-',
       // Gunakan formatWorkHours yang baru ditambahkan
       workHours: workHoursValue > 0 ? formatWorkHours(workHoursValue) : '-',
-      status: attendance.check_in_status,
+      status: String(attendance.check_in_status || 'N/A'),
       address: attendance.check_out
-        ? attendance.check_out_address
-        : attendance.check_in_address,
+        ? String(attendance.check_out_address || '')
+        : String(attendance.check_in_address || ''),
       lat: attendance.check_out
-        ? attendance.check_out_lat
-        : attendance.check_in_lat,
+        ? String(attendance.check_out_lat || '')
+        : String(attendance.check_in_lat || ''),
       long: attendance.check_out
-        ? attendance.check_out_long
-        : attendance.check_in_long,
-      location:
-        attendance.check_in_address == company[0]?.address
-          ? 'Office'
-          : employees[0]?.workscheme != 'WFO'
-            ? 'Outside Office (WFA/Hybrid)'
-            : 'Outside Office (WFO)',
+        ? String(attendance.check_out_long || '')
+        : String(attendance.check_in_long || ''),
+      location: (() => {
+        const checkInAddress = String(attendance.check_in_address || '');
+        const companyAddress = String(company[0]?.address || '');
+        const workscheme = String(employeeData?.workscheme || '');
+
+        if (checkInAddress === companyAddress) {
+          return 'Office';
+        } else if (workscheme !== 'WFO') {
+          return 'Outside Office (WFA/Hybrid)';
+        } else {
+          return 'Outside Office (WFO)';
+        }
+      })(),
     };
   });
 
@@ -290,6 +363,122 @@ export default function CheckClockClient({
     fetchAllData(); // Refresh data
   };
 
+  // Show loading state
+  if (isLoading) {
+    return (
+      <SidebarProvider>
+        <AppSidebar isAdmin={isAdmin} />
+        <SidebarInset>
+          <div className="flex items-center justify-center h-screen">
+            <div className="flex flex-col items-center gap-4">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+              <div className="text-lg">Loading checkclock data...</div>
+            </div>
+          </div>
+        </SidebarInset>
+      </SidebarProvider>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <SidebarProvider>
+        <AppSidebar isAdmin={isAdmin} />
+        <SidebarInset>
+          <div className="flex items-center justify-center h-screen">
+            <div className="text-center">
+              <div className="text-lg text-red-500 mb-4">{error}</div>
+              <Button onClick={() => fetchAllData()}>Try Again</Button>
+            </div>
+          </div>
+        </SidebarInset>
+      </SidebarProvider>
+    );
+  }
+
+  // DataTable columns for checkclock
+  const checkClockColumns = [
+    {
+      accessorKey: 'date',
+      header: 'Date',
+      cell: ({ row }: any) => formatDate(row.original.date),
+    },
+    {
+      accessorKey: 'clockIn',
+      header: 'Clock In',
+      cell: ({ row }: any) => row.original.clockIn.replace(/.*T/, ''),
+    },
+    {
+      accessorKey: 'clockOut',
+      header: 'Clock Out',
+      cell: ({ row }: any) => row.original.clockOut.replace(/.*T/, ''),
+    },
+    {
+      accessorKey: 'workHours',
+      header: 'Work Hours',
+    },
+    {
+      accessorKey: 'status',
+      header: 'Status',
+      cell: ({ row }: any) => {
+        const status = row.original.status;
+        return (
+          <span
+            className={`px-2 py-1 rounded text-xs text-white \
+              ${status === 'ON_TIME' ? 'bg-green-600' : ''} \
+              ${status === 'LATE' ? 'bg-red-600' : ''} \
+              ${status === 'EARLY' ? 'bg-yellow-600' : ''}`}
+          >
+            {status === 'ON_TIME' ? 'ON TIME' : status === 'LATE' ? 'LATE' : 'EARLY'}
+          </span>
+        );
+      },
+    },
+    {
+      accessorKey: 'actions',
+      header: 'Actions',
+      cell: ({ row }: any) => (
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="icon"
+            className="hover:text-white hover:bg-blue-600"
+            onClick={() => handleViewDetails(row.original)}
+          >
+            <Eye className="h-4 w-4" />
+          </Button>
+          {row.original.clockOut === '-' && (
+            <Dialog
+              open={openCheckOutDialog}
+              onOpenChange={setOpenCheckOutDialog}
+            >
+              <DialogTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="hover:bg-white-600 bg-green-600 hover:text-white"
+                  onClick={() => handleCheckOut(row.original.id)}
+                >
+                  <LogOut className="h-4 w-4 text-white" />
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle>Clock Out</DialogTitle>
+                </DialogHeader>
+                <CheckOutForm
+                  attendanceId={checkOutId ?? ''}
+                  onSuccess={handleCheckOutSuccess}
+                />
+              </DialogContent>
+            </Dialog>
+          )}
+        </div>
+      ),
+    },
+  ];
+
   return (
     <SidebarProvider>
       <AppSidebar isAdmin={isAdmin} />
@@ -318,157 +507,69 @@ export default function CheckClockClient({
 
         <div className="flex flex-1 flex-col gap-4 p-10 pt-5">
           <div className="border border-gray-300 rounded-md p-4">
-            {/* Title and Search */}
-            <div className="flex items-center justify-between p-4 border-b">
-              <div className="text-lg font-semibold">Check Clock Overview</div>
-              <div className="hidden lg:block">
-              </div>
-              <div className="flex flex-col gap-2 lg:flex-row lg:items-center lg:gap-4">
-                <div className="flex items-center gap-2">
-                  <Label htmlFor="filter-date">Filter by date:</Label>
-                  <div className="relative">
-                    <Input
-                      id="filter-date"
-                      type="date"
-                      value={filterDate}
-                      onChange={(e) => setFilterDate(e.target.value)}
-                      className="pr-4 [&::-webkit-calendar-picker-indicator]:opacity-100 
-                               [&::-webkit-calendar-picker-indicator]:absolute 
-                               [&::-webkit-calendar-picker-indicator]:right-2 
-                               [&::-webkit-calendar-picker-indicator]:w-4 
-                               [&::-webkit-calendar-picker-indicator]:h-4 
-                               [&::-webkit-calendar-picker-indicator]:cursor-pointer"
-                      style={{
-                        colorScheme: 'light'
-                      }}
-                    />
+            <DataTable
+              columns={checkClockColumns}
+              data={filteredCheckClocks}
+              searchableColumn="status"
+              title="Check Clock Overview"
+              actions={
+                <div className="flex items-center gap-2 flex-wrap">
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="filter-date">Filter by date:</Label>
+                    <div className="relative">
+                      <Input
+                        id="filter-date"
+                        type="date"
+                        value={filterDate}
+                        onChange={(e) => setFilterDate(e.target.value)}
+                        className="pr-4 [&::-webkit-calendar-picker-indicator]:opacity-100 
+                                 [&::-webkit-calendar-picker-indicator]:absolute 
+                                 [&::-webkit-calendar-picker-indicator]:right-2 
+                                 [&::-webkit-calendar-picker-indicator]:w-4 
+                                 [&::-webkit-calendar-picker-indicator]:h-4 
+                                 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                        style={{ colorScheme: 'light' }}
+                      />
+                    </div>
+                    {filterDate && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setFilterDate('')}
+                      >
+                        Clear
+                      </Button>
+                    )}
                   </div>
-                  {filterDate && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setFilterDate('')}
-                    >
-                      Clear
-                    </Button>
-                  )}
+                  <Dialog open={openAddDialog} onOpenChange={setOpenAddDialog}>
+                    <DialogTrigger asChild>
+                      <Button
+                        disabled={dailyLimit === 0}
+                        variant="outline"
+                        className={dailyLimit === 0 ? 'opacity-50 cursor-not-allowed' : ''}
+                      >
+                        <LogIn /> Clock In
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-4xl">
+                      <DialogHeader>
+                        <DialogTitle>Clock In</DialogTitle>
+                      </DialogHeader>
+                      <CheckClockForm
+                        employeeId={userId}
+                        companyId={companyId}
+                        typeId={user.typeId}
+                        onSuccess={handleAddCheckClockSuccess}
+                      />
+                    </DialogContent>
+                  </Dialog>
                 </div>
-                <Dialog open={openAddDialog} onOpenChange={setOpenAddDialog}>
-                  <DialogTrigger asChild>
-                    <Button
-                      disabled={dailyLimit === 0}
-                      variant="outline"
-                      className={
-                        dailyLimit === 0 ? 'opacity-50 cursor-not-allowed' : ''
-                      }
-                    >
-                      <LogIn /> Clock In
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-4xl">
-                    <DialogHeader>
-                      <DialogTitle>Clock In</DialogTitle>
-                    </DialogHeader>
-                    <CheckClockForm
-                      employeeId={userId}
-                      companyId={companyId}
-                      typeId={user.typeId}
-                      onSuccess={handleAddCheckClockSuccess}
-                    />
-                  </DialogContent>
-                </Dialog>
-              </div>
-            </div>
-
-            {/* Table */}
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Clock In</TableHead>
-                  <TableHead>Clock Out</TableHead>
-                  <TableHead>Work Hours</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredCheckClocks.map((checkclock) => (
-                  <TableRow key={checkclock.id}>
-                    <TableCell>{formatDate(checkclock.date)}</TableCell>
-                    <TableCell>
-                      {checkclock.clockIn.replace(/.*T/, '')}
-                    </TableCell>
-                    <TableCell>
-                      {checkclock.clockOut.replace(/.*T/, '')}
-                    </TableCell>
-                    <TableCell>{checkclock.workHours}</TableCell>
-                    <TableCell>
-                      <div>
-                        <span
-                          className={`px-2 py-1 rounded text-xs text-white 
-                                ${checkclock.status === 'ON_TIME' ? 'bg-green-600' : ''}
-                                ${checkclock.status === 'LATE' ? 'bg-red-600' : ''}
-                                ${checkclock.status === 'EARLY' ? 'bg-yellow-600' : ''}
-                                `}
-                        >
-                          {checkclock.status === 'ON_TIME'
-                            ? 'ON TIME'
-                            : checkclock.status === 'LATE'
-                              ? 'LATE'
-                              : 'EARLY'}
-                        </span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex gap-2">
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="hover:text-white hover:bg-blue-600"
-                          onClick={() => handleViewDetails(checkclock)}
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        {checkclock.clockOut === '-' && (
-                          <Dialog
-                            open={openCheckOutDialog}
-                            onOpenChange={setOpenCheckOutDialog}
-                          >
-                            <DialogTrigger asChild>
-                              <Button
-                                variant="outline"
-                                size="icon"
-                                className="hover:bg-white-600 bg-green-600 hover:text-white"
-                                onClick={() => handleCheckOut(checkclock.id)}
-                              >
-                                <LogOut className="h-4 w-4 text-white" />
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent className="max-w-2xl">
-                              <DialogHeader>
-                                <DialogTitle>Clock Out</DialogTitle>
-                              </DialogHeader>
-                              <CheckOutForm
-                                attendanceId={checkOutId ?? ''}
-                                onSuccess={handleCheckOutSuccess}
-                              />
-                            </DialogContent>
-                          </Dialog>
-                        )}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-
-            {/* Pagination */}
-            <PaginationFooter
-              totalItems={filteredCheckClocks.length}
-              itemsPerPage={itemsPerPage}
-              currentPage={currentPage}
-              onPageChange={setCurrentPage}
+              }
+              pagination={{
+                currentPage,
+                itemsPerPage,
+                onPageChange: setCurrentPage,
+              }}
             />
           </div>
         </div>

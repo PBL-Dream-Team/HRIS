@@ -14,7 +14,13 @@
       "entryFile": "main",
       "sourceRoot": "apps/backend/src",
       "compilerOptions": {
-        "tsConfigPath": "apps/backend/tsconfig.json"
+        "tsConfigPath": "apps/backend/tsconfig.json",
+        "assets": [
+          {
+            "include": "templates/**/*",
+            "outDir": "dist/apps/backend"
+          }
+        ]
       }
     }
   }
