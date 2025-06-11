@@ -13,7 +13,6 @@ import { subMonths, startOfDay, endOfDay, format } from 'date-fns';
 import * as XLSX from 'xlsx';
 import { plainToInstance } from 'class-transformer';
 import { validate } from '@nestjs/class-validator';
-import { create } from 'cypress/types/lodash';
 import { Prisma } from '@prisma/client';
 
 @Injectable()
@@ -34,9 +33,6 @@ export class EmployeeService {
         company_id:company.id
       }
     });
-    
-    
-
     
     const employeeLimit = company.max_employee - employeeCount;
 
@@ -520,7 +516,7 @@ export class EmployeeService {
       };
     }
 
-      const requiredColumns = ['first_name', 'last_name','email','password','phone'];
+      const requiredColumns = ['first_name', 'last_name','email','password','phone','workscheme'];
 
       const rowsWithMissingFields = parsedData
         .map((row, index) => {
@@ -567,7 +563,19 @@ export class EmployeeService {
       const updatedData = await Promise.all(parsedData.map(async row => {
         row.company_id = companyId;
         row.password =  await hash(row.password);
-        row.position = row.position ? row.position : 'Employee'
+        row.position = row.position ? row.position : 'Employee';
+        row.workscheme = row.workscheme?.toUpperCase();
+        const typ = await this.prisma.attendanceType.findFirst({
+          where:{
+            company_id : companyId,
+            workscheme : row.workscheme
+          },
+          orderBy:{
+            created_at: 'desc'
+          }
+        });
+
+        row.attendance_id = typ.id;
         return {
           ...row 
         } as Prisma.EmployeeCreateManyInput;
