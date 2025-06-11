@@ -50,7 +50,9 @@ export function DataTable<TData, TValue>({
   actions,
   customSearchInput,
   pagination,
-}: DataTableProps<TData, TValue>) {
+  // Add new prop for search event callback
+  onSearchChange,
+}: DataTableProps<TData, TValue> & { onSearchChange?: () => void }) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     [],
@@ -114,11 +116,10 @@ export function DataTable<TData, TValue>({
                     .getColumn(searchableColumn)
                     ?.getFilterValue() as string) ?? ''
                 }
-                onChange={(event) =>
-                  table
-                    .getColumn(searchableColumn)
-                    ?.setFilterValue(event.target.value)
-                }
+                onChange={(event) => {
+                  table.getColumn(searchableColumn)?.setFilterValue(event.target.value);
+                  if (onSearchChange) onSearchChange();
+                }}
                 className="pl-10"
               />
             </div>
