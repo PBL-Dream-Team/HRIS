@@ -175,9 +175,15 @@ export function EmployeeForm({
           const filtered = res.data.filter((ws: any) => ws.company_id === companyId);
           // Map ke format dropdown
           setWorkSchemeOptions(filtered.map((ws: any) => ({ value: ws.id, label: ws.name })));
+          
+          // Add warning if no work schemes found
+          if (filtered.length === 0) {
+            toast.warning('No work schemes found. Please create workspace in Checkclock feature first.');
+          }
         }
       } catch (error) {
         setWorkSchemeOptions([]);
+        toast.error('Failed to load work schemes.');
       }
     }
     fetchWorkSchemes();
