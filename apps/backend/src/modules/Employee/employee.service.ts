@@ -31,7 +31,7 @@ export class EmployeeService {
 
     const employeeCount = await this.prisma.employee.count({
       where:{
-        id:company.id
+        company_id:company.id
       }
     });
 
