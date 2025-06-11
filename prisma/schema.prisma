@@ -46,7 +46,7 @@ model Company {
   loc_long Float? @db.DoublePrecision
   
   subscription_id String? @db.Uuid
-  Subscription Subscription? @relation(fields: [subscription_id],references: [id], onDelete: Cascade)
+  Subscription Subscription? @relation(fields: [subscription_id],references: [id], onDelete: SetNull)
 
   max_employee Int? @db.Integer
   subs_date_start DateTime? @db.Timestamptz()
@@ -93,7 +93,7 @@ model Employee {
   is_admin Boolean @db.Boolean @default(false)
 
   attendance_id String? @db.Uuid
-  attendance AttendanceType? @relation(fields: [attendance_id],references: [id], onDelete: Cascade)
+  attendance AttendanceType? @relation(fields: [attendance_id],references: [id], onDelete: SetNull)
 
 
   birth_date DateTime? @db.Date
