@@ -84,14 +84,26 @@ export class AttendanceTypeService {
 
   async deleteAttendanceType(attendanceTypeId: string) {
     try {
-      await this.prisma.employee.updateMany({
-        data:{
-          workscheme: null
-        },
+      // await this.prisma.employee.updateMany({
+      //   data:{
+      //     workscheme: null
+      //   },
+      //   where:{
+      //     id: attendanceTypeId
+      //   }
+      // })
+      const empCount = await this.prisma.employee.findFirst({
         where:{
-          id: attendanceTypeId
+          attendance_id: attendanceTypeId
         }
-      })
+      });
+
+      if(empCount){
+        return {
+          statusCode: 409,
+          message:"Attendance type still being used"
+        }
+      }
       await this.prisma.attendanceType.delete({
         where: { id: attendanceTypeId },
       });
