@@ -95,7 +95,7 @@ export function LetterTypeForm({
       <div className="space-y-4">
         <div>
           <Label htmlFor="letterTypeName">
-            Letter Type Name 
+            Letter Type Name
             <span className="text-red-600"> *</span>
           </Label>
           <Input
@@ -109,7 +109,7 @@ export function LetterTypeForm({
         </div>
         <div>
           <Label htmlFor="letterTypeContent">
-            Content 
+            Content
             <span className="text-red-600"> *</span>
           </Label>
           <Input
@@ -125,6 +125,7 @@ export function LetterTypeForm({
         {onClose && (
           <Button
             type="button"
+            className="w-24"
             variant="outline"
             onClick={onClose}
             disabled={isLoading}

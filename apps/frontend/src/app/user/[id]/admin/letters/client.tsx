@@ -126,7 +126,7 @@ export default function LettersClient({
         const lastName = String(last_name || '');
         const userPosition = String(position || '');
         const userAvatar = String(pict_dir || '/avatars/default.jpg');
-        const compName = String(name || '')
+        const compName = String(name || '');
 
         setUser({
           name: `${firstName} ${lastName}`.trim() || 'Unknown User',
@@ -148,8 +148,10 @@ export default function LettersClient({
       if (mounted) {
         // Process employee data with null safety
         const employeeMap: Record<string, any> = {};
-        const employeeData = Array.isArray(employeesRes.data) ? employeesRes.data : [];
-        
+        const employeeData = Array.isArray(employeesRes.data)
+          ? employeesRes.data
+          : [];
+
         employeeData.forEach((emp: any) => {
           if (emp && emp.id) {
             employeeMap[emp.id] = {
@@ -165,7 +167,7 @@ export default function LettersClient({
         // Process letter type data with null safety
         const typeMap: Record<string, any> = {};
         const typeData = Array.isArray(typesRes.data) ? typesRes.data : [];
-        
+
         typeData.forEach((type: any) => {
           if (type && type.id) {
             typeMap[type.id] = {
@@ -177,25 +179,32 @@ export default function LettersClient({
         setLetterTypeMap(typeMap);
 
         // Process letters data with null safety
-        const lettersData = Array.isArray(lettersRes.data) ? lettersRes.data : [];
-        const validLetters = lettersData.filter(letter => 
-          letter && 
-          typeof letter === 'object' && 
-          letter.id &&
-          letter.employee_id
-        ).map(letter => ({
-          ...letter,
-          employee_id: String(letter.employee_id || ''),
-          lettertype_id: String(letter.lettertype_id || ''),
-          valid_until: letter.valid_until || new Date().toISOString(),
-        }));
-        
+        const lettersData = Array.isArray(lettersRes.data)
+          ? lettersRes.data
+          : [];
+        const validLetters = lettersData
+          .filter(
+            (letter) =>
+              letter &&
+              typeof letter === 'object' &&
+              letter.id &&
+              letter.employee_id,
+          )
+          .map((letter) => ({
+            ...letter,
+            employee_id: String(letter.employee_id || ''),
+            lettertype_id: String(letter.lettertype_id || ''),
+            valid_until: letter.valid_until || new Date().toISOString(),
+          }));
+
         setLetters(validLetters);
       }
-
     } catch (err: any) {
-      console.error('Error fetching letters data:', err.response?.data || err.message);
-      
+      console.error(
+        'Error fetching letters data:',
+        err.response?.data || err.message,
+      );
+
       if (mounted) {
         setError('Failed to fetch letters data. Please try again.');
         // Set safe default values on error
@@ -205,7 +214,7 @@ export default function LettersClient({
           last_name: '',
           position: '',
           avatar: '/avatars/default.jpg',
-          compName: 'Unknown Company'
+          compName: 'Unknown Company',
         });
         setEmployees({});
         setLetterTypeMap({});
@@ -235,10 +244,11 @@ export default function LettersClient({
       return {
         ...letter,
         employee_name: employee
-          ? `${String(employee.first_name || '')} ${String(employee.last_name || '')}`.trim() || 'Unknown Employee'
+          ? `${String(employee.first_name || '')} ${String(employee.last_name || '')}`.trim() ||
+            'Unknown Employee'
           : 'Unknown Employee',
         letter_type: String(letterType?.name || 'Unknown Type'),
-        valid_until: letter.valid_until 
+        valid_until: letter.valid_until
           ? new Date(letter.valid_until).toLocaleDateString('id-ID', {
               day: '2-digit',
               month: 'long',
@@ -281,7 +291,7 @@ export default function LettersClient({
       const lettersRes = await api.get(`/api/letter?company_id=${companyId}`);
       const lettersData = Array.isArray(lettersRes.data) ? lettersRes.data : [];
       setLetters(lettersData);
-      setRefreshTrigger(prev => !prev);
+      setRefreshTrigger((prev) => !prev);
     } catch (error) {
       console.error('Error refreshing letters:', error);
       toast.error('Failed to refresh letters data');
@@ -433,7 +443,7 @@ export default function LettersClient({
                         <IoMdAdd className="mr-2 h-4 w-4" /> Add Letter
                       </Button>
                     </DialogTrigger>
-                    <DialogContent className="max-w-2xl">
+                    <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
                       <DialogHeader>
                         <DialogTitle>Add Letter</DialogTitle>
                       </DialogHeader>

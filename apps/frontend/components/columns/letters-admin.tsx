@@ -129,7 +129,7 @@ export const letterColumns = (
                 <Pencil className="h-4 w-4" />
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl">
+            <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Edit Letter</DialogTitle>
               </DialogHeader>

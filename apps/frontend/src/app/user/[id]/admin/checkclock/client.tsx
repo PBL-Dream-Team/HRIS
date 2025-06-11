@@ -146,7 +146,8 @@ export default function CheckClockClient({
     setCurrentPage(1); // Reset ke halaman pertama saat pencarian berubah
   };
 
-  const [isWorkschemeOverviewOpen, setIsWorkschemeOverviewOpen] = useState(false);
+  const [isWorkschemeOverviewOpen, setIsWorkschemeOverviewOpen] =
+    useState(false);
 
   async function fetchData() {
     let mounted = true;
@@ -170,7 +171,7 @@ export default function CheckClockClient({
         const lastName = String(last_name || '');
         const userPosition = String(position || '');
         const userAvatar = String(pict_dir || '/avatars/default.jpg');
-        const compName = String(name || 'Unknown Company')
+        const compName = String(name || 'Unknown Company');
 
         setUser({
           name: `${firstName} ${lastName}`.trim() || 'Unknown User',
@@ -183,17 +184,20 @@ export default function CheckClockClient({
       }
 
       // Fetch all other data
-      const [attendanceRes, employeeRes, typeRes, companyRes] = await Promise.all([
-        api.get(`api/attendance?company_id=${companyId}`),
-        api.get(`api/employee?company_id=${companyId}`),
-        api.get(`api/attendanceType?company_id=${companyId}`),
-        api.get(`api/company?id=${companyId}`),
-      ]);
+      const [attendanceRes, employeeRes, typeRes, companyRes] =
+        await Promise.all([
+          api.get(`api/attendance?company_id=${companyId}`),
+          api.get(`api/employee?company_id=${companyId}`),
+          api.get(`api/attendanceType?company_id=${companyId}`),
+          api.get(`api/company?id=${companyId}`),
+        ]);
 
       if (mounted) {
         // Process employee data with null safety
         const employeeMap: Record<string, any> = {};
-        const employeeData = Array.isArray(employeeRes.data) ? employeeRes.data : [];
+        const employeeData = Array.isArray(employeeRes.data)
+          ? employeeRes.data
+          : [];
 
         for (const emp of employeeData) {
           if (emp && emp.id) {
@@ -221,20 +225,20 @@ export default function CheckClockClient({
         setAttendanceType(typeMap);
 
         // Process attendance data with null safety
-        const attendanceData = Array.isArray(attendanceRes.data) ? attendanceRes.data : [];
-        const validAttendances = attendanceData.filter(att =>
-          att &&
-          typeof att === 'object' &&
-          att.id &&
-          att.employee_id
+        const attendanceData = Array.isArray(attendanceRes.data)
+          ? attendanceRes.data
+          : [];
+        const validAttendances = attendanceData.filter(
+          (att) => att && typeof att === 'object' && att.id && att.employee_id,
         );
         setAttendance(validAttendances);
 
         // Process company data with null safety
-        const companyData = Array.isArray(companyRes.data) ? companyRes.data : [];
+        const companyData = Array.isArray(companyRes.data)
+          ? companyRes.data
+          : [];
         setCompany(companyData);
       }
-
     } catch (err: any) {
       console.error('Error fetching data:', err.response?.data || err.message);
 
@@ -280,7 +284,7 @@ export default function CheckClockClient({
       if (attendance.check_in && attendance.check_out) {
         workHoursValue = getTimeRangeInHours(
           formatTimeOnly(attendance.check_in),
-          formatTimeOnly(attendance.check_out)
+          formatTimeOnly(attendance.check_out),
         );
       }
 
@@ -288,7 +292,8 @@ export default function CheckClockClient({
         id: String(attendance.id || ''),
         employee_id: String(attendance.employee_id || ''),
         name: employeeData
-          ? `${employeeData.first_name} ${employeeData.last_name}`.trim() || 'Unknown Employee'
+          ? `${employeeData.first_name} ${employeeData.last_name}`.trim() ||
+            'Unknown Employee'
           : 'Unknown Employee',
         avatarUrl: employeeData?.pict_dir || undefined,
         position: String(employeeData?.position || 'N/A'),
@@ -332,12 +337,13 @@ export default function CheckClockClient({
 
   const filteredCheckclocks = useMemo(() => {
     return checkclocks.filter((checkclock) =>
-      checkclock.name.toLowerCase().includes(searchTerm.toLowerCase())
+      checkclock.name.toLowerCase().includes(searchTerm.toLowerCase()),
     );
   }, [checkclocks, searchTerm]);
 
   const [openSheet, setOpenSheet] = useState(false);
-  const [selectedCheckClock, setSelectedCheckClock] = useState<CheckClockProcessed | null>(null);
+  const [selectedCheckClock, setSelectedCheckClock] =
+    useState<CheckClockProcessed | null>(null);
 
   const handleViewDetails = (checkclock: CheckClockProcessed) => {
     setSelectedCheckClock(checkclock);
@@ -372,11 +378,19 @@ export default function CheckClockClient({
         return (
           <Avatar className="h-8 w-8 rounded-lg">
             <AvatarImage
-              src={row.original.avatarUrl ? `/storage/employee/${row.original.avatarUrl}` : '/avatars/default-avatar.png'}
+              src={
+                row.original.avatarUrl
+                  ? `/storage/employee/${row.original.avatarUrl}`
+                  : '/avatars/default-avatar.png'
+              }
               alt={name}
             />
             <AvatarFallback className="rounded-lg">
-              {name.split(' ').map((n: string) => n[0]).join('').toUpperCase()}
+              {name
+                .split(' ')
+                .map((n: string) => n[0])
+                .join('')
+                .toUpperCase()}
             </AvatarFallback>
           </Avatar>
         );
@@ -476,7 +490,11 @@ export default function CheckClockClient({
               ${status === 'LATE' ? 'bg-red-600' : ''}
               ${status === 'EARLY' ? 'bg-yellow-400' : ''}`}
           >
-            {status === 'ON_TIME' ? 'On Time' : status === 'LATE' ? 'Late' : 'Early'}
+            {status === 'ON_TIME'
+              ? 'On Time'
+              : status === 'LATE'
+                ? 'Late'
+                : 'Early'}
           </span>
         );
       },
@@ -590,7 +608,7 @@ export default function CheckClockClient({
                           <IoMdAdd /> Add Workscheme
                         </Button>
                       </DialogTrigger>
-                      <DialogContent className="max-w-4xl">
+                      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
                         <DialogHeader>
                           <DialogTitle>Add Workscheme</DialogTitle>
                         </DialogHeader>

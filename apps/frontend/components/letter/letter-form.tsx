@@ -21,7 +21,7 @@ import { toast } from 'sonner';
 
 // Icons
 import { FaFile, FaTrash, FaUpload } from 'react-icons/fa6';
-import {Eye} from 'lucide-react';
+import { Eye } from 'lucide-react';
 
 // Type Definitions
 type EmployeeOption = {
@@ -92,7 +92,9 @@ export function LetterForm({
     url: string;
     name: string;
   } | null>(null);
-  const [fileAction, setFileAction] = useState<'keep' | 'replace' | 'remove'>('keep');
+  const [fileAction, setFileAction] = useState<'keep' | 'replace' | 'remove'>(
+    'keep',
+  );
 
   // Fetch employees and letter types for select options
   const fetchOptions = useCallback(async () => {
@@ -112,7 +114,9 @@ export function LetterForm({
         toast.warning('No employees found for this company.');
       }
       if ((typeRes.data ?? []).length === 0) {
-        toast.warning('No letter types found. Please create letter types first.');
+        toast.warning(
+          'No letter types found. Please create letter types first.',
+        );
       }
     } catch (error: any) {
       console.error('Error fetching form options:', error);
@@ -132,7 +136,7 @@ export function LetterForm({
   useEffect(() => {
     if (mode === 'edit' && initialData) {
       console.log('Initializing form with data:', initialData);
-      
+
       setEmployeeId(initialData.employee_id || '');
       setLetterTypeId(initialData.lettertype_id || '');
       setLetterName(initialData.name || '');
@@ -152,9 +156,18 @@ export function LetterForm({
             if (parts.length >= 3) {
               const day = parseInt(parts[0]);
               const monthMap: Record<string, number> = {
-                'January': 0, 'February': 1, 'March': 2, 'April': 3,
-                'May': 4, 'June': 5, 'July': 6, 'August': 7,
-                'September': 8, 'October': 9, 'November': 10, 'December': 11
+                January: 0,
+                February: 1,
+                March: 2,
+                April: 3,
+                May: 4,
+                June: 5,
+                July: 6,
+                August: 7,
+                September: 8,
+                October: 9,
+                November: 10,
+                December: 11,
               };
               const month = monthMap[parts[1]];
               const year = parseInt(parts[2]);
@@ -167,17 +180,16 @@ export function LetterForm({
           console.error('Error parsing date:', e);
         }
       }
-      
+
       // Enhanced file handling - Check both file_url and file_dir
       const fileUrl = initialData.file_url || initialData.file_dir;
       if (fileUrl) {
-        const fileName = initialData.file_name || 
-                        fileUrl.split('/').pop() || 
-                        'Existing File';
+        const fileName =
+          initialData.file_name || fileUrl.split('/').pop() || 'Existing File';
         console.log('Setting existing file:', { url: fileUrl, name: fileName });
         setExistingFile({
           url: fileUrl,
-          name: fileName
+          name: fileName,
         });
         setFileAction('keep');
       } else {
@@ -186,7 +198,7 @@ export function LetterForm({
         setExistingFile(null);
         setFileAction('keep');
       }
-      
+
       setValidUntilDate(parsedDate);
       setSelectedFile(null);
     }
@@ -251,7 +263,7 @@ export function LetterForm({
       const allowedTypes = [
         'application/pdf',
         'application/msword',
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
       ];
 
       if (selectedFile.size > maxSize) {
@@ -265,7 +277,17 @@ export function LetterForm({
 
     // If all validations pass
     return null;
-  }, [employeeId, letterTypeId, letterName, validUntilDate, status, selectedFile, mode, existingFile, fileAction]);
+  }, [
+    employeeId,
+    letterTypeId,
+    letterName,
+    validUntilDate,
+    status,
+    selectedFile,
+    mode,
+    existingFile,
+    fileAction,
+  ]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -276,7 +298,11 @@ export function LetterForm({
   };
 
   const handleRemoveFile = () => {
-    console.log('Removing file, current state:', { selectedFile, existingFile, fileAction });
+    console.log('Removing file, current state:', {
+      selectedFile,
+      existingFile,
+      fileAction,
+    });
     setSelectedFile(null);
     if (mode === 'edit' && existingFile) {
       setFileAction('remove');
@@ -290,8 +316,8 @@ export function LetterForm({
 
   const handleViewFile = () => {
     if (existingFile?.url) {
-      const fileUrl = existingFile.url.startsWith('http') 
-        ? existingFile.url 
+      const fileUrl = existingFile.url.startsWith('http')
+        ? existingFile.url
         : `/storage/letter/${existingFile.url}`;
       window.open(fileUrl, '_blank');
     }
@@ -363,7 +389,6 @@ export function LetterForm({
       if (onClose) {
         onClose();
       }
-
     } catch (error: any) {
       console.error('Error submitting form:', error);
       const errorMessage =
@@ -387,19 +412,27 @@ export function LetterForm({
 
   // Helper function to get file display info
   const getFileDisplayInfo = () => {
-    console.log('Getting file display info:', { selectedFile, existingFile, fileAction });
-    
+    console.log('Getting file display info:', {
+      selectedFile,
+      existingFile,
+      fileAction,
+    });
+
     if (selectedFile) {
       return {
         name: selectedFile.name,
         isNew: true,
-        icon: <FaFile className="text-2xl text-blue-600 dark:text-blue-400 mb-1" />
+        icon: (
+          <FaFile className="text-2xl text-blue-600 dark:text-blue-400 mb-1" />
+        ),
       };
     } else if (existingFile && fileAction !== 'remove') {
       return {
         name: existingFile.name,
         isNew: false,
-        icon: <FaFile className="text-2xl text-green-600 dark:text-green-400 mb-1" />
+        icon: (
+          <FaFile className="text-2xl text-green-600 dark:text-green-400 mb-1" />
+        ),
       };
     }
     return null;
@@ -413,8 +446,8 @@ export function LetterForm({
         {/* Employee Select */}
         <div className="space-y-1">
           <Label htmlFor="employee">
-            Employee 
-            <span className='text-red-600'> *</span>
+            Employee
+            <span className="text-red-600"> *</span>
           </Label>
           <Select value={employeeId} onValueChange={setEmployeeId}>
             <SelectTrigger id="employee">
@@ -433,8 +466,8 @@ export function LetterForm({
         {/* Letter Type Select */}
         <div className="space-y-1">
           <Label htmlFor="letterType">
-            Letter Type 
-            <span className='text-red-600'> *</span>
+            Letter Type
+            <span className="text-red-600"> *</span>
           </Label>
           <Select value={letterTypeId} onValueChange={setLetterTypeId}>
             <SelectTrigger id="letterType">
@@ -454,10 +487,10 @@ export function LetterForm({
       {/* Letter Name Input */}
       <div className="space-y-1">
         <Label htmlFor="letterName">
-          Letter Name 
-          <span className='text-red-600'> *</span>
+          Letter Name
+          <span className="text-red-600"> *</span>
         </Label>
-        
+
         <Input
           id="letterName"
           value={letterName}
@@ -471,9 +504,12 @@ export function LetterForm({
       <div className="space-y-1">
         <Label htmlFor="letterDescription">
           Letter Description
-          <span className='text-muted-foreground text-sm font-medium'> (optional)</span>
+          <span className="text-muted-foreground text-sm font-medium">
+            {' '}
+            (optional)
+          </span>
         </Label>
-        
+
         <Input
           id="letterDescription"
           value={letterDesc}
@@ -488,9 +524,9 @@ export function LetterForm({
         <div className="space-y-1">
           <Label htmlFor="letterFile">
             Upload Letter File
-            <span className='text-red-600'> *</span> 
+            <span className="text-red-600"> *</span>
           </Label>
-          
+
           {/* File Display Area */}
           <div className="mt-1 relative w-full aspect-[3/1] border-2 border-dashed rounded-lg shadow-sm flex items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-700 transition cursor-pointer">
             {fileDisplayInfo ? (
@@ -543,7 +579,7 @@ export function LetterForm({
                 <FaTrash className="w-3 h-3 mr-1" />
                 Remove
               </Button>
-              
+
               {existingFile && !selectedFile && (
                 <Button
                   type="button"
@@ -587,8 +623,8 @@ export function LetterForm({
           {/* Letter Status Select */}
           <div className="space-y-1">
             <Label htmlFor="letterStatus">
-              Letter Status 
-              <span className='text-red-600'> *</span>
+              Letter Status
+              <span className="text-red-600"> *</span>
             </Label>
             <Select value={status} onValueChange={setStatus}>
               <SelectTrigger id="letterStatus">
@@ -604,14 +640,16 @@ export function LetterForm({
           {/* Valid Until Date Picker */}
           <div className="space-y-1">
             <Label htmlFor="validUntil">
-              Valid Until 
-              <span className='text-red-600'> *</span>
+              Valid Until
+              <span className="text-red-600"> *</span>
             </Label>
             <div className="relative">
               <Input
                 id="validUntil"
                 type="date"
-                value={validUntilDate ? format(validUntilDate, 'yyyy-MM-dd') : ''}
+                value={
+                  validUntilDate ? format(validUntilDate, 'yyyy-MM-dd') : ''
+                }
                 className="pr-4 [&::-webkit-calendar-picker-indicator]:opacity-100
                                    [&::-webkit-calendar-picker-indicator]:absolute
                                    [&::-webkit-calendar-picker-indicator]:right-2
@@ -650,9 +688,12 @@ export function LetterForm({
           disabled={isSubmitting}
         >
           {isSubmitting
-            ? (mode === 'create' ? 'Creating...' : 'Updating...')
-            : (mode === 'create' ? 'Submit Letter' : 'Update Letter')
-          }
+            ? mode === 'create'
+              ? 'Creating...'
+              : 'Updating...'
+            : mode === 'create'
+              ? 'Submit Letter'
+              : 'Update Letter'}
         </Button>
       </DialogFooter>
     </form>

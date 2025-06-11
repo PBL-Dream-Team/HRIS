@@ -87,36 +87,39 @@ export function WorkshemeForm({
   // Helper function to convert time string to minutes for comparison
   const timeToMinutes = (timeString: string): number => {
     if (!timeString) return 0;
-    
+
     const [hours, minutes, seconds] = timeString.split(':').map(Number);
-    return (hours * 60) + minutes + (seconds / 60);
+    return hours * 60 + minutes + seconds / 60;
   };
 
   // Validate time comparison
-  const validateTimeComparison = (checkInTime: string, checkOutTime: string): boolean => {
+  const validateTimeComparison = (
+    checkInTime: string,
+    checkOutTime: string,
+  ): boolean => {
     if (!checkInTime || !checkOutTime) return true; // Skip validation if either is empty
-    
+
     const checkInMinutes = timeToMinutes(checkInTime);
     const checkOutMinutes = timeToMinutes(checkOutTime);
-    
+
     if (checkOutMinutes <= checkInMinutes) {
       setTimeError('Clock out time must be later than clock in time');
       return false;
     }
-    
+
     // Check if the time difference is reasonable (at least 1 hour)
     const timeDifferenceHours = (checkOutMinutes - checkInMinutes) / 60;
     if (timeDifferenceHours < 1) {
       setTimeError('Work duration must be at least 1 hour');
       return false;
     }
-    
+
     // Check if work duration is not too long (more than 24 hours)
     if (timeDifferenceHours > 24) {
       setTimeError('Work duration cannot exceed 24 hours');
       return false;
     }
-    
+
     setTimeError('');
     return true;
   };
@@ -124,9 +127,15 @@ export function WorkshemeForm({
   // Real-time validation when times change
   useEffect(() => {
     if (checkIn && checkOut) {
-      const checkInTime = checkIn.includes(':') && checkIn.length === 5 ? `${checkIn}:00` : checkIn;
-      const checkOutTime = checkOut.includes(':') && checkOut.length === 5 ? `${checkOut}:00` : checkOut;
-      
+      const checkInTime =
+        checkIn.includes(':') && checkIn.length === 5
+          ? `${checkIn}:00`
+          : checkIn;
+      const checkOutTime =
+        checkOut.includes(':') && checkOut.length === 5
+          ? `${checkOut}:00`
+          : checkOut;
+
       validateTimeComparison(checkInTime, checkOutTime);
     } else {
       setTimeError('');
@@ -417,8 +426,8 @@ export function WorkshemeForm({
 
           <div>
             <Label>
-              Workscheme Address 
-              <span className='text-red-600'> *</span>
+              Workscheme Address
+              <span className="text-red-600"> *</span>
             </Label>
             <div className="flex gap-2">
               <Input
@@ -473,8 +482,8 @@ export function WorkshemeForm({
         <div className="space-y-4">
           <div>
             <Label htmlFor="workscheme-name">
-              Workscheme Name 
-              <span className='text-red-600'> *</span>
+              Workscheme Name
+              <span className="text-red-600"> *</span>
             </Label>
             <Input
               id="workscheme-name"
@@ -488,8 +497,8 @@ export function WorkshemeForm({
 
           <div>
             <Label htmlFor="check-in">
-              Clock In Time 
-              <span className='text-red-600'> *</span>
+              Clock In Time
+              <span className="text-red-600"> *</span>
             </Label>
             <Input
               id="check-in"
@@ -504,8 +513,8 @@ export function WorkshemeForm({
 
           <div>
             <Label htmlFor="check-out">
-              Clock Out Time 
-              <span className='text-red-600'> *</span>
+              Clock Out Time
+              <span className="text-red-600"> *</span>
             </Label>
             <Input
               id="check-out"
@@ -538,7 +547,8 @@ export function WorkshemeForm({
                 • Workspace location is optional for flexible arrangements
               </li>
               <li>
-                • <strong>Time Rules:</strong> Clock out must be later than clock in, minimum 1 hour duration
+                • <strong>Time Rules:</strong> Clock out must be later than
+                clock in, minimum 1 hour duration
               </li>
             </ul>
           </div>
@@ -549,6 +559,7 @@ export function WorkshemeForm({
         {onClose && (
           <Button
             type="button"
+            className="w-24"
             variant="outline"
             onClick={onClose}
             disabled={isLoading}
