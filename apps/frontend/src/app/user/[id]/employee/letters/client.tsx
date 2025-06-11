@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { letterColumns, Letter } from '@/components/columns/letters-employee';
 import { AppSidebar } from '@/components/app-sidebar';
 import {
@@ -18,6 +18,8 @@ import {
 import { DataTable } from '@/components/data-table';
 import { NavUser } from '@/components/nav-user';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 import LetterDetails from '@/components/letter/letter-details';
 import { useEffect } from 'react';
@@ -62,7 +64,8 @@ export default function LettersClient({
   const itemsPerPage = 10;
 
   const [openSheet, setOpenSheet] = useState(false);
-  const [selectedLetter, setselectedLetter] = useState<any>(null);
+  const [selectedLetter, setSelectedLetter] = useState<any>(null);
+  const [filterDate, setFilterDate] = useState<string>('');
 
   useEffect(() => {
     async function fetchData() {
@@ -195,8 +198,25 @@ export default function LettersClient({
     };
   });
 
+  // Filtered letters by date
+  const filteredLetters = React.useMemo(() => {
+    if (filterDate) {
+      return transformedLetters.filter((letter) => {
+        if (!letter.valid_until) return false;
+        const letterDate = new Date(letter.valid_until);
+        const selectedDate = new Date(filterDate);
+        return (
+          letterDate.getFullYear() === selectedDate.getFullYear() &&
+          letterDate.getMonth() === selectedDate.getMonth() &&
+          letterDate.getDate() === selectedDate.getDate()
+        );
+      });
+    }
+    return transformedLetters;
+  }, [transformedLetters, filterDate]);
+
   const handleViewDetails = (checkclock: any) => {
-    setselectedLetter(checkclock);
+    setSelectedLetter(checkclock);
     setOpenSheet(true);
   };
 
@@ -263,15 +283,45 @@ export default function LettersClient({
             {/* Data Table */}
             <DataTable
               columns={letterColumns(handleViewDetails)}
-              data={transformedLetters}
+              data={filteredLetters}
               searchableColumn="name"
               title="Letter Overview"
-              actions={<></>}
+              actions={
+                <div className="flex items-center gap-2 flex-wrap">
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="filter-date">Filter by date:</Label>
+                    <div className="relative">
+                      <Input
+                        id="filter-date"
+                        type="date"
+                        value={filterDate}
+                        onChange={(e) => setFilterDate(e.target.value)}
+                        className="pr-4 [&::-webkit-calendar-picker-indicator]:opacity-100 \
+                                 [&::-webkit-calendar-picker-indicator]:absolute \
+                                 [&::-webkit-calendar-picker-indicator]:right-2 \
+                                 [&::-webkit-calendar-picker-indicator]:w-4 \
+                                 [&::-webkit-calendar-picker-indicator]:h-4 \
+                                 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                      />
+                    </div>
+                    {filterDate && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setFilterDate('')}
+                      >
+                        Clear
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              }
               pagination={{
                 currentPage,
                 itemsPerPage,
                 onPageChange: setCurrentPage,
               }}
+              onSearchChange={() => setCurrentPage(1)}
             />
           </div>
         </div>

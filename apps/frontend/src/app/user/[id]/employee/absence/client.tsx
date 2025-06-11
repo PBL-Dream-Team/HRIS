@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { Eye } from 'lucide-react';
-import { IoMdAdd, IoMdSearch } from 'react-icons/io';
+import { IoMdAdd } from 'react-icons/io';
 
 import api from '@/lib/axios';
 import { AppSidebar } from '@/components/app-sidebar';
@@ -107,13 +107,15 @@ export default function AbsenceClient({
   const [absences, setAbsences] = useState<Absence[]>([]);
   const [employees, setEmployees] = useState<Record<string, any>>({});
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const ITEMS_PER_PAGE = 10;
   const router = useRouter();
   const [filterDate, setFilterDate] = useState<string>('');
 
   const [pictdir, setPictDir] = useState({
     pictdir: ''
   });
+
+  const [searchValue, setSearchValue] = useState('');
 
   const formatDate = (dateString: string) => {
     if (!dateString) return 'No date';
@@ -267,42 +269,58 @@ export default function AbsenceClient({
   }, [userId, companyId]);
 
   // Safe data transformation with null checks
-  const transformedabsences = absences.map((absence) => {
-    const employee = employees[absence.employee_id];
-    return {
-      id: String(absence.id || ''),
-      employee_id: String(absence.employee_id || ''),
-      company_id: String(absence.company_id || ''),
-      reason: String(absence.reason || '-'),
-      date: absence.date ? new Date(absence.date).toDateString() : 'No date',
-      status: String(absence.status || 'PENDING'),
-      name: employee 
-        ? `${String(employee.first_name || '')} ${String(employee.last_name || '')}`.trim() || 'Unknown Employee'
-        : 'Unknown Employee',
-      position: String(employee?.position || 'N/A'),
-      type: absence.type,
-      address: String(employee?.address || '-'),
-      filedir: String(absence.filedir || ''),
-      created_at: absence.created_at ? formatTimeOnly(absence.created_at) : 'No date',
-    };
-  });
+  const transformedAbsences = useMemo(() => {
+    return absences.map((absence) => {
+      const employee = employees[absence.employee_id];
+      return {
+        ...absence,
+        id: String(absence.id || ''),
+        employee_id: String(absence.employee_id || ''),
+        company_id: String(absence.company_id || ''),
+        reason: String(absence.reason || '-'),
+        date: absence.date || '', // ISO string
+        status: String(absence.status || 'PENDING'),
+        name: employee
+          ? `${String(employee.first_name || '')} ${String(employee.last_name || '')}`.trim() || 'Unknown Employee'
+          : 'Unknown Employee',
+        position: String(employee?.position || 'N/A'),
+        type: absence.type,
+        address: String(employee?.address || '-'),
+        filedir: String(absence.filedir || ''),
+        created_at: absence.created_at ? formatTimeOnly(absence.created_at) : 'No date',
+      };
+    });
+  }, [absences, employees]);
 
-  const filteredAbsences = filterDate
-    ? transformedabsences.filter((absence) => {
-        const absenceDate = new Date(absence.date);
+  const filteredAbsences = useMemo(() => {
+    if (filterDate) {
+      return transformedAbsences.filter((absence) => {
+        const absenceDate = new Date(absence.date); // ISO string
         const selectedDate = new Date(filterDate);
         return (
           absenceDate.getFullYear() === selectedDate.getFullYear() &&
           absenceDate.getMonth() === selectedDate.getMonth() &&
           absenceDate.getDate() === selectedDate.getDate()
         );
-      })
-    : transformedabsences;
+      });
+    }
+    return transformedAbsences;
+  }, [transformedAbsences, filterDate]);
 
-  const displayedAbsences = filteredAbsences.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage,
-  );
+  const displayedAbsences = useMemo(() => {
+    return filteredAbsences.slice(
+      (currentPage - 1) * ITEMS_PER_PAGE,
+      currentPage * ITEMS_PER_PAGE,
+    );
+  }, [filteredAbsences, currentPage]);
+
+  // Reset currentPage jika currentPage melebihi jumlah halaman setelah filter atau perubahan data
+  useEffect(() => {
+    const totalPages = Math.ceil(filteredAbsences.length / ITEMS_PER_PAGE) || 1;
+    if (currentPage > totalPages) {
+      setCurrentPage(1);
+    }
+  }, [filteredAbsences.length, ITEMS_PER_PAGE, currentPage]);
 
   const [openSheet, setOpenSheet] = useState(false);
   const [selectedAbsence, setSelectedAbsence] = useState<Absence | null>(null);
@@ -545,7 +563,7 @@ export default function AbsenceClient({
           <div className="border border-gray-300 rounded-md p-4">
             <DataTable
               columns={absenceColumns}
-              data={displayedAbsences}
+              data={filteredAbsences}
               searchableColumn="reason"
               title="Absence Overview"
               actions={
@@ -558,13 +576,12 @@ export default function AbsenceClient({
                         type="date"
                         value={filterDate}
                         onChange={(e) => setFilterDate(e.target.value)}
-                        className="pr-4 [&::-webkit-calendar-picker-indicator]:opacity-100 
-                                 [&::-webkit-calendar-picker-indicator]:absolute 
-                                 [&::-webkit-calendar-picker-indicator]:right-2 
-                                 [&::-webkit-calendar-picker-indicator]:w-4 
-                                 [&::-webkit-calendar-picker-indicator]:h-4 
+                        className="pr-4 [&::-webkit-calendar-picker-indicator]:opacity-100 \
+                                 [&::-webkit-calendar-picker-indicator]:absolute \
+                                 [&::-webkit-calendar-picker-indicator]:right-2 \
+                                 [&::-webkit-calendar-picker-indicator]:w-4 \
+                                 [&::-webkit-calendar-picker-indicator]:h-4 \
                                  [&::-webkit-calendar-picker-indicator]:cursor-pointer"
-                        style={{ colorScheme: 'light' }}
                       />
                     </div>
                     {filterDate && (
@@ -599,9 +616,10 @@ export default function AbsenceClient({
               }
               pagination={{
                 currentPage,
-                itemsPerPage,
+                itemsPerPage: ITEMS_PER_PAGE,
                 onPageChange: setCurrentPage,
               }}
+              onSearchChange={() => setCurrentPage(1)}
             />
           </div>
         </main>
