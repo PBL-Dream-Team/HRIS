@@ -35,7 +35,10 @@ export class EmployeeService {
       }
     });
 
-    if((company.max_employee - employeeCount) < 1){
+    
+    const employeeLimit = company.max_employee - employeeCount;
+
+    if(employeeLimit < 1){
       return {
         statusCode: 422,
         message: "Employee limit exceeded"
