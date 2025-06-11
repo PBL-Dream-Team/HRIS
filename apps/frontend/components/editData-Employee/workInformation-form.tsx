@@ -158,7 +158,10 @@ export function EmployeeEditWorkDataForm({
     >
       {/* Bank Selection */}
       <div>
-        <Label htmlFor="bank-select">Bank *</Label>
+        <Label htmlFor="bank-select">
+          Bank 
+          <span className='text-red-600'> *</span>
+        </Label>
         <Select
           value={account_bank}
           onValueChange={handleBankChange}
@@ -182,7 +185,10 @@ export function EmployeeEditWorkDataForm({
 
       {/* Account Name */}
       <div>
-        <Label htmlFor="account_name">Account Holder Name *</Label>
+        <Label htmlFor="account_name">
+          Account Holder Name 
+          <span className='text-red-600'> *</span>
+        </Label>
         <Input
           id="account_name"
           value={account_name}
@@ -194,7 +200,10 @@ export function EmployeeEditWorkDataForm({
 
       {/* Account Number */}
       <div className="col-span-full">
-        <Label htmlFor="account_number">Account Number *</Label>
+        <Label htmlFor="account_number">
+          Account Number 
+          <span className='text-red-600'> *</span>
+        </Label>
         <Input
           id="account_number"
           value={account_number}

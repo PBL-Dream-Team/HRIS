@@ -115,7 +115,10 @@ export function AbsenceAddForm({
         {/* Left Column */}
         <div className="flex-1 space-y-4">
           <div>
-            <Label htmlFor="absentType">Absent Type*</Label>
+            <Label htmlFor="absentType">
+              Absent Type
+              <span className='text-red-600'> *</span>
+            </Label>
             <Select
               value={absentType}
               onValueChange={setAbsentType}
@@ -133,7 +136,10 @@ export function AbsenceAddForm({
           </div>
 
           <div>
-            <Label htmlFor="date">Date*</Label>
+            <Label htmlFor="date">
+              Date
+              <span className='text-red-600'> *</span>
+            </Label>
             <div className="relative">
               <Input
                 id="date"
@@ -149,7 +155,10 @@ export function AbsenceAddForm({
           </div>
 
           <div>
-            <Label htmlFor="reason">Reason*</Label>
+            <Label htmlFor="reason">
+              Reason
+              <span className='text-red-600'> *</span>
+            </Label>
             <Input
               id="reason"
               type="text"
@@ -162,7 +171,10 @@ export function AbsenceAddForm({
 
         {/* Right Column */}
         <div className="flex-1 space-y-4">
-          <Label>Evidence Picture*</Label>
+          <Label>
+            Evidence Picture 
+            <span className='text-red-600'> *</span>
+          </Label>
 
           {/* Image Preview Area */}
           <div className="relative w-full aspect-[8/5] border rounded-lg shadow-sm overflow-hidden bg-gray-50">
