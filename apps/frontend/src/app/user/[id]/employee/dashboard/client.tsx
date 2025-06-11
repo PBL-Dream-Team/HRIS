@@ -244,8 +244,8 @@ export default function DashboardClient({
           const date = new Date(record.created_at);
           const month = String(date.getMonth() + 1).padStart(2, '0');
           const year = String(date.getFullYear());
-
-          if (month === selectedMonth && year === selectedYear) {
+          
+          if (month === selectedMonth && year === selectedYear && record.approval === 'APPROVED') {
             if (record.check_in_status === 'ON_TIME') onTime++;
             else if (record.check_in_status === 'LATE') late++;
           }

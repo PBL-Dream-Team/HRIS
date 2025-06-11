@@ -609,6 +609,7 @@ export default function CheckClockClient({
                 itemsPerPage,
                 onPageChange: setCurrentPage,
               }}
+              onSearchChange={() => setCurrentPage(1)}
             />
           </div>
         </div>
