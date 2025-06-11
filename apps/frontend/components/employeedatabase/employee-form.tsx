@@ -53,12 +53,6 @@ const bankOptions = [
   { value: 'Commonwealth', label: 'Commonwealth Bank' },
 ];
 
-const workSchemeOptions = [
-  { value: 'WFO', label: 'WFO' },
-  { value: 'WFA', label: 'WFA' },
-  { value: 'HYBRID', label: 'HYBRID' },
-];
-
 const genderOptions = [
   { value: 'M', label: 'Male' },
   { value: 'F', label: 'Female' },
@@ -86,9 +80,7 @@ export function EmployeeForm({
   onClose,
 }: EmployeeFormProps) {
   const [avatar, setAvatar] = useState<File | null>(null);
-  const [workScheme, setWorkScheme] = useState<'WFO' | 'WFA' | 'HYBRID' | ''>(
-    '',
-  );
+  const [workScheme, setWorkScheme] = useState<string>('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [gender, setGender] = useState<'M' | 'F' | 'O' | ''>('');
@@ -132,6 +124,9 @@ export function EmployeeForm({
   const [accountNumber, setAccountNumber] = useState('');
   const [accountName, setAccountName] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [workSchemeOptions, setWorkSchemeOptions] = useState<
+    { value: string; label: string }[]
+  >([]);
 
   // Isi data saat edit
   useEffect(() => {
@@ -170,6 +165,23 @@ export function EmployeeForm({
       }
     }
   }, [mode, initialData]);
+
+  // Fetch work scheme options from API
+  useEffect(() => {
+    async function fetchWorkSchemes() {
+      try {
+        const res = await api.get('/api/attendanceType');
+        if (Array.isArray(res.data)) {
+          const filtered = res.data.filter((ws: any) => ws.company_id === companyId);
+          // Map ke format dropdown
+          setWorkSchemeOptions(filtered.map((ws: any) => ({ value: ws.id, label: ws.name })));
+        }
+      } catch (error) {
+        setWorkSchemeOptions([]);
+      }
+    }
+    fetchWorkSchemes();
+  }, [companyId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -505,15 +517,12 @@ export function EmployeeForm({
             </Label>
             <Select
               value={workScheme}
-              onValueChange={(value) =>
-                setWorkScheme(value as 'WFO' | 'WFA' | 'HYBRID')
-              }
+              onValueChange={(value) => setWorkScheme(value)}
               key={`work_scheme-${workScheme}`}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Choose work scheme">
-                  {workSchemeOptions.find((option) => option.value === workScheme)
-                    ?.label || 'Choose work scheme'}
+                  {workSchemeOptions.find((option) => option.value === workScheme)?.label || 'Choose work scheme'}
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
