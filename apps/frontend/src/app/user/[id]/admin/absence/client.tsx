@@ -444,7 +444,7 @@ export default function AbsenceClient({
           <div className="border border-gray-300 rounded-md p-4">
             <DataTable
               columns={absenceColumns}
-              data={displayedAbsences}
+              data={filteredAbsences}
               searchableColumn="name"
               title="Absence Overview"
               pagination={{
@@ -452,6 +452,7 @@ export default function AbsenceClient({
                 itemsPerPage,
                 onPageChange: setCurrentPage,
               }}
+              onSearchChange={() => setCurrentPage(1)}
             />
           </div>
         </main>

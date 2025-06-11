@@ -452,6 +452,7 @@ export default function LettersClient({
                 itemsPerPage: ITEMS_PER_PAGE,
                 onPageChange: setCurrentPage,
               }}
+              onSearchChange={() => setCurrentPage(1)}
             />
           </div>
         </main>

@@ -182,11 +182,6 @@ export default function LettersClient({
 
     return {
       ...letter,
-      employee_name:
-        employee &&
-        `${String(employee.first_name || '')} ${String(employee.last_name || '')}`.trim()
-          ? `${String(employee.first_name || '')} ${String(employee.last_name || '')}`.trim()
-          : 'Unknown Employee',
       letter_type: String(letterType?.name || 'Unknown Type'),
       valid_until:
         letter.valid_until &&
