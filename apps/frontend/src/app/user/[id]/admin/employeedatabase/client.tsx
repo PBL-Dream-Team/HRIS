@@ -75,6 +75,8 @@ export default function EmployeeDatabaseClient({
     absentEmployees: 0,
   });
 
+  const [maxEmployee, setMaxEmployee] = useState<number>(0);
+
   // Pindahkan ke sini, sebelum useEffect
   const fetchEmployeeCount = async () => {
     if (!companyId) return;
@@ -114,7 +116,7 @@ export default function EmployeeDatabaseClient({
 
         if (mounted && userData && compData) {
           const { first_name, last_name, position, pict_dir } = userData;
-          const { name } = compData;
+          const { name, max_employee } = compData;
 
           // Ensure all values are strings and handle null/undefined
           const firstName = String(first_name || '');
@@ -131,6 +133,8 @@ export default function EmployeeDatabaseClient({
             avatar: userAvatar,
             compName: compName,
           });
+
+          setMaxEmployee(Number(max_employee || 0)); // Tambahkan ini
         }
 
         // Fetch employees data
@@ -497,6 +501,9 @@ export default function EmployeeDatabaseClient({
     );
   }
 
+  const isEmployeeLimitReached =
+    maxEmployee > 0 && employeeCount.total >= maxEmployee - 1;
+
   return (
     <SidebarProvider>
       <AppSidebar isAdmin={isAdmin} />
@@ -547,6 +554,7 @@ export default function EmployeeDatabaseClient({
                       variant="outline"
                       className="w-full md:w-auto"
                       onClick={() => setImportDialogOpen(true)}
+                      disabled={isEmployeeLimitReached} // Tambahkan ini
                     >
                       <BiImport className="h-4 w-4 mr-1" /> Import
                     </Button>
@@ -555,7 +563,10 @@ export default function EmployeeDatabaseClient({
                       onOpenChange={setOpenAddDialog}
                     >
                       <DialogTrigger asChild>
-                        <Button className="w-full md:w-auto">
+                        <Button
+                          className="w-full md:w-auto"
+                          disabled={isEmployeeLimitReached} // Tambahkan ini
+                        >
                           <Plus className="h-4 w-4 mr-1" /> Add Employee
                         </Button>
                       </DialogTrigger>
@@ -669,6 +680,7 @@ export default function EmployeeDatabaseClient({
                 itemsPerPage: ITEMS_PER_PAGE,
                 onPageChange: setCurrentPage,
               }}
+              onSearchChange={() => setCurrentPage(1)}
             />
           </div>
         </div>
