@@ -7,7 +7,7 @@ describe('Accessing the Employee Management page with admin credentials', () => 
     cy.url({ timeout: 60000 }).should('include', '/redirect');
     cy.url({ timeout: 60000 }).should('include', '/dashboard');
 
-    cy.contains('button', 'Employee Database').should('be.visible').click();
+    cy.contains('button', 'Employee').should('be.visible').click();
     cy.url({ timeout: 60000 }).should('include', '/employeedatabase');
   });
 });
