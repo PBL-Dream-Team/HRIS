@@ -25,7 +25,7 @@ const singlePayment = [
   {
     title: 'Trial',
     description:
-      'Try out all features of our HRIS platform free for up to 10 employees. No credit card required!',
+      'Try out all features of our HRIS platform free for up to 10 employees for 14 days. No credit card required!',
     price: 'Rp. 0',
     range: '10 Employee',
     features: [true, true, true, true],
@@ -117,7 +117,9 @@ export default function PricingPage() {
                 </p>
                 <p className="text-black text-2xl font-bold mt-2">
                   {plan.price}{' '}
-                  <span className="text-sm font-normal">/user/28 days</span>
+                  <span className="text-sm font-normal">
+                    {plan.title === 'Trial' ? '/14 days' : '/user/28 days'}
+                  </span>
                 </p>
                 <CardDescription>{plan.description}</CardDescription>
                 <Button
