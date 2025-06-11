@@ -34,6 +34,8 @@ export class EmployeeService {
         company_id:company.id
       }
     });
+    
+    
 
     
     const employeeLimit = company.max_employee - employeeCount;
@@ -52,6 +54,16 @@ export class EmployeeService {
     data.workscheme = dto.workscheme.toUpperCase();
     data.position = data.position ? data.position : "Employee";
     data.password = await hash(dto.password);
+
+    if(dto.attendance_id){
+      const attendanceType = await this.prisma.attendanceType.findFirst({
+        where:{
+          id:dto.attendance_id
+        }
+      })
+      
+      data.workscheme = attendanceType.workscheme.toUpperCase;
+    }
 
     try {
       const employee = await this.prisma.employee.create({ data: data });
@@ -126,6 +138,16 @@ export class EmployeeService {
     if (dto.password) {
       const hashed = await hash(dto.password);
       data.password = hashed;
+    }
+
+    if(dto.attendance_id){
+      const attendanceType = await this.prisma.attendanceType.findFirst({
+        where:{
+          id:dto.attendance_id
+        }
+      })
+      
+      data.workscheme = attendanceType.workscheme.toUpperCase;
     }
 
     try {

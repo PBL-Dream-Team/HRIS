@@ -56,11 +56,18 @@ export class AttendanceTypeService {
   ) {
     const data : any = {...dto};
     if(dto.workscheme) data.workscheme = dto.workscheme.toUpperCase();
+    
     try {
       const attendanceType = await this.prisma.attendanceType.update({
         where: { id: attendanceTypeId },
         data: data,
       });
+      if(dto.workscheme){
+        await this.prisma.employee.updateMany({
+          data:{workscheme:dto.workscheme},
+          where:{attendance_id:attendanceType.id}
+        });
+      }
       return {
         statusCode: 200,
         message: 'AttendanceType updated successfully',
@@ -77,9 +84,19 @@ export class AttendanceTypeService {
 
   async deleteAttendanceType(attendanceTypeId: string) {
     try {
+      await this.prisma.employee.update({
+        data:{
+          workscheme: null
+        },
+        where:{
+          id: attendanceTypeId
+        }
+      })
       await this.prisma.attendanceType.delete({
         where: { id: attendanceTypeId },
       });
+
+      
       return {
         statusCode: 200,
         message: 'AttendanceType deleted successfully',
