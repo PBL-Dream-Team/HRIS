@@ -46,7 +46,7 @@ model Company {
   loc_long Float? @db.DoublePrecision
   
   subscription_id String? @db.Uuid
-  Subscription Subscription? @relation(fields: [subscription_id],references: [id])
+  Subscription Subscription? @relation(fields: [subscription_id],references: [id], onDelete: Cascade)
 
   max_employee Int? @db.Integer
   subs_date_start DateTime? @db.Timestamptz()
@@ -73,7 +73,7 @@ model Employee {
   id String @db.Uuid @id @default(uuid())
 
   company_id String @db.Uuid()
-  Company Company @relation(fields: [company_id],references: [id])
+  Company Company @relation(fields: [company_id],references: [id], onDelete: Cascade)
 
   workscheme WorkSchemeType?
 
@@ -93,7 +93,7 @@ model Employee {
   is_admin Boolean @db.Boolean @default(false)
 
   attendance_id String? @db.Uuid
-  attendance AttendanceType? @relation(fields: [attendance_id],references: [id])
+  attendance AttendanceType? @relation(fields: [attendance_id],references: [id], onDelete: Cascade)
 
 
   birth_date DateTime? @db.Date
@@ -187,7 +187,7 @@ model LetterType{
   content String? @db.Text
 
   company_id String @db.Uuid
-  company Company @relation(fields: [company_id],references: [id])
+  company Company @relation(fields: [company_id],references: [id], onDelete: Cascade)
 
   created_at DateTime @db.Timestamptz() @default(now())
   updated_at DateTime @db.Timestamptz() @updatedAt
@@ -201,13 +201,13 @@ model Letter {
   id String @db.Uuid @id @default(uuid())
 
   company_id String @db.Uuid
-  company Company @relation(fields: [company_id],references: [id])
+  company Company @relation(fields: [company_id],references: [id], onDelete: Cascade)
 
   employee_id String @db.Uuid
-  employee Employee @relation(fields: [employee_id], references: [id])
+  employee Employee @relation(fields: [employee_id], references: [id], onDelete: Cascade)
 
   lettertype_id String @db.Uuid 
-  lettertype LetterType @relation(fields: [lettertype_id], references: [id])
+  lettertype LetterType @relation(fields: [lettertype_id], references: [id], onDelete: Cascade)
 
   name String @db.VarChar(50)
 
@@ -229,7 +229,7 @@ model AttendanceType {
   id String @db.Uuid @id @default(uuid())
 
   company_id String @db.Uuid
-  company Company @relation(fields: [company_id], references: [id])
+  company Company @relation(fields: [company_id], references: [id], onDelete: Cascade)
 
   name String @db.VarChar(50)
 
@@ -253,13 +253,13 @@ model Attendance {
   id String @db.Uuid @id @default(uuid())
 
   company_id String @db.Uuid()
-  company Company @relation(fields: [company_id], references: [id])
+  company Company @relation(fields: [company_id], references: [id], onDelete: Cascade)
 
   employee_id String @db.Uuid
-  employee Employee @relation(fields: [employee_id], references: [id])
+  employee Employee @relation(fields: [employee_id], references: [id], onDelete: Cascade)
 
   type_id String @db.Uuid
-  type AttendanceType @relation(fields: [type_id], references: [id])
+  type AttendanceType @relation(fields: [type_id], references: [id], onDelete: Cascade)
 
   check_in DateTime @db.Time()
   check_in_status CheckInStatus
@@ -304,10 +304,10 @@ model AbsenceLeave {
   id String @db.Uuid @id @default(uuid())
 
   employee_id String @db.Uuid
-  employee Employee @relation(fields: [employee_id], references: [id])
+  employee Employee @relation(fields: [employee_id], references: [id], onDelete: Cascade)
 
   company_id String @db.Uuid
-  company Company @relation(fields: [company_id], references: [id])
+  company Company @relation(fields: [company_id], references: [id], onDelete: Cascade)
 
   type AbsentType
 
@@ -341,10 +341,10 @@ model Transaction {
   id String @db.Uuid @id @default(uuid())
 
   company_id String @db.Uuid
-  company Company @relation(fields: [company_id], references: [id])
+  company Company @relation(fields: [company_id], references: [id], onDelete: Cascade)
 
   subscription_id String @db.Uuid
-  subscription Subscription @relation(fields: [subscription_id],references: [id])
+  subscription Subscription @relation(fields: [subscription_id],references: [id], onDelete: Cascade)
 
   merchantRef String? @unique
   tripayRef String?
@@ -376,7 +376,7 @@ model PasswordReset {
   token String   @unique
   
   employee_id String @db.Uuid
-  employee Employee @relation(fields: [employee_id], references: [id])
+  employee Employee @relation(fields: [employee_id], references: [id], onDelete: Cascade)
   
   created_at DateTime @default(now())
   expires_at DateTime
@@ -386,7 +386,7 @@ model RefreshToken{
   id           String   @id @default(uuid())
   token        String   @unique
   employeeId   String   @db.Uuid()
-  employee     Employee @relation(fields: [employeeId], references: [id])
+  employee     Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
   expiresAt    DateTime
   createdAt    DateTime @default(now())
 }
