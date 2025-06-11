@@ -564,7 +564,7 @@ export default function AbsenceClient({
             <DataTable
               columns={absenceColumns}
               data={filteredAbsences}
-              searchableColumn="reason"
+              searchableColumn="type"
               title="Absence Overview"
               actions={
                 <div className="flex items-center gap-2 flex-wrap">

@@ -127,7 +127,10 @@ export function EditPassword({
   return (
     <form onSubmit={handleSubmit} className="grid gap-4">
       <div>
-        <Label htmlFor="oldPassword">Current Password *</Label>
+        <Label htmlFor="oldPassword">
+          Current Password 
+          <span className='text-red-600'> *</span>
+        </Label>
         <div className="relative">
           <Input
             id="oldPassword"
@@ -152,7 +155,10 @@ export function EditPassword({
       </div>
 
       <div>
-        <Label htmlFor="newPassword">New Password *</Label>
+        <Label htmlFor="newPassword">
+          New Password 
+          <span className='text-red-600'> *</span>
+        </Label>
         <div className="relative">
           <Input
             id="newPassword"
@@ -178,7 +184,10 @@ export function EditPassword({
       </div>
 
       <div>
-        <Label htmlFor="confirmPassword">Confirm New Password *</Label>
+        <Label htmlFor="confirmPassword">
+          Confirm New Password 
+          <span className='text-red-600'> *</span>
+        </Label>
         <div className="relative">
           <Input
             id="confirmPassword"

@@ -412,7 +412,10 @@ export function LetterForm({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Employee Select */}
         <div className="space-y-1">
-          <Label htmlFor="employee">Employee *</Label>
+          <Label htmlFor="employee">
+            Employee 
+            <span className='text-red-600'> *</span>
+          </Label>
           <Select value={employeeId} onValueChange={setEmployeeId}>
             <SelectTrigger id="employee">
               <SelectValue placeholder="- Choose Employee -" />
@@ -429,7 +432,10 @@ export function LetterForm({
 
         {/* Letter Type Select */}
         <div className="space-y-1">
-          <Label htmlFor="letterType">Letter Type *</Label>
+          <Label htmlFor="letterType">
+            Letter Type 
+            <span className='text-red-600'> *</span>
+          </Label>
           <Select value={letterTypeId} onValueChange={setLetterTypeId}>
             <SelectTrigger id="letterType">
               <SelectValue placeholder="- Choose Letter Type -" />
@@ -447,7 +453,11 @@ export function LetterForm({
 
       {/* Letter Name Input */}
       <div className="space-y-1">
-        <Label htmlFor="letterName">Letter Name *</Label>
+        <Label htmlFor="letterName">
+          Letter Name 
+          <span className='text-red-600'> *</span>
+        </Label>
+        
         <Input
           id="letterName"
           value={letterName}
@@ -459,7 +469,11 @@ export function LetterForm({
 
       {/* Letter Description Input */}
       <div className="space-y-1">
-        <Label htmlFor="letterDescription">Letter Description (optional)</Label>
+        <Label htmlFor="letterDescription">
+          Letter Description
+          <span className='text-muted-foreground text-sm font-medium'> (optional)</span>
+        </Label>
+        
         <Input
           id="letterDescription"
           value={letterDesc}
@@ -473,7 +487,8 @@ export function LetterForm({
         {/* Enhanced File Upload Section */}
         <div className="space-y-1">
           <Label htmlFor="letterFile">
-            Upload Letter File *
+            Upload Letter File
+            <span className='text-red-600'> *</span> 
           </Label>
           
           {/* File Display Area */}
@@ -571,7 +586,10 @@ export function LetterForm({
         <div className="space-y-6">
           {/* Letter Status Select */}
           <div className="space-y-1">
-            <Label htmlFor="letterStatus">Letter Status *</Label>
+            <Label htmlFor="letterStatus">
+              Letter Status 
+              <span className='text-red-600'> *</span>
+            </Label>
             <Select value={status} onValueChange={setStatus}>
               <SelectTrigger id="letterStatus">
                 <SelectValue placeholder="- Choose Letter Status -" />
@@ -585,19 +603,31 @@ export function LetterForm({
 
           {/* Valid Until Date Picker */}
           <div className="space-y-1">
-            <Label htmlFor="validUntil">Valid Until *</Label>
-            <Input
-              id="validUntil"
-              type="date"
-              value={validUntilDate ? format(validUntilDate, 'yyyy-MM-dd') : ''}
-              onChange={(e) => {
-                const selected = e.target.value
-                  ? new Date(e.target.value)
-                  : undefined;
-                setValidUntilDate(selected);
-              }}
-              disabled={isSubmitting}
-            />
+            <Label htmlFor="validUntil">
+              Valid Until 
+              <span className='text-red-600'> *</span>
+            </Label>
+            <div className="relative">
+              <Input
+                id="validUntil"
+                type="date"
+                value={validUntilDate ? format(validUntilDate, 'yyyy-MM-dd') : ''}
+                className="pr-4 [&::-webkit-calendar-picker-indicator]:opacity-100
+                                   [&::-webkit-calendar-picker-indicator]:absolute
+                                   [&::-webkit-calendar-picker-indicator]:right-2
+                                   [&::-webkit-calendar-picker-indicator]:w-4
+                                   [&::-webkit-calendar-picker-indicator]:h-4
+                                   [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                style={{ colorScheme: 'light' }}
+                onChange={(e) => {
+                  const selected = e.target.value
+                    ? new Date(e.target.value)
+                    : undefined;
+                  setValidUntilDate(selected);
+                }}
+                disabled={isSubmitting}
+              />
+            </div>
           </div>
         </div>
       </div>

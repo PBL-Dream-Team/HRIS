@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Upload } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
 import { format } from 'date-fns';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
@@ -130,6 +131,7 @@ export function EmployeeForm({
   >();
   const [accountNumber, setAccountNumber] = useState('');
   const [accountName, setAccountName] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   // Isi data saat edit
   useEffect(() => {
@@ -289,7 +291,10 @@ export function EmployeeForm({
         </CardHeader>
         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <Label>First Name</Label>
+            <Label>
+              First Name
+              <span className="text-red-600"> *</span>
+            </Label>
             <Input
               placeholder="Enter first name"
               value={firstName}
@@ -297,7 +302,10 @@ export function EmployeeForm({
             />
           </div>
           <div>
-            <Label>Last Name</Label>
+            <Label>
+              Last Name
+              <span className="text-red-600"> *</span>
+            </Label>
             <Input
               placeholder="Enter last name"
               value={lastName}
@@ -305,7 +313,10 @@ export function EmployeeForm({
             />
           </div>
           <div>
-            <Label>Gender</Label>
+            <Label>
+              Gender
+              <span className="text-red-600"> *</span>
+            </Label>
             <Select
               value={gender}
               onValueChange={(value) => setGender(value as 'M' | 'F' | 'O')}
@@ -327,24 +338,39 @@ export function EmployeeForm({
             </Select>
           </div>
           <div>
-            <Label htmlFor="birth_date">Date of Birth</Label>
-            <Input
-              id="birth_date"
-              type="date"
-              value={birthDate ? format(birthDate, 'yyyy-MM-dd') : ''}
-              onChange={(e) => {
-                const selectedDate = e.target.value
-                  ? new Date(e.target.value)
-                  : undefined;
-                setBirthDate(selectedDate);
-              }}
-              max={format(new Date(), 'yyyy-MM-dd')}
-              min="1900-01-01"
-              required
-            />
+            <Label htmlFor="birth_date">
+              Date of Birth
+              <span className="text-red-600"> *</span>
+            </Label>
+            <div className="relative">
+              <Input
+                id="birth_date"
+                type="date"
+                value={birthDate ? format(birthDate, 'yyyy-MM-dd') : ''}
+                onChange={(e) => {
+                  const selectedDate = e.target.value
+                    ? new Date(e.target.value)
+                    : undefined;
+                  setBirthDate(selectedDate);
+                }}
+                className="pr-4 [&::-webkit-calendar-picker-indicator]:opacity-100
+                                     [&::-webkit-calendar-picker-indicator]:absolute
+                                     [&::-webkit-calendar-picker-indicator]:right-2
+                                     [&::-webkit-calendar-picker-indicator]:w-4
+                                     [&::-webkit-calendar-picker-indicator]:h-4
+                                     [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                style={{ colorScheme: 'light' }}
+                max={format(new Date(), 'yyyy-MM-dd')}
+                min="1900-01-01"
+                required
+              />
+            </div>
           </div>
           <div>
-            <Label>Birth Place</Label>
+            <Label>
+              Birth Place
+              <span className="text-red-600"> *</span>
+            </Label>
             <Input
               placeholder="Enter birth place"
               value={birthPlace}
@@ -352,7 +378,10 @@ export function EmployeeForm({
             />
           </div>
           <div>
-            <Label>NIK</Label>
+            <Label>
+              NIK
+              <span className="text-red-600"> *</span>
+            </Label>
             <Input
               placeholder="Enter NIK"
               value={nik}
@@ -360,7 +389,10 @@ export function EmployeeForm({
             />
           </div>
           <div>
-            <Label>Last Education</Label>
+            <Label>
+              Last Education
+              <span className="text-red-600"> *</span>
+            </Label>
             <Select
               value={education}
               onValueChange={(value) =>
@@ -395,7 +427,10 @@ export function EmployeeForm({
         </CardHeader>
         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <Label>Address</Label>
+            <Label>
+              Address
+              <span className="text-red-600"> *</span>
+            </Label>
             <Input
               placeholder="Enter address"
               value={address}
@@ -403,7 +438,10 @@ export function EmployeeForm({
             />
           </div>
           <div>
-            <Label>Email</Label>
+            <Label>
+              Email
+              <span className="text-red-600"> *</span>
+            </Label>
             <Input
               type="email"
               placeholder="Enter email"
@@ -413,17 +451,38 @@ export function EmployeeForm({
           </div>
           {mode !== 'edit' && (
             <div>
-              <Label>Password</Label>
-              <Input
-                type="password"
-                placeholder="Enter password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
+              <Label>
+                Password
+                <span className="text-red-600"> *</span>
+              </Label>
+              <div className="relative">
+                <Input
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Enter password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                  tabIndex={-1}
+                >
+                  {showPassword ? (
+                    <Eye className="h-4 w-4" />
+                  ) : (
+                    <EyeOff className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
             </div>
           )}
           <div>
-            <Label>Phone Number</Label>
+            <Label>
+              Phone Number
+              <span className="text-red-600"> *</span>
+            </Label>
             <Input
               placeholder="Enter phone number"
               value={phoneNumber}
@@ -440,7 +499,10 @@ export function EmployeeForm({
         </CardHeader>
         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <Label>Work Scheme</Label>
+            <Label>
+              Work Scheme
+              <span className="text-red-600"> *</span>
+            </Label>
             <Select
               value={workScheme}
               onValueChange={(value) =>
@@ -464,7 +526,10 @@ export function EmployeeForm({
             </Select>
           </div>
           <div>
-            <Label>Position</Label>
+            <Label>
+              Position
+              <span className="text-red-600"> *</span>
+            </Label>
             <Input
               placeholder="Enter position"
               value={position}
@@ -472,7 +537,10 @@ export function EmployeeForm({
             />
           </div>
           <div>
-            <Label>Branch</Label>
+            <Label>
+              Branch
+              <span className="text-red-600"> *</span>
+            </Label>
             <Input
               placeholder="Enter branch"
               value={branch}
@@ -480,7 +548,10 @@ export function EmployeeForm({
             />
           </div>
           <div>
-            <Label>Contract</Label>
+            <Label>
+              Contract
+              <span className="text-red-600"> *</span>
+            </Label>
             <Select
               value={contract}
               onValueChange={(value) =>
@@ -513,7 +584,10 @@ export function EmployeeForm({
         </CardHeader>
         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <Label>Bank</Label>
+            <Label>
+              Bank
+              <span className="text-red-600"> *</span>
+            </Label>
             <Select
               value={bank || ''}
               onValueChange={(value) => setBank(value as any)}
@@ -535,7 +609,10 @@ export function EmployeeForm({
             </Select>
           </div>
           <div>
-            <Label>Account Number</Label>
+            <Label>
+              Account Number
+              <span className="text-red-600"> *</span>
+            </Label>
             <Input
               placeholder="Enter account number"
               value={accountNumber}
@@ -543,7 +620,10 @@ export function EmployeeForm({
             />
           </div>
           <div>
-            <Label>Account Name</Label>
+            <Label>
+              Account Name
+              <span className="text-red-600"> *</span>
+            </Label>
             <Input
               placeholder="Enter account name"
               value={accountName}

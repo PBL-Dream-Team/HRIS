@@ -206,7 +206,10 @@ export function AdminEditDataForm({
         </div>
       </div>
       <div>
-        <Label>First Name *</Label>
+        <Label>
+          First Name 
+          <span className='text-red-600'> *</span>
+        </Label>
         <Input
           id="first_name"
           value={first_name}
@@ -215,7 +218,10 @@ export function AdminEditDataForm({
         />
       </div>
       <div>
-        <Label>Last Name *</Label>
+        <Label>
+          Last Name 
+          <span className='text-red-600'> *</span>
+        </Label>
         <Input
           id="last_name"
           value={last_name}
@@ -224,7 +230,10 @@ export function AdminEditDataForm({
         />
       </div>
       <div>
-        <Label>Email *</Label>
+        <Label>
+          Email 
+          <span className='text-red-600'> *</span>
+        </Label>
         <Input
           id="email"
           value={email}
@@ -233,7 +242,10 @@ export function AdminEditDataForm({
         />
       </div>
       <div>
-        <Label>Mobile Number *</Label>
+        <Label>
+          Mobile Number 
+          <span className='text-red-600'> *</span>
+        </Label>
         <Input
           id="phone"
           value={phone}

@@ -416,7 +416,10 @@ export function WorkshemeForm({
           </div>
 
           <div>
-            <Label>Workscheme Address</Label>
+            <Label>
+              Workscheme Address 
+              <span className='text-red-600'> *</span>
+            </Label>
             <div className="flex gap-2">
               <Input
                 value={workspaceAddress}
@@ -469,7 +472,10 @@ export function WorkshemeForm({
         {/* Right Column - Form Fields */}
         <div className="space-y-4">
           <div>
-            <Label htmlFor="workscheme-name">Workscheme Name *</Label>
+            <Label htmlFor="workscheme-name">
+              Workscheme Name 
+              <span className='text-red-600'> *</span>
+            </Label>
             <Input
               id="workscheme-name"
               type="text"
@@ -481,7 +487,10 @@ export function WorkshemeForm({
           </div>
 
           <div>
-            <Label htmlFor="check-in">Clock In Time *</Label>
+            <Label htmlFor="check-in">
+              Clock In Time 
+              <span className='text-red-600'> *</span>
+            </Label>
             <Input
               id="check-in"
               type="time"
@@ -494,7 +503,10 @@ export function WorkshemeForm({
           </div>
 
           <div>
-            <Label htmlFor="check-out">Clock Out Time *</Label>
+            <Label htmlFor="check-out">
+              Clock Out Time 
+              <span className='text-red-600'> *</span>
+            </Label>
             <Input
               id="check-out"
               type="time"
