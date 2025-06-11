@@ -376,10 +376,10 @@ export function WorkshemeForm({
 
       if (mode === 'create') {
         await api.post('/api/attendanceType', payload);
-        toast.success('Attendance type created successfully!');
+        toast.success('Workscheme created successfully!');
       } else if (mode === 'edit' && initialData?.id) {
         await api.patch(`/api/attendanceType/${initialData.id}`, payload);
-        toast.success('Attendance type updated successfully!');
+        toast.success('Workscheme updated successfully!');
       }
 
       if (mode === 'create') {

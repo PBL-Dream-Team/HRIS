@@ -173,15 +173,15 @@ export function WorkschemeOverviewContent({
                   <div className="flex flex-col">
                     <span>{workscheme.name}</span>
                     <span className="text-xs text-gray-500">
-                      {workscheme.name.toLowerCase().includes('wfo') &&
+                      {workscheme.workscheme.toLowerCase().includes('wfo') &&
                         '🏢 Office'}
-                      {workscheme.name.toLowerCase().includes('wfa') &&
+                      {workscheme.workscheme.toLowerCase().includes('wfa') &&
                         '🌍 Anywhere'}
-                      {workscheme.name.toLowerCase().includes('hybrid') &&
+                      {workscheme.workscheme.toLowerCase().includes('hybrid') &&
                         '🔄 Hybrid'}
-                      {!workscheme.name.toLowerCase().includes('wfo') &&
-                        !workscheme.name.toLowerCase().includes('wfa') &&
-                        !workscheme.name.toLowerCase().includes('hybrid') &&
+                      {!workscheme.workscheme.toLowerCase().includes('wfo') &&
+                        !workscheme.workscheme.toLowerCase().includes('wfa') &&
+                        !workscheme.workscheme.toLowerCase().includes('hybrid') &&
                         '📋 Custom'}
                     </span>
                   </div>
