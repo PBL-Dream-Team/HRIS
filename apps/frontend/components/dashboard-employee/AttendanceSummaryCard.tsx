@@ -74,6 +74,13 @@ export default function AttendanceSummaryCard({
     { attendance: 'sick', total: summary.sick, fill: 'hsl(var(--chart-4))' },
     { attendance: 'permit', total: summary.permit, fill: 'hsl(var(--chart-5))' },
   ];
+  const isEmpty =
+    summary.onTime === 0 &&
+    summary.late === 0 &&
+    summary.leave === 0 &&
+    summary.sick === 0 &&
+    summary.permit === 0;
+
   return (
     <Card>
       <CardHeader className="relative pb-4">
@@ -88,56 +95,64 @@ export default function AttendanceSummaryCard({
         </div>
       </CardHeader>
       <CardContent>
-        <ChartContainer
-          config={chartConfig}
-          className="mx-auto w-full h-full min-h-[300px] [&_.recharts-text]:fill-background"
-        >
-          <PieChart
-            width={300}
-            height={300}
-            margin={{ top: 0, right: 0, left: 0, bottom: 0 }}
+        {isEmpty ? (
+          <div className="flex items-center justify-center min-h-[300px] text-muted-foreground text-lg font-medium">
+            No Attendance Data
+          </div>
+        ) : (
+          <ChartContainer
+            config={chartConfig}
+            className="mx-auto w-full h-full min-h-[300px] [&_.recharts-text]:fill-background"
           >
-            <ChartTooltip
-              content={<ChartTooltipContent nameKey="total" hideLabel />}
-            />
-            <Pie data={attendancesData} dataKey="total" outerRadius={130}>
-              {attendancesData.map((entry, index) => (
-                <Cell
-                  key={`cell-${index}`}
-                  fill={
-                    chartConfig[entry.attendance as keyof typeof chartConfig]
-                      ?.color
-                  }
-                />
-              ))}
-            </Pie>
-          </PieChart>
-        </ChartContainer>
+            <PieChart
+              width={300}
+              height={300}
+              margin={{ top: 0, right: 0, left: 0, bottom: 0 }}
+            >
+              <ChartTooltip
+                content={<ChartTooltipContent nameKey="total" hideLabel />}
+              />
+              <Pie data={attendancesData} dataKey="total" outerRadius={130}>
+                {attendancesData.map((entry, index) => (
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={
+                      chartConfig[entry.attendance as keyof typeof chartConfig]
+                        ?.color
+                    }
+                  />
+                ))}
+              </Pie>
+            </PieChart>
+          </ChartContainer>
+        )}
       </CardContent>
-      <CardFooter className="flex flex-col gap-4">
-        <div className="grid grid-cols-5 gap-4">
-          {attendancesData.slice(0, 5).map((item, index) => (
-            <div key={item.attendance} className="flex items-center gap-2">
-              <span
-                className="w-3 h-3 rounded-full flex-shrink-0"
-                style={{
-                  backgroundColor:
-                    chartConfig[item.attendance as keyof typeof chartConfig]
-                      ?.color,
-                }}
-              ></span>
-              <div className="flex flex-col gap-2">
-                <span className="text-sm text-muted-foreground font-medium">
-                  {
-                    chartConfig[item.attendance as keyof typeof chartConfig]
-                      ?.label
-                  }
-                </span>
+      {!isEmpty && (
+        <CardFooter className="flex flex-col gap-4">
+          <div className="grid grid-cols-5 gap-4">
+            {attendancesData.slice(0, 5).map((item, index) => (
+              <div key={item.attendance} className="flex items-center gap-2">
+                <span
+                  className="w-3 h-3 rounded-full flex-shrink-0"
+                  style={{
+                    backgroundColor:
+                      chartConfig[item.attendance as keyof typeof chartConfig]
+                        ?.color,
+                  }}
+                ></span>
+                <div className="flex flex-col gap-2">
+                  <span className="text-sm text-muted-foreground font-medium">
+                    {
+                      chartConfig[item.attendance as keyof typeof chartConfig]
+                        ?.label
+                    }
+                  </span>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-      </CardFooter>
+            ))}
+          </div>
+        </CardFooter>
+      )}
     </Card>
   );
 }

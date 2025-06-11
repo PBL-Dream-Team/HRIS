@@ -227,6 +227,20 @@ export default function CountdownCard({ userId, companyId }: CountdownCardProps)
         fetchData();
     }, [userId]);
 
+    // Ambil attendance hari ini
+    const todayAttendanceData = attendance.find(
+        (att: any) =>
+            isSameDate(new Date(att.created_at), new Date())
+    );
+
+    // Ambil waktu clock in dan clock out hari ini (jika ada)
+    const clockInTime = todayAttendanceData?.check_in
+        ? formatTime(new Date(todayAttendanceData.check_in))
+        : null;
+    const clockOutTime = todayAttendanceData?.check_out
+        ? formatTime(new Date(todayAttendanceData.check_out))
+        : null;
+
     useEffect(() => {
         const today = attendance.find(
             (att: any) =>
@@ -267,17 +281,21 @@ export default function CountdownCard({ userId, companyId }: CountdownCardProps)
                         </span>
                     </div>
 
-                    {/* 3 Card Bawah */}
-                    <div className="grid gap-4 sm:grid-cols-3">
+                    {/* 2 Card Bawah */}
+                    <div className="grid gap-6 sm:grid-cols-2 justify-center">
                         {/* Card 1: Clock In */}
-                        <Card>
+                        <Card className="flex-1 min-w-[200px]">
                             <CardHeader>
-                                <CardTitle className="text-lg font-medium text-muted-foreground">
+                                <CardTitle className="text-lg font-medium text-muted-foreground text-center">
                                     Clock In
                                 </CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <div className="items-center flex flex-col">
+                                <div className="flex flex-col items-center">
+                                    {/* Waktu clock in di atas tombol */}
+                                    <span className="mb-3 text-base font-bold text-primary">
+                                        {clockInTime || '-'}
+                                    </span>
                                     <Dialog open={openClockInDialog} onOpenChange={setOpenClockInDialog}>
                                         <DialogTrigger asChild>
                                             <Button
@@ -307,15 +325,19 @@ export default function CountdownCard({ userId, companyId }: CountdownCardProps)
                             </CardContent>
                         </Card>
 
-                        {/* Card 2: Check Out */}
-                        <Card>
+                        {/* Card 2: Clock Out */}
+                        <Card className="flex-1 min-w-[200px]">
                             <CardHeader>
-                                <CardTitle className="text-lg font-medium text-muted-foreground">
+                                <CardTitle className="text-lg font-medium text-muted-foreground text-center">
                                     Clock Out
                                 </CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <div className="items-center flex flex-col">
+                                <div className="flex flex-col items-center">
+                                    {/* Waktu clock out di atas tombol */}
+                                    <span className="mb-3 text-base font-bold text-primary">
+                                        {clockOutTime || '-'}
+                                    </span>
                                     <Dialog open={openCheckOutDialog} onOpenChange={setOpenCheckOutDialog}>
                                         <DialogTrigger asChild>
                                             <Button
@@ -341,7 +363,7 @@ export default function CountdownCard({ userId, companyId }: CountdownCardProps)
                                                 />
                                             ) : (
                                                 <div className="text-center text-muted-foreground">
-                                                    Anda sudah melakukan check out hari ini atau belum clock in.
+                                                    No clock in data found for today.
                                                 </div>
                                             )}
                                         </DialogContent>
@@ -349,8 +371,8 @@ export default function CountdownCard({ userId, companyId }: CountdownCardProps)
                                 </div>
                             </CardContent>
                         </Card>
-
-                        {/* Card 3: Add Absence */}
+                        {/* Card 3: Add Absence (DISABLED, uncomment jika ingin tampil) */}
+                        {/*
                         <Card>
                             <CardHeader>
                                 <CardTitle className="text-lg font-medium text-muted-foreground">
@@ -381,6 +403,7 @@ export default function CountdownCard({ userId, companyId }: CountdownCardProps)
                                 </div>
                             </CardContent>
                         </Card>
+                        */}
                     </div>
                 </div>
             </CardContent>
