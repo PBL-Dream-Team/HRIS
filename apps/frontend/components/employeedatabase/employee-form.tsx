@@ -171,11 +171,14 @@ export function EmployeeForm({
         if (Array.isArray(res.data)) {
           const filtered = res.data.filter((at: any) => at.company_id === companyId);
           // Map to dropdown format with workscheme info
-          setWorkSchemeOptions(filtered.map((at: any) => ({ 
-            value: at.id, 
+          setWorkSchemeOptions(filtered.map((at: any) => ({
+            value: at.id,
             label: `${at.name} (${at.workscheme})`,
             workscheme: at.workscheme
           })));
+          if (filtered.length === 0) {
+            toast.warning('No work schemes found. Please create workscheme on checkclock feature first.');
+          }
         }
       } catch (error) {
         console.error('Error fetching attendance types:', error);
@@ -216,7 +219,7 @@ export function EmployeeForm({
       setIsLoading(false);
       return;
     }
-    
+
     // Validate NIK format (should be numbers only)
     if (nik && !/^\d+$/.test(nik)) {
       toast.error('NIK should contain only numbers');
@@ -255,29 +258,29 @@ export function EmployeeForm({
     // Password validation: must contain uppercase, lowercase, number, and symbol
     if (password) {
       if (!/^[a-zA-Z0-9!@#$%^&*()_+={}\[\]:;"'<>,.?\/\\|-]+$/.test(password)) {
-      toast.error('Password can only contain alphanumeric characters and special symbols !@#$%^&*()_+={}[\\]:;"\'<>,.?/\\|-');
-      setIsLoading(false);
-      return;
+        toast.error('Password can only contain alphanumeric characters and special symbols !@#$%^&*()_+={}[\\]:;"\'<>,.?/\\|-');
+        setIsLoading(false);
+        return;
       }
       if (!/[A-Z]/.test(password)) {
-      toast.error('Password must contain at least one uppercase letter');
-      setIsLoading(false);
-      return;
+        toast.error('Password must contain at least one uppercase letter');
+        setIsLoading(false);
+        return;
       }
       if (!/[a-z]/.test(password)) {
-      toast.error('Password must contain at least one lowercase letter');
-      setIsLoading(false);
-      return;
+        toast.error('Password must contain at least one lowercase letter');
+        setIsLoading(false);
+        return;
       }
       if (!/[0-9]/.test(password)) {
-      toast.error('Password must contain at least one number');
-      setIsLoading(false);
-      return;
+        toast.error('Password must contain at least one number');
+        setIsLoading(false);
+        return;
       }
       if (!/[!@#$%^&*()_+={}\[\]:;"'<>,.?\/\\|-]/.test(password)) {
-      toast.error('Password must contain at least one special symbol');
-      setIsLoading(false);
-      return;
+        toast.error('Password must contain at least one special symbol');
+        setIsLoading(false);
+        return;
       }
     }
 
@@ -291,22 +294,22 @@ export function EmployeeForm({
     // Validate phone number uniqueness
     try {
       const res = await api.get('/api/employee', {
-      params: { phone: phoneNumber, company_id: companyId }
+        params: { phone: phoneNumber, company_id: companyId }
       });
       // If editing, allow if the found employee is the same as the one being edited
       if (
-      res.data &&
-      Array.isArray(res.data) &&
-      res.data.length > 0 &&
-      (mode !== 'edit' || res.data[0].id !== initialData?.id)
+        res.data &&
+        Array.isArray(res.data) &&
+        res.data.length > 0 &&
+        (mode !== 'edit' || res.data[0].id !== initialData?.id)
       ) {
-      toast.error('Phone number already exists');
-      setIsLoading(false);
-      return;
+        toast.error('Phone number already exists');
+        setIsLoading(false);
+        return;
       }
     } catch (err: any) {
       if (err?.response?.status !== 404) {
-      console.error('Error checking phone number uniqueness:', err);
+        console.error('Error checking phone number uniqueness:', err);
       }
     }
 
@@ -316,7 +319,7 @@ export function EmployeeForm({
       setIsLoading(false);
       return;
     }
-    
+
     // Validate account number format (should be numbers only)
     if (accountNumber && !/^\d+$/.test(accountNumber)) {
       toast.error('Account number should contain only numbers');
@@ -348,7 +351,7 @@ export function EmployeeForm({
 
     try {
       const formData = new FormData();
-      
+
       // Add file if exists
       if (avatar) {
         formData.append('file', avatar);
@@ -361,7 +364,7 @@ export function EmployeeForm({
       formData.append('last_name', lastName);
       formData.append('email', email);
       formData.append('attendance_id', attendanceId);
-      
+
       // Password is required only for create mode
       if (mode === 'create') {
         formData.append('password', password);
@@ -380,7 +383,7 @@ export function EmployeeForm({
       if (bank) formData.append('account_bank', bank);
       if (accountNumber) formData.append('account_number', accountNumber);
       if (accountName) formData.append('account_name', accountName);
-      
+
       // Handle birth_date - convert to ISO date string
       if (birthDate) {
         const dateString = birthDate instanceof Date
@@ -388,10 +391,10 @@ export function EmployeeForm({
             ? birthDate.toISOString().split('T')[0]
             : ''
           : (() => {
-              const d = new Date(birthDate);
-              return !isNaN(d.getTime()) ? d.toISOString().split('T')[0] : '';
-            })();
-        
+            const d = new Date(birthDate);
+            return !isNaN(d.getTime()) ? d.toISOString().split('T')[0] : '';
+          })();
+
         if (dateString) {
           formData.append('birth_date', dateString);
         }
@@ -418,7 +421,7 @@ export function EmployeeForm({
         });
         toast.success('Employee updated successfully!');
       }
-      
+
       onSuccess?.();
       onClose?.();
     } catch (err: any) {
@@ -498,7 +501,7 @@ export function EmployeeForm({
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
               disabled={isLoading}
-              
+
             />
           </div>
           <div>
@@ -511,7 +514,7 @@ export function EmployeeForm({
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
               disabled={isLoading}
-              
+
             />
           </div>
           <div>
@@ -653,7 +656,7 @@ export function EmployeeForm({
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               disabled={isLoading}
-              
+
             />
           </div>
           {mode === 'create' && (
@@ -670,7 +673,7 @@ export function EmployeeForm({
                   onChange={(e) => setPassword(e.target.value)}
                   className="pr-10"
                   disabled={isLoading}
-                  
+
                 />
                 <button
                   type="button"
@@ -847,20 +850,20 @@ export function EmployeeForm({
 
       {/* Form Buttons */}
       <div className="flex justify-end gap-2 mt-4">
-        <Button 
-          type="button" 
-          variant="outline" 
+        <Button
+          type="button"
+          variant="outline"
           onClick={onClose}
           disabled={isLoading}
         >
           Cancel
         </Button>
-        <Button 
-          type="submit" 
+        <Button
+          type="submit"
           disabled={isLoading}
         >
-          {isLoading 
-            ? (mode === 'edit' ? 'Updating...' : 'Creating...') 
+          {isLoading
+            ? (mode === 'edit' ? 'Updating...' : 'Creating...')
             : (mode === 'edit' ? 'Update' : 'Add')
           }
         </Button>
