@@ -75,6 +75,28 @@ export default function EmployeeDatabaseClient({
     absentEmployees: 0,
   });
 
+  // Pindahkan ke sini, sebelum useEffect
+  const fetchEmployeeCount = async () => {
+    if (!companyId) return;
+    try {
+      const countRes = await api.get(`/api/employee/count/${companyId}`);
+      const countData = countRes.data || {};
+      setEmployeeCount({
+        total: Number(countData.total || 0),
+        newEmployees: Number(countData.newEmployees || 0),
+        activeEmployees: Number(countData.activeEmployees || 0),
+        absentEmployees: Number(countData.absentEmployees || 0),
+      });
+    } catch (err) {
+      setEmployeeCount({
+        total: 0,
+        newEmployees: 0,
+        activeEmployees: 0,
+        absentEmployees: 0,
+      });
+    }
+  };
+
   useEffect(() => {
     let mounted = true;
 
@@ -118,33 +140,40 @@ export default function EmployeeDatabaseClient({
 
         if (mounted) {
           // Ensure employees data is an array and handle null values
-          const employeesData = Array.isArray(employeesRes.data) ? employeesRes.data : [];
-          
+          const employeesData = Array.isArray(employeesRes.data)
+            ? employeesRes.data
+            : [];
+
           // Filter out any null/undefined employees and ensure required fields exist
           // Tambahkan filter agar is_admin: true tidak ditampilkan
-          const validEmployees = employeesData.filter(emp => 
-            emp && 
-            typeof emp === 'object' && 
-            emp.id &&
-            (emp.first_name || emp.last_name) &&
-            emp.is_admin !== true
-          ).map(emp => ({
-            ...emp,
-            first_name: String(emp.first_name || ''),
-            last_name: String(emp.last_name || ''),
-            gender: String(emp.gender || ''),
-            phone: String(emp.phone || ''),
-            branch: String(emp.branch || ''),
-            position: String(emp.position || ''),
-            pict_dir: String(emp.pict_dir || ''),
-          }));
+          const validEmployees = employeesData
+            .filter(
+              (emp) =>
+                emp &&
+                typeof emp === 'object' &&
+                emp.id &&
+                (emp.first_name || emp.last_name) &&
+                emp.is_admin !== true,
+            )
+            .map((emp) => ({
+              ...emp,
+              first_name: String(emp.first_name || ''),
+              last_name: String(emp.last_name || ''),
+              gender: String(emp.gender || ''),
+              phone: String(emp.phone || ''),
+              branch: String(emp.branch || ''),
+              position: String(emp.position || ''),
+              pict_dir: String(emp.pict_dir || ''),
+            }));
 
           setEmployees(validEmployees);
         }
-
       } catch (err: any) {
-        console.error('Error fetching initial data:', err.response?.data || err.message);
-        
+        console.error(
+          'Error fetching initial data:',
+          err.response?.data || err.message,
+        );
+
         if (mounted) {
           // Set safe default values on error
           setUser({
@@ -173,32 +202,10 @@ export default function EmployeeDatabaseClient({
 
   useEffect(() => {
     let mounted = true;
-    async function fetchEmployeeCount() {
-      if (!companyId) return;
-      try {
-        const countRes = await api.get(`/api/employee/count/${companyId}`);
-        const countData = countRes.data || {};
-        if (mounted) {
-          setEmployeeCount({
-            total: Number(countData.total || 0),
-            newEmployees: Number(countData.newEmployees || 0),
-            activeEmployees: Number(countData.activeEmployees || 0),
-            absentEmployees: Number(countData.absentEmployees || 0),
-          });
-        }
-      } catch (err) {
-        if (mounted) {
-          setEmployeeCount({
-            total: 0,
-            newEmployees: 0,
-            activeEmployees: 0,
-            absentEmployees: 0,
-          });
-        }
-      }
-    }
     fetchEmployeeCount();
-    return () => { mounted = false; };
+    return () => {
+      mounted = false;
+    };
   }, [companyId]);
 
   // Update fetchEmployees function to handle loading state
@@ -207,29 +214,35 @@ export default function EmployeeDatabaseClient({
       const res = await api.get('/api/employee', {
         params: { company_id: companyId },
       });
-      
+
       const employeesData = Array.isArray(res.data) ? res.data : [];
-      
-      const validEmployees = employeesData.filter(emp => 
-        emp && 
-        typeof emp === 'object' && 
-        emp.id &&
-        (emp.first_name || emp.last_name) &&
-        emp.is_admin !== true
-      ).map(emp => ({
-        ...emp,
-        first_name: String(emp.first_name || ''),
-        last_name: String(emp.last_name || ''),
-        gender: String(emp.gender || ''),
-        phone: String(emp.phone || ''),
-        branch: String(emp.branch || ''),
-        position: String(emp.position || ''),
-        pict_dir: String(emp.pict_dir || ''),
-      }));
+
+      const validEmployees = employeesData
+        .filter(
+          (emp) =>
+            emp &&
+            typeof emp === 'object' &&
+            emp.id &&
+            (emp.first_name || emp.last_name) &&
+            emp.is_admin !== true,
+        )
+        .map((emp) => ({
+          ...emp,
+          first_name: String(emp.first_name || ''),
+          last_name: String(emp.last_name || ''),
+          gender: String(emp.gender || ''),
+          phone: String(emp.phone || ''),
+          branch: String(emp.branch || ''),
+          position: String(emp.position || ''),
+          pict_dir: String(emp.pict_dir || ''),
+        }));
 
       setEmployees(validEmployees);
     } catch (err: any) {
-      console.error('Error fetching employees:', err.response?.data || err.message);
+      console.error(
+        'Error fetching employees:',
+        err.response?.data || err.message,
+      );
       setEmployees([]);
     }
   };
@@ -259,13 +272,13 @@ export default function EmployeeDatabaseClient({
 
   const handleDeleteConfirmed = async () => {
     if (!employeeToDelete) return;
-
     try {
       await api.delete(`/api/employee/${employeeToDelete.id}`);
       toast.success('Employee deleted successfully.');
       setEmployees((prev) =>
         prev.filter((emp) => emp.id !== employeeToDelete.id),
       );
+      fetchEmployeeCount(); // Tambahkan ini
     } catch (err: any) {
       console.error(
         'Error deleting employee:',
@@ -281,7 +294,8 @@ export default function EmployeeDatabaseClient({
   const [openAddDialog, setOpenAddDialog] = useState(false);
 
   const handleAddEmployeeSuccess = () => {
-    fetchEmployees(); // hanya fetch data baru, dialog tetap terbuka
+    fetchEmployees();
+    fetchEmployeeCount(); // Tambahkan ini
   };
 
   const [openEditDialog, setOpenEditDialog] = useState(false);
@@ -301,11 +315,15 @@ export default function EmployeeDatabaseClient({
         const firstName = String(row.original.first_name || '');
         const lastName = String(row.original.last_name || '');
         const fullName = `${firstName} ${lastName}`.trim() || 'Unknown';
-        
+
         return (
           <Avatar className="h-8 w-8 rounded-lg">
             <AvatarImage
-              src={row.original.pict_dir ? `/storage/employee/${row.original.pict_dir}` : '/avatars/default.jpg'}
+              src={
+                row.original.pict_dir
+                  ? `/storage/employee/${row.original.pict_dir}`
+                  : '/avatars/default.jpg'
+              }
               alt={fullName}
             />
             <AvatarFallback className="rounded-lg">
@@ -442,7 +460,9 @@ export default function EmployeeDatabaseClient({
 
     try {
       const res = await api.post('/api/employee/list-import', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
       });
       if (res.data?.statusCode !== 201) {
         toast.error(res.data?.error || res.data?.message || 'Import failed');
@@ -450,6 +470,7 @@ export default function EmployeeDatabaseClient({
       }
       toast.success('Import successful!');
       fetchEmployees();
+      fetchEmployeeCount(); // Tambahkan ini
       setImportDialogOpen(false);
     } catch (err: any) {
       toast.error('Failed to import employee data.');
@@ -602,6 +623,7 @@ export default function EmployeeDatabaseClient({
                                   }
                                   toast.success('Import successful!');
                                   fetchEmployees();
+                                  fetchEmployeeCount(); // Tambahkan ini
                                   setImportDialogOpen(false);
                                 } catch (err: any) {
                                   toast.error(
@@ -694,6 +716,7 @@ export default function EmployeeDatabaseClient({
             mode="edit"
             onSuccess={() => {
               fetchEmployees();
+              fetchEmployeeCount(); // Tambahkan ini
               setOpenEditDialog(false);
             }}
             onClose={() => setOpenEditDialog(false)}
