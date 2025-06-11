@@ -49,6 +49,7 @@ export class EmployeeService {
       const filename = `${Date.now()}_${file.originalname}`;
       data.pict_dir = filename;
     }
+    data.workscheme = dto.workscheme.toUpperCase();
     data.position = data.position ? data.position : "Employee";
     data.password = await hash(dto.password);
 
