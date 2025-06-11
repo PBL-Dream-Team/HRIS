@@ -84,7 +84,7 @@ export class AttendanceTypeService {
 
   async deleteAttendanceType(attendanceTypeId: string) {
     try {
-      await this.prisma.employee.update({
+      await this.prisma.employee.updateMany({
         data:{
           workscheme: null
         },
