@@ -123,7 +123,7 @@ export function WorkschemeOverviewContent({
         toast.error('Workscheme is still used by existing attendance records.');
       } else {
         toast.error(
-          `Unexpected response: ${response.data.message || 'Unknown error'}`,
+          `Error: ${response.data.message || 'Unknown error'}`,
         );
       }
     } catch (error: any) {
