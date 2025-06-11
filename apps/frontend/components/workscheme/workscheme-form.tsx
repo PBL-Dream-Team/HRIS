@@ -9,6 +9,7 @@ import api from '@/lib/axios';
 import { toast } from 'sonner';
 import MapPicker from '@/components/clickable-map/map-picker';
 import { Search } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface WorkshemeForm {
   id: string;
@@ -19,7 +20,11 @@ interface WorkshemeForm {
   workspace_lat: number | string;
   workspace_long: number | string;
   company_id: string;
+  workscheme: WorkSchemeType;
 }
+
+// Tambahkan enum WorkSchemeType
+export type WorkSchemeType = 'WFO' | 'WFA' | 'HYBRID';
 
 type WorkshemeFormProps = {
   companyId: string;
@@ -28,6 +33,12 @@ type WorkshemeFormProps = {
   onSuccess?: () => void;
   onClose?: () => void;
 };
+
+const workschemeOptions = [
+  { value: 'WFO', label: 'WFO' },
+  { value: 'WFA', label: 'WFA' },
+  { value: 'HYBRID', label: 'Hybrid' },
+];
 
 export function WorkshemeForm({
   companyId,
@@ -42,6 +53,7 @@ export function WorkshemeForm({
   const [workspaceAddress, setWorkspaceAddress] = useState('');
   const [workspaceLat, setWorkspaceLat] = useState<string>('');
   const [workspaceLong, setWorkspaceLong] = useState<string>('');
+  const [workscheme, setWorkscheme] = useState<WorkSchemeType | ''>('');
   const [isLoading, setIsLoading] = useState(false);
   const [isMapLoading, setIsMapLoading] = useState(true);
   const [isGeocoding, setIsGeocoding] = useState(false);
@@ -151,6 +163,7 @@ export function WorkshemeForm({
       setWorkspaceAddress(initialData.workspace_address || '');
       setWorkspaceLat(initialData.workspace_lat?.toString() || '');
       setWorkspaceLong(initialData.workspace_long?.toString() || '');
+      setWorkscheme(initialData.workscheme || '');
     } else {
       // Reset form for create mode
       setName('');
@@ -159,6 +172,7 @@ export function WorkshemeForm({
       setWorkspaceAddress('');
       setWorkspaceLat('');
       setWorkspaceLong('');
+      setWorkscheme('');
       setTimeError('');
     }
   }, [mode, initialData]);
@@ -344,7 +358,8 @@ export function WorkshemeForm({
       const checkInTimestamp = timeStringToTimestamp(checkInTime);
       const checkOutTimestamp = timeStringToTimestamp(checkOutTime);
 
-      const payload = {
+      // Build payload, only include workscheme if valid
+      const payload: any = {
         name,
         check_in: checkInTimestamp,
         check_out: checkOutTimestamp,
@@ -353,6 +368,9 @@ export function WorkshemeForm({
         workspace_long: workspaceLong ? parseFloat(workspaceLong) : null,
         company_id: companyId,
       };
+      if (workscheme === 'WFO' || workscheme === 'WFA' || workscheme === 'HYBRID') {
+        payload.workscheme = workscheme;
+      }
 
       console.log('Payload being sent:', payload);
 
@@ -372,6 +390,7 @@ export function WorkshemeForm({
         setWorkspaceAddress('');
         setWorkspaceLat('');
         setWorkspaceLong('');
+        setWorkscheme('');
         setTimeError('');
         setMapKey((prev) => prev + 1);
       }
@@ -528,6 +547,31 @@ export function WorkshemeForm({
             {timeError && (
               <p className="text-red-500 text-xs mt-1">{timeError}</p>
             )}
+          </div>
+
+          <div>
+            <Label>
+              Workscheme
+              <span className="text-red-600"> *</span>
+            </Label>
+            <Select
+              value={workscheme}
+              onValueChange={value => setWorkscheme(value as WorkSchemeType)}
+              key={`workscheme-${workscheme}`}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select workscheme">
+                  {workschemeOptions.find((opt) => opt.value === workscheme)?.label || 'Select workscheme'}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {workschemeOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="p-4 bg-gray-50 rounded-lg">

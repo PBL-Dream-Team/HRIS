@@ -58,7 +58,7 @@ export class EmployeeService {
         }
       })
       
-      data.workscheme = attendanceType.workscheme.toUpperCase;
+      data.workscheme = attendanceType.workscheme.toUpperCase();
     }
 
     try {
@@ -143,7 +143,7 @@ export class EmployeeService {
         }
       })
       
-      data.workscheme = attendanceType.workscheme.toUpperCase;
+      data.workscheme = attendanceType.workscheme.toUpperCase();
     }
 
     try {
