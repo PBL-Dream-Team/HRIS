@@ -23,6 +23,25 @@ export class EmployeeService {
   async createEmployee(dto: createEmployeeDto, file?: Express.Multer.File) {
     const data: any = { ...dto };
 
+    const company = await this.prisma.company.findFirst({
+      where:{
+        id:dto.company_id
+      }
+    });
+
+    const employeeCount = await this.prisma.employee.count({
+      where:{
+        id:company.id
+      }
+    });
+
+    if((company.max_employee - employeeCount) < 1){
+      return {
+        statusCode: 422,
+        message: "Employee limit exceeded"
+      }
+    }
+
     if (file) {
       const filename = `${Date.now()}_${file.originalname}`;
       data.pict_dir = filename;
@@ -418,6 +437,19 @@ export class EmployeeService {
   }
   async ImportExcel(companyId: string, file?: Express.Multer.File){
     try{
+      const company = await this.prisma.company.findFirst({
+        where: {
+          id: companyId
+        }
+      });
+      const currentEmployeCount = await this.prisma.employee.count({
+        where:{
+          company_id: companyId
+        }
+      });
+
+      const employeeLimit = company.max_employee - currentEmployeCount;
+
       const existingEmployees = await this.prisma.employee.findMany({
         select: {
           email: true,
@@ -446,6 +478,20 @@ export class EmployeeService {
 
 
       const parsedData: Record<string, any>[] = XLSX.utils.sheet_to_json(data);
+
+      if(parsedData.length < 1){
+        return {
+          statusCode: 422,
+          message: "Excel data is empty",
+        };
+      }
+
+      if (parsedData.length > employeeLimit) {
+      return {
+        statusCode: 422,
+        message: "Excel data exceeds limit",
+      };
+    }
 
       const requiredColumns = ['first_name', 'last_name','email','password','phone'];
 
@@ -500,6 +546,12 @@ export class EmployeeService {
         } as Prisma.EmployeeCreateManyInput;
       }));
 
+      if(updatedData.length > employeeLimit){
+        return {
+          statusCode: 422,
+          error: 'Excel data exceeds limit',
+        }
+      }
 
       await this.prisma.employee.createMany({
         data: updatedData,
