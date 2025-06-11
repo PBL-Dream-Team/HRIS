@@ -117,7 +117,7 @@ export default function AttendanceOverviewCard({
         {/* Detail Area */}
         <div className="md:col-span-6 w-full">
           <CardContent className="flex flex-col gap-3 pt-8 pb-0 px-4 md:pl-4 md:pr-6">
-     
+
             <div className="flex justify-between text-lg flex-wrap gap-2">
               <span className="font-semibold">Statistic</span>
               <span className="text-muted-foreground">Today</span>
