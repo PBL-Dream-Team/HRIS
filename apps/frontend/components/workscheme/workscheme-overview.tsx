@@ -32,6 +32,7 @@ interface Workscheme {
   workspace_lat: number | string;
   workspace_long: number | string;
   company_id: string;
+  workscheme: 'WFO' | 'WFA' | 'HYBRID'; // Add this property
 }
 
 type WorkschemeOverviewContentProps = {
@@ -275,7 +276,10 @@ export function WorkschemeOverviewContent({
             <WorkshemeForm
               companyId={companyId}
               mode="edit"
-              initialData={editData}
+              initialData={{
+                ...editData,
+                workscheme: editData.workscheme || 'WFO' // Provide default if missing
+              }}
               onSuccess={() => {
                 fetchWorkschemes();
                 setIsDialogOpen(false);
