@@ -78,6 +78,7 @@ async function main() {
         id: '3f5e99b8-8af9-4e9f-b2d7-4a939e3a9e2d',
         company_id: '9be1d801-23af-4727-ae39-a2bf74ec00e0',
         name: 'WFA',
+        workscheme: 'WFA',
         check_in: '1970-01-01T09:00:00.000+07:00',
         check_out: '1970-01-01T17:00:00.000+07:00',
       },
@@ -85,6 +86,7 @@ async function main() {
         id: '7b6fc280-61fc-4e61-96f1-c41de52d7b8b',
         company_id: '9be1d801-23af-4727-ae39-a2bf74ec00e0',
         name: 'Hybrid',
+        workscheme: 'HYBRID',
         check_in: '1970-01-01T09:00:00.000+07:00',
         check_out: '1970-01-01T17:00:00.000+07:00',
         workspace_address:
@@ -96,6 +98,7 @@ async function main() {
         id: '1c2e0ec4-3957-4a5c-bc70-e4ad1b99391a',
         company_id: '9be1d801-23af-4727-ae39-a2bf74ec00e0',
         name: 'WFO',
+        workscheme: 'WFO',
         check_in: '1970-01-01T09:00:00.000+07:00',
         check_out: '1970-01-01T17:00:00.000+07:00',
         workspace_address:

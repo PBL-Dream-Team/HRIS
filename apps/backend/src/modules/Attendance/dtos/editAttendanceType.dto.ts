@@ -1,4 +1,5 @@
 import {
+  IsEnum,
   IsLatitude,
   IsLongitude,
   IsNotEmpty,
@@ -8,6 +9,7 @@ import {
   Matches,
 } from '@nestjs/class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
+import { workscheme } from './workscheme.enum';
 
 export class editAttendanceTypeDto {
   @ApiPropertyOptional()
@@ -39,6 +41,11 @@ export class editAttendanceTypeDto {
   })
   @IsNotEmpty()
   check_out: Date;
+
+  @ApiPropertyOptional()
+  @IsEnum(workscheme, { message: '' })
+  @IsOptional()
+  workscheme: workscheme;
 
   @ApiPropertyOptional()
   @IsString()

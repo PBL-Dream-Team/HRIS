@@ -112,6 +112,7 @@ export class EmployeeService {
     file?: Express.Multer.File,
   ) {
     const data: any = { ...dto };
+    if(dto.workscheme) data.workscheme = dto.workscheme.toUpperCase();
 
     const user = await this.prisma.employee.findFirst({
       where: { id: employeeId },

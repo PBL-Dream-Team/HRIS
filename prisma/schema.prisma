@@ -236,6 +236,7 @@ model AttendanceType {
   check_in DateTime @db.Time()
   check_out DateTime @db.Time()
 
+  workscheme WorkSchemeType? 
   workspace_address String? @db.VarChar()
   workspace_long Float? @db.DoublePrecision
   workspace_lat Float? @db.DoublePrecision

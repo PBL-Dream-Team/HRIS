@@ -8,9 +8,11 @@ export class AttendanceTypeService {
   constructor(private prisma: PrismaService) {}
 
   async createAttendanceType(dto: createAttendanceTypeDto) {
+    const data : any = {...dto};
+    if(dto.workscheme) data.workscheme = dto.workscheme.toUpperCase();
     try {
       const attendanceType = await this.prisma.attendanceType.create({
-        data: dto,
+        data: data,
       });
       return {
         statusCode: 201,
@@ -52,10 +54,12 @@ export class AttendanceTypeService {
     attendanceTypeId: string,
     dto: editAttendanceTypeDto,
   ) {
+    const data : any = {...dto};
+    if(dto.workscheme) data.workscheme = dto.workscheme.toUpperCase();
     try {
       const attendanceType = await this.prisma.attendanceType.update({
         where: { id: attendanceTypeId },
-        data: dto,
+        data: data,
       });
       return {
         statusCode: 200,
