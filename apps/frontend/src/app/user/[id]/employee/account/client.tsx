@@ -524,11 +524,11 @@ export default function AccountClient({
               <div className="flex items-center gap-2">
                 <Dialog open={openEditGenDialog} onOpenChange={setOpenEditGenDialog}>
                   <DialogTrigger asChild>
-                    <Button className="w-full md:w-auto">
+                    <Button className="w-fit md:w-auto">
                       <Pencil className="h-4 w-4 mr-1" /> Edit Profile
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+                  <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
                       <DialogTitle>Edit Profile</DialogTitle>
                     </DialogHeader>
@@ -556,11 +556,11 @@ export default function AccountClient({
 
                 <Dialog open={openEditPassDialog} onOpenChange={setOpenEditPassDialog}>
                   <DialogTrigger asChild>
-                    <Button className="w-full md:w-auto">
+                    <Button className="w-fit md:w-auto">
                       <Pencil className="h-4 w-4 mr-1" /> Change Password
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+                  <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
                       <DialogTitle>Change Password</DialogTitle>
                     </DialogHeader>
@@ -656,12 +656,12 @@ export default function AccountClient({
               <div className="col-span-full flex justify-end mt-2">
                 <Dialog open={openEditWorkDialog} onOpenChange={setOpenEditWorkDialog}>
                   <DialogTrigger asChild>
-                    <Button className="w-full md:w-auto">
+                    <Button className="w-fit md:w-auto">
                       <Pencil className="h-4 w-4 mr-1" /> Edit Data
                     </Button>
                   </DialogTrigger>
 
-                  <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+                  <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
                       <DialogTitle>Edit Data</DialogTitle>
                     </DialogHeader>

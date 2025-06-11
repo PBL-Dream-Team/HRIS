@@ -272,16 +272,16 @@ export function AbsenceEditForm({
 
       {error && <p className="text-red-600 mt-2">{error}</p>}
 
-      <DialogFooter className="mt-6 sm:justify-end">
+      <DialogFooter className="mt-6 flex flex-row gap-2 justify-end">
         <Button 
           type="button" 
           variant="outline" 
           onClick={onClose}
-          className="mr-2"
+          className="w-fit"
         >
           Cancel
         </Button>
-        <Button type="submit" className="w-full sm:w-24" disabled={loading}>
+        <Button type="submit" className="w-fit sm:w-24" disabled={loading}>
           {loading ? 'Saving...' : 'Save'}
         </Button>
       </DialogFooter>

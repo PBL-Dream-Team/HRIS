@@ -35,19 +35,22 @@ export function NavSecondary({
             return (
               <SidebarMenuItem key={item.title}>
                 {item.onClick ? (
-                  <button
-                    type="button"
+                  <SidebarMenuButton
+                    tooltip={item.title}
                     className={cn(
-                      'w-full flex items-center gap-2 px-3 py-2 transition-colors hover:font-semibold text-left',
+                      'w-full flex items-center gap-2 px-3 py-2 transition-colors hover:font-semibold',
                       isActive
                         ? 'bg-primary text-white font-semibold bg-[#1E3A5F] hover:bg-[#1E3A5F]/80 hover:text-white'
                         : 'hover:bg-[#1E3A5F]/80 hover:text-white',
                     )}
                     onClick={item.onClick}
+                    asChild
                   >
-                    {item.icon && <item.icon className="h-5 w-5" />}
-                    <span>{item.title}</span>
-                  </button>
+                    <button type="button">
+                      {item.icon && <item.icon className="h-5 w-5" />}
+                      <span>{item.title}</span>
+                    </button>
+                  </SidebarMenuButton>
                 ) : (
                   <Link href={item.url || '#'} className="w-full">
                     <SidebarMenuButton
