@@ -140,6 +140,7 @@ export function EmployeeForm({
       setPassword('');
       setPhoneNumber(initialData.phone || '');
       setBirthPlace(initialData.birth_place || '');
+      setBirthDate(initialData.birth_date ? new Date(initialData.birth_date) : undefined);
       setNik(initialData.nik || '');
       setPosition(initialData.position || '');
       setBranch(initialData.branch || '');

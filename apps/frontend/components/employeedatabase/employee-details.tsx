@@ -8,6 +8,8 @@ import {
 } from '@/components/ui/sheet';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { format } from 'date-fns';
+import { enUS } from 'date-fns/locale';
 
 type Employee = {
   id: string;
@@ -39,12 +41,12 @@ interface EmployeeDetailsProps {
 
 function formatDateIndo(dateString: string) {
   if (!dateString) return '';
-  const date = new Date(dateString);
-  const months = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
-  ];
-  return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
+  try {
+    const date = new Date(dateString);
+    return format(date, 'MMMM do, yyyy', { locale: enUS });
+  } catch {
+    return dateString;
+  }
 }
 
 export default function EmployeeDetails({
