@@ -285,6 +285,28 @@ export function EmployeeForm({
       }
     }
 
+    // Validate email uniqueness
+    try {
+      const res = await api.get('/api/employee', {
+        params: { email, company_id: companyId }
+      });
+      // If editing, allow if the found employee is the same as the one being edited
+      if (
+        res.data &&
+        Array.isArray(res.data) &&
+        res.data.length > 0 &&
+        (mode !== 'edit' || res.data[0].id !== initialData?.id)
+      ) {
+        toast.error('Email already exists');
+        setIsLoading(false);
+        return;
+      }
+    } catch (err: any) {
+      if (err?.response?.status !== 404) {
+        console.error('Error checking email uniqueness:', err);
+      }
+    }
+
     // Validate phone number format (should be numbers only)
     if (phoneNumber && !/^\d+$/.test(phoneNumber)) {
       toast.error('Phone number should contain only numbers');
