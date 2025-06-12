@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { LogIn } from 'lucide-react';
 import { IoMdAdd } from 'react-icons/io';
+import { toast } from 'sonner';
 
 import {
     Card,
@@ -254,13 +255,26 @@ export default function CountdownCard({ userId, companyId }: CountdownCardProps)
     const handleAddCheckClockSuccess = () => {
         setOpenClockInDialog(false); // Tutup dialog
         fetchAllCheckclockData(); // Refresh data
+        toast.success('Check-in successful!', {
+            description: `Clocked in at ${formatTime(new Date())}`,
+        });
     };
 
     const handleAddAbsenceSuccess = () => {
         setOpenAbsenceDialog(false); // Tutup dialog
         fetchAbsences(); // Refresh data absence
+        toast.success('Absence request submitted!', {
+            description: 'Your absence request has been submitted for approval.',
+        });
     };
 
+    const handleCheckOutSuccess = () => {
+        setOpenCheckOutDialog(false);
+        fetchAllCheckclockData();
+        toast.success('Check-out successful!', {
+            description: `Clocked out at ${formatTime(new Date())}`,
+        });
+    };
 
     if (!hasMounted) return null;
 
@@ -356,10 +370,7 @@ export default function CountdownCard({ userId, companyId }: CountdownCardProps)
                                             {todayAttendance ? (
                                                 <CheckOutForm
                                                     attendanceId={todayAttendance.id}
-                                                    onSuccess={() => {
-                                                        setOpenCheckOutDialog(false);
-                                                        fetchAllCheckclockData();
-                                                    }}
+                                                    onSuccess={handleCheckOutSuccess}
                                                 />
                                             ) : (
                                                 <div className="text-center text-muted-foreground">

@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import api from '@/lib/axios';
+import { toast } from 'sonner';
+import { Toaster } from 'sonner';
 
 import WorkInformation from '@/components/dashboard-employee/WorkInformation';
 import AttendanceSummaryCard from '@/components/dashboard-employee/AttendanceSummaryCard';
@@ -360,13 +362,12 @@ export default function DashboardClient({
                 selectedMonth={selectedMonth}
                 onChangeMonth={setSelectedMonth}
               />
-
-              {/* <LeaveSummaryCard /> */}
             </div>
-            <div className="h-[100px]">{/* <WorkHoursOverviewCard /> */}</div>
+            <div className="h-[100px]"></div>
           </div>
         </div>
       </SidebarInset>
+      <Toaster position="top-right" />
     </SidebarProvider>
   );
 }
