@@ -2,6 +2,7 @@
 
 import { AppSidebar } from '@/components/app-sidebar';
 import { useState } from 'react';
+import { Menu } from 'lucide-react';
 
 import {
   Breadcrumb,
@@ -50,6 +51,11 @@ export default function GuideBookClient({
     compName: '',
   });
   const [loading, setLoading] = useState(true);
+  const [showMainMenu, setShowMainMenu] = useState(false);
+  const [mainTab, setMainTab] = useState('account');
+  const [showEmployeeMenu, setShowEmployeeMenu] = useState(false);
+  const [employeeTab, setEmployeeTab] = useState('employee_list');
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
 
   useEffect(() => {
     async function fetchUser() {
@@ -125,14 +131,74 @@ export default function GuideBookClient({
 
         {/* Content */}
         <div className="p-4">
-          <Tabs defaultValue="account" className="w-full">
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="account">Account</TabsTrigger>
-              <TabsTrigger value="employee">Employee Management</TabsTrigger>
-              <TabsTrigger value="attendance">Attendance Management</TabsTrigger>
-              <TabsTrigger value="letter">Letter Management</TabsTrigger>
-            </TabsList>
-
+          {/* Hamburger menu for mobile */}
+          <div className="sm:hidden mb-2 relative">
+            <button
+              className="flex items-center gap-2 px-3 py-2 bg-white rounded-md border shadow-sm w-full justify-between"
+              onClick={() => setShowMainMenu((v) => !v)}
+              aria-label="Open main menu"
+            >
+              <span className="font-medium text-xs">
+                {mainTab === 'account'
+                  ? 'Account'
+                  : mainTab === 'employee'
+                  ? 'Employee Management'
+                  : mainTab === 'attendance'
+                  ? 'Attendance Management'
+                  : mainTab === 'letter'
+                  ? 'Letter Management'
+                  : 'Menu'}
+              </span>
+              <Menu size={18} />
+            </button>
+            {showMainMenu && (
+              <div className="absolute z-20 mt-2 w-full bg-white rounded-md shadow-lg border divide-y divide-gray-100">
+                <button
+                  className={`w-full text-left px-4 py-2 text-xs ${mainTab === 'account' ? 'bg-blue-100 font-semibold' : ''}`}
+                  onClick={() => {
+                    setMainTab('account');
+                    setShowMainMenu(false);
+                  }}
+                >Account</button>
+                <button
+                  className={`w-full text-left px-4 py-2 text-xs ${mainTab === 'employee' ? 'bg-blue-100 font-semibold' : ''}`}
+                  onClick={() => {
+                    setMainTab('employee');
+                    setShowMainMenu(false);
+                  }}
+                >Employee Management</button>
+                <button
+                  className={`w-full text-left px-4 py-2 text-xs ${mainTab === 'attendance' ? 'bg-blue-100 font-semibold' : ''}`}
+                  onClick={() => {
+                    setMainTab('attendance');
+                    setShowMainMenu(false);
+                  }}
+                >Attendance Management</button>
+                <button
+                  className={`w-full text-left px-4 py-2 text-xs ${mainTab === 'letter' ? 'bg-blue-100 font-semibold' : ''}`}
+                  onClick={() => {
+                    setMainTab('letter');
+                    setShowMainMenu(false);
+                  }}
+                >Letter Management</button>
+              </div>
+            )}
+          </div>
+          <Tabs
+            value={isMobile ? mainTab : undefined}
+            defaultValue="account"
+            className="w-full"
+            onValueChange={v => isMobile ? setMainTab(v) : undefined}
+          >
+            {/* TabsList for desktop only */}
+            <div className="hidden sm:block">
+              <TabsList className="grid w-full grid-cols-4">
+                <TabsTrigger value="account">Account</TabsTrigger>
+                <TabsTrigger value="employee">Employee Management</TabsTrigger>
+                <TabsTrigger value="attendance">Attendance Management</TabsTrigger>
+                <TabsTrigger value="letter">Letter Management</TabsTrigger>
+              </TabsList>
+            </div>
             {/* Account Menu */}
             <TabsContent value="account">
               <Card className="w-full p-6">
@@ -290,10 +356,77 @@ export default function GuideBookClient({
             <TabsContent value="employee">
               <Card className="w-full p-6">
                 <CardTitle className="mb-6 text-xl">Employee Management Guide</CardTitle>
-                <Tabs defaultValue="employee_list" className="w-full">
+                {/* Hamburger menu for Employee Management (mobile only) */}
+                <div className="sm:hidden mb-2 relative">
+                  <button
+                    className="flex items-center gap-2 px-3 py-2 bg-white rounded-md border shadow-sm w-full justify-between"
+                    onClick={() => setShowEmployeeMenu((v) => !v)}
+                    aria-label="Open employee menu"
+                  >
+                    <span className="font-medium text-xs">
+                      {employeeTab === "employee_list"
+                        ? "Employee List"
+                        : employeeTab === "add_employee"
+                        ? "Add Employee"
+                        : employeeTab === "edit_employee"
+                        ? "Edit Employee"
+                        : employeeTab === "delete_employee"
+                        ? "Delete Employee"
+                        : employeeTab === "employee_information"
+                        ? "Employee Information"
+                        : "Menu"}
+                    </span>
+                    <Menu size={18} />
+                  </button>
+                  {showEmployeeMenu && (
+                    <div className="absolute z-20 mt-2 w-full bg-white rounded-md shadow-lg border divide-y divide-gray-100">
+                      <button
+                        className={`w-full text-left px-4 py-2 text-xs ${employeeTab === 'employee_list' ? 'bg-blue-100 font-semibold' : ''}`}
+                        onClick={() => {
+                          setEmployeeTab('employee_list');
+                          setShowEmployeeMenu(false);
+                        }}
+                      >Employee List</button>
+                      <button
+                        className={`w-full text-left px-4 py-2 text-xs ${employeeTab === 'add_employee' ? 'bg-blue-100 font-semibold' : ''}`}
+                        onClick={() => {
+                          setEmployeeTab('add_employee');
+                          setShowEmployeeMenu(false);
+                        }}
+                      >Add Employee</button>
+                      <button
+                        className={`w-full text-left px-4 py-2 text-xs ${employeeTab === 'edit_employee' ? 'bg-blue-100 font-semibold' : ''}`}
+                        onClick={() => {
+                          setEmployeeTab('edit_employee');
+                          setShowEmployeeMenu(false);
+                        }}
+                      >Edit Employee</button>
+                      <button
+                        className={`w-full text-left px-4 py-2 text-xs ${employeeTab === 'delete_employee' ? 'bg-blue-100 font-semibold' : ''}`}
+                        onClick={() => {
+                          setEmployeeTab('delete_employee');
+                          setShowEmployeeMenu(false);
+                        }}
+                      >Delete Employee</button>
+                      <button
+                        className={`w-full text-left px-4 py-2 text-xs ${employeeTab === 'employee_information' ? 'bg-blue-100 font-semibold' : ''}`}
+                        onClick={() => {
+                          setEmployeeTab('employee_information');
+                          setShowEmployeeMenu(false);
+                        }}
+                      >Employee Information</button>
+                    </div>
+                  )}
+                </div>
+                <Tabs
+                  value={isMobile ? employeeTab : undefined}
+                  defaultValue="employee_list"
+                  className="w-full"
+                  onValueChange={v => isMobile ? setEmployeeTab(v) : undefined}
+                >
                   <div className="flex gap-6">
-                    {/* Sidebar Navigation */}
-                    <div className="w-64 flex-shrink-0">
+                    {/* Sidebar Navigation for desktop only */}
+                    <div className="hidden sm:block w-64 flex-shrink-0">
                       <div className="flex flex-col space-y-1 bg-gray-50 p-2 rounded-lg">
                         <TabsList className="flex flex-col h-auto w-full bg-transparent p-0 space-y-1">
                           <TabsTrigger
@@ -329,10 +462,8 @@ export default function GuideBookClient({
                         </TabsList>
                       </div>
                     </div>
-
                     {/* Content Area */}
                     <div className="flex-1 min-h-fit">
-                      {/* Employee List */}
                       <TabsContent value="employee_list" className="mt-0 h-full">
                         <Card className="w-full h-fit">
                           <CardHeader>
@@ -541,7 +672,7 @@ export default function GuideBookClient({
                             <div className="space-y-4">
                               <p>Not all employee data information is displayed in the table. To view detailed employee data information, users can click the button with the "Eye" icon in the "Actions" column.</p>
                               <p>Here are the detailed information displayed:</p>
-                              <div className='grid grid-cols-4 gap-4'>
+                              <div className='grid grid-cols-1 sm:grid-cols-4 gap-4'>
                                 <div className="bg-purple-50 p-4 rounded-lg">
                                   <h4 className="font-semibold mb-2">Personal Information:</h4>
                                   <ul className="list-disc list-inside space-y-1 text-sm">

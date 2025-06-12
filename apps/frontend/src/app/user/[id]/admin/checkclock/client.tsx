@@ -297,9 +297,7 @@ export default function CheckClockClient({
           : 'Unknown Employee',
         avatarUrl: employeeData?.pict_dir || undefined,
         position: String(employeeData?.position || 'N/A'),
-        date: attendance.created_at
-          ? new Date(attendance.created_at).toLocaleDateString()
-          : 'N/A',
+        date: attendance.created_at || 'N/A',
         clockIn: attendance.check_in
           ? formatTimeOnly(attendance.check_in)
           : '-',
@@ -409,10 +407,11 @@ export default function CheckClockClient({
       header: 'Date',
       cell: ({ row }: any) => {
         const dateString = row.original.date;
-        if (!dateString) return 'No date';
+        if (!dateString || dateString === 'N/A') return 'No date';
         try {
+          // Parse ISO date string directly tanpa konversi toLocaleDateString
           const date = new Date(dateString);
-          return format(date, 'PPP', { locale: enUS });
+          return format(date, 'MMMM do, yyyy', { locale: enUS });
         } catch {
           return dateString;
         }

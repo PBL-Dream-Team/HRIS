@@ -445,6 +445,9 @@ export default function EmployeeDatabaseClient({
       document.body.appendChild(link);
       link.click();
       link.parentNode?.removeChild(link);
+
+      // Add success toast
+      toast.success('Employee data exported successfully!');
     } catch (err: any) {
       toast.error('Failed to export employee data.');
       console.error('Export error:', err);
