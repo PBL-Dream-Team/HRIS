@@ -41,9 +41,19 @@ export default function Navbar() {
               {link.label}
             </a>
           ))}
-          <Link href="/signup">
-            <Button className="ml-4 text-lg">Try It Now</Button>
-          </Link>
+          <div className="flex items-center gap-2 ml-4">
+            <Link href="/signin">
+              <Button
+                variant="outline"
+                className="text-lg border-[#1E3A5F] text-[#1E3A5F] hover:bg-[#1E3A5F] hover:text-white"
+              >
+                Login
+              </Button>
+            </Link>
+            <Link href="/signup">
+              <Button className="text-lg">Try It Now</Button>
+            </Link>
+          </div>
         </div>
 
         {/* Mobile Toggle */}
@@ -64,13 +74,30 @@ export default function Navbar() {
               key={link.href}
               href={link.href}
               className="block text-sm text-gray-800 px-4 py-2 rounded-md transition-colors hover:bg-[#1E3A5F] hover:text-white"
+              onClick={() => setIsOpen(false)}
             >
               {link.label}
             </a>
           ))}
-          <Link href="/signup">
-            <Button className="w-full mt-2">Try It Now</Button>
-          </Link>
+          <div className="flex flex-col gap-2 mt-2">
+            <Link href="/signin">
+              <Button
+                variant="outline"
+                className="w-full border-blue-600 text-blue-600 hover:bg-blue-50"
+                onClick={() => setIsOpen(false)}
+              >
+                Login
+              </Button>
+            </Link>
+            <Link href="/signup">
+              <Button
+                className="w-full"
+                onClick={() => setIsOpen(false)}
+              >
+                Try It Now
+              </Button>
+            </Link>
+          </div>
         </div>
       )}
     </nav>
