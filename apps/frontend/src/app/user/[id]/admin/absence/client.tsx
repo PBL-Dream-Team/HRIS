@@ -331,37 +331,48 @@ export default function AbsenceClient({
     },
     {
       accessorKey: 'status',
-      header: 'Status',
+      header: 'Approve',
       cell: ({ row }: any) => {
         const status = row.original.status;
-        let statusContent;
         switch (status) {
           case 'PENDING':
-            statusContent = (<div className="flex items-center">
-                <span className="h-2 w-2 rounded-full bg-yellow-500 inline-block mr-2" />
-                Pending
-              </div>);
-            break;
+            return (
+              <div className="flex gap-2 items-center">
+                <Button
+                  size="icon"
+                  variant="outline"
+                  title="Approve"
+                  onClick={() => handleApproval(row.original.id, 'APPROVED')}
+                >
+                  <Check className="text-green-600 w-4 h-4" />
+                </Button>
+                <Button
+                  size="icon"
+                  variant="outline"
+                  title="Reject"
+                  onClick={() => handleApproval(row.original.id, 'REJECTED')}
+                >
+                  <X className="text-red-600 w-4 h-4" />
+                </Button>
+              </div>
+            );
           case 'APPROVED':
-            statusContent = (
+            return (
               <div className="flex items-center">
                 <span className="h-2 w-2 rounded-full bg-green-500 inline-block mr-2" />
                 Approved
               </div>
             );
-            break;
           case 'REJECTED':
-            statusContent = (
+            return (
               <div className="flex items-center">
                 <span className="h-2 w-2 rounded-full bg-red-500 inline-block mr-2" />
                 Rejected
               </div>
             );
-            break;
           default:
-            statusContent = status || 'N/A';
+            return status || 'N/A';
         }
-        return statusContent;
       },
     },
     {
