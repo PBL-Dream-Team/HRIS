@@ -59,6 +59,7 @@ export function WorkshemeForm({
   const [isGeocoding, setIsGeocoding] = useState(false);
   const [mapKey, setMapKey] = useState(0);
   const [timeError, setTimeError] = useState<string>('');
+  const [isManualAddressChange, setIsManualAddressChange] = useState(false);
 
   // Helper function to convert ISO timestamp to HH:MM:SS format for display
   const timestampToTimeString = (timestamp: string): string => {
@@ -182,10 +183,10 @@ export function WorkshemeForm({
   };
 
   const handleLocationSelect = (lat: number, lng: number, address: string) => {
-    console.log('Location selected:', { lat, lng, address });
     setWorkspaceLat(lat.toFixed(6));
     setWorkspaceLong(lng.toFixed(6));
     setWorkspaceAddress(address);
+    setIsManualAddressChange(false); // Perubahan address dari map
   };
 
   // Fungsi untuk geocoding alamat ke koordinat
@@ -244,14 +245,14 @@ export function WorkshemeForm({
     if (!workspaceAddress.trim()) return;
 
     const timeoutId = setTimeout(() => {
-      // Hanya lakukan auto-geocoding jika alamat berubah dari initial data
-      if (initialData?.workspace_address !== workspaceAddress) {
+      // Hanya lakukan auto-geocoding jika alamat berubah dari input manual
+      if (isManualAddressChange && initialData?.workspace_address !== workspaceAddress) {
         geocodeAddress(workspaceAddress);
       }
     }, 2000); // Delay 2 detik setelah user berhenti mengetik
 
     return () => clearTimeout(timeoutId);
-  }, [workspaceAddress, geocodeAddress, initialData?.workspace_address]);
+  }, [workspaceAddress, geocodeAddress, initialData?.workspace_address, isManualAddressChange]);
 
   const validateCoordinates = (): boolean => {
     // Validasi bahwa latitude dan longitude tidak kosong (opsional untuk workspace)
@@ -451,7 +452,10 @@ export function WorkshemeForm({
             <div className="flex gap-2">
               <Input
                 value={workspaceAddress}
-                onChange={(e) => setWorkspaceAddress(e.target.value)}
+                onChange={(e) => {
+                  setWorkspaceAddress(e.target.value);
+                  setIsManualAddressChange(true); // Perubahan address dari input manual
+                }}
                 placeholder="Optional workspace address"
                 className="flex-1"
                 disabled={isLoading}

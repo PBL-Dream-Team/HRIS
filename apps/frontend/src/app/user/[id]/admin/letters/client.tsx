@@ -439,7 +439,7 @@ export default function LettersClient({
                     onOpenChange={setOpenAddLetterDialog}
                   >
                     <DialogTrigger asChild>
-                      <Button>
+                      <Button disabled={Object.keys(letterTypeMap).length === 0}>
                         <IoMdAdd className="mr-2 h-4 w-4" /> Add Letter
                       </Button>
                     </DialogTrigger>

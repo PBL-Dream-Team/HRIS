@@ -9,6 +9,9 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { enUS } from 'date-fns/locale';
 import { format } from 'date-fns';
+import { useState } from 'react';
+
+import MapDisplay from '@/components/readonly-map/map-display';
 
 type CheckClock = {
   date: string;
@@ -38,6 +41,8 @@ export default function CheckClockDetails({
   onOpenChange,
   selectedCheckClock,
 }: CheckClockDetailsProps) {
+  const [isMapLoading, setIsMapLoading] = useState(true);
+  const handleMapLoad = () => setIsMapLoading(false);
 
   const formatDate = (dateString: string) => {
     if (!dateString) return 'No date';
@@ -157,13 +162,26 @@ export default function CheckClockDetails({
                   </p>
                   <p className="font-medium">{selectedCheckClock.address}</p>
                 </div>
-                <div>
-                  <p className="text-muted-foreground text-xs">Lat</p>
-                  <p className="font-medium">{selectedCheckClock.lat}</p>
-                </div>
-                <div>
-                  <p className="text-muted-foreground text-xs">Long</p>
-                  <p className="font-medium">{selectedCheckClock.long}</p>
+                <div className="w-full space-y-2 col-span-full">
+                  <p className="text-muted-foreground text-xs">Map Display</p>
+                  {isMapLoading && (
+                    <div className="text-gray-500 text-sm text-center">
+                      Loading map...
+                    </div>
+                  )}
+                  {(selectedCheckClock.lat && selectedCheckClock.long) ? (
+                    <MapDisplay
+                      position={{
+                        lat: parseFloat(selectedCheckClock.lat),
+                        lng: parseFloat(selectedCheckClock.long),
+                      }}
+                      onLoad={handleMapLoad}
+                    />
+                  ) : (
+                    <div className="h-64 w-full rounded-lg bg-gray-100 flex items-center justify-center">
+                      <p className="text-gray-500">No location set</p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

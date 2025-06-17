@@ -77,6 +77,8 @@ export default function EmployeeDatabaseClient({
 
   const [maxEmployee, setMaxEmployee] = useState<number>(0);
 
+  const [hasWorkscheme, setHasWorkscheme] = useState<boolean>(true);
+
   // Pindahkan ke sini, sebelum useEffect
   const fetchEmployeeCount = async () => {
     if (!companyId) return;
@@ -487,6 +489,22 @@ export default function EmployeeDatabaseClient({
     }
   };
 
+  useEffect(() => {
+    async function checkWorkscheme() {
+      try {
+        const res = await api.get('/api/attendanceType');
+        // Filter berdasarkan company_id
+        const filtered = Array.isArray(res.data)
+          ? res.data.filter((ws) => ws.company_id === companyId)
+          : [];
+        setHasWorkscheme(filtered.length > 0);
+      } catch (err) {
+        setHasWorkscheme(false); // Jika error, anggap tidak ada workscheme
+      }
+    }
+    if (companyId) checkWorkscheme();
+  }, [companyId]);
+
   // Show loading state
   if (isLoading) {
     return (
@@ -568,7 +586,7 @@ export default function EmployeeDatabaseClient({
                       <DialogTrigger asChild>
                         <Button
                           className="w-full md:w-auto"
-                          disabled={isEmployeeLimitReached} // Tambahkan ini
+                          disabled={isEmployeeLimitReached || !hasWorkscheme} // Tambahkan disable jika tidak ada workscheme
                         >
                           <Plus className="h-4 w-4 mr-1" /> Add Employee
                         </Button>
