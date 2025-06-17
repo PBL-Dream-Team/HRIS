@@ -11,6 +11,7 @@ import {
   IsUUID,
   Length,
   Matches,
+  MaxLength,
 } from '@nestjs/class-validator';
 import { workscheme } from './workscheme.enum';
 import { educationtype } from './educationtype.enum';
@@ -94,6 +95,7 @@ export class createEmployeeDto {
 
   @ApiPropertyOptional()
   @IsNumberString({}, { message: 'nik must be a number string' })
+  @MaxLength(16, { message: 'nik must be at most 16 characters' })
   @IsOptional()
   nik: string;
 

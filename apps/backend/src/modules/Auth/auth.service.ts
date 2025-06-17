@@ -358,8 +358,10 @@ export class AuthService {
   }
 
   async removeRefreshToken(tokenString: string){
-    await this.prisma.refreshToken.delete({
-      where:{token:tokenString}
+    await this.prisma.refreshToken.deleteMany({
+      where:{
+        token:tokenString
+      }
     });
   }
 }
