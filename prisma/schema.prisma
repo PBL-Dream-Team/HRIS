@@ -385,7 +385,7 @@ model PasswordReset {
 
 model RefreshToken{
   id           String   @id @default(uuid())
-  token        String   @unique
+  token        String
   employeeId   String   @db.Uuid()
   employee     Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
   expiresAt    DateTime
