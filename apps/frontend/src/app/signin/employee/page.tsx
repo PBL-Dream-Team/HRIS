@@ -11,17 +11,40 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
+import { Eye, EyeOff } from 'lucide-react';
 
 export default function HrLoginPage() {
   const [checked, setChecked] = useState(false);
   const [input, setInput] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setIsLoading(true);
+
+    // Validate email format
+    if (input && (!/^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/.test(input))) {
+      toast.error('Please enter a valid email address');
+      setIsLoading(false);
+      return;
+    }
+
+    // Check if input is empty
+    if (!input.trim()) {
+      toast.error('Please enter your email address');
+      setIsLoading(false);
+      return;
+    }
+
+    // Check if password is empty
+    if (!password.trim()) {
+      toast.error('Please enter your password');
+      setIsLoading(false);
+      return;
+    }
 
     try {
       await api.post(
@@ -34,9 +57,13 @@ export default function HrLoginPage() {
       );
 
       router.push('/redirect');
-    } catch (error) {
-      console.error(error);
-      toast.error('Login failed. Please check your credentials and try again.');
+    } catch (error: any) {
+      // console.error(error);
+      if (error?.response?.status === 401) {
+        toast.error('Account not found. Please check your email or register first.');
+      } else {
+        toast.error('Login failed. Please check your credentials and try again.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -100,14 +127,28 @@ export default function HrLoginPage() {
               <Label htmlFor="password" className="text-[#1E3A5F]">
                 Password
               </Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter your password"
-                className="text-gray-700 border-[#1E3A5F]"
-              />
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter your password"
+                  className="text-gray-700 border-[#1E3A5F] pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                  tabIndex={-1}
+                >
+                  {showPassword ? (
+                    <Eye className="h-4 w-4" />
+                  ) : (
+                    <EyeOff className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
             </div>
 
             {/* Remember Me and Forgot Password */}
