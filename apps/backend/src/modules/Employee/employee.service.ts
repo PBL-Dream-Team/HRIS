@@ -28,9 +28,22 @@ export class EmployeeService {
       }
     });
 
+    const user = await this.prisma.employee.findMany({
+      where: {
+        OR: [{ email: dto.email.toLowerCase() }, { phone: dto.phone }],
+      },
+    })
+    if (user.length > 0) {
+      return {
+        statusCode: 422,
+        message: 'User with Email or phone already exists',
+      };
+    }
+
     const employeeCount = await this.prisma.employee.count({
       where:{
-        company_id:company.id
+        is_deleted: false,
+        company_id: dto.company_id,
       }
     });
     
@@ -94,7 +107,7 @@ export class EmployeeService {
 
   async getEmployee(employeeId: string) {
     const data = await this.prisma.employee.findFirst({
-      where: { id: employeeId },
+      where: { id: employeeId, is_deleted: false },
     });
     if (data) {
       return {
@@ -111,7 +124,9 @@ export class EmployeeService {
   }
 
   async getEmployees() {
-    return await this.prisma.employee.findMany();
+    return await this.prisma.employee.findMany({
+      where:{ is_deleted: false }
+    });
   }
 
   async updateEmployee(
@@ -123,8 +138,37 @@ export class EmployeeService {
     if(dto.workscheme) data.workscheme = dto.workscheme.toUpperCase();
 
     const user = await this.prisma.employee.findFirst({
-      where: { id: employeeId },
+      where: { id: employeeId},
     });
+
+    if(!user) {
+      return {
+        statusCode: 404,
+        message: 'Employee not found',
+      };
+    }
+
+    if(dto.is_deleted === false){ // Kalau dipecat mau diaktifkan kembali
+      data.is_deleted = dto.is_deleted;
+      
+      const employeeCount = await this.prisma.employee.count({
+        where: { company_id: user.company_id , is_deleted: false }
+      });
+
+      const company = await this.prisma.company.findFirst({
+        where:{
+          id:dto.company_id
+        }
+      });
+
+      const employeeLimit = company.max_employee - employeeCount;
+      if(employeeLimit < 1){
+        return {
+          statusCode: 422,
+          message: "Employee limit exceeded"
+        }
+      }
+    }
 
     if (file) {
       const filename = `${Date.now()}_${file.originalname}`;
@@ -145,6 +189,8 @@ export class EmployeeService {
       
       data.workscheme = attendanceType.workscheme.toUpperCase();
     }
+
+    
 
     try {
       const employee = await this.prisma.employee.update({

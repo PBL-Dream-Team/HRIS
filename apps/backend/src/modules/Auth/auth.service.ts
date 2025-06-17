@@ -128,6 +128,7 @@ export class AuthService {
       const employee = await this.prisma.employee.findFirst({
         where: {
           OR: [{ email: dto.input }, { phone: dto.input }],
+          is_deleted: false, // Ensure the employee is not deleted
         },
       });
 

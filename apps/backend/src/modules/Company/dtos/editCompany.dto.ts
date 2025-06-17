@@ -15,26 +15,26 @@ import { ApiPropertyOptional } from '@nestjs/swagger';
 export class editCompanyDto {
   @ApiPropertyOptional()
   @IsOptional()
-  @IsString()
+  @IsString( { message: 'Name must be a string' })
   name: string;
 
   @ApiPropertyOptional()
   @IsString()
-  @IsOptional()
+  @IsOptional( { message: 'Address must be a string' })
   address: string;
 
   @ApiPropertyOptional()
   @IsLatitude()
-  @IsOptional()
+  @IsOptional( { message: 'Latitude must be a valid latitude' })
   loc_lat: number;
 
   @ApiPropertyOptional()
   @IsLongitude()
-  @IsOptional()
+  @IsOptional( { message: 'Longitude must be a valid longitude' })
   loc_long: number;
 
   @ApiPropertyOptional()
-  @IsUUID()
+  @IsUUID( 'all', { message: 'Subscription ID must be a valid UUID' })
   @IsOptional()
   subscription_id: string;
 

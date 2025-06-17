@@ -12,22 +12,22 @@ import { AbsentType } from './absencetype.enum';
 
 export class editAbsenceDto {
   @ApiPropertyOptional()
-  @IsUUID()
+  @IsUUID(undefined, { message: 'employee_id must be a valid UUID' })
   @IsOptional()
   employee_id: string;
 
   @ApiPropertyOptional()
-  @IsUUID()
+  @IsUUID(undefined, { message: 'company_id must be a valid UUID' })
   @IsOptional()
   company_id: string;
 
   @ApiPropertyOptional()
-  @IsEnum(AbsentType, { message: 'Invalid status' })
+  @IsEnum(AbsentType, { message: 'type must be a valid AbsentType' })
   @IsOptional()
   type: AbsentType;
 
   @ApiPropertyOptional()
-  @IsString()
+  @IsString({ message: 'reason must be a string' })
   @IsOptional()
   reason: string;
 
@@ -35,14 +35,14 @@ export class editAbsenceDto {
     example:
       '1970-01-01T08:57:24.123Z or 1970-01-01T08:57:24.123+07:00. Z for UTC +0 Zulu and +7 for Indonesia',
   })
-  @Matches(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}(Z|[+-]\d{2}:\d{2})$/, {
-    message: 'Timestamp must be in ISO 8601 format (with Z or timezone offset)',
+  @Matches(/^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]{3}(Z|[+-][0-9]{2}:[0-9]{2})$/, {
+    message: 'date must be in ISO 8601 format (with Z or timezone offset)',
   })
   @IsOptional()
   date;
 
   @ApiPropertyOptional()
-  @IsEnum(leavestatus, { message: 'Invalid status' })
+  @IsEnum(leavestatus, { message: 'status must be a valid status' })
   @IsOptional()
   status: leavestatus;
 
@@ -50,8 +50,8 @@ export class editAbsenceDto {
     example:
       '1970-01-01T08:57:24.123Z or 1970-01-01T08:57:24.123+07:00. Z for UTC +0 Zulu and +7 for Indonesia',
   })
-  @Matches(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}(Z|[+-]\d{2}:\d{2})$/, {
-    message: 'Timestamp must be in ISO 8601 format (with Z or timezone offset)',
+  @Matches(/^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]{3}(Z|[+-][0-9]{2}:[0-9]{2})$/, {
+    message: 'status_change_at must be in ISO 8601 format (with Z or timezone offset)',
   })
   @IsOptional()
   status_change_at;

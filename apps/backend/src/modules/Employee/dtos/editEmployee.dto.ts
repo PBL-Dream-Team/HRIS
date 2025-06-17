@@ -9,6 +9,8 @@ import {
   IsOptional,
   IsString,
   IsUUID,
+  Length,
+  Matches,
 } from '@nestjs/class-validator';
 import { workscheme } from './workscheme.enum';
 import { educationtype } from './educationtype.enum';
@@ -19,93 +21,99 @@ import { Transform } from 'class-transformer';
 
 export class editEmployeeDto {
   @ApiPropertyOptional()
-  @IsUUID()
+  @IsUUID(undefined, { message: 'company_id must be a valid UUID' })
   @IsOptional()
   company_id: string;
 
   @ApiPropertyOptional()
-  @IsEnum(workscheme, { message: '' })
+  @IsEnum(workscheme, { message: 'workscheme must be a valid workscheme' })
   @IsOptional()
   workscheme: workscheme;
 
   @ApiPropertyOptional()
-  @IsString()
+  @IsAlpha(undefined, { message: 'first_name must be a string' })
   @IsOptional()
   first_name: string;
 
   @ApiPropertyOptional()
-  @IsString()
+  @IsAlpha(undefined, { message: 'last_name must be a string' })
   @IsOptional()
   last_name: string;
 
   @ApiPropertyOptional()
-  @IsAlpha()
+  @IsAlpha(undefined, { message: 'gender must only contain letters' })
   @IsOptional()
   gender: string;
 
   @ApiPropertyOptional()
-  @IsString()
+  @IsString({ message: 'address must be a string' })
   @IsOptional()
   address: string;
 
   @ApiPropertyOptional()
-  @IsEmail()
+  @IsEmail({}, { message: 'email must be a valid email address' })
   @IsOptional()
   email: string;
 
   @ApiPropertyOptional()
-  @IsString()
+  @Length(8, 20, {
+      message: 'Password must be between 8 and 20 characters',
+    })
+  @Matches(/^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+={}[\]|\\:;"'<>,.?/~`]).+$/, {
+      message:
+        'Password must contain at least one uppercase letter, one number, and one symbol',
+    })
   @IsOptional()
   password: string;
 
   @ApiPropertyOptional()
-  @IsNumberString()
-  @IsNotEmpty()
+  @IsNumberString({}, { message: 'phone must be a number string' })
+  @IsNotEmpty({ message: 'phone must be filled' })
   phone: string;
 
   @ApiPropertyOptional()
-  @IsBoolean()
+  @IsBoolean({ message: 'is_admin must be a boolean' })
   @IsOptional()
   is_admin: boolean;
 
   @ApiPropertyOptional()
-  @IsUUID()
+  @IsUUID(undefined, { message: 'attendance_id must be a valid UUID' })
   @IsOptional()
   attendance_id: string;
 
   @ApiProperty()
-  @IsDate()
+  @IsDate({ message: 'birth_date must be a valid date' })
   @IsOptional()
   @Transform(({ value }) => new Date(value))
   birth_date: Date;
 
   @ApiPropertyOptional()
-  @IsString()
+  @IsString({ message: 'birth_place must be a string' })
   @IsOptional()
   birth_place: string;
 
   @ApiPropertyOptional()
-  @IsNumberString()
+  @IsNumberString({}, { message: 'nik must be a number string' })
   @IsOptional()
   nik: string;
 
   @ApiPropertyOptional()
-  @IsString()
+  @IsString({ message: 'position must be a string' })
   @IsOptional()
   position: string;
 
   @ApiPropertyOptional()
-  @IsString()
+  @IsString({ message: 'branch must be a string' })
   @IsOptional()
   branch: string;
 
   @ApiPropertyOptional()
-  @IsEnum(contracttype)
+  @IsEnum(contracttype, { message: 'contract must be a valid contracttype' })
   @IsOptional()
   contract: contracttype;
 
   @ApiPropertyOptional()
-  @IsEnum(educationtype, { message: '' })
+  @IsEnum(educationtype, { message: 'last_education must be a valid educationtype' })
   @IsOptional()
   last_education: educationtype;
 
@@ -136,32 +144,37 @@ export class editEmployeeDto {
             */
     },
   })
-  @IsEnum(BankCode)
+  @IsEnum(BankCode, { message: 'account_bank must be a valid BankCode' })
   @IsOptional()
   account_bank: string;
 
   @ApiPropertyOptional()
-  @IsNumberString()
+  @IsNumberString({}, { message: 'account_number must be a number string' })
   @IsOptional()
   account_number: string;
 
   @ApiPropertyOptional()
-  @IsString()
+  @IsString({ message: 'account_name must be a string' })
   @IsOptional()
   account_name: string;
 
   @ApiPropertyOptional()
-  @IsString()
+  @IsString({ message: 'google_id must be a string' })
   @IsOptional()
   google_id: string;
 
   @ApiPropertyOptional()
-  @IsString()
+  @IsString({ message: 'access_token must be a string' })
   @IsOptional()
   access_token: string;
 
   @ApiPropertyOptional()
-  @IsString()
+  @IsString({ message: 'refresh_token must be a string' })
   @IsOptional()
   refresh_token: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsBoolean({ message: 'is_deleted must be a boolean' })
+  is_deleted: boolean;
 }

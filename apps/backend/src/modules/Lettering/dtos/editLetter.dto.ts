@@ -13,38 +13,38 @@ import { Type, Transform } from 'class-transformer';
 
 export class editLetterDto {
   @ApiPropertyOptional()
-  @IsUUID()
+  @IsUUID(undefined, { message: 'company_id must be a valid UUID' })
   @IsOptional()
   company_id: string;
 
   @ApiPropertyOptional()
-  @IsUUID()
+  @IsUUID(undefined, { message: 'employee_id must be a valid UUID' })
   @IsOptional()
   employee_id: string;
 
   @ApiPropertyOptional()
-  @IsUUID()
+  @IsUUID(undefined, { message: 'lettertype_id must be a valid UUID' })
   @IsOptional()
   lettertype_id: string;
 
   @ApiPropertyOptional()
-  @IsString()
+  @IsString({ message: 'name must be a string' })
   @IsOptional()
   name: string;
 
   @ApiPropertyOptional()
-  @IsString()
+  @IsString({ message: 'desc must be a string' })
   @IsOptional()
   desc: string;
 
   @ApiPropertyOptional()
-  @IsDate()
-  @IsNotEmpty()
+  @IsDate({ message: 'valid_until must be a valid date' })
+  @IsNotEmpty({ message: 'valid_until is required' })
   @Transform(({ value }) => new Date(value))
   valid_until: Date;
 
   @ApiPropertyOptional()
-  @IsBoolean()
+  @IsBoolean({ message: 'is_active must be a boolean' })
   @Transform(({ value }) => value === 'true' || value === true)
   @IsOptional()
   is_active: boolean;

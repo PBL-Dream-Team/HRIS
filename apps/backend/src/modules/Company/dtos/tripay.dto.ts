@@ -1,37 +1,37 @@
 import { IsString, IsNumber, IsOptional, IsNumberString } from 'class-validator';
 
 export class TripayTransactionDto {
-  @IsString()
+  @IsString( { message: 'Company ID must be a string' })
   company_id: string;
 
-  @IsString()
+  @IsString( { message: 'Subscription ID must be a string' })
   subscription_id: string;
 
-  @IsString()
+  @IsString( { message: 'Title must be a string' })
   title: string;
 
-  @IsNumber()
+  @IsNumber(  {} , { message: 'Price must be a number' })
   price: number;
 
-  @IsNumber()
+  @IsNumber( {}, { message: 'Employee count must be a number' })
   employeeCount: number;
 
-  @IsString()
+  @IsString( { message: 'Type must be a string' })
   type: 'single' | 'payg';
 
-  @IsString()
+  @IsString( { message: 'Method must be a string' })
   method: string;
 
-  @IsNumber()
+  @IsNumber( {}, { message: 'Amount must be a number' })
   amount: number;
 
-  @IsString()
+  @IsString( { message: 'Merchant reference must be a string' })
   merchant_ref: string;
 
-  @IsNumber()
+  @IsNumber( {}, { message: 'Expired must be a number' })
   expired: number;
 
-  @IsNumberString()
+  @IsNumberString( {}, { message: 'Phone must be a number string' })
   @IsOptional()
   phone: string;
 }

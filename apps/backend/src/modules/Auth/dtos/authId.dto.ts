@@ -7,7 +7,7 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class AuthIdDto {
   @ApiProperty()
-  @IsUUID()
+  @IsUUID('4', { message: 'id must be a valid UUID' })
   @IsNotEmpty()
   id: string;
 
@@ -16,7 +16,7 @@ export class AuthIdDto {
   // name: string;
 
   @ApiProperty()
-  @IsString()
+  @IsString({ message: 'password must be a string' })
   @IsNotEmpty()
   password: string;
 }

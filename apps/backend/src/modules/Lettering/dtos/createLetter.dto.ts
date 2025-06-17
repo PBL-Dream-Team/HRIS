@@ -11,38 +11,38 @@ import { Type, Transform } from 'class-transformer';
 
 export class createLetterDto {
   @ApiProperty()
-  @IsUUID()
-  @IsNotEmpty()
+  @IsUUID(undefined, { message: 'company_id must be a valid UUID' })
+  @IsNotEmpty({ message: 'company_id is required' })
   company_id: string;
 
   @ApiProperty()
-  @IsUUID()
-  @IsNotEmpty()
+  @IsUUID(undefined, { message: 'employee_id must be a valid UUID' })
+  @IsNotEmpty({ message: 'employee_id is required' })
   employee_id: string;
 
   @ApiProperty()
-  @IsUUID()
-  @IsNotEmpty()
+  @IsUUID(undefined, { message: 'lettertype_id must be a valid UUID' })
+  @IsNotEmpty({ message: 'lettertype_id is required' })
   lettertype_id: string;
 
   @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
+  @IsString({ message: 'name must be a string' })
+  @IsNotEmpty({ message: 'name is required' })
   name: string;
 
   @ApiPropertyOptional()
-  @IsString()
+  @IsString({ message: 'desc must be a string' })
   @IsOptional()
   desc: string;
 
   @ApiProperty()
-  @IsDate()
-  @IsNotEmpty()
+  @IsDate({ message: 'valid_until must be a valid date' })
+  @IsNotEmpty({ message: 'valid_until is required' })
   @Transform(({ value }) => new Date(value))
   valid_until: Date;
 
   @ApiPropertyOptional()
-  @IsBoolean()
+  @IsBoolean({ message: 'is_active must be a boolean' })
   @Transform(({ value }) => value === 'true' || value === true)
   @IsOptional()
   is_active: boolean;
