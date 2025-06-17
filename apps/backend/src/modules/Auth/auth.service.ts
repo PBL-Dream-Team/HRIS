@@ -329,7 +329,9 @@ export class AuthService {
         secret: this.config.get('JWT_SECRET')
       });
       const storedTokens = await this.prisma.refreshToken.findMany({
-        where: { employeeId: payload.sub },
+        where: { employeeId: payload.sub,
+          expiresAt: { gt: new Date() },
+        },
       });
 
       const isValid = await Promise.any(
