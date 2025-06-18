@@ -306,9 +306,11 @@ export function EmployeeEditGeneralDataForm({
           <Input
             id="first_name"
             value={first_name}
-            onChange={(e) => setFirstName(e.target.value)}
-            placeholder="Enter first name"
-
+            onChange={(e) => {
+              const value = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+              setFirstName(value);
+            }}
+            placeholder="Enter first name (letters only)"
           />
         </div>
 
@@ -321,9 +323,11 @@ export function EmployeeEditGeneralDataForm({
           <Input
             id="last_name"
             value={last_name}
-            onChange={(e) => setLastName(e.target.value)}
-            placeholder="Enter last name"
-
+            onChange={(e) => {
+              const value = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+              setLastName(value);
+            }}
+            placeholder="Enter last name (letters only)"
           />
         </div>
 
@@ -387,14 +391,17 @@ export function EmployeeEditGeneralDataForm({
         {/* Phone Number */}
         <div>
           <Label htmlFor="phone">
-            Phone Number 
+            Mobile Number 
             <span className='text-red-600'> *</span>
           </Label>
           <Input
             id="phone"
             value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            placeholder="Enter phone number"
+            onChange={(e) => {
+              const value = e.target.value.replace(/\D/g, '');
+              setPhone(value);
+            }}
+            placeholder="Enter phone number (numbers only)"
           />
         </div>
 
@@ -407,9 +414,11 @@ export function EmployeeEditGeneralDataForm({
           <Input
             id="nik"
             value={nik}
-            onChange={(e) => setNik(e.target.value)}
-            placeholder="Enter NIK"
-
+            onChange={(e) => {
+              const value = e.target.value.replace(/\D/g, '');
+              setNik(value);
+            }}
+            placeholder="Enter NIK (numbers only)"
           />
         </div>
 

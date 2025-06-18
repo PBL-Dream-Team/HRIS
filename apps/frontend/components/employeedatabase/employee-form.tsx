@@ -364,6 +364,12 @@ export function EmployeeForm({
       return;
     }
 
+    if (accountName && accountName.length < 3) {
+      toast.error('Account name must be at least 3 characters long');
+      setIsLoading(false);
+      return;
+    }
+
     // Get the workscheme from the selected attendance type
     const selectedAttendanceType = workSchemeOptions.find(opt => opt.value === attendanceId);
     if (!selectedAttendanceType) {

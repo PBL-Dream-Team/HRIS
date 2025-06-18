@@ -81,6 +81,35 @@ export function EditPassword({
       return;
     }
 
+    // Validate password length
+    if (formData.newPassword && (formData.newPassword.length < 6 || formData.newPassword.length > 20)) {
+      toast.error('New password must be between 6 and 20 characters long');
+      return;
+    }
+    // Password validation: must contain uppercase, lowercase, number, and symbol
+    if (formData.newPassword) {
+      if (!/^[a-zA-Z0-9!@#$%^&*()_+={}[\]:;"'<>,.?/\\|-]+$/.test(formData.newPassword)) {
+        toast.error('New password can only contain alphanumeric characters and special symbols !@#$%^&*()_+={}[\\]:;"\'<>,.?/\\|-');
+        return;
+      }
+      if (!/[A-Z]/.test(formData.newPassword)) {
+        toast.error('New password must contain at least one uppercase letter');
+        return;
+      }
+      if (!/[a-z]/.test(formData.newPassword)) {
+        toast.error('New password must contain at least one lowercase letter');
+        return;
+      }
+      if (!/[0-9]/.test(formData.newPassword)) {
+        toast.error('New password must contain at least one number');
+        return;
+      }
+      if (!/[!@#$%^&*()_+={}[\]:;"'<>,.?/\\|-]/.test(formData.newPassword)) {
+        toast.error('New password must contain at least one special symbol');
+        return;
+      }
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -117,7 +146,7 @@ export function EditPassword({
       onSuccess?.();
       router.refresh();
     } catch (error: any) {
-      console.error('Error updating password:', error);
+      // console.error('Error updating password:', error);
       toast.error(error.response?.data?.message || 'Failed to update password');
     } finally {
       setIsSubmitting(false);

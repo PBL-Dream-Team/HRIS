@@ -80,10 +80,6 @@ export function AdminEditDataForm({
       toast.error('Please enter a valid email address');
       return;
     }
-    if (!/^\+?[0-9\s]+$/.test(phone)) {
-      toast.error('Mobile number can only contain numbers');
-      return;
-    }
     if (phone.length < 10 || phone.length > 15) {
       toast.error('Mobile number must be between 10 and 15 digits');
       return;
@@ -207,50 +203,59 @@ export function AdminEditDataForm({
       </div>
       <div>
         <Label>
-          First Name 
-          <span className='text-red-600'> *</span>
+          First Name
+          <span className="text-red-600"> *</span>
         </Label>
         <Input
           id="first_name"
           value={first_name}
-          onChange={(e) => setFirstName(e.target.value)}
-          placeholder="Enter your first name"
+          onChange={(e) => {
+            const value = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+            setFirstName(value);
+          }}
+          placeholder="Enter your first name (letters only)"
         />
       </div>
       <div>
         <Label>
-          Last Name 
-          <span className='text-red-600'> *</span>
+          Last Name
+          <span className="text-red-600"> *</span>
         </Label>
         <Input
           id="last_name"
           value={last_name}
-          onChange={(e) => setLastName(e.target.value)}
-          placeholder="Enter your last name"
+          onChange={(e) => {
+            const value = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+            setLastName(value);
+          }}
+          placeholder="Enter your last name (letters only)"
         />
       </div>
       <div>
         <Label>
-          Email 
-          <span className='text-red-600'> *</span>
+          Email
+          <span className="text-red-600"> *</span>
         </Label>
         <Input
           id="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="Enter your email"        
+          placeholder="Enter your email"
         />
       </div>
       <div>
         <Label>
-          Mobile Number 
-          <span className='text-red-600'> *</span>
+          Mobile Number
+          <span className="text-red-600"> *</span>
         </Label>
         <Input
           id="phone"
           value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-          placeholder="Enter account number"
+          onChange={(e) => {
+            const value = e.target.value.replace(/\D/g, '');
+            setPhone(value);
+          }}
+          placeholder="Enter mobile number (numbers only)"
         />
       </div>
 

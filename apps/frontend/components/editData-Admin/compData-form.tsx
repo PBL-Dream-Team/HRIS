@@ -172,8 +172,8 @@ export function EditCompany({
       toast.error('Please select a location on the map or search for an address');
       return;
     }
-    if (name.length < 3) {
-      toast.error('Company name must be at least 3 characters long');
+    if (name.length < 3 || name.length > 50) {
+      toast.error('Company name must be between 3 and 50 characters long');
       return;
     }
 
