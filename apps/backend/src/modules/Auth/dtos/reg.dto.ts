@@ -17,17 +17,17 @@ export class RegDto {
   name: string;
   // Admin Fields
   @ApiProperty()
-  @IsAlpha('first_name must be a string')
+  @IsAlpha(undefined,{ message: 'first_name must be a string' })
   @IsNotEmpty({ message: 'first_name is required' })
   first_name: string;
 
   @ApiProperty()
-  @IsAlpha('last_name must be a string')
+  @IsAlpha(undefined,{ message: 'last_name must be a string' })
   @IsNotEmpty({ message: 'last_name is required' })
   last_name: string;
 
   @ApiProperty()
-  @IsEmail({}, { message: 'email must be a valid email address' })
+  @IsEmail({ message: 'email must be a valid email address' })
   @IsNotEmpty({ message: 'email is required' })
   email: string;
 

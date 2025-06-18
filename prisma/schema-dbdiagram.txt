@@ -1,0 +1,276 @@
+// dbdiagram.io format generated from Prisma schema
+// You can paste this into https://dbdiagram.io for visualization
+
+Table Subscription {
+  id uuid [pk, default: uuid()]
+  name varchar(50)
+  desc text
+  max_employee int
+  price_per_employee int
+  type SubscriptionType
+  day_length int
+  created_at timestamptz [default: now()]
+  updated_at timestamptz [default: now(), note: 'updatedAt']
+  deleted_at timestamptz
+  is_deleted boolean [default: false]
+}
+
+Enum SubscriptionType {
+  TRIAL
+  PAID
+}
+
+Table Company {
+  id uuid [pk, default: uuid()]
+  name varchar(100)
+  address varchar(100)
+  loc_lat double
+  loc_long double
+  subscription_id uuid
+  max_employee int
+  subs_date_start timestamptz
+  subs_date_end timestamptz
+  created_at timestamptz [default: now()]
+  updated_at timestamptz [default: now(), note: 'updatedAt']
+  deleted_at timestamptz
+  is_deleted boolean [default: false]
+}
+
+Table Employee {
+  id uuid [pk, default: uuid()]
+  company_id uuid
+  workscheme WorkSchemeType
+  first_name varchar(100)
+  last_name varchar(100)
+  gender char(1)
+  address text
+  email varchar(100) [unique]
+  password text
+  phone varchar(100) [unique]
+  is_admin boolean [default: false]
+  attendance_id uuid
+  birth_date date
+  birth_place varchar(50)
+  nik varchar(16) [unique]
+  position varchar(50)
+  branch varchar(50)
+  contract ContractType
+  last_education EducationType
+  pict_dir text
+  account_bank BankCode
+  account_number varchar
+  account_name varchar
+  google_id varchar(100) [unique]
+  access_token text [unique]
+  refresh_token text [unique]
+  created_at timestamptz [default: now()]
+  updated_at timestamptz [default: now(), note: 'updatedAt']
+  deleted_at timestamptz
+  is_deleted boolean [default: false]
+}
+
+Enum BankCode {
+  BRI
+  Mandiri
+  BNI
+  Danamon
+  Permata
+  BCA
+  Maybank
+  Panin
+  Bukopin
+  CIMB
+  UOB
+  OCBC
+  BJB
+  Muamalat
+  BTN
+  BTPN
+  Mega
+  SyariahMandiri
+  Commonwealth
+}
+
+Enum ContractType {
+  PERMANENT
+  CONTRACT
+  INTERN
+}
+
+Enum WorkSchemeType {
+  WFA
+  WFO
+  HYBRID
+}
+
+Enum EducationType {
+  HIGH_SCHOOL
+  BACHELOR
+  MASTER
+  DOCTOR
+}
+
+Table LetterType {
+  id uuid [pk, default: uuid()]
+  name varchar(50)
+  content text
+  company_id uuid
+  created_at timestamptz [default: now()]
+  updated_at timestamptz [default: now(), note: 'updatedAt']
+}
+
+Table Letter {
+  id uuid [pk, default: uuid()]
+  company_id uuid
+  employee_id uuid
+  lettertype_id uuid
+  name varchar(50)
+  desc text
+  file_dir text
+  valid_until date
+  is_active boolean [default: true]
+  created_at timestamptz [default: now()]
+  updated_at timestamptz [default: now()]
+  deleted_at timestamptz
+  is_deleted boolean [default: false]
+}
+
+Table AttendanceType {
+  id uuid [pk, default: uuid()]
+  company_id uuid
+  name varchar(50)
+  check_in time
+  check_out time
+  workscheme WorkSchemeType
+  workspace_address varchar
+  workspace_long double
+  workspace_lat double
+  created_at timestamptz [default: now()]
+  updated_at timestamptz [default: now(), note: 'updatedAt']
+  deleted_at timestamptz
+  is_deleted boolean [default: false]
+}
+
+Table Attendance {
+  id uuid [pk, default: uuid()]
+  company_id uuid
+  employee_id uuid
+  type_id uuid
+  check_in time
+  check_in_status CheckInStatus
+  check_in_address varchar
+  check_in_long double
+  check_in_lat double
+  check_out time
+  check_out_status CheckOutStatus
+  check_out_address varchar
+  check_out_long double
+  check_out_lat double
+  filedir text
+  approval AttendanceApproval [default: APPROVED]
+  created_at timestamptz [default: now()]
+  updated_at timestamptz [default: now(), note: 'updatedAt']
+  deleted_at timestamptz
+  is_deleted boolean [default: false]
+}
+
+Enum AttendanceApproval {
+  APPROVED
+  DISAPPROVED
+  PENDING
+}
+
+Enum CheckInStatus {
+  ON_TIME
+  LATE
+}
+
+Enum CheckOutStatus {
+  ON_TIME
+  EARLY
+}
+
+Table AbsenceLeave {
+  id uuid [pk, default: uuid()]
+  employee_id uuid
+  company_id uuid
+  type AbsentType
+  reason text
+  date date [default: now()]
+  status leaveStatus [default: PENDING]
+  filedir text
+  created_at timestamptz [default: now()]
+  updated_at timestamptz [default: now(), note: 'updatedAt']
+  deleted_at timestamptz
+  is_deleted boolean [default: false]
+}
+
+Enum AbsentType {
+  SICK
+  PERMIT
+  LEAVE
+}
+
+Enum leaveStatus {
+  APPROVED
+  REJECTED
+  PENDING
+}
+
+Table Transaction {
+  id uuid [pk, default: uuid()]
+  company_id uuid
+  subscription_id uuid
+  merchantRef text [unique]
+  tripayRef text
+  paymentMethod text
+  expiresAt timestamptz
+  paidAt timestamptz
+  status TransactionStatus [default: UNPAID]
+  total int
+  taxRate decimal(5,2) [default: 10.00]
+  created_at timestamptz [default: now()]
+  updated_at timestamptz [default: now(), note: 'updatedAt']
+  deleted_at timestamptz
+  is_deleted boolean [default: false]
+}
+
+Enum TransactionStatus {
+  PAID
+  UNPAID
+}
+
+Table PasswordReset {
+  id uuid [pk, default: uuid()]
+  token text [unique]
+  employee_id uuid
+  created_at timestamptz [default: now()]
+  expires_at timestamptz
+}
+
+Table RefreshToken {
+  id uuid [pk, default: uuid()]
+  token text
+  employeeId uuid
+  expiresAt timestamptz
+  createdAt timestamptz [default: now()]
+}
+
+// Relationships
+Ref: Company.subscription_id > Subscription.id
+Ref: Employee.company_id > Company.id
+Ref: Employee.attendance_id > AttendanceType.id
+Ref: LetterType.company_id > Company.id
+Ref: Letter.company_id > Company.id
+Ref: Letter.employee_id > Employee.id
+Ref: Letter.lettertype_id > LetterType.id
+Ref: AttendanceType.company_id > Company.id
+Ref: Attendance.company_id > Company.id
+Ref: Attendance.employee_id > Employee.id
+Ref: Attendance.type_id > AttendanceType.id
+Ref: AbsenceLeave.employee_id > Employee.id
+Ref: AbsenceLeave.company_id > Company.id
+Ref: Transaction.company_id > Company.id
+Ref: Transaction.subscription_id > Subscription.id
+Ref: PasswordReset.employee_id > Employee.id
+Ref: RefreshToken.employeeId > Employee.id
