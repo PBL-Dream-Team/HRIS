@@ -87,6 +87,9 @@ export function LetterForm({
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
+  // State for file info visibility
+  const [showFileInfo, setShowFileInfo] = useState(true);
+
   // Enhanced file state management
   const [existingFile, setExistingFile] = useState<{
     url: string;
@@ -396,6 +399,7 @@ export function LetterForm({
       toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
+      setShowFileInfo(true);
     }
   };
 
@@ -412,12 +416,6 @@ export function LetterForm({
 
   // Helper function to get file display info
   const getFileDisplayInfo = () => {
-    console.log('Getting file display info:', {
-      selectedFile,
-      existingFile,
-      fileAction,
-    });
-
     if (selectedFile) {
       return {
         name: selectedFile.name,
@@ -526,25 +524,29 @@ export function LetterForm({
             Upload Letter File
             <span className="text-red-600"> *</span>
           </Label>
-
-          {/* File Display Area */}
           <div className="mt-1 relative w-full aspect-[3/1] border-2 border-dashed rounded-lg shadow-sm flex items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-700 transition cursor-pointer">
             {fileDisplayInfo ? (
-              <div className="flex flex-col items-center justify-center text-sm">
+              <div className="flex flex-col items-center justify-center text-sm w-full px-4">
                 {fileDisplayInfo.icon}
-                <span className="text-center px-2 break-all font-medium">
+                <span className="text-center font-medium w-full truncate">
                   {fileDisplayInfo.name}
                 </span>
-                {fileDisplayInfo.isNew && (
-                  <span className="text-xs text-blue-600 dark:text-blue-400 mt-1">
-                    New file selected
-                  </span>
-                )}
-                {!fileDisplayInfo.isNew && mode === 'edit' && (
-                  <span className="text-xs text-green-600 dark:text-green-400 mt-1">
-                    Current file
-                  </span>
-                )}
+                <div className="flex gap-1 mt-1">
+                  {fileDisplayInfo.isNew ? (
+                    <span className="text-xs text-blue-600 dark:text-blue-400">
+                      New file selected
+                    </span>
+                  ) : mode === 'edit' ? (
+                    <span className="text-xs text-green-600 dark:text-green-400">
+                      Current file
+                    </span>
+                  ) : null}
+                </div>
+              </div>
+            ) : isSubmitting ? (
+              <div className="flex flex-col items-center justify-center text-sm">
+                <FaUpload className="text-2xl text-gray-400 dark:text-gray-500 mb-1" />
+                <span>Uploading file...</span>
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center text-sm">
@@ -600,12 +602,12 @@ export function LetterForm({
           {mode === 'edit' && (
             <div className="text-xs text-gray-500 mt-2">
               {fileAction === 'keep' && existingFile && (
-                <p className="text-green-600 dark:text-green-400">
+                <p className="text-green-600 dark:text-green-400 truncate">
                   ✓ Keeping existing file: {existingFile.name}
                 </p>
               )}
               {fileAction === 'replace' && selectedFile && (
-                <p className="text-blue-600 dark:text-blue-400">
+                <p className="text-blue-600 dark:text-blue-400 truncate">
                   ↻ Will replace with: {selectedFile.name}
                 </p>
               )}
