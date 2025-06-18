@@ -45,12 +45,34 @@ export default function HrSignUpPage() {
     e.preventDefault();
     setIsLoading(true);
 
+    // Validate company name length
+    if (formData.name.length < 3 || formData.name.length > 50) {
+      toast.error('Company name must be between 3 and 50 characters long');
+      setIsLoading(false);
+      return;
+    }
+
+    // Validate first name length
+    if (formData.first_name.length < 2 || formData.first_name.length > 30) {
+      toast.error('First name must be between 2 and 30 characters long');
+      setIsLoading(false);
+      return;
+    }
+
+    // Validate last name length
+    if (formData.last_name.length < 2 || formData.last_name.length > 30) {
+      toast.error('Last name must be between 2 and 30 characters long');
+      setIsLoading(false);
+      return;
+    }
+
     // Validate phone length
     if (formData.phone.length < 10 || formData.phone.length > 15) {
       toast.error('Phone number must be between 10 and 15 digits');
       setIsLoading(false);
       return;
     }
+    
     // Validate email format
     if (!/^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/.test(formData.email)) {
       toast.error('Please enter a valid email address');

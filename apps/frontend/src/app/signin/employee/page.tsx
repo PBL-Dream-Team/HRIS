@@ -58,8 +58,9 @@ export default function HrLoginPage() {
 
       router.push('/redirect');
     } catch (error: any) {
-      // console.error(error);
       if (error?.response?.status === 401) {
+        toast.error('Password incorrect.');
+      } else if (error?.response?.status === 404) {
         toast.error('Account not found. Please check your email or register first.');
       } else {
         toast.error('Login failed. Please check your credentials and try again.');
