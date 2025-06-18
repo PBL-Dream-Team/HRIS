@@ -133,8 +133,14 @@ export class AuthService {
       });
 
       if (
-        employee == null ||
-        (await verify(employee.password, dto.password)) == false
+        employee == null) {
+          return {
+            statusCode: 404,
+            message: 'Employee not found',
+          };
+        }
+
+      if(await verify(employee.password, dto.password) == false
       ) {
         return {
           statusCode: 401,
