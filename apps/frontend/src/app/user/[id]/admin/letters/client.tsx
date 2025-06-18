@@ -235,6 +235,13 @@ export default function LettersClient({
     fetchData();
   }, [fetchData]);
 
+  // Show warning if no letter types exist
+  useEffect(() => {
+    if (!isLoading && Object.keys(letterTypeMap).length === 0) {
+      toast.warning('Please add a letter type first before adding letters.');
+    }
+  }, [isLoading, letterTypeMap]);
+
   // Data Transformation with null safety
   const transformedLetters = useMemo((): Letter[] => {
     return letters.map((letter) => {

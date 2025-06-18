@@ -498,8 +498,11 @@ export default function EmployeeDatabaseClient({
           ? res.data.filter((ws) => ws.company_id === companyId)
           : [];
         setHasWorkscheme(filtered.length > 0);
+        if (filtered.length === 0) {
+          toast.warning('Please add a workscheme first in checkclock menu before adding employees.');
+        }
       } catch (err) {
-        setHasWorkscheme(false); // Jika error, anggap tidak ada workscheme
+        setHasWorkscheme(false);
       }
     }
     if (companyId) checkWorkscheme();
