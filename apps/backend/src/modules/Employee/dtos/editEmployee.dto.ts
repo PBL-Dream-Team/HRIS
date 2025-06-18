@@ -68,7 +68,7 @@ export class editEmployeeDto {
 
   @ApiPropertyOptional()
   @IsNumberString({}, { message: 'phone must be a number string' })
-  @IsNotEmpty({ message: 'phone must be filled' })
+  @IsOptional()
   phone: string;
 
   @ApiPropertyOptional()
