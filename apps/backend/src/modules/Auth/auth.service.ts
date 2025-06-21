@@ -9,7 +9,6 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { AuthEmailDto } from './dtos/authEmail.dto';
 import { hash, verify } from 'argon2';
 import { RegDto } from './dtos/reg.dto';
-import { AuthIdDto } from './dtos';
 import { randomBytes } from 'crypto';
 import { CustomMailService } from '../../common/mail/mail.service';
 import { OAuth2Client } from 'google-auth-library';
@@ -128,7 +127,6 @@ export class AuthService {
       const employee = await this.prisma.employee.findFirst({
         where: {
           OR: [{ email: dto.input }, { phone: dto.input }],
-          is_deleted: false, // Ensure the employee is not deleted
         },
       });
 
@@ -139,6 +137,13 @@ export class AuthService {
             message: 'Employee not found',
           };
         }
+
+      if (employee.is_deleted === true) {
+        return {
+          statusCode: 403,
+          message: 'This account is inactive',
+        };
+      }
 
       if(await verify(employee.password, dto.password) == false
       ) {
@@ -157,39 +162,6 @@ export class AuthService {
           company.subscription_id,
         );
 
-        return token;
-      }
-    } catch (error) {
-      console.log('Error: ', error);
-      return {
-        statusCode: error.code,
-        message: error.message,
-      };
-    }
-  }
-  async IdSignIn(dto: AuthIdDto) {
-    try {
-      const employee = await this.prisma.employee.findFirst({
-        where: {
-          OR: [{ id: dto.id }],
-        },
-      });
-
-      if (
-        employee == null ||
-        (await verify(employee.password, dto.password)) == false
-      ) {
-        throw new ForbiddenException('Credentials Incorrect');
-      } else {
-        const company = await this.prisma.company.findFirst({
-          where: { id: employee.company_id },
-        });
-        const token = await this.signToken(
-          employee.id,
-          employee.company_id,
-          employee.is_admin,
-          company.subscription_id,
-        );
         return token;
       }
     } catch (error) {

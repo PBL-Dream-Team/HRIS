@@ -191,6 +191,8 @@ model LetterType{
 
   created_at DateTime @db.Timestamptz() @default(now())
   updated_at DateTime @db.Timestamptz() @updatedAt
+  deleted_at DateTime? @db.Timestamptz()
+  is_deleted Boolean @db.Boolean @default(false)
 
   letters Letter[]
 
@@ -317,6 +319,7 @@ model AbsenceLeave {
   date DateTime @db.Date @default(now())
 
   status leaveStatus @default(PENDING)
+  status_expired DateTime? @db.Timestamptz()
 
   filedir String?
 

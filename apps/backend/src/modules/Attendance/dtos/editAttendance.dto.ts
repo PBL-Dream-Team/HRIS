@@ -1,4 +1,5 @@
 import {
+  IsBoolean,
   IsEnum,
   IsLatitude,
   IsLongitude,
@@ -12,6 +13,7 @@ import { checkinstatus } from './checkinstatus.enum';
 import { checkoutstatus } from './checkoutstatus.enum';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { attendanceapproval } from './attendanceapproval.enum';
+import { Transform } from 'class-transformer';
 
 export class editAttendanceDto {
   @ApiPropertyOptional()
@@ -83,4 +85,10 @@ export class editAttendanceDto {
   @IsEnum(attendanceapproval, { message: 'approval must be a valid approval' })
   @IsOptional()
   approval: string;
+
+  @ApiPropertyOptional()
+  @IsBoolean({ message: 'is_deleted must be a boolean' })
+  @Transform(({ value }) => value === 'true' || value === true)
+  @IsOptional()
+  is_deleted: boolean;
 }

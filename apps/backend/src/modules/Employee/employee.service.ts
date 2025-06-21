@@ -107,7 +107,7 @@ export class EmployeeService {
 
   async getEmployee(employeeId: string) {
     const data = await this.prisma.employee.findFirst({
-      where: { id: employeeId, is_deleted: false },
+      where: { id: employeeId},
     });
     if (data) {
       return {
@@ -125,7 +125,9 @@ export class EmployeeService {
 
   async getEmployees() {
     return await this.prisma.employee.findMany({
-      where:{ is_deleted: false }
+      orderBy:{
+        is_deleted: 'desc'
+      }
     });
   }
 
@@ -245,26 +247,38 @@ export class EmployeeService {
   async deleteEmployee(employeeId: string) {
     try {
       const user = await this.prisma.employee.findFirst({
-        where: { id: employeeId },
+        where: { id: employeeId, is_deleted: false },
       });
 
-      await this.prisma.employee.delete({ where: { id: employeeId } });
-
-      if (user.pict_dir) {
-        // const oldPath = join(process.cwd(), 'storage', 'employee', user.pict_dir);
-        const oldPath = join(
-          process.cwd(),
-          'apps',
-          'frontend',
-          'public',
-          'storage',
-          'employee',
-          user.pict_dir,
-        );
-        if (existsSync(oldPath)) {
-          unlinkSync(oldPath);
-        }
+      if (!user) {
+        return {
+          statusCode: 404,
+          message: 'Employee already deleted or not found',
+        };
       }
+
+      await this.prisma.employee.update({
+        where: { id: employeeId },
+        data: { is_deleted: true,
+          deleted_at: new Date().toISOString()
+         },
+      })
+
+      // if (user.pict_dir) {
+      //   // const oldPath = join(process.cwd(), 'storage', 'employee', user.pict_dir);
+      //   const oldPath = join(
+      //     process.cwd(),
+      //     'apps',
+      //     'frontend',
+      //     'public',
+      //     'storage',
+      //     'employee',
+      //     user.pict_dir,
+      //   );
+      //   if (existsSync(oldPath)) {
+      //     unlinkSync(oldPath);
+      //   }
+      // }
 
       return {
         statusCode: 200,
@@ -285,7 +299,7 @@ export class EmployeeService {
       where[key] = { equals: value };
     }
 
-    return await this.prisma.employee.findMany({ where });
+    return await this.prisma.employee.findMany({ where, orderBy: { is_deleted: 'desc' } });
   }
 
   async countEmployees(companyId: string) {

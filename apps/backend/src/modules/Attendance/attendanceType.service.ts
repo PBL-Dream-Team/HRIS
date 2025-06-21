@@ -47,7 +47,11 @@ export class AttendanceTypeService {
   }
 
   async getAttendanceTypes() {
-    return await this.prisma.attendanceType.findMany();
+    return await this.prisma.attendanceType.findMany({
+      orderBy:{
+        is_deleted: 'desc'
+      }
+    });
   }
 
   async updateAttendanceType(
@@ -92,6 +96,17 @@ export class AttendanceTypeService {
       //     id: attendanceTypeId
       //   }
       // })
+      const attendanceType = await this.prisma.attendanceType.findFirst({
+        where: { id: attendanceTypeId, is_deleted: false },
+      });
+
+      if (!attendanceType) {
+        return {
+          statusCode: 404,
+          message: 'AttendanceType not found or already deleted',
+        };
+      }
+
       const empCount = await this.prisma.employee.findFirst({
         where:{
           attendance_id: attendanceTypeId
@@ -104,10 +119,29 @@ export class AttendanceTypeService {
           message:"Attendance type still being used"
         }
       }
-      await this.prisma.attendanceType.delete({
+      // await this.prisma.attendanceType.delete({
+      //   where: { id: attendanceTypeId },
+      // });
+
+      await this.prisma.attendanceType.update({
         where: { id: attendanceTypeId },
+        data: { is_deleted: true,
+          deleted_at: new Date().toISOString(),
+         },
       });
 
+      await this.prisma.attendance.updateMany({
+        where: { type_id: attendanceTypeId },
+        data: { is_deleted: true,
+          deleted_at: new Date().toISOString(),
+         },
+      });
+
+      await this.prisma.employee.updateMany({
+        where: { attendance_id: attendanceTypeId },
+        data: { attendance_id: null },
+      });
+      
       
       return {
         statusCode: 200,
@@ -127,6 +161,6 @@ export class AttendanceTypeService {
       where[key] = { equals: value };
     }
 
-    return await this.prisma.attendanceType.findMany({ where });
+    return await this.prisma.attendanceType.findMany({ where, orderBy: { is_deleted: 'desc' } });
   }
 }

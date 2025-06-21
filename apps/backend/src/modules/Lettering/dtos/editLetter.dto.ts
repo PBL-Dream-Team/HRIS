@@ -48,4 +48,10 @@ export class editLetterDto {
   @Transform(({ value }) => value === 'true' || value === true)
   @IsOptional()
   is_active: boolean;
+
+  @ApiPropertyOptional()
+  @IsBoolean({ message: 'is_deleted must be a boolean' })
+  @Transform(({ value }) => value === 'true' || value === true)
+  @IsOptional()
+  is_deleted: boolean;
 }

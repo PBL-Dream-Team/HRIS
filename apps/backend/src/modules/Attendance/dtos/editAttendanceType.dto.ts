@@ -1,4 +1,5 @@
 import {
+  IsBoolean,
   IsEnum,
   IsLatitude,
   IsLongitude,
@@ -8,6 +9,7 @@ import {
   IsUUID,
   Matches,
 } from '@nestjs/class-validator';
+import { Transform } from 'class-transformer';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { workscheme } from './workscheme.enum';
 
@@ -61,4 +63,10 @@ export class editAttendanceTypeDto {
   @IsLongitude({ message: 'workspace_long must be a valid longitude' })
   @IsOptional()
   workspace_long: number;
+
+  @ApiPropertyOptional()
+  @IsBoolean({ message: 'is_deleted must be a boolean' })
+  @Transform(({ value }) => value === 'true' || value === true)
+  @IsOptional()
+  is_deleted: boolean;
 }

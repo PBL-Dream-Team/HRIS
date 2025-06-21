@@ -53,8 +53,8 @@ export class createAbsenceDto {
       '1970-01-01T08:57:24.123Z or 1970-01-01T08:57:24.123+07:00. Z for UTC +0 Zulu and +7 for Indonesia',
   })
   @Matches(/^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]{3}(Z|[+-][0-9]{2}:[0-9]{2})$/, {
-    message: 'status_change_at must be in ISO 8601 format (with Z or timezone offset)',
+    message: 'status_expired must be in ISO 8601 format (with Z or timezone offset)',
   })
   @IsOptional()
-  status_change_at;
+  status_expired;
 }

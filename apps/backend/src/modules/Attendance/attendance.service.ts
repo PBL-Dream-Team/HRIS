@@ -110,7 +110,11 @@ export class AttendanceService {
   }
 
   async getAttendances() {
-    return await this.prisma.attendance.findMany();
+    return await this.prisma.attendance.findMany({
+      orderBy:{
+        is_deleted: 'desc'
+      }
+    });
   }
 
   async updateAttendance(attendanceId: string, dto: editAttendanceDto) {
@@ -194,7 +198,21 @@ export class AttendanceService {
       const data = await this.prisma.attendance.findFirst({
         where: { id: attendanceId },
       });
-      await this.prisma.attendance.delete({ where: { id: attendanceId } });
+
+      if (!data) {
+        return {
+          statusCode: 404,
+          message: 'Attendance not found or already deleted',
+        };
+      }
+      // await this.prisma.attendance.delete({ where: { id: attendanceId } });
+
+      await this.prisma.attendance.update({
+        where: { id: attendanceId },
+        data: { is_deleted: true,
+          deleted_at: new Date().toISOString()
+         },
+      });
       return {
         statusCode: 200,
         message: 'Attendance deleted successfully',
@@ -213,7 +231,7 @@ export class AttendanceService {
       where[key] = { equals: value };
     }
 
-    return await this.prisma.attendance.findMany({ where });
+    return await this.prisma.attendance.findMany({ where, orderBy: { is_deleted: 'desc' } });
   }
 
   

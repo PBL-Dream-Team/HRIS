@@ -43,7 +43,11 @@ export class LetterTypeService {
   }
 
   async getLetterTypes() {
-    return await this.prisma.letterType.findMany();
+    return await this.prisma.letterType.findMany({
+      orderBy:{
+        is_deleted: 'desc'
+      }
+    });
   }
 
   async updateLetterType(letterTypeId: string, dto: editLetterTypeDto) {
@@ -68,7 +72,22 @@ export class LetterTypeService {
 
   async deleteLetterType(letterTypeId: string) {
     try {
-      await this.prisma.letterType.delete({ where: { id: letterTypeId } });
+      const lettertype = await this.prisma.letterType.findFirst({
+        where: { id: letterTypeId, is_deleted: false },
+      });
+      if (!lettertype) {
+        return {
+          statusCode: 404,
+          message: 'LetterType not found or already deleted',
+        };
+      }
+
+      await this.prisma.letterType.update({
+        where: { id: letterTypeId },
+        data: { is_deleted: true,
+          deleted_at: new Date().toISOString()
+         },
+      });
       return {
         statusCode: 200,
         message: 'LetterType deleted successfully',
@@ -87,6 +106,6 @@ export class LetterTypeService {
       where[key] = { equals: value };
     }
 
-    return await this.prisma.letterType.findMany({ where });
+    return await this.prisma.letterType.findMany({ where, orderBy: { is_deleted: 'desc' } });
   }
 }

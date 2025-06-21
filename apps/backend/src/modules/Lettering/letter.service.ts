@@ -68,7 +68,11 @@ export class LetterService {
   }
 
   async getLetters() {
-    return await this.prisma.letter.findMany();
+    return await this.prisma.letter.findMany({
+      orderBy:{
+        is_deleted: 'desc'
+      }
+    });
   }
 
   async updateLetter(
@@ -137,25 +141,38 @@ export class LetterService {
   async deleteLetter(letterId: string) {
     try {
       const letter = await this.prisma.letter.findFirst({
-        where: { id: letterId },
+        where: { id: letterId, is_deleted: false },
       });
 
-      await this.prisma.letter.delete({ where: { id: letterId } });
-
-      if (letter.file_dir) {
-        const writeStream = join(
-          process.cwd(),
-          'apps',
-          'frontend',
-          'public',
-          'storage',
-          'letter',
-          letter.file_dir,
-        );
-        if (existsSync(writeStream)) {
-          unlinkSync(writeStream);
-        }
+      if (!letter) {
+        return {
+          statusCode: 404,
+          message: 'Letter not found or already deleted',
+        };
       }
+      
+      await this.prisma.letter.update({
+        where: { id: letterId },
+        data: { is_deleted: true,
+        deleted_at: new Date().toISOString(),
+        is_active: false
+         },
+      });
+
+      // if (letter.file_dir) {
+      //   const writeStream = join(
+      //     process.cwd(),
+      //     'apps',
+      //     'frontend',
+      //     'public',
+      //     'storage',
+      //     'letter',
+      //     letter.file_dir,
+      //   );
+      //   if (existsSync(writeStream)) {
+      //     unlinkSync(writeStream);
+      //   }
+      // }
 
       return {
         statusCode: 200,
@@ -175,6 +192,6 @@ export class LetterService {
       where[key] = { equals: value };
     }
 
-    return await this.prisma.letter.findMany({ where });
+    return await this.prisma.letter.findMany({ where, orderBy: { is_deleted: 'desc' } });
   }
 }

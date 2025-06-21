@@ -11,6 +11,9 @@ export class AbsenceService {
 
   async createAbsence(dto: createAbsenceDto, file?: Express.Multer.File) {
     const data: any = { ...dto };
+    data.status_expired = new Date(
+      new Date(data.date).getTime() + 24 * 60 * 60 * 1000,
+    ).toISOString(); // Set status_expired to 24 hours after the date
 
     if (file) {
       const filename = `${Date.now()}_${file.originalname}`;
@@ -68,7 +71,11 @@ export class AbsenceService {
   }
 
   async getAbsences() {
-    return await this.prisma.absenceLeave.findMany();
+    return await this.prisma.absenceLeave.findMany({
+      orderBy:{
+        is_deleted: 'desc'
+      }
+    });
   }
 
   async updateAbsence(
@@ -140,10 +147,22 @@ export class AbsenceService {
   async deleteAbsence(absenceId: string) {
     try {
       const data = await this.prisma.absenceLeave.findFirst({
-        where: { id: absenceId },
+        where: { id: absenceId, is_deleted: false },
       });
 
-      await this.prisma.absenceLeave.delete({ where: { id: absenceId } });
+      if (!data) {
+        return {
+          statusCode: 404,
+          message: 'Absence not found',
+        };
+      }
+
+      await this.prisma.absenceLeave.update({
+        where: { id: absenceId },
+        data: { is_deleted: true,
+          deleted_at: new Date().toISOString()
+         },
+      });
 
       if (data.filedir) {
         const oldPath = join(
@@ -178,6 +197,6 @@ export class AbsenceService {
       where[key] = { equals: value };
     }
 
-    return await this.prisma.absenceLeave.findMany({ where });
+    return await this.prisma.absenceLeave.findMany({ where, orderBy: { is_deleted: 'desc' } });
   }
 }
