@@ -165,10 +165,7 @@ export default function AbsenceClient({
           const validAbsences = absenceData
             .filter(
               (abs) =>
-                abs &&
-                typeof abs === 'object' &&
-                abs.id &&
-                abs.employee_id,
+                abs && typeof abs === 'object' && abs.id && abs.employee_id,
             )
             .map((abs) => ({
               ...abs,
@@ -195,7 +192,7 @@ export default function AbsenceClient({
             last_name: '',
             position: '',
             avatar: '/avatars/default.jpg',
-            compName: ''
+            compName: '',
           });
           setAbsences([]);
           setEmployees({});
@@ -225,12 +222,11 @@ export default function AbsenceClient({
       reason: String(absence.reason || '-'),
       date: absence.date ? new Date(absence.date).toDateString() : 'No date',
       status: String(absence.status || 'PENDING'),
-      name:
-        employee
-          ? `${String(employee.first_name || '')} ${String(
-              employee.last_name || '',
-            )}`.trim() || 'Unknown Employee'
-          : 'Unknown Employee',
+      name: employee
+        ? `${String(employee.first_name || '')} ${String(
+            employee.last_name || '',
+          )}`.trim() || 'Unknown Employee'
+        : 'Unknown Employee',
       position: String(employee?.position || 'N/A'),
       type: String(absence.type || ''),
       address: String(employee?.address || '-'),
@@ -401,7 +397,7 @@ export default function AbsenceClient({
           <div className="flex items-center justify-center h-screen">
             <div className="flex flex-col items-center gap-4">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-              <div className="text-lg">Loading absence data...</div>
+              <div className="text-lg">Loading leave data...</div>
             </div>
           </div>
         </SidebarInset>
@@ -418,7 +414,9 @@ export default function AbsenceClient({
           <div className="flex items-center justify-center h-screen">
             <div className="text-center">
               <div className="text-lg text-red-500 mb-4">{error}</div>
-              <Button onClick={() => window.location.reload()}>Try Again</Button>
+              <Button onClick={() => window.location.reload()}>
+                Try Again
+              </Button>
             </div>
           </div>
         </SidebarInset>
@@ -440,7 +438,7 @@ export default function AbsenceClient({
             <Breadcrumb>
               <BreadcrumbList>
                 <BreadcrumbItem>
-                  <BreadcrumbPage>Absence</BreadcrumbPage>
+                  <BreadcrumbPage>Leave</BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
@@ -457,7 +455,7 @@ export default function AbsenceClient({
               columns={absenceColumns}
               data={filteredAbsences}
               searchableColumn="name"
-              title="Absence Overview"
+              title="Leave Overview"
               pagination={{
                 currentPage,
                 itemsPerPage,
