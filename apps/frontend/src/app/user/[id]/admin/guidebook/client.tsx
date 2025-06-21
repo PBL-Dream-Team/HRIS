@@ -51,11 +51,6 @@ export default function GuideBookClient({
     compName: '',
   });
   const [loading, setLoading] = useState(true);
-  const [showMainMenu, setShowMainMenu] = useState(false);
-  const [mainTab, setMainTab] = useState('account');
-  const [showEmployeeMenu, setShowEmployeeMenu] = useState(false);
-  const [employeeTab, setEmployeeTab] = useState('employee_list');
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
 
   useEffect(() => {
     async function fetchUser() {
@@ -131,64 +126,9 @@ export default function GuideBookClient({
 
         {/* Content */}
         <div className="p-4">
-          {/* Hamburger menu for mobile */}
-          <div className="sm:hidden mb-2 relative">
-            <button
-              className="flex items-center gap-2 px-3 py-2 bg-white rounded-md border shadow-sm w-full justify-between"
-              onClick={() => setShowMainMenu((v) => !v)}
-              aria-label="Open main menu"
-            >
-              <span className="font-medium text-xs">
-                {mainTab === 'account'
-                  ? 'Account'
-                  : mainTab === 'employee'
-                  ? 'Employee Management'
-                  : mainTab === 'attendance'
-                  ? 'Attendance Management'
-                  : mainTab === 'letter'
-                  ? 'Letter Management'
-                  : 'Menu'}
-              </span>
-              <Menu size={18} />
-            </button>
-            {showMainMenu && (
-              <div className="absolute z-20 mt-2 w-full bg-white rounded-md shadow-lg border divide-y divide-gray-100">
-                <button
-                  className={`w-full text-left px-4 py-2 text-xs ${mainTab === 'account' ? 'bg-blue-100 font-semibold' : ''}`}
-                  onClick={() => {
-                    setMainTab('account');
-                    setShowMainMenu(false);
-                  }}
-                >Account</button>
-                <button
-                  className={`w-full text-left px-4 py-2 text-xs ${mainTab === 'employee' ? 'bg-blue-100 font-semibold' : ''}`}
-                  onClick={() => {
-                    setMainTab('employee');
-                    setShowMainMenu(false);
-                  }}
-                >Employee Management</button>
-                <button
-                  className={`w-full text-left px-4 py-2 text-xs ${mainTab === 'attendance' ? 'bg-blue-100 font-semibold' : ''}`}
-                  onClick={() => {
-                    setMainTab('attendance');
-                    setShowMainMenu(false);
-                  }}
-                >Attendance Management</button>
-                <button
-                  className={`w-full text-left px-4 py-2 text-xs ${mainTab === 'letter' ? 'bg-blue-100 font-semibold' : ''}`}
-                  onClick={() => {
-                    setMainTab('letter');
-                    setShowMainMenu(false);
-                  }}
-                >Letter Management</button>
-              </div>
-            )}
-          </div>
           <Tabs
-            value={isMobile ? mainTab : undefined}
             defaultValue="account"
             className="w-full"
-            onValueChange={v => isMobile ? setMainTab(v) : undefined}
           >
             {/* TabsList for desktop only */}
             <div className="hidden sm:block">
@@ -199,6 +139,7 @@ export default function GuideBookClient({
                 <TabsTrigger value="letter">Letter Management</TabsTrigger>
               </TabsList>
             </div>
+
             {/* Account Menu */}
             <TabsContent value="account">
               <Card className="w-full p-6">
@@ -356,73 +297,10 @@ export default function GuideBookClient({
             <TabsContent value="employee">
               <Card className="w-full p-6">
                 <CardTitle className="mb-6 text-xl">Employee Management Guide</CardTitle>
-                {/* Hamburger menu for Employee Management (mobile only) */}
-                <div className="sm:hidden mb-2 relative">
-                  <button
-                    className="flex items-center gap-2 px-3 py-2 bg-white rounded-md border shadow-sm w-full justify-between"
-                    onClick={() => setShowEmployeeMenu((v) => !v)}
-                    aria-label="Open employee menu"
-                  >
-                    <span className="font-medium text-xs">
-                      {employeeTab === "employee_list"
-                        ? "Employee List"
-                        : employeeTab === "add_employee"
-                        ? "Add Employee"
-                        : employeeTab === "edit_employee"
-                        ? "Edit Employee"
-                        : employeeTab === "delete_employee"
-                        ? "Delete Employee"
-                        : employeeTab === "employee_information"
-                        ? "Employee Information"
-                        : "Menu"}
-                    </span>
-                    <Menu size={18} />
-                  </button>
-                  {showEmployeeMenu && (
-                    <div className="absolute z-20 mt-2 w-full bg-white rounded-md shadow-lg border divide-y divide-gray-100">
-                      <button
-                        className={`w-full text-left px-4 py-2 text-xs ${employeeTab === 'employee_list' ? 'bg-blue-100 font-semibold' : ''}`}
-                        onClick={() => {
-                          setEmployeeTab('employee_list');
-                          setShowEmployeeMenu(false);
-                        }}
-                      >Employee List</button>
-                      <button
-                        className={`w-full text-left px-4 py-2 text-xs ${employeeTab === 'add_employee' ? 'bg-blue-100 font-semibold' : ''}`}
-                        onClick={() => {
-                          setEmployeeTab('add_employee');
-                          setShowEmployeeMenu(false);
-                        }}
-                      >Add Employee</button>
-                      <button
-                        className={`w-full text-left px-4 py-2 text-xs ${employeeTab === 'edit_employee' ? 'bg-blue-100 font-semibold' : ''}`}
-                        onClick={() => {
-                          setEmployeeTab('edit_employee');
-                          setShowEmployeeMenu(false);
-                        }}
-                      >Edit Employee</button>
-                      <button
-                        className={`w-full text-left px-4 py-2 text-xs ${employeeTab === 'delete_employee' ? 'bg-blue-100 font-semibold' : ''}`}
-                        onClick={() => {
-                          setEmployeeTab('delete_employee');
-                          setShowEmployeeMenu(false);
-                        }}
-                      >Delete Employee</button>
-                      <button
-                        className={`w-full text-left px-4 py-2 text-xs ${employeeTab === 'employee_information' ? 'bg-blue-100 font-semibold' : ''}`}
-                        onClick={() => {
-                          setEmployeeTab('employee_information');
-                          setShowEmployeeMenu(false);
-                        }}
-                      >Employee Information</button>
-                    </div>
-                  )}
-                </div>
+
                 <Tabs
-                  value={isMobile ? employeeTab : undefined}
                   defaultValue="employee_list"
                   className="w-full"
-                  onValueChange={v => isMobile ? setEmployeeTab(v) : undefined}
                 >
                   <div className="flex gap-6">
                     {/* Sidebar Navigation for desktop only */}
@@ -722,466 +600,452 @@ export default function GuideBookClient({
             {/* Attendance Management Menu */}
             <TabsContent value="attendance">
               <Card className="w-full p-6">
-                <CardTitle className="mb-6 text-xl">Attendance Management Guide</CardTitle>
                 <Tabs defaultValue="attendance_management" className="w-full">
+                  <div className="hidden sm:block">
+                    <TabsList className="grid w-full grid-cols-3">
+                      <TabsTrigger
+                        value="attendance_management">
+                        Attendance Management
+                      </TabsTrigger>
+                      <TabsTrigger
+                        value="workscheme_management"
+                      >
+                        Workscheme Management
+                      </TabsTrigger>
+                      <TabsTrigger
+                        value="leave_management"
+                      >
+                        Leave Management
+                      </TabsTrigger>
+                    </TabsList>
+                  </div>
                   <div className="flex gap-6">
-                    {/* Sidebar Navigation */}
-                    <div className="w-64 flex-shrink-0">
-                      <div className="flex flex-col space-y-1 bg-gray-50 p-2 rounded-lg">
-                        <TabsList className="flex flex-col h-auto w-full bg-transparent p-0 space-y-1">
-                          <TabsTrigger
-                            value="attendance_management"
-                            className="w-full justify-start text-left p-3 rounded-md bg-white hover:bg-gray-100 data-[state=active]:bg-[#1E3A5F] data-[state=active]:text-white border-0 shadow-none font-medium"
-                          >
-                            Attendance Management
-                          </TabsTrigger>
-                          <TabsTrigger
-                            value="workscheme_management"
-                            className="w-full justify-start text-left p-3 rounded-md bg-white hover:bg-gray-100 data-[state=active]:bg-[#1E3A5F] data-[state=active]:text-white border-0 shadow-none font-medium"
-                          >
-                            Workscheme Management
-                          </TabsTrigger>
-                          <TabsTrigger
-                            value="absence_management"
-                            className="w-full justify-start text-left p-3 rounded-md bg-white hover:bg-gray-100 data-[state=active]:bg-[#1E3A5F] data-[state=active]:text-white border-0 shadow-none font-medium"
-                          >
-                            Absence Management
-                          </TabsTrigger>
-                        </TabsList>
-                      </div>
-                    </div>
-
-                    {/* Content Area */}
-                    <div className="flex-1 min-h-fit">
-
-                      {/* Attendance Management */}
-                      <TabsContent value="attendance_management" className="mt-0 h-full">
-                        {/* Content */}
-                        <Card className="w-full p-6">
-                          <CardTitle className="mb-6 text-xl">Attendance Management Guide</CardTitle>
-                          <Tabs defaultValue="attendance_overview" className="w-full">
-                            <div className="flex gap-6">
-                              {/* Sidebar Navigation */}
-                              <div className="w-64 flex-shrink-0">
-                                <div className="flex flex-col space-y-1 bg-gray-50 p-2 rounded-lg">
-                                  <TabsList className="flex flex-col h-auto w-full bg-transparent p-0 space-y-1">
-                                    <TabsTrigger
-                                      value="attendance_overview"
-                                      className="w-full justify-start text-left p-3 rounded-md bg-white hover:bg-gray-100 data-[state=active]:bg-[#1E3A5F] data-[state=active]:text-white border-0 shadow-none font-medium"
-                                    >
-                                      Attendance Overview
-                                    </TabsTrigger>
-                                    <TabsTrigger
-                                      value="attendance_details"
-                                      className="w-full justify-start text-left p-3 rounded-md bg-white hover:bg-gray-100 data-[state=active]:bg-[#1E3A5F] data-[state=active]:text-white border-0 shadow-none font-medium"
-                                    >
-                                      Attendance Details
-                                    </TabsTrigger>
-                                  </TabsList>
-                                </div>
+                    <TabsContent value="attendance_management" className="mt-0 h-full">
+                      {/* Content */}
+                      <Card className="w-full p-6">
+                        <CardTitle className="mb-6 text-xl">Attendance Management Guide</CardTitle>
+                        <Tabs defaultValue="attendance_overview" className="w-full">
+                          <div className="flex gap-6">
+                            {/* Sidebar Navigation */}
+                            <div className="w-64 flex-shrink-0">
+                              <div className="flex flex-col space-y-1 bg-gray-50 p-2 rounded-lg">
+                                <TabsList className="flex flex-col h-auto w-full bg-transparent p-0 space-y-1">
+                                  <TabsTrigger
+                                    value="attendance_overview"
+                                    className="w-full justify-start text-left p-3 rounded-md bg-white hover:bg-gray-100 data-[state=active]:bg-[#1E3A5F] data-[state=active]:text-white border-0 shadow-none font-medium"
+                                  >
+                                    Attendance Overview
+                                  </TabsTrigger>
+                                  <TabsTrigger
+                                    value="attendance_details"
+                                    className="w-full justify-start text-left p-3 rounded-md bg-white hover:bg-gray-100 data-[state=active]:bg-[#1E3A5F] data-[state=active]:text-white border-0 shadow-none font-medium"
+                                  >
+                                    Attendance Details
+                                  </TabsTrigger>
+                                </TabsList>
                               </div>
+                            </div>
 
-                              {/* Content Area */}
-                              <div className="flex-1 min-h-fit">
-                                {/* Attendance List */}
-                                <TabsContent value="attendance_overview" className="mt-0 h-full">
-                                  <Card className="w-full h-fit">
-                                    <CardHeader>
-                                      <CardTitle>Attendance Overview Guide</CardTitle>
-                                    </CardHeader>
-                                    <CardContent>
-                                      <div className="space-y-4">
-                                        <p>The "Checkclock" page contains a table listing employee attendance and working hours. To access the "Checkclock" page, follow these steps:</p>
-                                        <p className='bg-blue-50 p-2 rounded-lg'>The "Checkclock" page can be accessed by clicking the "Checkclock" menu in the left navigation menu.</p>
-                                        <p>The attendance data information displayed in the table includes:</p>
-                                        <div className="bg-purple-50 p-4 rounded-lg grid grid-cols-2 gap-4">
+                            {/* Content Area */}
+                            <div className="flex-1 min-h-fit">
+                              {/* Attendance List */}
+                              <TabsContent value="attendance_overview" className="mt-0 h-full">
+                                <Card className="w-full h-fit">
+                                  <CardHeader>
+                                    <CardTitle>Attendance Overview Guide</CardTitle>
+                                  </CardHeader>
+                                  <CardContent>
+                                    <div className="space-y-4">
+                                      <p>The "Checkclock" page contains a table listing employee attendance and working hours. To access the "Checkclock" page, follow these steps:</p>
+                                      <p className='bg-blue-50 p-2 rounded-lg'>The "Checkclock" page can be accessed by clicking the "Checkclock" menu in the left navigation menu.</p>
+                                      <p>The attendance data information displayed in the table includes:</p>
+                                      <div className="bg-purple-50 p-4 rounded-lg grid grid-cols-2 gap-4">
+                                        <ul className="list-disc list-inside space-y-1 text-sm">
+                                          <li>Avatar</li>
+                                          <li>Employee Name</li>
+                                          <li>Position</li>
+                                          <li>Date</li>
+                                        </ul>
+                                        <ul className="list-disc list-inside space-y-1 text-sm">
+                                          <li>Clock In</li>
+                                          <li>Clock Out</li>
+                                          <li>Work Hours</li>
+                                          <li>Approve</li>
+                                          <li>Status</li>
+                                          <li>Actions</li>
+                                        </ul>
+                                      </div>
+                                      <div className="bg-amber-50 p-4 rounded-lg">
+                                        <h4 className="font-semibold mb-2">Attendance Status:</h4>
+                                        <ul className="list-disc list-inside space-y-1 text-sm">
+                                          <li><span className="text-green-600 font-medium">On Time</span> - Employee arrives on time according to workscheme</li>
+                                          <li><span className="text-red-600 font-medium">Late</span> - Employee arrives late from the time set in workscheme</li>
+                                          <li><span className="text-blue-600 font-medium">Early</span> - Employee arrives earlier than the time set in workscheme</li>
+                                        </ul>
+                                        <p className="text-sm mt-2 text-gray-600">*Status is determined based on comparison of clock in time with the time set in each employee's workscheme</p>
+                                      </div>
+                                      <div className="bg-green-50 p-4 rounded-lg">
+                                        <h4 className="font-semibold mb-2">Approval Status:</h4>
+                                        <ul className="list-disc list-inside space-y-1 text-sm">
+                                          <li><span className="text-green-600 font-medium">Approved</span> - Attendance has been approved</li>
+                                          <li><span className="text-red-600 font-medium">Disapproved</span> - Attendance is not approved</li>
+                                          <li><span className="text-yellow-600 font-medium">Pending</span> - Attendance awaiting approval (marked with ✓ and ✗ buttons)</li>
+                                        </ul>
+                                      </div>
+                                    </div>
+                                  </CardContent>
+                                </Card>
+                              </TabsContent>
+                              {/* Attendance Details */}
+                              <TabsContent value="attendance_details" className="mt-0 h-full">
+                                <Card className="w-full h-fit">
+                                  <CardHeader>
+                                    <CardTitle>Attendance Details Guide</CardTitle>
+                                  </CardHeader>
+                                  <CardContent>
+                                    <div className="space-y-4">
+                                      <p>To view complete details of employee attendance, users can click the "Eye" icon button in the "Actions" column. This detail will display complete information about employee attendance including clock in/out location.</p>
+                                      <p>The following is detailed information displayed in the "Attendance Details" popup:</p>
+                                      <div className='grid grid-cols-2 gap-4'>
+                                        <div className="bg-purple-50 p-4 rounded-lg">
+                                          <h4 className="font-semibold mb-2">Employee Information:</h4>
                                           <ul className="list-disc list-inside space-y-1 text-sm">
                                             <li>Avatar</li>
                                             <li>Employee Name</li>
                                             <li>Position</li>
+                                            <li>Status (Late/On Time/Early)</li>
+                                          </ul>
+                                        </div>
+                                        <div className="bg-purple-50 p-4 rounded-lg">
+                                          <h4 className="font-semibold mb-2">Attendance Information:</h4>
+                                          <ul className="list-disc list-inside space-y-1 text-sm">
                                             <li>Date</li>
-                                          </ul>
-                                          <ul className="list-disc list-inside space-y-1 text-sm">
-                                            <li>Clock In</li>
-                                            <li>Clock Out</li>
                                             <li>Work Hours</li>
-                                            <li>Approve</li>
-                                            <li>Status</li>
-                                            <li>Actions</li>
-                                          </ul>
-                                        </div>
-                                        <div className="bg-amber-50 p-4 rounded-lg">
-                                          <h4 className="font-semibold mb-2">Attendance Status:</h4>
-                                          <ul className="list-disc list-inside space-y-1 text-sm">
-                                            <li><span className="text-green-600 font-medium">On Time</span> - Employee arrives on time according to workscheme</li>
-                                            <li><span className="text-red-600 font-medium">Late</span> - Employee arrives late from the time set in workscheme</li>
-                                            <li><span className="text-blue-600 font-medium">Early</span> - Employee arrives earlier than the time set in workscheme</li>
-                                          </ul>
-                                          <p className="text-sm mt-2 text-gray-600">*Status is determined based on comparison of clock in time with the time set in each employee's workscheme</p>
-                                        </div>
-                                        <div className="bg-green-50 p-4 rounded-lg">
-                                          <h4 className="font-semibold mb-2">Approval Status:</h4>
-                                          <ul className="list-disc list-inside space-y-1 text-sm">
-                                            <li><span className="text-green-600 font-medium">Approved</span> - Attendance has been approved</li>
-                                            <li><span className="text-red-600 font-medium">Disapproved</span> - Attendance is not approved</li>
-                                            <li><span className="text-yellow-600 font-medium">Pending</span> - Attendance awaiting approval (marked with ✓ and ✗ buttons)</li>
+                                            <li>Clock In Time</li>
+                                            <li>Clock Out Time</li>
                                           </ul>
                                         </div>
                                       </div>
-                                    </CardContent>
-                                  </Card>
-                                </TabsContent>
-                                {/* Attendance Details */}
-                                <TabsContent value="attendance_details" className="mt-0 h-full">
-                                  <Card className="w-full h-fit">
-                                    <CardHeader>
-                                      <CardTitle>Attendance Details Guide</CardTitle>
-                                    </CardHeader>
-                                    <CardContent>
-                                      <div className="space-y-4">
-                                        <p>To view complete details of employee attendance, users can click the "Eye" icon button in the "Actions" column. This detail will display complete information about employee attendance including clock in/out location.</p>
-                                        <p>The following is detailed information displayed in the "Attendance Details" popup:</p>
-                                        <div className='grid grid-cols-2 gap-4'>
-                                          <div className="bg-purple-50 p-4 rounded-lg">
-                                            <h4 className="font-semibold mb-2">Employee Information:</h4>
-                                            <ul className="list-disc list-inside space-y-1 text-sm">
-                                              <li>Avatar</li>
-                                              <li>Employee Name</li>
-                                              <li>Position</li>
-                                              <li>Status (Late/On Time/Early)</li>
-                                            </ul>
-                                          </div>
-                                          <div className="bg-purple-50 p-4 rounded-lg">
-                                            <h4 className="font-semibold mb-2">Attendance Information:</h4>
-                                            <ul className="list-disc list-inside space-y-1 text-sm">
-                                              <li>Date</li>
-                                              <li>Work Hours</li>
-                                              <li>Clock In Time</li>
-                                              <li>Clock Out Time</li>
-                                            </ul>
-                                          </div>
-                                        </div>
-                                        <div className="bg-blue-50 p-4 rounded-lg">
-                                          <h4 className="font-semibold mb-2">Location Information:</h4>
-                                          <ul className="list-disc list-inside space-y-1 text-sm">
-                                            <li><strong>Location:</strong> Displays clock in location (example: Outside Office (WFO))</li>
-                                            <li><strong>Detail Address:</strong> Complete address of clock in location</li>
-                                            <li><strong>Lat (Latitude):</strong> Latitude coordinates of location</li>
-                                            <li><strong>Long (Longitude):</strong> Longitude coordinates of location</li>
-                                          </ul>
-                                          <p className="text-sm mt-2 text-gray-600">*Location information helps verify whether employees clock in from the appropriate location</p>
-                                        </div>
-                                        <div className="bg-green-50 p-4 rounded-lg">
-                                          <h4 className="font-semibold mb-2">Action Buttons for Pending Status:</h4>
-                                          <ul className="list-disc list-inside space-y-1 text-sm">
-                                            <li><span className="text-green-600 font-medium">Approve Button (✓)</span> - To approve attendance</li>
-                                            <li><span className="text-red-600 font-medium">Disapprove Button (✗)</span> - To disapprove attendance</li>
-                                          </ul>
-                                          <p className="text-sm mt-2 text-gray-600">*Action buttons only appear for attendance with "Pending" status</p>
-                                        </div>
+                                      <div className="bg-blue-50 p-4 rounded-lg">
+                                        <h4 className="font-semibold mb-2">Location Information:</h4>
+                                        <ul className="list-disc list-inside space-y-1 text-sm">
+                                          <li><strong>Location:</strong> Displays clock in location (example: Outside Office (WFO))</li>
+                                          <li><strong>Detail Address:</strong> Complete address of clock in location</li>
+                                          <li><strong>Lat (Latitude):</strong> Latitude coordinates of location</li>
+                                          <li><strong>Long (Longitude):</strong> Longitude coordinates of location</li>
+                                        </ul>
+                                        <p className="text-sm mt-2 text-gray-600">*Location information helps verify whether employees clock in from the appropriate location</p>
                                       </div>
-                                    </CardContent>
-                                  </Card>
-                                </TabsContent>
+                                      <div className="bg-green-50 p-4 rounded-lg">
+                                        <h4 className="font-semibold mb-2">Action Buttons for Pending Status:</h4>
+                                        <ul className="list-disc list-inside space-y-1 text-sm">
+                                          <li><span className="text-green-600 font-medium">Approve Button (✓)</span> - To approve attendance</li>
+                                          <li><span className="text-red-600 font-medium">Disapprove Button (✗)</span> - To disapprove attendance</li>
+                                        </ul>
+                                        <p className="text-sm mt-2 text-gray-600">*Action buttons only appear for attendance with "Pending" status</p>
+                                      </div>
+                                    </div>
+                                  </CardContent>
+                                </Card>
+                              </TabsContent>
+                            </div>
+                          </div>
+                        </Tabs>
+                      </Card>
+                    </TabsContent>
+
+                    {/* Workscheme Management */}
+                    <TabsContent value="workscheme_management" className="mt-0 h-full">
+                      {/* Content */}
+                      <Card className="w-full p-6">
+                        <CardTitle className="mb-6 text-xl">Workscheme Management Guide</CardTitle>
+                        <Tabs defaultValue="workscheme_overview" className="w-full">
+                          <div className="flex gap-6">
+                            {/* Sidebar Navigation */}
+                            <div className="w-64 flex-shrink-0">
+                              <div className="flex flex-col space-y-1 bg-gray-50 p-2 rounded-lg">
+                                <TabsList className="flex flex-col h-auto w-full bg-transparent p-0 space-y-1">
+                                  <TabsTrigger
+                                    value="workscheme_overview"
+                                    className="w-full justify-start text-left p-3 rounded-md bg-white hover:bg-gray-100 data-[state=active]:bg-[#1E3A5F] data-[state=active]:text-white border-0 shadow-none font-medium"
+                                  >
+                                    Workscheme Overview
+                                  </TabsTrigger>
+                                  <TabsTrigger
+                                    value="add_workscheme"
+                                    className="w-full justify-start text-left p-3 rounded-md bg-white hover:bg-gray-100 data-[state=active]:bg-[#1E3A5F] data-[state=active]:text-white border-0 shadow-none font-medium"
+                                  >
+                                    Add Workscheme
+                                  </TabsTrigger>
+                                  <TabsTrigger
+                                    value="edit_workscheme"
+                                    className="w-full justify-start text-left p-3 rounded-md bg-white hover:bg-gray-100 data-[state=active]:bg-[#1E3A5F] data-[state=active]:text-white border-0 shadow-none font-medium"
+                                  >
+                                    Edit Workscheme
+                                  </TabsTrigger>
+                                  <TabsTrigger
+                                    value="delete_workscheme"
+                                    className="w-full justify-start text-left p-3 rounded-md bg-white hover:bg-gray-100 data-[state=active]:bg-[#1E3A5F] data-[state=active]:text-white border-0 shadow-none font-medium"
+                                  >
+                                    Delete Workscheme
+                                  </TabsTrigger>
+                                </TabsList>
                               </div>
                             </div>
-                          </Tabs>
-                        </Card>
-                      </TabsContent>
 
-                      {/* Workscheme Management */}
-                      <TabsContent value="workscheme_management" className="mt-0 h-full">
-                        {/* Content */}
-                        <Card className="w-full p-6">
-                          <CardTitle className="mb-6 text-xl">Workscheme Management Guide</CardTitle>
-                          <Tabs defaultValue="workscheme_overview" className="w-full">
-                            <div className="flex gap-6">
-                              {/* Sidebar Navigation */}
-                              <div className="w-64 flex-shrink-0">
-                                <div className="flex flex-col space-y-1 bg-gray-50 p-2 rounded-lg">
-                                  <TabsList className="flex flex-col h-auto w-full bg-transparent p-0 space-y-1">
-                                    <TabsTrigger
-                                      value="workscheme_overview"
-                                      className="w-full justify-start text-left p-3 rounded-md bg-white hover:bg-gray-100 data-[state=active]:bg-[#1E3A5F] data-[state=active]:text-white border-0 shadow-none font-medium"
-                                    >
-                                      Workscheme Overview
-                                    </TabsTrigger>
-                                    <TabsTrigger
-                                      value="add_workscheme"
-                                      className="w-full justify-start text-left p-3 rounded-md bg-white hover:bg-gray-100 data-[state=active]:bg-[#1E3A5F] data-[state=active]:text-white border-0 shadow-none font-medium"
-                                    >
-                                      Add Workscheme
-                                    </TabsTrigger>
-                                    <TabsTrigger
-                                      value="edit_workscheme"
-                                      className="w-full justify-start text-left p-3 rounded-md bg-white hover:bg-gray-100 data-[state=active]:bg-[#1E3A5F] data-[state=active]:text-white border-0 shadow-none font-medium"
-                                    >
-                                      Edit Workscheme
-                                    </TabsTrigger>
-                                    <TabsTrigger
-                                      value="delete_workscheme"
-                                      className="w-full justify-start text-left p-3 rounded-md bg-white hover:bg-gray-100 data-[state=active]:bg-[#1E3A5F] data-[state=active]:text-white border-0 shadow-none font-medium"
-                                    >
-                                      Delete Workscheme
-                                    </TabsTrigger>
-                                  </TabsList>
-                                </div>
-                              </div>
-
-                              {/* Content Area */}
-                              <div className="flex-1 min-h-fit">
-                                {/* Workscheme Overview */}
-                                <TabsContent value="workscheme_overview" className="mt-0 h-full">
-                                  <Card className="w-full h-fit">
-                                    <CardHeader>
-                                      <CardTitle>Workscheme Overview Guide</CardTitle>
-                                    </CardHeader>
-                                    <CardContent>
-                                      <div className="space-y-4">
-                                        <p>In addition to employee attendance features, the system also provides workscheme features that are useful for managing employee workplaces.</p>
-                                        <p>To access this feature, follow these steps:</p>
-                                        <div className='bg-blue-50 p-2 rounded-lg'>
-                                          <ol className='list-decimal list-inside space-y-1 text-sm'>
-                                            <li>Click the "Checkclock" menu in the left navigation menu.</li>
-                                            <li>There is a "Workscheme Overview" button located above the employee attendance list table.</li>
-                                            <li>Click that button to display a form containing workscheme data list.</li>
-                                          </ol>
-                                        </div>
-                                        <p>The system provides default workschemes that can be used by users, including Work From Office, Work From Home, and Hybrid.</p>
-                                        <p>The contents of the workscheme itself are as follows:</p>
-                                        <div className="bg-purple-50 p-4 rounded-lg grid grid-cols-2 gap-4">
-                                          <ul className="list-disc list-inside space-y-1 text-sm">
+                            {/* Content Area */}
+                            <div className="flex-1 min-h-fit">
+                              {/* Workscheme Overview */}
+                              <TabsContent value="workscheme_overview" className="mt-0 h-full">
+                                <Card className="w-full h-fit">
+                                  <CardHeader>
+                                    <CardTitle>Workscheme Overview Guide</CardTitle>
+                                  </CardHeader>
+                                  <CardContent>
+                                    <div className="space-y-4">
+                                      <p>In addition to employee attendance features, the system also provides workscheme features that are useful for managing employee workplaces.</p>
+                                      <p>To access this feature, follow these steps:</p>
+                                      <div className='bg-blue-50 p-2 rounded-lg'>
+                                        <ol className='list-decimal list-inside space-y-1 text-sm'>
+                                          <li>Click the "Checkclock" menu in the left navigation menu.</li>
+                                          <li>There is a "Workscheme Overview" button located above the employee attendance list table.</li>
+                                          <li>Click that button to display a form containing workscheme data list.</li>
+                                        </ol>
+                                      </div>
+                                      <p>The system provides default workschemes that can be used by users, including Work From Office, Work From Home, and Hybrid.</p>
+                                      <p>The contents of the workscheme itself are as follows:</p>
+                                      <div className="bg-purple-50 p-4 rounded-lg grid grid-cols-2 gap-4">
+                                        <ul className="list-disc list-inside space-y-1 text-sm">
+                                          <li>Workscheme Name</li>
+                                          <li>Clock In Time</li>
+                                          <li>Clock Out Time</li>
+                                        </ul>
+                                        <ul className="list-disc list-inside space-y-1 text-sm">
+                                          <li>Workscheme Address</li>
+                                          <li>Coordinate Location</li>
+                                        </ul>
+                                      </div>
+                                    </div>
+                                  </CardContent>
+                                </Card>
+                              </TabsContent>
+                              {/* Add Workscheme */}
+                              <TabsContent value="add_workscheme" className="mt-0 h-full">
+                                <Card className="w-full h-fit">
+                                  <CardHeader>
+                                    <CardTitle>Add Workscheme Guide</CardTitle>
+                                  </CardHeader>
+                                  <CardContent>
+                                    <div className="space-y-4">
+                                      <p>Users can add new workschemes in addition to the default workschemes provided. Follow these steps to add a new workscheme:</p>
+                                      <div className="bg-green-50 p-4 rounded-lg">
+                                        <ol className="list-decimal list-inside space-y-1 text-sm">
+                                          <li>Go to the "Checkclock" page.</li>
+                                          <li>There is an "Add Workscheme" button located above the employee attendance list table.</li>
+                                          <li>Click that button to display the "Add Workscheme" form.</li>
+                                          <li>Fill in the required data:</li>
+                                          <ul className="list-disc list-inside ml-4 mt-1 space-y-1">
+                                            <li>Workscheme Location (Optional)</li>
+                                            <li>Workscheme Address</li>
                                             <li>Workscheme Name</li>
                                             <li>Clock In Time</li>
                                             <li>Clock Out Time</li>
                                           </ul>
-                                          <ul className="list-disc list-inside space-y-1 text-sm">
+                                          <li>Click the "Submit" button to save data to the system.</li>
+                                        </ol>
+                                      </div>
+                                      <p>New workscheme data will be given a "Custom" label in the "Workscheme Overview" form.</p>
+                                    </div>
+                                  </CardContent>
+                                </Card>
+                              </TabsContent>
+                              {/* Edit Workscheme */}
+                              <TabsContent value="edit_workscheme" className="mt-0 h-full">
+                                <Card className="w-full h-fit">
+                                  <CardHeader>
+                                    <CardTitle>Edit Workscheme Guide</CardTitle>
+                                  </CardHeader>
+                                  <CardContent>
+                                    <div className="space-y-4">
+                                      <p>Users can edit workscheme data if there are errors during data input. All workscheme data can be edited, both default and custom workschemes.</p>
+                                      <p>Follow these steps to edit workscheme data:</p>
+                                      <div className="bg-yellow-50 p-4 rounded-lg">
+                                        <ul className="list-decimal list-inside space-y-1 text-sm">
+                                          <li>Go to the "Checkclock" page.</li>
+                                          <li>There is a "Workscheme Overview" button located above the employee attendance list table.</li>
+                                          <li>Click that button to display a form containing workscheme data list.</li>
+                                          <li>In the table there is a button with a "Pencil" icon in the "Actions" column.</li>
+                                          <li>Click that button to display the workscheme data edit form.</li>
+                                          <li>In this form, users can change the desired workscheme data:</li>
+                                          <ul className="list-disc list-inside ml-4 mt-1 space-y-1">
+                                            <li>Workscheme Location (Optional)</li>
                                             <li>Workscheme Address</li>
-                                            <li>Coordinate Location</li>
+                                            <li>Workscheme Name</li>
+                                            <li>Clock In Time</li>
+                                            <li>Clock Out Time</li>
                                           </ul>
-                                        </div>
+                                          <li>Click the "Save" button to save changes.</li>
+                                          <li>The system will automatically display the changed data.</li>
+                                        </ul>
                                       </div>
-                                    </CardContent>
-                                  </Card>
-                                </TabsContent>
-                                {/* Add Workscheme */}
-                                <TabsContent value="add_workscheme" className="mt-0 h-full">
-                                  <Card className="w-full h-fit">
-                                    <CardHeader>
-                                      <CardTitle>Add Workscheme Guide</CardTitle>
-                                    </CardHeader>
-                                    <CardContent>
-                                      <div className="space-y-4">
-                                        <p>Users can add new workschemes in addition to the default workschemes provided. Follow these steps to add a new workscheme:</p>
-                                        <div className="bg-green-50 p-4 rounded-lg">
-                                          <ol className="list-decimal list-inside space-y-1 text-sm">
-                                            <li>Go to the "Checkclock" page.</li>
-                                            <li>There is an "Add Workscheme" button located above the employee attendance list table.</li>
-                                            <li>Click that button to display the "Add Workscheme" form.</li>
-                                            <li>Fill in the required data:</li>
-                                            <ul className="list-disc list-inside ml-4 mt-1 space-y-1">
-                                              <li>Workscheme Location (Optional)</li>
-                                              <li>Workscheme Address</li>
-                                              <li>Workscheme Name</li>
-                                              <li>Clock In Time</li>
-                                              <li>Clock Out Time</li>
-                                            </ul>
-                                            <li>Click the "Submit" button to save data to the system.</li>
-                                          </ol>
-                                        </div>
-                                        <p>New workscheme data will be given a "Custom" label in the "Workscheme Overview" form.</p>
+                                    </div>
+                                  </CardContent>
+                                </Card>
+                              </TabsContent>
+                              {/* Delete Workscheme */}
+                              <TabsContent value="delete_workscheme" className="mt-0 h-full">
+                                <Card className="w-full h-fit">
+                                  <CardHeader>
+                                    <CardTitle>Delete Workscheme Guide</CardTitle>
+                                  </CardHeader>
+                                  <CardContent>
+                                    <div className="space-y-4">
+                                      <p>Unused workschemes can be deleted by users if desired. To delete workscheme data can be done in the "Workscheme Overview" form. Users can delete data by clicking the button with the "Trashcan" icon in the "Actions" column.</p>
+                                      <div className="bg-red-50 p-4 rounded-lg">
+                                        <h4 className="font-semibold mb-2">Steps to delete workscheme:</h4>
+                                        <ol className="list-decimal list-inside space-y-1 text-sm mb-3">
+                                          <li>Go to the "Checkclock" page.</li>
+                                          <li>There is a "Workscheme Overview" button located above the employee attendance list table.</li>
+                                          <li>Click that button to display a form containing workscheme data list table.</li>
+                                          <li>In the table there is a button with a "Trashcan" icon in the "Actions" column.</li>
+                                          <li>Click that button to delete workscheme data.</li>
+                                          <li>The system will ask for deletion confirmation.</li>
+                                          <li>Confirm deletion to complete the process.</li>
+                                        </ol>
+                                        <h4 className="font-semibold mb-2">Important Notes:</h4>
+                                        <ul className="list-disc list-inside space-y-1 text-sm">
+                                          <li>Workschemes that are still being used by employees cannot be deleted.</li>
+                                          <li>Make sure the workscheme data you want to delete matches the unused workscheme data</li>
+                                          <li>If you accidentally delete data, users can restore data by adding data manually.</li>
+                                        </ul>
                                       </div>
-                                    </CardContent>
-                                  </Card>
-                                </TabsContent>
-                                {/* Edit Workscheme */}
-                                <TabsContent value="edit_workscheme" className="mt-0 h-full">
-                                  <Card className="w-full h-fit">
-                                    <CardHeader>
-                                      <CardTitle>Edit Workscheme Guide</CardTitle>
-                                    </CardHeader>
-                                    <CardContent>
-                                      <div className="space-y-4">
-                                        <p>Users can edit workscheme data if there are errors during data input. All workscheme data can be edited, both default and custom workschemes.</p>
-                                        <p>Follow these steps to edit workscheme data:</p>
-                                        <div className="bg-yellow-50 p-4 rounded-lg">
-                                          <ul className="list-decimal list-inside space-y-1 text-sm">
-                                            <li>Go to the "Checkclock" page.</li>
-                                            <li>There is a "Workscheme Overview" button located above the employee attendance list table.</li>
-                                            <li>Click that button to display a form containing workscheme data list.</li>
-                                            <li>In the table there is a button with a "Pencil" icon in the "Actions" column.</li>
-                                            <li>Click that button to display the workscheme data edit form.</li>
-                                            <li>In this form, users can change the desired workscheme data:</li>
-                                            <ul className="list-disc list-inside ml-4 mt-1 space-y-1">
-                                              <li>Workscheme Location (Optional)</li>
-                                              <li>Workscheme Address</li>
-                                              <li>Workscheme Name</li>
-                                              <li>Clock In Time</li>
-                                              <li>Clock Out Time</li>
-                                            </ul>
-                                            <li>Click the "Save" button to save changes.</li>
-                                            <li>The system will automatically display the changed data.</li>
-                                          </ul>
-                                        </div>
-                                      </div>
-                                    </CardContent>
-                                  </Card>
-                                </TabsContent>
-                                {/* Delete Workscheme */}
-                                <TabsContent value="delete_workscheme" className="mt-0 h-full">
-                                  <Card className="w-full h-fit">
-                                    <CardHeader>
-                                      <CardTitle>Delete Workscheme Guide</CardTitle>
-                                    </CardHeader>
-                                    <CardContent>
-                                      <div className="space-y-4">
-                                        <p>Unused workschemes can be deleted by users if desired. To delete workscheme data can be done in the "Workscheme Overview" form. Users can delete data by clicking the button with the "Trashcan" icon in the "Actions" column.</p>
-                                        <div className="bg-red-50 p-4 rounded-lg">
-                                          <h4 className="font-semibold mb-2">Steps to delete workscheme:</h4>
-                                          <ol className="list-decimal list-inside space-y-1 text-sm mb-3">
-                                            <li>Go to the "Checkclock" page.</li>
-                                            <li>There is a "Workscheme Overview" button located above the employee attendance list table.</li>
-                                            <li>Click that button to display a form containing workscheme data list table.</li>
-                                            <li>In the table there is a button with a "Trashcan" icon in the "Actions" column.</li>
-                                            <li>Click that button to delete workscheme data.</li>
-                                            <li>The system will ask for deletion confirmation.</li>
-                                            <li>Confirm deletion to complete the process.</li>
-                                          </ol>
-                                          <h4 className="font-semibold mb-2">Important Notes:</h4>
-                                          <ul className="list-disc list-inside space-y-1 text-sm">
-                                            <li>Workschemes that are still being used by employees cannot be deleted.</li>
-                                            <li>Make sure the workscheme data you want to delete matches the unused workscheme data</li>
-                                            <li>If you accidentally delete data, users can restore data by adding data manually.</li>
-                                          </ul>
-                                        </div>
-                                      </div>
-                                    </CardContent>
-                                  </Card>
-                                </TabsContent>
+                                    </div>
+                                  </CardContent>
+                                </Card>
+                              </TabsContent>
+                            </div>
+                          </div>
+                        </Tabs>
+                      </Card>
+                    </TabsContent>
+
+                    {/* Leave Management */}
+                    <TabsContent value="leave_management" className="mt-0 h-full">
+                      {/* Content */}
+                      <Card className="w-full p-6">
+                        <CardTitle className="mb-6 text-xl">Leave Management Guide</CardTitle>
+                        <Tabs defaultValue="leave_list" className="w-full">
+                          <div className="flex gap-6">
+                            {/* Sidebar Navigation */}
+                            <div className="w-64 flex-shrink-0">
+                              <div className="flex flex-col space-y-1 bg-gray-50 p-2 rounded-lg">
+                                <TabsList className="flex flex-col h-auto w-full bg-transparent p-0 space-y-1">
+                                  <TabsTrigger
+                                    value="leave_list"
+                                    className="w-full justify-start text-left p-3 rounded-md bg-white hover:bg-gray-100 data-[state=active]:bg-[#1E3A5F] data-[state=active]:text-white border-0 shadow-none font-medium"
+                                  >
+                                    Leave List
+                                  </TabsTrigger>
+                                  <TabsTrigger
+                                    value="leave_details"
+                                    className="w-full justify-start text-left p-3 rounded-md bg-white hover:bg-gray-100 data-[state=active]:bg-[#1E3A5F] data-[state=active]:text-white border-0 shadow-none font-medium"
+                                  >
+                                    Leave Details
+                                  </TabsTrigger>
+                                </TabsList>
                               </div>
                             </div>
-                          </Tabs>
-                        </Card>
-                      </TabsContent>
 
-                      {/* Absence Management */}
-                      <TabsContent value="absence_management" className="mt-0 h-full">
-                        {/* Content */}
-                        <Card className="w-full p-6">
-                          <CardTitle className="mb-6 text-xl">Absence Management Guide</CardTitle>
-                          <Tabs defaultValue="absence_list" className="w-full">
-                            <div className="flex gap-6">
-                              {/* Sidebar Navigation */}
-                              <div className="w-64 flex-shrink-0">
-                                <div className="flex flex-col space-y-1 bg-gray-50 p-2 rounded-lg">
-                                  <TabsList className="flex flex-col h-auto w-full bg-transparent p-0 space-y-1">
-                                    <TabsTrigger
-                                      value="absence_list"
-                                      className="w-full justify-start text-left p-3 rounded-md bg-white hover:bg-gray-100 data-[state=active]:bg-[#1E3A5F] data-[state=active]:text-white border-0 shadow-none font-medium"
-                                    >
-                                      Absence List
-                                    </TabsTrigger>
-                                    <TabsTrigger
-                                      value="absence_details"
-                                      className="w-full justify-start text-left p-3 rounded-md bg-white hover:bg-gray-100 data-[state=active]:bg-[#1E3A5F] data-[state=active]:text-white border-0 shadow-none font-medium"
-                                    >
-                                      Absence Details
-                                    </TabsTrigger>
-                                  </TabsList>
-                                </div>
-                              </div>
-
-                              {/* Content Area */}
-                              <div className="flex-1 min-h-fit">
-                                {/* Absence List */}
-                                <TabsContent value="absence_list" className="mt-0 h-full">
-                                  <Card className="w-full h-fit">
-                                    <CardHeader>
-                                      <CardTitle>Absence List Guide</CardTitle>
-                                    </CardHeader>
-                                    <CardContent>
-                                      <div className="space-y-4">
-                                        <p>The "Absence Overview" page contains a table listing leave/permit requests from employees. To access the "Absence Overview" page, follow these steps:</p>
-                                        <p className='bg-blue-50 p-2 rounded-lg'>The "Absence Overview" page can be accessed by clicking the "Absence" menu in the left navigation menu.</p>
-                                        <p>The absence data information displayed in the table includes:</p>
-                                        <div className="bg-purple-50 p-4 rounded-lg grid grid-cols-2 gap-4">
+                            {/* Content Area */}
+                            <div className="flex-1 min-h-fit">
+                              {/* Leave List */}
+                              <TabsContent value="leave_list" className="mt-0 h-full">
+                                <Card className="w-full h-fit">
+                                  <CardHeader>
+                                    <CardTitle>Leave List Guide</CardTitle>
+                                  </CardHeader>
+                                  <CardContent>
+                                    <div className="space-y-4">
+                                      <p>The "Leave Overview" page contains a table listing leave/permit requests from employees. To access the "Leave Overview" page, follow these steps:</p>
+                                      <p className='bg-blue-50 p-2 rounded-lg'>The "Leave Overview" page can be accessed by clicking the "Leave" menu in the left navigation menu.</p>
+                                      <p>The leave data information displayed in the table includes:</p>
+                                      <div className="bg-purple-50 p-4 rounded-lg grid grid-cols-2 gap-4">
+                                        <ul className="list-disc list-inside space-y-1 text-sm">
+                                          <li>Avatar</li>
+                                          <li>Employee Name</li>
+                                          <li>Position</li>
+                                          <li>Created At (Time)</li>
+                                        </ul>
+                                        <ul className="list-disc list-inside space-y-1 text-sm">
+                                          <li>On Date</li>
+                                          <li>Reason</li>
+                                          <li>Status (Pending/Approved/Rejected)</li>
+                                          <li>Actions</li>
+                                        </ul>
+                                      </div>
+                                      <div className="bg-amber-50 p-4 rounded-lg">
+                                        <h4 className="font-semibold mb-2">Request Status:</h4>
+                                        <ul className="list-disc list-inside space-y-1 text-sm">
+                                          <li><span className="text-green-600 font-medium">Approved</span> - Request has been approved</li>
+                                          <li><span className="text-red-600 font-medium">Rejected</span> - Request is rejected</li>
+                                          <li><span className="text-yellow-600 font-medium">Pending</span> - Request awaiting approval</li>
+                                        </ul>
+                                      </div>
+                                    </div>
+                                  </CardContent>
+                                </Card>
+                              </TabsContent>
+                              {/* Leave Details */}
+                              <TabsContent value="leave_details" className="mt-0 h-full">
+                                <Card className="w-full h-fit">
+                                  <CardHeader>
+                                    <CardTitle>Leave Details Guide</CardTitle>
+                                  </CardHeader>
+                                  <CardContent>
+                                    <div className="space-y-4">
+                                      <p>To view complete details of employee leave/permit requests, users can click the "Eye" icon button in the "Actions" column. This detail will display complete information about leave requests.</p>
+                                      <p>The following is detailed information displayed in the "Leave Details" popup:</p>
+                                      <div className='grid grid-cols-2 gap-4'>
+                                        <div className="bg-purple-50 p-4 rounded-lg">
+                                          <h4 className="font-semibold mb-2">Employee Information:</h4>
                                           <ul className="list-disc list-inside space-y-1 text-sm">
                                             <li>Avatar</li>
                                             <li>Employee Name</li>
                                             <li>Position</li>
-                                            <li>Created At (Time)</li>
-                                          </ul>
-                                          <ul className="list-disc list-inside space-y-1 text-sm">
-                                            <li>On Date</li>
-                                            <li>Reason</li>
                                             <li>Status (Pending/Approved/Rejected)</li>
-                                            <li>Actions</li>
                                           </ul>
                                         </div>
-                                        <div className="bg-amber-50 p-4 rounded-lg">
-                                          <h4 className="font-semibold mb-2">Request Status:</h4>
+                                        <div className="bg-purple-50 p-4 rounded-lg">
+                                          <h4 className="font-semibold mb-2">Leave Information:</h4>
                                           <ul className="list-disc list-inside space-y-1 text-sm">
-                                            <li><span className="text-green-600 font-medium">Approved</span> - Request has been approved</li>
-                                            <li><span className="text-red-600 font-medium">Rejected</span> - Request is rejected</li>
-                                            <li><span className="text-yellow-600 font-medium">Pending</span> - Request awaiting approval</li>
+                                            <li>Created At (Time)</li>
+                                            <li>Date</li>
+                                            <li>Type (Sick/Permit/Leave)</li>
+                                            <li>Reason</li>
                                           </ul>
                                         </div>
                                       </div>
-                                    </CardContent>
-                                  </Card>
-                                </TabsContent>
-                                {/* Absence Details */}
-                                <TabsContent value="absence_details" className="mt-0 h-full">
-                                  <Card className="w-full h-fit">
-                                    <CardHeader>
-                                      <CardTitle>Absence Details Guide</CardTitle>
-                                    </CardHeader>
-                                    <CardContent>
-                                      <div className="space-y-4">
-                                        <p>To view complete details of employee leave/permit requests, users can click the "Eye" icon button in the "Actions" column. This detail will display complete information about absence requests.</p>
-                                        <p>The following is detailed information displayed in the "Absence Details" popup:</p>
-                                        <div className='grid grid-cols-2 gap-4'>
-                                          <div className="bg-purple-50 p-4 rounded-lg">
-                                            <h4 className="font-semibold mb-2">Employee Information:</h4>
-                                            <ul className="list-disc list-inside space-y-1 text-sm">
-                                              <li>Avatar</li>
-                                              <li>Employee Name</li>
-                                              <li>Position</li>
-                                              <li>Status (Pending/Approved/Rejected)</li>
-                                            </ul>
-                                          </div>
-                                          <div className="bg-purple-50 p-4 rounded-lg">
-                                            <h4 className="font-semibold mb-2">Absence Information:</h4>
-                                            <ul className="list-disc list-inside space-y-1 text-sm">
-                                              <li>Created At (Time)</li>
-                                              <li>Date</li>
-                                              <li>Type (Sick/Permit/Leave)</li>
-                                              <li>Reason</li>
-                                            </ul>
-                                          </div>
-                                        </div>
-                                        <div className="bg-blue-50 p-4 rounded-lg">
-                                          <h4 className="font-semibold mb-2">Evidence Picture:</h4>
-                                          <p className="text-sm">This section displays evidence images attached by employees as supporting documentation for their leave/permit requests.</p>
-                                        </div>
-                                        <div className="bg-green-50 p-4 rounded-lg">
-                                          <h4 className="font-semibold mb-2">Action Buttons for Pending Status:</h4>
-                                          <ul className="list-disc list-inside space-y-1 text-sm">
-                                            <li><span className="text-green-600 font-medium">Approve Button (✓)</span> - To approve the request</li>
-                                            <li><span className="text-red-600 font-medium">Reject Button (✗)</span> - To reject the request</li>
-                                          </ul>
-                                          <p className="text-sm mt-2 text-gray-600">*Action buttons only appear for requests with "Pending" status</p>
-                                        </div>
+                                      <div className="bg-blue-50 p-4 rounded-lg">
+                                        <h4 className="font-semibold mb-2">Evidence Picture:</h4>
+                                        <p className="text-sm">This section displays evidence images attached by employees as supporting documentation for their leave/permit requests.</p>
                                       </div>
-                                    </CardContent>
-                                  </Card>
-                                </TabsContent>
-                              </div>
+                                      <div className="bg-green-50 p-4 rounded-lg">
+                                        <h4 className="font-semibold mb-2">Action Buttons for Pending Status:</h4>
+                                        <ul className="list-disc list-inside space-y-1 text-sm">
+                                          <li><span className="text-green-600 font-medium">Approve Button (✓)</span> - To approve the request</li>
+                                          <li><span className="text-red-600 font-medium">Reject Button (✗)</span> - To reject the request</li>
+                                        </ul>
+                                        <p className="text-sm mt-2 text-gray-600">*Action buttons only appear for requests with "Pending" status</p>
+                                      </div>
+                                    </div>
+                                  </CardContent>
+                                </Card>
+                              </TabsContent>
                             </div>
-                          </Tabs>
-                        </Card>
-                      </TabsContent>
-                    </div>
+                          </div>
+                        </Tabs>
+                      </Card>
+                    </TabsContent>
                   </div>
                 </Tabs>
               </Card>
@@ -1190,28 +1054,18 @@ export default function GuideBookClient({
             {/* Letter Management Menu */}
             <TabsContent value="letter">
               <Card className="w-full p-6">
-                <CardTitle className="mb-6 text-xl">Letter Management Guide</CardTitle>
                 <Tabs defaultValue="letter_management" className="w-full">
+                  <div className="hidden sm:block">
+                    <TabsList className="grid w-full grid-cols-2">
+                      <TabsTrigger value="letter_management">
+                        Letter Management
+                      </TabsTrigger>
+                      <TabsTrigger value="letter_type_management">
+                        Letter Type Management
+                      </TabsTrigger>
+                    </TabsList>
+                  </div>
                   <div className="flex gap-6">
-                    {/* Sidebar Navigation */}
-                    <div className="w-64 flex-shrink-0">
-                      <div className="flex flex-col space-y-1 bg-gray-50 p-2 rounded-lg">
-                        <TabsList className="flex flex-col h-auto w-full bg-transparent p-0 space-y-1">
-                          <TabsTrigger
-                            value="letter_management"
-                            className="w-full justify-start text-left p-3 rounded-md bg-white hover:bg-gray-100 data-[state=active]:bg-[#1E3A5F] data-[state=active]:text-white border-0 shadow-none font-medium"
-                          >
-                            Letter Management
-                          </TabsTrigger>
-                          <TabsTrigger
-                            value="letter_type_management"
-                            className="w-full justify-start text-left p-3 rounded-md bg-white hover:bg-gray-100 data-[state=active]:bg-[#1E3A5F] data-[state=active]:text-white border-0 shadow-none font-medium"
-                          >
-                            Letter Type Management
-                          </TabsTrigger>
-                        </TabsList>
-                      </div>
-                    </div>
 
                     {/* Content Area */}
                     <div className="flex-1 min-h-fit">
