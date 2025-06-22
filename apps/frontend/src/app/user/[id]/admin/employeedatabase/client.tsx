@@ -349,7 +349,12 @@ export default function EmployeeDatabaseClient({
       cell: ({ row }: any) => {
         const firstName = String(row.original.first_name || '');
         const lastName = String(row.original.last_name || '');
-        return `${firstName} ${lastName}`.trim() || 'Unknown User';
+        const name = `${firstName} ${lastName}`.trim() || 'Unknown User';
+        return (
+          <span className={row.original.is_deleted ? 'text-gray-400' : ''}>
+            {name}
+          </span>
+        );
       },
     },
     {
@@ -424,7 +429,14 @@ export default function EmployeeDatabaseClient({
   );
 
   // Tambahkan setelah employees didefinisikan
-  const employeesWithName = employees.map((emp) => {
+  // Urutkan employees: yang is_deleted: true di bawah
+  const sortedEmployees = [
+    ...employees.filter((emp) => !emp.is_deleted),
+    ...employees.filter((emp) => emp.is_deleted),
+  ];
+
+  // Tambahkan name property
+  const employeesWithName = sortedEmployees.map((emp) => {
     const firstName = String(emp.first_name || '');
     const lastName = String(emp.last_name || '');
     return {
@@ -560,9 +572,12 @@ export default function EmployeeDatabaseClient({
             {/* DataTable for Employee */}
             <DataTable
               columns={employeeColumns}
-              data={employeesWithName} // Ganti dari employees ke employeesWithName
+              data={employeesWithName}
               searchableColumn="name"
               title="Employee Database Overview"
+              rowClassName={(row) =>
+                row.original.is_deleted ? 'text-gray-400 bg-gray-50' : ''
+              }
               actions={
                 <>
                   {/* Buttons */}

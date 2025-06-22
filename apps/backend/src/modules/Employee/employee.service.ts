@@ -23,8 +23,8 @@ export class EmployeeService {
     const data: any = { ...dto };
 
     const company = await this.prisma.company.findFirst({
-      where:{
-        id:dto.company_id
+      where: {
+        id: dto.company_id
       }
     });
 
@@ -41,15 +41,15 @@ export class EmployeeService {
     }
 
     const employeeCount = await this.prisma.employee.count({
-      where:{
+      where: {
         is_deleted: false,
         company_id: dto.company_id,
       }
     });
-    
+
     const employeeLimit = company.max_employee - employeeCount;
 
-    if(employeeLimit < 1){
+    if (employeeLimit < 1) {
       return {
         statusCode: 422,
         message: "Employee limit exceeded"
@@ -64,13 +64,13 @@ export class EmployeeService {
     data.position = data.position ? data.position : "Employee";
     data.password = await hash(dto.password);
 
-    if(dto.attendance_id){
+    if (dto.attendance_id) {
       const attendanceType = await this.prisma.attendanceType.findFirst({
-        where:{
-          id:dto.attendance_id
+        where: {
+          id: dto.attendance_id
         }
       })
-      
+
       data.workscheme = attendanceType.workscheme.toUpperCase();
     }
 
@@ -107,7 +107,7 @@ export class EmployeeService {
 
   async getEmployee(employeeId: string) {
     const data = await this.prisma.employee.findFirst({
-      where: { id: employeeId},
+      where: { id: employeeId },
     });
     if (data) {
       return {
@@ -125,7 +125,7 @@ export class EmployeeService {
 
   async getEmployees() {
     return await this.prisma.employee.findMany({
-      orderBy:{
+      orderBy: {
         is_deleted: 'desc'
       }
     });
@@ -137,34 +137,34 @@ export class EmployeeService {
     file?: Express.Multer.File,
   ) {
     const data: any = { ...dto };
-    if(dto.workscheme) data.workscheme = dto.workscheme.toUpperCase();
+    if (dto.workscheme) data.workscheme = dto.workscheme.toUpperCase();
 
     const user = await this.prisma.employee.findFirst({
-      where: { id: employeeId},
+      where: { id: employeeId },
     });
 
-    if(!user) {
+    if (!user) {
       return {
         statusCode: 404,
         message: 'Employee not found',
       };
     }
 
-    if(dto.is_deleted === false){ // Kalau dipecat mau diaktifkan kembali
+    if (dto.is_deleted === false) { // Kalau dipecat mau diaktifkan kembali
       data.is_deleted = dto.is_deleted;
-      
+
       const employeeCount = await this.prisma.employee.count({
-        where: { company_id: user.company_id , is_deleted: false }
+        where: { company_id: user.company_id, is_deleted: false }
       });
 
       const company = await this.prisma.company.findFirst({
-        where:{
-          id:dto.company_id
+        where: {
+          id: dto.company_id
         }
       });
 
       const employeeLimit = company.max_employee - employeeCount;
-      if(employeeLimit < 1){
+      if (employeeLimit < 1) {
         return {
           statusCode: 422,
           message: "Employee limit exceeded"
@@ -182,17 +182,17 @@ export class EmployeeService {
       data.password = hashed;
     }
 
-    if(dto.attendance_id){
+    if (dto.attendance_id) {
       const attendanceType = await this.prisma.attendanceType.findFirst({
-        where:{
-          id:dto.attendance_id
+        where: {
+          id: dto.attendance_id
         }
       })
-      
+
       data.workscheme = attendanceType.workscheme.toUpperCase();
     }
 
-    
+
 
     try {
       const employee = await this.prisma.employee.update({
@@ -259,9 +259,10 @@ export class EmployeeService {
 
       await this.prisma.employee.update({
         where: { id: employeeId },
-        data: { is_deleted: true,
+        data: {
+          is_deleted: true,
           deleted_at: new Date().toISOString()
-         },
+        },
       })
 
       // if (user.pict_dir) {
@@ -310,6 +311,7 @@ export class EmployeeService {
       where: {
         company_id: companyId,
         is_admin: false,
+        is_deleted: false,
       },
     });
 
@@ -317,6 +319,7 @@ export class EmployeeService {
       where: {
         company_id: companyId,
         is_admin: false,
+        is_deleted: false,
         created_at: {
           gte: subMonths(new Date(), 1),
         },
@@ -327,6 +330,7 @@ export class EmployeeService {
       where: {
         company_id: companyId,
         approval: 'APPROVED',
+        
         created_at: {
           gte: todayStart,
           lte: todayEnd,
@@ -338,6 +342,7 @@ export class EmployeeService {
           is: {
             company_id: companyId,
             is_admin: false,
+            is_deleted: false,
           },
         },
       },
@@ -358,6 +363,7 @@ export class EmployeeService {
           is: {
             company_id: companyId,
             is_admin: false,
+            is_deleted: false,
           },
         },
       },
@@ -400,7 +406,11 @@ export class EmployeeService {
   async getStatusCountByCompany(companyId: string) {
     const result = await this.prisma.employee.groupBy({
       by: ['contract'],
-      where: { company_id: companyId, is_admin: false },
+      where: {
+        company_id: companyId,
+        is_admin: false,
+        is_deleted: false,
+      },
       _count: { _all: true },
     });
 
@@ -428,6 +438,7 @@ export class EmployeeService {
             is: {
               company_id: companyId,
               is_admin: false,
+              is_deleted: false,
             },
           },
         },
@@ -444,6 +455,7 @@ export class EmployeeService {
             is: {
               company_id: companyId,
               is_admin: false,
+              is_deleted: false,
             },
           },
         },
@@ -461,6 +473,7 @@ export class EmployeeService {
             is: {
               company_id: companyId,
               is_admin: false,
+              is_deleted: false,
             },
           },
         },
@@ -474,29 +487,29 @@ export class EmployeeService {
     };
   }
 
-  async ExportExcel(companyId: string){
+  async ExportExcel(companyId: string) {
     const employees = await this.prisma.employee.findMany({
-      where:{company_id:companyId, is_admin:false},
-      select:{
-        first_name:true,
-        last_name:true,
-        gender:true,
-        email:true,
+      where: { company_id: companyId, is_admin: false },
+      select: {
+        first_name: true,
+        last_name: true,
+        gender: true,
+        email: true,
         // password:true,
-        phone:true,
+        phone: true,
         address: true,
-        workscheme:true,
-        position:true,
-        branch:true,
-        contract:true,
-        birth_date:true,
-        birth_place:true,
-        nik:true,
-        last_education:true,
-        account_bank:true,
-        account_number:true,
-        account_name:true,
-        created_at:true
+        workscheme: true,
+        position: true,
+        branch: true,
+        contract: true,
+        birth_date: true,
+        birth_place: true,
+        nik: true,
+        last_education: true,
+        account_bank: true,
+        account_number: true,
+        account_name: true,
+        created_at: true
       }
     });
 
@@ -518,15 +531,15 @@ export class EmployeeService {
 
     return excelBuffer;
   }
-  async ImportExcel(companyId: string, file?: Express.Multer.File){
-    try{
+  async ImportExcel(companyId: string, file?: Express.Multer.File) {
+    try {
       const company = await this.prisma.company.findFirst({
         where: {
           id: companyId
         }
       });
       const currentEmployeCount = await this.prisma.employee.count({
-        where:{
+        where: {
           company_id: companyId
         }
       });
@@ -537,7 +550,8 @@ export class EmployeeService {
         select: {
           email: true,
           phone: true,
-        }})
+        }
+      })
         ;
 
       const existingEmails = new Set(
@@ -555,14 +569,14 @@ export class EmployeeService {
         };
       }
 
-      const readFile = XLSX.read(file.buffer, {type:'buffer'});
+      const readFile = XLSX.read(file.buffer, { type: 'buffer' });
       const sheet = readFile.SheetNames[0];
       const data = readFile.Sheets[sheet];
 
 
       const parsedData: Record<string, any>[] = XLSX.utils.sheet_to_json(data);
 
-      if(parsedData.length < 1){
+      if (parsedData.length < 1) {
         return {
           statusCode: 422,
           message: "Excel data is empty",
@@ -570,13 +584,13 @@ export class EmployeeService {
       }
 
       if (parsedData.length > employeeLimit) {
-      return {
-        statusCode: 422,
-        message: "Excel data exceeds limit",
-      };
-    }
+        return {
+          statusCode: 422,
+          message: "Excel data exceeds limit",
+        };
+      }
 
-      const requiredColumns = ['first_name', 'last_name','email','password','phone','workscheme'];
+      const requiredColumns = ['first_name', 'last_name', 'email', 'password', 'phone', 'workscheme'];
 
       const rowsWithMissingFields = parsedData
         .map((row, index) => {
@@ -589,7 +603,7 @@ export class EmployeeService {
           };
         })
         .filter(result => result.missingFields.length > 0);
-      
+
       if (rowsWithMissingFields.length > 0) {
         return {
           statusCode: 422,
@@ -600,20 +614,20 @@ export class EmployeeService {
 
 
       let uniqueCheckCount = 0;
-      parsedData.map(row=>{
-        if(existingEmails.has(row.email?.toLowerCase()) || existingPhones.has(row.phone)){
+      parsedData.map(row => {
+        if (existingEmails.has(row.email?.toLowerCase()) || existingPhones.has(row.phone)) {
           uniqueCheckCount++;
         }
       });
 
-      if(uniqueCheckCount != 0){
+      if (uniqueCheckCount != 0) {
         return {
           statusCode: 422,
           error: 'A phone or email value is not unique',
         }
       }
 
-      if(!this.ExcelValidation(parsedData)){
+      if (!this.ExcelValidation(parsedData)) {
         return {
           statusCode: 422,
           error: 'A value is not in the required form',
@@ -622,26 +636,26 @@ export class EmployeeService {
 
       const updatedData = await Promise.all(parsedData.map(async row => {
         row.company_id = companyId;
-        row.password =  await hash(row.password);
+        row.password = await hash(row.password);
         row.position = row.position ? row.position : 'Employee';
         row.workscheme = row.workscheme?.toUpperCase();
         const typ = await this.prisma.attendanceType.findFirst({
-          where:{
-            company_id : companyId,
-            workscheme : row.workscheme
+          where: {
+            company_id: companyId,
+            workscheme: row.workscheme
           },
-          orderBy:{
+          orderBy: {
             created_at: 'desc'
           }
         });
 
         row.attendance_id = typ.id;
         return {
-          ...row 
+          ...row
         } as Prisma.EmployeeCreateManyInput;
       }));
 
-      if(updatedData.length > employeeLimit){
+      if (updatedData.length > employeeLimit) {
         return {
           statusCode: 422,
           error: 'Excel data exceeds limit',
@@ -657,21 +671,21 @@ export class EmployeeService {
         statusCode: 201,
         message: "Employee data created"
       }
-    } 
-    catch(error){
-      return{
+    }
+    catch (error) {
+      return {
         statusCode: error?.code || 500,
         message: error?.message || 'Internal Server Error',
       }
     }
   }
 
-  async ExcelValidation(data:any[]){
-    for(const row of data.entries()){
+  async ExcelValidation(data: any[]) {
+    for (const row of data.entries()) {
       const dto = plainToInstance(createEmployeeDto, row);
       const error = await validate(dto);
 
-      if(error.length > 0){
+      if (error.length > 0) {
         return false;
       }
     }
