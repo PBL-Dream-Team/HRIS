@@ -499,7 +499,7 @@ export default function EmployeeDatabaseClient({
           : [];
         setHasWorkscheme(filtered.length > 0);
         if (filtered.length === 0) {
-          toast.warning('Please add a workscheme first in checkclock menu before adding employees.');
+          toast.warning('Please add a workscheme first in checkclock menu before adding employees.', { id: 'no-workscheme' });
         }
       } catch (err) {
         setHasWorkscheme(false);

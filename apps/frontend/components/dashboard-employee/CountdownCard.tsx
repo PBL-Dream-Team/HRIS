@@ -276,6 +276,56 @@ export default function CountdownCard({ userId, companyId }: CountdownCardProps)
         });
     };
 
+    // State untuk disable clock in jika sudah lewat jam clock out
+    const [isAfterClockOut, setIsAfterClockOut] = useState(false);
+
+    // Cek waktu sekarang vs clock out, update setiap 10 detik
+    useEffect(() => {
+        let interval: NodeJS.Timeout | undefined;
+        function checkAfterClockOut() {
+            if (!attendanceType || !user.typeId) {
+                setIsAfterClockOut(true); // fallback: disable jika data belum siap
+                return;
+            }
+            const type = attendanceType[user.typeId];
+            if (!type || !type.check_out) {
+                setIsAfterClockOut(true);
+                return;
+            }
+            let clockOut = type.check_out;
+            let clockOutTime = '';
+            if (clockOut.includes('T')) {
+                const dateObj = new Date(clockOut);
+                if (isNaN(dateObj.getTime())) {
+                    setIsAfterClockOut(true);
+                    return;
+                }
+                clockOutTime = `${dateObj.getHours().toString().padStart(2, '0')}:${dateObj.getMinutes().toString().padStart(2, '0')}:${dateObj.getSeconds().toString().padStart(2, '0')}`;
+            } else {
+                const parts = clockOut.split(':');
+                if (parts.length < 2) {
+                    setIsAfterClockOut(true);
+                    return;
+                }
+                clockOutTime = `${parts[0].padStart(2, '0')}:${(parts[1]||'00').padStart(2, '0')}:${(parts[2]||'00').padStart(2, '0')}`;
+            }
+            const now = new Date();
+            const nowStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+            const [h1, m1, s1] = nowStr.split(':').map(Number);
+            const [h2, m2, s2] = clockOutTime.split(':').map(Number);
+            if ([h1, m1, s1, h2, m2, s2].some(isNaN)) {
+                setIsAfterClockOut(true);
+                return;
+            }
+            const nowDate = new Date(1970, 0, 1, h1, m1, s1);
+            const outDate = new Date(1970, 0, 1, h2, m2, s2);
+            setIsAfterClockOut(nowDate > outDate);
+        }
+        checkAfterClockOut();
+        interval = setInterval(checkAfterClockOut, 10000);
+        return () => interval && clearInterval(interval);
+    }, [attendanceType, user.typeId]);
+
     if (!hasMounted) return null;
 
     return (
@@ -313,10 +363,10 @@ export default function CountdownCard({ userId, companyId }: CountdownCardProps)
                                     <Dialog open={openClockInDialog} onOpenChange={setOpenClockInDialog}>
                                         <DialogTrigger asChild>
                                             <Button
-                                                disabled={dailyLimit === 0}
+                                                disabled={dailyLimit === 0 || isAfterClockOut}
                                                 variant="outline"
                                                 className={
-                                                    dailyLimit === 0 ? 'opacity-50 cursor-not-allowed' : ''
+                                                    dailyLimit === 0 || isAfterClockOut ? 'opacity-50 cursor-not-allowed' : ''
                                                 }
                                             >
                                                 <LogIn className="mr-2 h-4 w-4" />
