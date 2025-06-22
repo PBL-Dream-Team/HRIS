@@ -26,6 +26,23 @@ export class AttendanceService {
       where: { id: AttendanceData.type_id },
     });
 
+    let check_out = new Date(AttendanceData.check_out);
+    // Change typ.check_out date to midnight of the next day if hour less than typ.check_in
+    if (typ.check_out.getHours() < typ.check_in.getHours()) {
+      const checkOutDate = new Date(typ.check_out);
+      checkOutDate.setDate(checkOutDate.getDate() + 1);
+      check_out = checkOutDate;
+    }
+    if (
+      AttendanceData.check_in &&
+      isTimeAfter(new Date(AttendanceData.check_in), new Date(check_out))
+    ) {
+      return {
+        statusCode: 400,
+        message: 'Check-in time cannot be after check-out time',
+      };
+    }
+
     if (AttendanceData.check_in)
       AttendanceData.check_in_status = isTimeAfter(
         new Date(AttendanceData.check_in),
