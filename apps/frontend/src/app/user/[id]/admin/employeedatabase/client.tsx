@@ -312,7 +312,11 @@ export default function EmployeeDatabaseClient({
     {
       accessorKey: 'no',
       header: 'No',
-      cell: ({ row }: any) => row.index + 1,
+      cell: ({ row }: any) => (
+        <span className={row.original.is_deleted ? 'text-gray-400' : ''}>
+          {row.index + 1}
+        </span>
+      ),
     },
     {
       accessorKey: 'pict_dir',
@@ -321,25 +325,26 @@ export default function EmployeeDatabaseClient({
         const firstName = String(row.original.first_name || '');
         const lastName = String(row.original.last_name || '');
         const fullName = `${firstName} ${lastName}`.trim() || 'Unknown';
-
         return (
-          <Avatar className="h-8 w-8 rounded-lg">
-            <AvatarImage
-              src={
-                row.original.pict_dir
-                  ? `/storage/employee/${row.original.pict_dir}`
-                  : '/avatars/default.jpg'
-              }
-              alt={fullName}
-            />
-            <AvatarFallback className="rounded-lg">
-              {fullName
-                .split(' ')
-                .map((n: string) => n[0])
-                .join('')
-                .toUpperCase() || 'UN'}
-            </AvatarFallback>
-          </Avatar>
+          <span className={row.original.is_deleted ? 'text-gray-400' : ''}>
+            <Avatar className="h-8 w-8 rounded-lg">
+              <AvatarImage
+                src={
+                  row.original.pict_dir
+                    ? `/storage/employee/${row.original.pict_dir}`
+                    : '/avatars/default.jpg'
+                }
+                alt={fullName}
+              />
+              <AvatarFallback className="rounded-lg">
+                {fullName
+                  .split(' ')
+                  .map((n: string) => n[0])
+                  .join('')
+                  .toUpperCase() || 'UN'}
+              </AvatarFallback>
+            </Avatar>
+          </span>
         );
       },
     },
@@ -362,23 +367,39 @@ export default function EmployeeDatabaseClient({
       header: 'Gender',
       cell: ({ row }: any) => {
         const gender = String(row.original.gender || '').toUpperCase();
-        return gender === 'M' ? 'Male' : gender === 'F' ? 'Female' : 'Other';
+        return (
+          <span className={row.original.is_deleted ? 'text-gray-400' : ''}>
+            {gender === 'M' ? 'Male' : gender === 'F' ? 'Female' : 'Other'}
+          </span>
+        );
       },
     },
     {
       accessorKey: 'phone',
       header: 'Mobile Number',
-      cell: ({ row }: any) => String(row.original.phone || '-'),
+      cell: ({ row }: any) => (
+        <span className={row.original.is_deleted ? 'text-gray-400' : ''}>
+          {String(row.original.phone || '-')}
+        </span>
+      ),
     },
     {
       accessorKey: 'branch',
       header: 'Branch',
-      cell: ({ row }: any) => String(row.original.branch || '-'),
+      cell: ({ row }: any) => (
+        <span className={row.original.is_deleted ? 'text-gray-400' : ''}>
+          {String(row.original.branch || '-')}
+        </span>
+      ),
     },
     {
       accessorKey: 'position',
       header: 'Position',
-      cell: ({ row }: any) => String(row.original.position || '-'),
+      cell: ({ row }: any) => (
+        <span className={row.original.is_deleted ? 'text-gray-400' : ''}>
+          {String(row.original.position || '-')}
+        </span>
+      ),
     },
     {
       accessorKey: 'actions',
