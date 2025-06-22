@@ -40,6 +40,7 @@ interface DataTableProps<TData, TValue> {
     itemsPerPage: number;
     onPageChange: (page: number) => void;
   };
+  getRowClassName?: (row: any) => string; // NEW: function to get row class
 }
 
 export function DataTable<TData, TValue>({
@@ -52,6 +53,7 @@ export function DataTable<TData, TValue>({
   pagination,
   // Add new prop for search event callback
   onSearchChange,
+  getRowClassName, // NEW
 }: DataTableProps<TData, TValue> & { onSearchChange?: () => void }) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -158,7 +160,10 @@ export function DataTable<TData, TValue>({
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id}>
+                <TableRow
+                  key={row.id}
+                  className={getRowClassName ? getRowClassName(row) : ''} // NEW
+                >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
                       {flexRender(
