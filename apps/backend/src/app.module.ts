@@ -16,9 +16,10 @@ import { TransactionModule } from './modules/Company/transaction.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { PaymentModule } from './modules/Company/payment.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
-  imports: [
+  imports: [    
     MailerModule.forRoot({
       transport: {
         host: process.env.SMTP_HOST,
@@ -40,6 +41,7 @@ import { PaymentModule } from './modules/Company/payment.module';
         },
       },
     }),
+    ScheduleModule.forRoot(),
     ConfigModule.forRoot({
       load: [configuration],
       isGlobal: true,

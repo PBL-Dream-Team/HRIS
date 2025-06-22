@@ -234,5 +234,49 @@ export class AttendanceService {
     return await this.prisma.attendance.findMany({ where, orderBy: { is_deleted: 'desc' } });
   }
 
+  async autoCheckout() {
+    const workschemes = await this.prisma.attendanceType.findMany();
+
+    const workschemeMap = workschemes.reduce((acc, ws) => {
+      acc[ws.id] = ws;
+      return acc;
+    }, {} as Record<string, typeof workschemes[number]>);
+    
+
+    const overdueCheckouts = await this.prisma.attendance.findMany({
+      where: {
+        check_out: null,
+        is_deleted: false,
+      }
+    });
+
+    for (const attendance of overdueCheckouts) {
+      const workscheme = workschemeMap[attendance.type_id];
+      if (!workscheme) continue;
+
+      const currentTime = new Date();
+      const checkOutTime = new Date(
+        currentTime.getFullYear(),
+        currentTime.getMonth(),
+        currentTime.getDate(),
+        workscheme.check_out.getHours(),
+        workscheme.check_out.getMinutes(),
+        workscheme.check_out.getSeconds(),
+      );
+
+      if (currentTime > checkOutTime) {
+        await this.prisma.attendance.update({
+          where: { id: attendance.id },
+          data: {
+            check_out: workscheme.check_out,
+            check_out_status: 'ON_TIME'
+          },
+        });
+      }
+    }
+
+    
+  }
+
   
 }
