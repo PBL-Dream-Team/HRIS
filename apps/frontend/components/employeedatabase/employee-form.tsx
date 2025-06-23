@@ -76,7 +76,7 @@ export function EmployeeForm({
   onClose,
 }: EmployeeFormProps) {
   const [avatar, setAvatar] = useState<File | null>(null);
-  const [attendanceId, setAttendanceId] = useState<string>(''); // Changed from workScheme to attendanceId
+  const [attendanceId, setAttendanceId] = useState<string>('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [gender, setGender] = useState<'M' | 'F' | 'O' | ''>('');
@@ -198,9 +198,7 @@ export function EmployeeForm({
   }, [companyId]);
 
   // Tambahkan fungsi handler untuk cek unique
-  async function checkUniqueField(field: 'email' | 'phone' | 'nik' 
-    // 'account_number' 
-    , value: string) {
+  async function checkUniqueField(field: 'email' | 'phone' | 'nik' | 'account_number', value: string) {
     try {
       const res = await api.get('/api/employee', {
         params: { [field]: value, company_id: companyId },
@@ -215,11 +213,10 @@ export function EmployeeForm({
           field === 'email'
             ? 'Email already exists'
             : field === 'phone'
-            ? 'Phone number already exists'
-            : 'NIK already exists' 
-            // : field === 'nik'
-            // ? 'NIK already exists'
-            // : 'Account number already exists'
+            ? 'Phone number already exists' 
+            : field === 'nik'
+            ? 'NIK already exists'
+            : 'Account number already exists'
         );
         return false;
       }
@@ -358,11 +355,11 @@ export function EmployeeForm({
     }
 
     // Cek account_number unik
-    // const isAccountNumberUnique = await checkUniqueField('account_number', accountNumber);
-    // if (!isAccountNumberUnique) {
-    //   setIsLoading(false);
-    //   return;
-    // }
+    const isAccountNumberUnique = await checkUniqueField('account_number', accountNumber);
+    if (!isAccountNumberUnique) {
+      setIsLoading(false);
+      return;
+    }
 
     // Validate account number format (should be numbers only)
     if (accountNumber && !/^\d+$/.test(accountNumber)) {
