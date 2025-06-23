@@ -1,7 +1,7 @@
 import { ColumnDef } from '@tanstack/react-table';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Download, Eye, Pencil, Trash2 } from 'lucide-react';
+import { Download, Eye, Pencil, Trash2, MailPlus, MailMinus } from 'lucide-react';
 import {
   Dialog,
   DialogTrigger,
@@ -32,6 +32,8 @@ export const letterColumns = (
   setDeleteDialogOpen: (open: boolean) => void,
   companyId: string,
   refreshData: () => void,
+  setLetterToActivate: (letter: Letter) => void,
+  setIsActivateDialogOpen: (open: boolean) => void
 ): ColumnDef<Letter>[] => [
   {
     accessorKey: 'name',
@@ -97,7 +99,7 @@ export const letterColumns = (
     cell: ({ row }) => {
       const letter = row.original;
       const [editDialogOpen, setEditDialogOpen] = useState(false);
-      
+
       return (
         <div className="flex gap-2">
           <Link href={`/storage/letter/${letter.file_dir}`}>
@@ -145,17 +147,31 @@ export const letterColumns = (
             </DialogContent>
           </Dialog>
 
-          <Button
-            variant="outline"
-            size="icon"
-            className="hover:text-white hover:bg-red-600"
-            onClick={() => {
-              setLetterToDelete(letter);
-              setDeleteDialogOpen(true);
-            }}
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
+          {letter.is_active ? (
+            <Button
+              variant="outline"
+              size="icon"
+              className="hover:text-white hover:bg-red-600"
+              onClick={() => {
+                setLetterToDelete(letter);
+                setDeleteDialogOpen(true);
+              }}
+            >
+              <MailMinus className="h-4 w-4" />
+            </Button>
+          ) : (
+            <Button
+              variant="outline"
+              size="icon"
+              className="hover:text-white hover:bg-green-600"
+              onClick={() => {
+                setLetterToActivate(letter);
+                setIsActivateDialogOpen(true);
+              }}
+            >
+              <MailPlus className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       );
     },

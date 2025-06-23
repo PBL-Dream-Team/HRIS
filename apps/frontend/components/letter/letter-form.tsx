@@ -148,13 +148,19 @@ export function LetterForm({
 
       let parsedDate: Date | undefined = undefined;
       if (initialData.valid_until) {
-        try {
-          // Handle both ISO string and formatted date string
+        const match = initialData.valid_until.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+        if (match) {
+          parsedDate = new Date(
+            Number(match[1]),
+            Number(match[2]) - 1,
+            Number(match[3]),
+          );
+        } else {
+          // fallback ke Date biasa
           const dateValue = new Date(initialData.valid_until);
           if (isValid(dateValue)) {
             parsedDate = dateValue;
           } else {
-            // Try parsing Indonesian formatted date like "11 Juni 2025"
             const parts = initialData.valid_until.split(' ');
             if (parts.length >= 3) {
               const day = parseInt(parts[0]);
@@ -179,8 +185,6 @@ export function LetterForm({
               }
             }
           }
-        } catch (e) {
-          console.error('Error parsing date:', e);
         }
       }
 
@@ -241,9 +245,9 @@ export function LetterForm({
     }
 
     // Check status
-    if (!status) {
-      return 'Please select a letter status.';
-    }
+    // if (!status) {
+    //   return 'Please select a letter status.';
+    // }
 
     // Enhanced file validation
     if (mode === 'create') {
@@ -345,7 +349,7 @@ export function LetterForm({
     formData.append('name', letterName);
     formData.append('desc', letterDesc);
     if (validUntilDate) {
-      formData.append('valid_until', validUntilDate.toISOString());
+      formData.append('valid_until', format(validUntilDate, 'yyyy-MM-dd'));
     }
     formData.append('is_active', status === 'active' ? 'true' : 'false');
 
@@ -623,7 +627,7 @@ export function LetterForm({
         {/* Status and Valid Until */}
         <div className="space-y-6">
           {/* Letter Status Select */}
-          <div className="space-y-1">
+          {/* <div className="space-y-1">
             <Label htmlFor="letterStatus">
               Letter Status
               <span className="text-red-600"> *</span>
@@ -637,7 +641,7 @@ export function LetterForm({
                 <SelectItem value="notactive">Not Active</SelectItem>
               </SelectContent>
             </Select>
-          </div>
+          </div> */}
 
           {/* Valid Until Date Picker */}
           <div className="space-y-1">

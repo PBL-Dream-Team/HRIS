@@ -39,8 +39,8 @@ export class editLetterDto {
 
   @ApiPropertyOptional()
   @IsDate({ message: 'valid_until must be a valid date' })
-  @IsNotEmpty({ message: 'valid_until is required' })
-  @Transform(({ value }) => new Date(value))
+  @IsOptional()
+  @Transform(({ value }) => value ? new Date(value) : undefined)
   valid_until: Date;
 
   @ApiPropertyOptional()
