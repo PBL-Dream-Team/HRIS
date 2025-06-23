@@ -140,7 +140,9 @@ export function EmployeeForm({
       setPassword('');
       setPhoneNumber(initialData.phone || '');
       setBirthPlace(initialData.birth_place || '');
-      setBirthDate(initialData.birth_date ? new Date(initialData.birth_date) : undefined);
+      setBirthDate(
+        initialData.birth_date ? new Date(initialData.birth_date) : undefined,
+      );
       setNik(initialData.nik || '');
       setPosition(initialData.position || '');
       setBranch(initialData.branch || '');
@@ -170,15 +172,21 @@ export function EmployeeForm({
       try {
         const res = await api.get('/api/attendanceType');
         if (Array.isArray(res.data)) {
-          const filtered = res.data.filter((at: any) => at.company_id === companyId);
+          const filtered = res.data.filter(
+            (at: any) => at.company_id === companyId,
+          );
           // Map to dropdown format with workscheme info
-          setWorkSchemeOptions(filtered.map((at: any) => ({
-            value: at.id,
-            label: `${at.name} (${at.workscheme})`,
-            workscheme: at.workscheme
-          })));
+          setWorkSchemeOptions(
+            filtered.map((at: any) => ({
+              value: at.id,
+              label: `${at.name} (${at.workscheme})`,
+              workscheme: at.workscheme,
+            })),
+          );
           if (filtered.length === 0) {
-            toast.warning('No work schemes found. Please create workscheme on checkclock feature first.');
+            toast.warning(
+              'No work schemes found. Please create workscheme on checkclock feature first.',
+            );
           }
         }
       } catch (error) {
@@ -189,12 +197,46 @@ export function EmployeeForm({
     fetchAttendanceTypes();
   }, [companyId]);
 
+  // Tambahkan fungsi handler untuk cek unique
+  async function checkUniqueField(field: 'email' | 'phone', value: string) {
+    try {
+      const res = await api.get('/api/employee', {
+        params: { [field]: value, company_id: companyId },
+      });
+      if (
+        res.data &&
+        Array.isArray(res.data) &&
+        res.data.length > 0 &&
+        (mode !== 'edit' || res.data[0].id !== initialData?.id)
+      ) {
+        toast.error(
+          field === 'email'
+            ? 'Email already exists'
+            : 'Phone number already exists'
+        );
+        return false;
+      }
+      return true;
+    } catch (err: any) {
+      if (err?.response?.status !== 404) {
+        console.error(`Error checking ${field} uniqueness:`, err);
+      }
+      return true;
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     // Validate required fields according to DTO
-    if (!firstName || !lastName || !email || !attendanceId || (mode === 'create' && !password)) {
+    if (
+      !firstName ||
+      !lastName ||
+      !email ||
+      !attendanceId ||
+      (mode === 'create' && !password)
+    ) {
       toast.error('Please fill out all required fields');
       setIsLoading(false);
       return;
@@ -259,7 +301,9 @@ export function EmployeeForm({
     // Password validation: must contain uppercase, lowercase, number, and symbol
     if (password) {
       if (!/^[a-zA-Z0-9!@#$%^&*()_+={}\[\]:;"'<>,.?\/\\|-]+$/.test(password)) {
-        toast.error('Password can only contain alphanumeric characters and special symbols !@#$%^&*()_+={}[\\]:;"\'<>,.?/\\|-');
+        toast.error(
+          'Password can only contain alphanumeric characters and special symbols !@#$%^&*()_+={}[\\]:;"\'<>,.?/\\|-',
+        );
         setIsLoading(false);
         return;
       }
@@ -285,60 +329,16 @@ export function EmployeeForm({
       }
     }
 
-    // Validate email uniqueness
-    try {
-      const res = await api.get('/api/employee', {
-        params: { email, company_id: companyId }
-      });
-      // If editing, allow if the found employee is the same as the one being edited
-      if (
-        res.data &&
-        Array.isArray(res.data) &&
-        res.data.length > 0 &&
-        (mode !== 'edit' || res.data[0].id !== initialData?.id)
-      ) {
-        toast.error('Email already exists');
-        setIsLoading(false);
-        return;
-      }
-    } catch (err: any) {
-      if (err?.response?.status !== 404) {
-        console.error('Error checking email uniqueness:', err);
-      }
-    }
-
-    // Validate phone number format (should be numbers only)
-    if (phoneNumber && !/^\d+$/.test(phoneNumber)) {
-      toast.error('Phone number should contain only numbers');
+    // Cek email unik
+    const isEmailUnique = await checkUniqueField('email', email);
+    if (!isEmailUnique) {
       setIsLoading(false);
       return;
     }
 
-    // Validate phone number uniqueness
-    try {
-      const res = await api.get('/api/employee', {
-        params: { phone: phoneNumber, company_id: companyId }
-      });
-      // If editing, allow if the found employee is the same as the one being edited
-      if (
-        res.data &&
-        Array.isArray(res.data) &&
-        res.data.length > 0 &&
-        (mode !== 'edit' || res.data[0].id !== initialData?.id)
-      ) {
-        toast.error('Phone number already exists');
-        setIsLoading(false);
-        return;
-      }
-    } catch (err: any) {
-      if (err?.response?.status !== 404) {
-        console.error('Error checking phone number uniqueness:', err);
-      }
-    }
-
-    // Validate phone number length
-    if (phoneNumber && (phoneNumber.length < 10 || phoneNumber.length > 15)) {
-      toast.error('Phone number must be between 10 and 15 digits long');
+    // Cek phone unik
+    const isPhoneUnique = await checkUniqueField('phone', phoneNumber);
+    if (!isPhoneUnique) {
       setIsLoading(false);
       return;
     }
@@ -351,7 +351,10 @@ export function EmployeeForm({
     }
 
     // Validate account number length
-    if (accountNumber && (accountNumber.length < 10 || accountNumber.length > 20)) {
+    if (
+      accountNumber &&
+      (accountNumber.length < 10 || accountNumber.length > 20)
+    ) {
       toast.error('Account number must be between 10 and 20 digits long');
       setIsLoading(false);
       return;
@@ -371,7 +374,9 @@ export function EmployeeForm({
     }
 
     // Get the workscheme from the selected attendance type
-    const selectedAttendanceType = workSchemeOptions.find(opt => opt.value === attendanceId);
+    const selectedAttendanceType = workSchemeOptions.find(
+      (opt) => opt.value === attendanceId,
+    );
     if (!selectedAttendanceType) {
       toast.error('Please select a valid attendance type');
       setIsLoading(false);
@@ -415,14 +420,15 @@ export function EmployeeForm({
 
       // Handle birth_date - convert to ISO date string
       if (birthDate) {
-        const dateString = birthDate instanceof Date
-          ? !isNaN(birthDate.getTime())
-            ? birthDate.toISOString().split('T')[0]
-            : ''
-          : (() => {
-            const d = new Date(birthDate);
-            return !isNaN(d.getTime()) ? d.toISOString().split('T')[0] : '';
-          })();
+        const dateString =
+          birthDate instanceof Date
+            ? !isNaN(birthDate.getTime())
+              ? birthDate.toISOString().split('T')[0]
+              : ''
+            : (() => {
+                const d = new Date(birthDate);
+                return !isNaN(d.getTime()) ? d.toISOString().split('T')[0] : '';
+              })();
 
         if (dateString) {
           formData.append('birth_date', dateString);
@@ -455,7 +461,8 @@ export function EmployeeForm({
       onClose?.();
     } catch (err: any) {
       console.error('Submit error:', err);
-      const errorMessage = err.response?.data?.message || 'Something went wrong.';
+      const errorMessage =
+        err.response?.data?.message || 'Something went wrong.';
       toast.error(errorMessage);
     } finally {
       setIsLoading(false);
@@ -494,7 +501,9 @@ export function EmployeeForm({
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => document.getElementById('avatar-upload')?.click()}
+                onClick={() =>
+                  document.getElementById('avatar-upload')?.click()
+                }
                 disabled={isLoading}
               >
                 Upload Avatar
@@ -530,7 +539,6 @@ export function EmployeeForm({
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
               disabled={isLoading}
-
             />
           </div>
           <div>
@@ -543,11 +551,11 @@ export function EmployeeForm({
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
               disabled={isLoading}
-
             />
           </div>
           <div>
-            <Label>Gender
+            <Label>
+              Gender
               <span className="text-red-600"> *</span>
             </Label>
             <Select
@@ -558,8 +566,8 @@ export function EmployeeForm({
             >
               <SelectTrigger>
                 <SelectValue placeholder="Choose gender">
-                  {genderOptions.find((option) => option.value === gender)?.label ||
-                    'Choose gender'}
+                  {genderOptions.find((option) => option.value === gender)
+                    ?.label || 'Choose gender'}
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
@@ -572,7 +580,8 @@ export function EmployeeForm({
             </Select>
           </div>
           <div>
-            <Label htmlFor="birth_date">Date of Birth
+            <Label htmlFor="birth_date">
+              Date of Birth
               <span className="text-red-600"> *</span>
             </Label>
             <div className="relative">
@@ -600,7 +609,8 @@ export function EmployeeForm({
             </div>
           </div>
           <div>
-            <Label>Birth Place
+            <Label>
+              Birth Place
               <span className="text-red-600"> *</span>
             </Label>
             <Input
@@ -611,7 +621,8 @@ export function EmployeeForm({
             />
           </div>
           <div>
-            <Label>NIK
+            <Label>
+              NIK
               <span className="text-red-600"> *</span>
             </Label>
             <Input
@@ -626,7 +637,8 @@ export function EmployeeForm({
             />
           </div>
           <div>
-            <Label>Last Education
+            <Label>
+              Last Education
               <span className="text-red-600"> *</span>
             </Label>
             <Select
@@ -664,7 +676,8 @@ export function EmployeeForm({
         </CardHeader>
         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <Label>Address
+            <Label>
+              Address
               <span className="text-red-600"> *</span>
             </Label>
             <Input
@@ -685,7 +698,6 @@ export function EmployeeForm({
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               disabled={isLoading}
-
             />
           </div>
           {mode === 'create' && (
@@ -702,7 +714,6 @@ export function EmployeeForm({
                   onChange={(e) => setPassword(e.target.value)}
                   className="pr-10"
                   disabled={isLoading}
-
                 />
                 <button
                   type="button"
@@ -721,7 +732,8 @@ export function EmployeeForm({
             </div>
           )}
           <div>
-            <Label>Phone Number
+            <Label>
+              Phone Number
               <span className="text-red-600"> *</span>
             </Label>
             <Input
@@ -757,7 +769,9 @@ export function EmployeeForm({
             >
               <SelectTrigger>
                 <SelectValue placeholder="Choose attendance type">
-                  {workSchemeOptions.find((option) => option.value === attendanceId)?.label || 'Choose attendance type'}
+                  {workSchemeOptions.find(
+                    (option) => option.value === attendanceId,
+                  )?.label || 'Choose attendance type'}
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
@@ -788,7 +802,8 @@ export function EmployeeForm({
             />
           </div>
           <div>
-            <Label>Contract
+            <Label>
+              Contract
               <span className="text-red-600"> *</span>
             </Label>
             <Select
@@ -824,7 +839,8 @@ export function EmployeeForm({
         </CardHeader>
         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <Label>Bank
+            <Label>
+              Bank
               <span className="text-red-600"> *</span>
             </Label>
             <Select
@@ -849,7 +865,8 @@ export function EmployeeForm({
             </Select>
           </div>
           <div>
-            <Label>Account Number
+            <Label>
+              Account Number
               <span className="text-red-600"> *</span>
             </Label>
             <Input
@@ -864,7 +881,8 @@ export function EmployeeForm({
             />
           </div>
           <div>
-            <Label>Account Name
+            <Label>
+              Account Name
               <span className="text-red-600"> *</span>
             </Label>
             <Input
@@ -887,14 +905,14 @@ export function EmployeeForm({
         >
           Cancel
         </Button>
-        <Button
-          type="submit"
-          disabled={isLoading}
-        >
+        <Button type="submit" disabled={isLoading}>
           {isLoading
-            ? (mode === 'edit' ? 'Updating...' : 'Creating...')
-            : (mode === 'edit' ? 'Update' : 'Add')
-          }
+            ? mode === 'edit'
+              ? 'Updating...'
+              : 'Creating...'
+            : mode === 'edit'
+              ? 'Update'
+              : 'Add'}
         </Button>
       </div>
     </form>
