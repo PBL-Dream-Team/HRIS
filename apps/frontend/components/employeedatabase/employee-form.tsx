@@ -198,7 +198,9 @@ export function EmployeeForm({
   }, [companyId]);
 
   // Tambahkan fungsi handler untuk cek unique
-  async function checkUniqueField(field: 'email' | 'phone', value: string) {
+  async function checkUniqueField(field: 'email' | 'phone' | 'nik' 
+    // 'account_number' 
+    , value: string) {
     try {
       const res = await api.get('/api/employee', {
         params: { [field]: value, company_id: companyId },
@@ -212,7 +214,12 @@ export function EmployeeForm({
         toast.error(
           field === 'email'
             ? 'Email already exists'
-            : 'Phone number already exists'
+            : field === 'phone'
+            ? 'Phone number already exists'
+            : 'NIK already exists' 
+            // : field === 'nik'
+            // ? 'NIK already exists'
+            // : 'Account number already exists'
         );
         return false;
       }
@@ -342,6 +349,20 @@ export function EmployeeForm({
       setIsLoading(false);
       return;
     }
+
+    // Cek nik unik
+    const isNikUnique = await checkUniqueField('nik', nik);
+    if (!isNikUnique) {
+      setIsLoading(false);
+      return;
+    }
+
+    // Cek account_number unik
+    // const isAccountNumberUnique = await checkUniqueField('account_number', accountNumber);
+    // if (!isAccountNumberUnique) {
+    //   setIsLoading(false);
+    //   return;
+    // }
 
     // Validate account number format (should be numbers only)
     if (accountNumber && !/^\d+$/.test(accountNumber)) {
