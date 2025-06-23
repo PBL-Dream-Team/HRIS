@@ -44,8 +44,6 @@ export function LetterTypesOverviewContent({
   const [error, setError] = useState<string | null>(null);
   const [editData, setEditData] = useState<LetterType | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [selectedDeleteId, setSelectedDeleteId] = useState<string | null>(null);
 
   const fetchLetterTypes = async () => {
     if (!companyId) return;
@@ -87,34 +85,6 @@ export function LetterTypesOverviewContent({
     setIsDialogOpen(true);
   };
 
-  const handleRequestDelete = (id: string) => {
-    setSelectedDeleteId(id);
-    setIsDeleteDialogOpen(true);
-  };
-
-  const handleConfirmDelete = async () => {
-    if (!selectedDeleteId) return;
-    try {
-      const response = await api.delete(`/api/letterType/${selectedDeleteId}`);
-
-      if (response.data.statusCode === 200) {
-        toast.success('Letter type deleted successfully.');
-        fetchLetterTypes();
-      } else if (response.data.statusCode === 'P2003') {
-        toast.error('Letter type is still used by existing letters.');
-      } else {
-        toast.error(
-          `Error: ${response.data.message || 'Unknown error'}`,
-        );
-      }
-    } catch (error: any) {
-      toast.error('Failed to delete letter type.');
-    } finally {
-      setIsDeleteDialogOpen(false);
-      setSelectedDeleteId(null);
-    }
-  };
-
   if (!isVisible) return null;
 
   return (
@@ -146,14 +116,6 @@ export function LetterTypesOverviewContent({
                     >
                       <Pencil className="h-4 w-4" />
                     </Button>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      className="hover:text-white hover:bg-red-600"
-                      onClick={() => handleRequestDelete(letterType.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
                   </div>
                 </TableCell>
               </TableRow>
@@ -180,30 +142,6 @@ export function LetterTypesOverviewContent({
               onClose={() => setIsDialogOpen(false)}
             />
           )}
-        </DialogContent>
-      </Dialog>
-
-      {/* Confirm Delete Dialog */}
-      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Delete Letter Type</DialogTitle>
-          </DialogHeader>
-          <div>
-            Are you sure you want to delete this letter type? This action cannot
-            be undone.
-          </div>
-          <DialogFooter className="gap-2 pt-4">
-            <Button
-              variant="outline"
-              onClick={() => setIsDeleteDialogOpen(false)}
-            >
-              Cancel
-            </Button>
-            <Button variant="destructive" onClick={handleConfirmDelete}>
-              Delete
-            </Button>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
