@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 
 // UI Components (Shadcn/ui & Custom)
 import { Button } from '@/components/ui/button';
@@ -191,8 +191,9 @@ export function LetterForm({
       // Enhanced file handling - Check both file_url and file_dir
       const fileUrl = initialData.file_url || initialData.file_dir;
       if (fileUrl) {
-        const fileName =
-          initialData.file_name || fileUrl.split('/').pop() || 'Existing File';
+        let fileName = initialData.file_name || fileUrl.split('/').pop() || 'Existing File';
+        // Hapus id prefix jika ada
+        fileName = stripFileIdPrefix(fileName);
         console.log('Setting existing file:', { url: fileUrl, name: fileName });
         setExistingFile({
           url: fileUrl,
@@ -422,7 +423,7 @@ export function LetterForm({
   const getFileDisplayInfo = () => {
     if (selectedFile) {
       return {
-        name: selectedFile.name,
+        name: formatFileNameWithExtension(selectedFile.name),
         isNew: true,
         icon: (
           <FaFile className="text-2xl text-blue-600 dark:text-blue-400 mb-1" />
@@ -430,7 +431,7 @@ export function LetterForm({
       };
     } else if (existingFile && fileAction !== 'remove') {
       return {
-        name: existingFile.name,
+        name: formatFileNameWithExtension(existingFile.name),
         isNew: false,
         icon: (
           <FaFile className="text-2xl text-green-600 dark:text-green-400 mb-1" />
@@ -529,7 +530,8 @@ export function LetterForm({
             <span className="text-red-600"> *</span>
           </Label>
           <div className="mt-1 relative w-full aspect-[3/1] border-2 border-dashed rounded-lg shadow-sm flex items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-700 transition cursor-pointer">
-            {fileDisplayInfo ? (
+            {/* Saat submit, sembunyikan custom preview agar label default input file muncul */}
+            {!isSubmitting && fileDisplayInfo ? (
               <div className="flex flex-col items-center justify-center text-sm w-full px-4">
                 {fileDisplayInfo.icon}
                 <span className="text-center font-medium w-full truncate">
@@ -547,12 +549,7 @@ export function LetterForm({
                   ) : null}
                 </div>
               </div>
-            ) : isSubmitting ? (
-              <div className="flex flex-col items-center justify-center text-sm">
-                <FaUpload className="text-2xl text-gray-400 dark:text-gray-500 mb-1" />
-                <span>Uploading file...</span>
-              </div>
-            ) : (
+            ) : !isSubmitting ? (
               <div className="flex flex-col items-center justify-center text-sm">
                 <FaUpload className="text-2xl text-gray-400 dark:text-gray-500 mb-1" />
                 <span>Click to upload file</span>
@@ -560,13 +557,13 @@ export function LetterForm({
                   PDF, DOC, DOCX (Max 10MB)
                 </span>
               </div>
-            )}
+            ) : null}
             <Input
               id="letterFile"
               type="file"
               accept="application/pdf,.doc,.docx"
               onChange={handleFileChange}
-              className="absolute inset-0 opacity-0 w-full h-full cursor-pointer"
+              className={`absolute inset-0 w-full h-full cursor-pointer ${isSubmitting ? '' : 'opacity-0'}`}
               disabled={isSubmitting}
             />
           </div>
@@ -704,4 +701,20 @@ export function LetterForm({
       </DialogFooter>
     </form>
   );
+}
+
+// Fungsi utilitas untuk menghapus id di depan nama file (misal: 1750681933101_SK_Karyawan.pdf => SK_Karyawan.pdf)
+function stripFileIdPrefix(filename: string): string {
+  // Pola: deretan angka diikuti underscore, lalu nama file
+  return filename.replace(/^\d+_/, '');
+}
+
+// Fungsi utilitas untuk memotong nama file tapi tetap menampilkan ekstensi
+function formatFileNameWithExtension(filename: string, maxLength = 35): string {
+  if (filename.length <= maxLength) return filename;
+  const lastDot = filename.lastIndexOf('.');
+  if (lastDot === -1 || lastDot === 0) return filename.slice(0, maxLength - 3) + '...';
+  const ext = filename.slice(lastDot);
+  const namePart = filename.slice(0, maxLength - ext.length - 3);
+  return namePart + '...' + ext;
 }

@@ -246,7 +246,7 @@ export default function LettersClient({
 
   // Data Transformation with null safety
   const transformedLetters = useMemo((): Letter[] => {
-    return letters.map((letter) => {
+    const mapped = letters.map((letter) => {
       const employee = employees[letter.employee_id];
       const letterType = letterTypeMap[letter.lettertype_id];
 
@@ -266,6 +266,8 @@ export default function LettersClient({
           : 'No Date',
       };
     });
+    // Urutkan: active (is_active: true) di atas inactive
+    return mapped.sort((a, b) => (b.is_active ? 1 : 0) - (a.is_active ? 1 : 0));
   }, [letters, employees, letterTypeMap]);
 
   // Event Handlers
