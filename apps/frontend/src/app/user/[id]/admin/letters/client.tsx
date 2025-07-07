@@ -281,14 +281,14 @@ export default function LettersClient({
 
     try {
       await api.delete(`/api/letter/${letterToDelete.id}`);
-      toast.success('Letter deleted successfully.');
+      toast.success('Letter deactivate successfully.');
       await fetchData();
     } catch (err: any) {
       console.error(
         'Error deleting letter:',
         err.response?.data || err.message,
       );
-      toast.error('Failed to delete letter. Please try again.');
+      toast.error('Failed to deactivate letter. Please try again.');
     } finally {
       setIsDeleteDialogOpen(false);
       setLetterToDelete(null);
