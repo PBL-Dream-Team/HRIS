@@ -31,7 +31,7 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Pencil, Trash2, Eye, Plus } from 'lucide-react';
+import { Pencil, Trash2, Eye, Plus, UserRoundMinus, UserRoundPlus } from 'lucide-react';
 import { VscSettings } from 'react-icons/vsc';
 import { BiImport, BiExport } from 'react-icons/bi';
 
@@ -76,6 +76,8 @@ export default function EmployeeDatabaseClient({
   });
 
   const [maxEmployee, setMaxEmployee] = useState<number>(0);
+
+  const [hasWorkscheme, setHasWorkscheme] = useState<boolean>(true);
 
   // Pindahkan ke sini, sebelum useEffect
   const fetchEmployeeCount = async () => {
@@ -271,18 +273,24 @@ export default function EmployeeDatabaseClient({
     }
   };
 
+  const [isRestoreDialogOpen, setIsRestoreDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [employeeToDelete, setEmployeeToDelete] = useState<any>(null);
+  const [employeeToRestore, setEmployeeToRestore] = useState<any>(null);
 
   const handleDeleteConfirmed = async () => {
     if (!employeeToDelete) return;
     try {
-      await api.delete(`/api/employee/${employeeToDelete.id}`);
+      await api.patch(`/api/employee/${employeeToDelete.id}`, { is_deleted: true });
       toast.success('Employee deleted successfully.');
       setEmployees((prev) =>
-        prev.filter((emp) => emp.id !== employeeToDelete.id),
+        prev.map((emp) =>
+          emp.id === employeeToDelete.id
+            ? { ...emp, is_deleted: true }
+            : emp
+        )
       );
-      fetchEmployeeCount(); // Tambahkan ini
+      fetchEmployeeCount();
     } catch (err: any) {
       console.error(
         'Error deleting employee:',
@@ -295,11 +303,29 @@ export default function EmployeeDatabaseClient({
     }
   };
 
+  const handleRestoreConfirmed = async () => {
+    if (!employeeToRestore) return;
+    try {
+      await api.patch(`/api/employee/${employeeToRestore.id}`, { is_deleted: false });
+      setEmployees((prev) =>
+        prev.map((emp) =>
+          emp.id === employeeToRestore.id ? { ...emp, is_deleted: false } : emp
+        )
+      );
+      toast.success('Employee restored successfully.');
+    } catch (err) {
+      toast.error('Failed to restore employee.');
+    } finally {
+      setIsRestoreDialogOpen(false);
+      setEmployeeToRestore(null);
+    }
+  };
+
   const [openAddDialog, setOpenAddDialog] = useState(false);
 
   const handleAddEmployeeSuccess = () => {
     fetchEmployees();
-    fetchEmployeeCount(); // Tambahkan ini
+    fetchEmployeeCount();
   };
 
   const [openEditDialog, setOpenEditDialog] = useState(false);
@@ -310,7 +336,11 @@ export default function EmployeeDatabaseClient({
     {
       accessorKey: 'no',
       header: 'No',
-      cell: ({ row }: any) => row.index + 1,
+      cell: ({ row }: any) => (
+        <span className={row.original.is_deleted ? 'text-gray-400' : ''}>
+          {row.index + 1}
+        </span>
+      ),
     },
     {
       accessorKey: 'pict_dir',
@@ -319,25 +349,26 @@ export default function EmployeeDatabaseClient({
         const firstName = String(row.original.first_name || '');
         const lastName = String(row.original.last_name || '');
         const fullName = `${firstName} ${lastName}`.trim() || 'Unknown';
-
         return (
-          <Avatar className="h-8 w-8 rounded-lg">
-            <AvatarImage
-              src={
-                row.original.pict_dir
-                  ? `/storage/employee/${row.original.pict_dir}`
-                  : '/avatars/default.jpg'
-              }
-              alt={fullName}
-            />
-            <AvatarFallback className="rounded-lg">
-              {fullName
-                .split(' ')
-                .map((n: string) => n[0])
-                .join('')
-                .toUpperCase() || 'UN'}
-            </AvatarFallback>
-          </Avatar>
+          <span className={row.original.is_deleted ? 'text-gray-400' : ''}>
+            <Avatar className="h-8 w-8 rounded-lg">
+              <AvatarImage
+                src={
+                  row.original.pict_dir
+                    ? `/storage/employee/${row.original.pict_dir}`
+                    : '/avatars/default.jpg'
+                }
+                alt={fullName}
+              />
+              <AvatarFallback className="rounded-lg">
+                {fullName
+                  .split(' ')
+                  .map((n: string) => n[0])
+                  .join('')
+                  .toUpperCase() || 'UN'}
+              </AvatarFallback>
+            </Avatar>
+          </span>
         );
       },
     },
@@ -347,7 +378,12 @@ export default function EmployeeDatabaseClient({
       cell: ({ row }: any) => {
         const firstName = String(row.original.first_name || '');
         const lastName = String(row.original.last_name || '');
-        return `${firstName} ${lastName}`.trim() || 'Unknown User';
+        const name = `${firstName} ${lastName}`.trim() || 'Unknown User';
+        return (
+          <span className={row.original.is_deleted ? 'text-gray-400' : ''}>
+            {name}
+          </span>
+        );
       },
     },
     {
@@ -355,23 +391,39 @@ export default function EmployeeDatabaseClient({
       header: 'Gender',
       cell: ({ row }: any) => {
         const gender = String(row.original.gender || '').toUpperCase();
-        return gender === 'M' ? 'Male' : gender === 'F' ? 'Female' : 'Other';
+        return (
+          <span className={row.original.is_deleted ? 'text-gray-400' : ''}>
+            {gender === 'M' ? 'Male' : gender === 'F' ? 'Female' : 'Other'}
+          </span>
+        );
       },
     },
     {
       accessorKey: 'phone',
       header: 'Mobile Number',
-      cell: ({ row }: any) => String(row.original.phone || '-'),
+      cell: ({ row }: any) => (
+        <span className={row.original.is_deleted ? 'text-gray-400' : ''}>
+          {String(row.original.phone || '-')}
+        </span>
+      ),
     },
     {
       accessorKey: 'branch',
       header: 'Branch',
-      cell: ({ row }: any) => String(row.original.branch || '-'),
+      cell: ({ row }: any) => (
+        <span className={row.original.is_deleted ? 'text-gray-400' : ''}>
+          {String(row.original.branch || '-')}
+        </span>
+      ),
     },
     {
       accessorKey: 'position',
       header: 'Position',
-      cell: ({ row }: any) => String(row.original.position || '-'),
+      cell: ({ row }: any) => (
+        <span className={row.original.is_deleted ? 'text-gray-400' : ''}>
+          {String(row.original.position || '-')}
+        </span>
+      ),
     },
     {
       accessorKey: 'actions',
@@ -394,20 +446,35 @@ export default function EmployeeDatabaseClient({
               setEmployeeToEdit(row.original);
               setOpenEditDialog(true);
             }}
+            disabled={row.original.is_deleted}
           >
             <Pencil className="h-4 w-4" />
           </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            className="hover:text-white hover:bg-red-600"
-            onClick={() => {
-              setEmployeeToDelete(row.original);
-              setIsDeleteDialogOpen(true);
-            }}
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
+          {row.original.is_deleted ? (
+            <Button
+              variant="outline"
+              size="icon"
+              className="hover:text-white hover:bg-green-600"
+              onClick={() => {
+                setEmployeeToRestore(row.original);
+                setIsRestoreDialogOpen(true);
+              }}
+            >
+              <UserRoundPlus className="h-4 w-4" />
+            </Button>
+          ) : (
+            <Button
+              variant="outline"
+              size="icon"
+              className="hover:text-white hover:bg-red-600"
+              onClick={() => {
+                setEmployeeToDelete(row.original);
+                setIsDeleteDialogOpen(true);
+              }}
+            >
+              <UserRoundMinus className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       ),
     },
@@ -421,15 +488,27 @@ export default function EmployeeDatabaseClient({
     currentPage * ITEMS_PER_PAGE,
   );
 
-  // Tambahkan setelah employees didefinisikan
-  const employeesWithName = employees.map((emp) => {
-    const firstName = String(emp.first_name || '');
-    const lastName = String(emp.last_name || '');
-    return {
-      ...emp,
-      name: `${firstName} ${lastName}`.trim() || 'Unknown User',
-    };
-  });
+  // Buat employeesWithName sebagai state agar reaktif terhadap perubahan employees
+  const [employeesWithName, setEmployeesWithName] = useState<any[]>([]);
+
+  useEffect(() => {
+    // Urutkan employees: yang is_deleted: true di bawah
+    const sortedEmployees = [
+      ...employees.filter((emp) => !emp.is_deleted),
+      ...employees.filter((emp) => emp.is_deleted),
+    ];
+    // Tambahkan name property
+    setEmployeesWithName(
+      sortedEmployees.map((emp) => {
+        const firstName = String(emp.first_name || '');
+        const lastName = String(emp.last_name || '');
+        return {
+          ...emp,
+          name: `${firstName} ${lastName}`.trim() || 'Unknown User',
+        };
+      })
+    );
+  }, [employees]);
 
   const handleExport = async () => {
     try {
@@ -487,6 +566,25 @@ export default function EmployeeDatabaseClient({
     }
   };
 
+  useEffect(() => {
+    async function checkWorkscheme() {
+      try {
+        const res = await api.get('/api/attendanceType');
+        // Filter berdasarkan company_id
+        const filtered = Array.isArray(res.data)
+          ? res.data.filter((ws) => ws.company_id === companyId)
+          : [];
+        setHasWorkscheme(filtered.length > 0);
+        if (filtered.length === 0) {
+          toast.warning('Please add a workscheme first in checkclock menu before adding employees.', { id: 'no-workscheme' });
+        }
+      } catch (err) {
+        setHasWorkscheme(false);
+      }
+    }
+    if (companyId) checkWorkscheme();
+  }, [companyId]);
+
   // Show loading state
   if (isLoading) {
     return (
@@ -539,9 +637,12 @@ export default function EmployeeDatabaseClient({
             {/* DataTable for Employee */}
             <DataTable
               columns={employeeColumns}
-              data={employeesWithName} // Ganti dari employees ke employeesWithName
+              data={employeesWithName}
               searchableColumn="name"
               title="Employee Database Overview"
+              getRowClassName={(row) =>
+                row.original.is_deleted ? 'text-gray-400 bg-gray-50' : ''
+              }
               actions={
                 <>
                   {/* Buttons */}
@@ -568,7 +669,7 @@ export default function EmployeeDatabaseClient({
                       <DialogTrigger asChild>
                         <Button
                           className="w-full md:w-auto"
-                          disabled={isEmployeeLimitReached} // Tambahkan ini
+                          disabled={isEmployeeLimitReached || !hasWorkscheme}
                         >
                           <Plus className="h-4 w-4 mr-1" /> Add Employee
                         </Button>
@@ -704,7 +805,7 @@ export default function EmployeeDatabaseClient({
             <strong>
               {employeeToDelete?.first_name} {employeeToDelete?.last_name}
             </strong>
-            ? This action cannot be undone.
+            ?
           </div>
           <DialogFooter className="gap-2 pt-4">
             <Button
@@ -715,6 +816,32 @@ export default function EmployeeDatabaseClient({
             </Button>
             <Button variant="destructive" onClick={handleDeleteConfirmed}>
               Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isRestoreDialogOpen} onOpenChange={setIsRestoreDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Restore Employee</DialogTitle>
+          </DialogHeader>
+          <div>
+            Are you sure you want to restore{' '}
+            <strong>
+              {employeeToRestore?.first_name} {employeeToRestore?.last_name}
+            </strong>
+            ?
+          </div>
+          <DialogFooter className="gap-2 pt-4">
+            <Button
+              variant="outline"
+              onClick={() => setIsRestoreDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button variant="default" onClick={handleRestoreConfirmed}>
+              Restore
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -731,7 +858,7 @@ export default function EmployeeDatabaseClient({
             mode="edit"
             onSuccess={() => {
               fetchEmployees();
-              fetchEmployeeCount(); // Tambahkan ini
+              fetchEmployeeCount(); 
               setOpenEditDialog(false);
             }}
             onClose={() => setOpenEditDialog(false)}

@@ -55,7 +55,7 @@ export default function AbsenceDetails({
         className="w-[400px] sm:w-[500px] overflow-y-auto"
       >
         <SheetHeader className="px-4">
-          <SheetTitle>Absence Details</SheetTitle>
+          <SheetTitle>Leave Details</SheetTitle>
         </SheetHeader>
 
         {selectedAbsence && (
@@ -115,7 +115,7 @@ export default function AbsenceDetails({
 
             {/* Absence Info */}
             <div className="border rounded-md p-4 text-sm">
-              <h4 className="font-medium mb-4">Absence Information</h4>
+              <h4 className="font-medium mb-4">Leave Information</h4>
               <div className="grid grid-cols-2 gap-x-4 gap-y-3">
                 <div>
                   <p className="text-muted-foreground text-xs">Create At</p>
@@ -156,20 +156,22 @@ export default function AbsenceDetails({
                         // Fallback jika gambar tidak ditemukan
                         e.currentTarget.style.display = 'none';
                         if (e.currentTarget.nextElementSibling) {
-                          (e.currentTarget.nextElementSibling as HTMLElement).style.display = 'block';
+                          (
+                            e.currentTarget.nextElementSibling as HTMLElement
+                          ).style.display = 'block';
                         }
                       }}
                     />
                     {/* Fallback text jika gambar error */}
-                    <div
-                      className="hidden text-muted-foreground text-center p-4 border rounded-lg bg-gray-50"
-                    >
+                    <div className="hidden text-muted-foreground text-center p-4 border rounded-lg bg-gray-50">
                       <p>Unable to load image</p>
                     </div>
                   </div>
                 </div>
               ) : (
-                <p className="text-muted-foreground">No evidence picture available</p>
+                <p className="text-muted-foreground">
+                  No evidence picture available
+                </p>
               )}
             </div>
           </div>

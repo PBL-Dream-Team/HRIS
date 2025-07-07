@@ -14,6 +14,7 @@ import { editAttendanceDto } from './dtos/editAttendance.dto';
 import { AttendanceService } from './attendance.service';
 import { JwtGuard, SubscriptionGuard } from '../Auth/guard';
 import { ApiBody, ApiTags } from '@nestjs/swagger';
+import { Cron } from '@nestjs/schedule';
 
 @ApiTags('attendance')
 @UseGuards(JwtGuard)
@@ -58,6 +59,11 @@ export class AttendanceController {
   @UseGuards(SubscriptionGuard)
   deleteAttendance(@Param('id') attendanceId: string) {
     return this.AttendanceService.deleteAttendance(attendanceId);
+  }
+
+  @Cron('0 0 0 * * *') // Runs every day at midnight
+  async handleCron() {
+    await this.AttendanceService.autoCheckout();
   }
 
 }

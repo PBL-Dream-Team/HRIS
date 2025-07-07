@@ -72,7 +72,7 @@ export default function LetterDetails({
     const extension = lastDotIndex !== -1 ? withoutId.substring(lastDotIndex) : '';
 
     const shortenedName = name.length > 28
-      ? `${name.substring(0, 28)}-`
+      ? `${name.substring(0, 28)}...`
       : name;
 
     return `${shortenedName}${extension}`;

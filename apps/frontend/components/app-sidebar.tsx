@@ -9,7 +9,7 @@ import {
   BookMarked,
   UsersIcon,
   UserCheck,
-  LogOut
+  LogOut,
 } from 'lucide-react';
 
 import { NavMain } from '@/components/nav-main';
@@ -63,12 +63,12 @@ export function AppSidebar({
       },
       ...(isAdmin
         ? [
-          {
-            title: 'Employee',
-            url: 'employeedatabase',
-            icon: UsersIcon,
-          },
-        ]
+            {
+              title: 'Employee',
+              url: 'employeedatabase',
+              icon: UsersIcon,
+            },
+          ]
         : []),
       {
         title: 'Checkclock',
@@ -77,8 +77,8 @@ export function AppSidebar({
       },
 
       {
-        title: 'Absence',
-        url: 'absence',
+        title: 'Leave',
+        url: 'leave',
         icon: UserCheck,
       },
 
@@ -113,7 +113,7 @@ export function AppSidebar({
         url: '#logout',
         icon: LogOut,
         onClick: handleLogout,
-      }
+      },
     ],
   };
   return (

@@ -42,7 +42,7 @@ import api from '@/lib/axios';
 import { toast } from 'sonner';
 
 // Icons
-import { MailPlus } from 'lucide-react';
+import { MailPlus, MailMinus } from 'lucide-react';
 import { IoMdAdd } from 'react-icons/io';
 import { MdOutlineAttachEmail } from 'react-icons/md';
 
@@ -90,6 +90,8 @@ export default function LettersClient({
 
   const [selectedLetter, setSelectedLetter] = useState<Letter | null>(null);
   const [letterToDelete, setLetterToDelete] = useState<Letter | null>(null);
+  const [isActivateDialogOpen, setIsActivateDialogOpen] = useState(false);
+  const [letterToActivate, setLetterToActivate] = useState<Letter | null>(null);
 
   const [isLetterDetailsSheetOpen, setIsLetterDetailsSheetOpen] =
     useState(false);
@@ -235,9 +237,16 @@ export default function LettersClient({
     fetchData();
   }, [fetchData]);
 
+  // Show warning if no letter types exist
+  useEffect(() => {
+    if (!isLoading && Object.keys(letterTypeMap).length === 0) {
+      toast.warning('Please add a letter type first before adding letters.');
+    }
+  }, [isLoading, letterTypeMap]);
+
   // Data Transformation with null safety
   const transformedLetters = useMemo((): Letter[] => {
-    return letters.map((letter) => {
+    const mapped = letters.map((letter) => {
       const employee = employees[letter.employee_id];
       const letterType = letterTypeMap[letter.lettertype_id];
 
@@ -257,6 +266,8 @@ export default function LettersClient({
           : 'No Date',
       };
     });
+    // Urutkan: active (is_active: true) di atas inactive
+    return mapped.sort((a, b) => (b.is_active ? 1 : 0) - (a.is_active ? 1 : 0));
   }, [letters, employees, letterTypeMap]);
 
   // Event Handlers
@@ -270,17 +281,35 @@ export default function LettersClient({
 
     try {
       await api.delete(`/api/letter/${letterToDelete.id}`);
-      toast.success('Letter deleted successfully.');
+      toast.success('Letter deactivate successfully.');
       await fetchData();
     } catch (err: any) {
       console.error(
         'Error deleting letter:',
         err.response?.data || err.message,
       );
-      toast.error('Failed to delete letter. Please try again.');
+      toast.error('Failed to deactivate letter. Please try again.');
     } finally {
       setIsDeleteDialogOpen(false);
       setLetterToDelete(null);
+    }
+  };
+
+  const handleActivateConfirmed = async () => {
+    if (!letterToActivate) return;
+    try {
+      await api.patch(`/api/letter/${letterToActivate.id}`, {
+        is_deleted: false,
+        is_active: true,
+      });
+      toast.success('Letter activated successfully.');
+      await fetchData();
+    } catch (err: any) {
+      console.error('Error activating letter:', err.response?.data || err.message);
+      toast.error('Failed to activate letter. Please try again.');
+    } finally {
+      setIsActivateDialogOpen(false);
+      setLetterToActivate(null);
     }
   };
 
@@ -313,8 +342,10 @@ export default function LettersClient({
         setIsDeleteDialogOpen,
         companyId,
         handleLetterOperationSuccess,
+        setLetterToActivate, // pass setter for activate
+        setIsActivateDialogOpen // pass dialog state setter
       ),
-    [handleViewDetails, companyId, handleLetterOperationSuccess],
+    [handleViewDetails, companyId, handleLetterOperationSuccess]
   );
   const [refreshKey, setRefreshKey] = useState(0);
 
@@ -439,7 +470,7 @@ export default function LettersClient({
                     onOpenChange={setOpenAddLetterDialog}
                   >
                     <DialogTrigger asChild>
-                      <Button>
+                      <Button disabled={Object.keys(letterTypeMap).length === 0}>
                         <IoMdAdd className="mr-2 h-4 w-4" /> Add Letter
                       </Button>
                     </DialogTrigger>
@@ -471,11 +502,10 @@ export default function LettersClient({
         <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Delete Letter</DialogTitle>
+              <DialogTitle>Deactivate Letter</DialogTitle>
             </DialogHeader>
             <div>
-              Are you sure you want to delete this letter? This action cannot be
-              undone.
+              Are you sure you want to Deactivate this letter? This will deactivate the letter and make it inactive.
             </div>
             <DialogFooter className="gap-2 pt-4">
               <Button
@@ -485,7 +515,26 @@ export default function LettersClient({
                 Cancel
               </Button>
               <Button variant="destructive" onClick={handleDeleteConfirmed}>
-                Delete
+                Deactivate
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+        {/* Activate/Restore Confirmation Dialog */}
+        <Dialog open={isActivateDialogOpen} onOpenChange={setIsActivateDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Activate Letter</DialogTitle>
+            </DialogHeader>
+            <div>
+              Are you sure you want to activate this letter? This will restore the letter and make it active again.
+            </div>
+            <DialogFooter className="gap-2 pt-4">
+              <Button variant="outline" onClick={() => setIsActivateDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button variant="default" onClick={handleActivateConfirmed}>
+                Activate
               </Button>
             </DialogFooter>
           </DialogContent>

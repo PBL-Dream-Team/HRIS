@@ -6,12 +6,12 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class AuthEmailDto {
   @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
+  @IsString({ message: 'input must be a string' })
+  @IsNotEmpty({ message: 'input is required' })
   input: string;
 
   @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
+  @IsString({ message: 'password must be a string' })
+  @IsNotEmpty({ message: 'password is required' })
   password: string;
 }

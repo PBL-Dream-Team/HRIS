@@ -1,4 +1,5 @@
 import {
+  IsAlpha,
   IsEmail,
   IsNotEmpty,
   IsNumberString,
@@ -11,23 +12,23 @@ import { ApiProperty } from '@nestjs/swagger';
 export class RegDto {
   // Company Fields
   @ApiProperty()
-  @IsNotEmpty()
-  @IsString()
+  @IsNotEmpty({ message: 'name is required' })
+  @IsString({ message: 'name must be a string' })
   name: string;
   // Admin Fields
   @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
+  @IsAlpha(undefined,{ message: 'first_name must be a string' })
+  @IsNotEmpty({ message: 'first_name is required' })
   first_name: string;
 
   @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
+  @IsAlpha(undefined,{ message: 'last_name must be a string' })
+  @IsNotEmpty({ message: 'last_name is required' })
   last_name: string;
 
   @ApiProperty()
-  @IsEmail()
-  @IsNotEmpty()
+  @IsEmail({ message: 'email must be a valid email address' })
+  @IsNotEmpty({ message: 'email is required' })
   email: string;
 
   @ApiProperty()
@@ -38,10 +39,11 @@ export class RegDto {
     message:
       'Password must contain at least one uppercase letter, one number, and one symbol',
   })
+  @IsNotEmpty({ message: 'password is required' })
   password: string;
 
   @ApiProperty()
-  @IsNumberString()
-  @IsNotEmpty()
+  @IsNumberString({}, { message: 'phone must be a number string' })
+  @IsNotEmpty({ message: 'phone is required' })
   phone: string;
 }

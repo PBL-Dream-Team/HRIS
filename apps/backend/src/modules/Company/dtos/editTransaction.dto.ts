@@ -15,19 +15,19 @@ import { transactionStatus } from './transactionStatus.enum';
 
 export class editTransactionDto {
   @ApiProperty()
-  @IsUUID()
+  @IsUUID('all', { message: 'Company ID must be a valid UUID' })
   @IsOptional()
   company_id: string;
 
   @ApiProperty()
-  @IsUUID()
+  @IsUUID('all', { message: 'Subscription ID must be a valid UUID' })
   @IsOptional()
   subscription_id: string;
 
   @ApiProperty()
   @IsNumber()
-  @IsInt()
-  @Min(0)
+  @IsInt( { message: 'Total must be an integer' })
+  @Min(0, { message: 'Total must be zero or above' })
   @IsOptional()
   total: number;
 
@@ -47,7 +47,7 @@ export class editTransactionDto {
   expiresAt;
 
   @ApiPropertyOptional()
-  @IsEnum(transactionStatus)
+  @IsEnum(transactionStatus, { message: 'status must be a valid transaction status' })
   @IsOptional()
   status: transactionStatus;
 

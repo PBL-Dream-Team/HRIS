@@ -15,20 +15,20 @@ import { transactionStatus } from './transactionStatus.enum';
 
 export class createTransactionDto {
   @ApiProperty()
-  @IsUUID()
-  @IsNotEmpty()
+  @IsUUID( 'all', { message: 'Company ID must be a valid UUID' })
+  @IsNotEmpty( { message: 'Company ID is required' })
   company_id: string;
 
   @ApiProperty()
-  @IsUUID()
-  @IsNotEmpty()
+  @IsUUID( 'all',  { message: 'Subscription ID must be a valid UUID' })
+  @IsNotEmpty( { message: 'Subscription ID is required' })
   subscription_id: string;
 
   @ApiProperty()
   @IsNumber()
-  @IsInt()
-  @Min(0)
-  @IsNotEmpty()
+  @IsInt( { message: 'Total must be an integer' })
+  @Min(0, { message: 'Total must be zero or above' })
+  @IsNotEmpty( { message: 'Total is required' })
   total: number;
 
   @ApiPropertyOptional()
@@ -37,9 +37,9 @@ export class createTransactionDto {
   taxRate?;
 
   @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
-  merchantRef: number;
+  @IsString( { message: 'merchantRef must be a string' })
+  @IsNotEmpty( { message: 'merchantRef is required' })
+  merchantRef: string;
 
   @ApiPropertyOptional({
     example:

@@ -60,7 +60,7 @@ export function AbsenceAddForm({
       return;
     }
     if (!reason) {
-      toast.error('Please provide a reason for the absence.');
+      toast.error('Please provide a reason for the leave.');
       return;
     }
     if (!file) {
@@ -87,13 +87,14 @@ export function AbsenceAddForm({
       await api.post('/api/absence', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-      toast.success('Absence created successfully!');
+      toast.success('Leave created successfully!');
 
       onSuccess?.();
       onClose?.();
     } catch (err: any) {
       console.error('Submit error:', err);
-      const errorMessage = err.response?.data?.message || 'Something went wrong.';
+      const errorMessage =
+        err.response?.data?.message || 'Something went wrong.';
       toast.error(errorMessage);
       setError(errorMessage);
     } finally {
@@ -107,17 +108,14 @@ export function AbsenceAddForm({
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="w-full max-w-4xl mx-auto p-4"
-    >
+    <form onSubmit={handleSubmit} className="w-full max-w-4xl mx-auto p-4">
       <div className="flex flex-col md:flex-row gap-6">
         {/* Left Column */}
         <div className="flex-1 space-y-4">
           <div>
             <Label htmlFor="absentType">
               Absent Type
-              <span className='text-red-600'> *</span>
+              <span className="text-red-600"> *</span>
             </Label>
             <Select
               value={absentType}
@@ -138,7 +136,7 @@ export function AbsenceAddForm({
           <div>
             <Label htmlFor="date">
               Date
-              <span className='text-red-600'> *</span>
+              <span className="text-red-600"> *</span>
             </Label>
             <div className="relative">
               <Input
@@ -157,7 +155,7 @@ export function AbsenceAddForm({
           <div>
             <Label htmlFor="reason">
               Reason
-              <span className='text-red-600'> *</span>
+              <span className="text-red-600"> *</span>
             </Label>
             <Input
               id="reason"
@@ -172,8 +170,8 @@ export function AbsenceAddForm({
         {/* Right Column */}
         <div className="flex-1 space-y-4">
           <Label>
-            Evidence Picture 
-            <span className='text-red-600'> *</span>
+            Evidence Picture
+            <span className="text-red-600"> *</span>
           </Label>
 
           {/* Image Preview Area */}
@@ -216,7 +214,9 @@ export function AbsenceAddForm({
                   setFile(null);
                   setPreviewUrl(null);
                   // Reset file input
-                  const fileInput = document.getElementById('letterPicture') as HTMLInputElement;
+                  const fileInput = document.getElementById(
+                    'letterPicture',
+                  ) as HTMLInputElement;
                   if (fileInput) fileInput.value = '';
                 }}
                 className="px-4 text-red-600 hover:text-red-700 hover:bg-red-50"
@@ -234,7 +234,6 @@ export function AbsenceAddForm({
             onChange={handleFileChange}
             className="hidden"
           />
-
         </div>
       </div>
 

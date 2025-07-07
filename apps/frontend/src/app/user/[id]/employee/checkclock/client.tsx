@@ -145,6 +145,8 @@ export default function CheckClockClient({
 
   // State untuk mengontrol dialog Add Check Clock
   const [openAddDialog, setOpenAddDialog] = useState(false);
+  // State untuk disable clock in jika sudah lewat jam clock out
+  const [isAfterClockOut, setIsAfterClockOut] = useState(false);
 
   const formatDate = (dateString: string) => {
     if (!dateString) return 'No date';
@@ -266,6 +268,46 @@ export default function CheckClockClient({
       fetchAllData();
     }
   }, [userId, companyId]);
+
+  // Cek waktu sekarang vs clock out setiap render data user/type, update setiap 10 detik
+  useEffect(() => {
+    let interval: NodeJS.Timeout | undefined;
+    function checkAfterClockOut() {
+      if (!attendanceType || !user.typeId) {
+        setIsAfterClockOut(false);
+        return;
+      }
+      const type = attendanceType[user.typeId];
+      if (!type || !type.check_out) {
+        setIsAfterClockOut(false);
+        return;
+      }
+      // Ambil jam clock out (format ISO atau HH:mm:ss)
+      let clockOut = type.check_out;
+      let clockOutTime = '';
+      if (clockOut.includes('T')) {
+        // ISO string
+        const dateObj = new Date(clockOut);
+        clockOutTime = `${dateObj.getHours().toString().padStart(2, '0')}:${dateObj.getMinutes().toString().padStart(2, '0')}:${dateObj.getSeconds().toString().padStart(2, '0')}`;
+      } else {
+        // HH:mm:ss atau HH:mm
+        const parts = clockOut.split(':');
+        clockOutTime = `${parts[0].padStart(2, '0')}:${(parts[1]||'00').padStart(2, '0')}:${(parts[2]||'00').padStart(2, '0')}`;
+      }
+      // Waktu sekarang (client)
+      const now = new Date();
+      const nowStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+      // Bandingkan waktu dengan Date object
+      const [h1, m1, s1] = nowStr.split(':').map(Number);
+      const [h2, m2, s2] = clockOutTime.split(':').map(Number);
+      const nowDate = new Date(1970, 0, 1, h1, m1, s1);
+      const outDate = new Date(1970, 0, 1, h2, m2, s2);
+      setIsAfterClockOut(nowDate > outDate);
+    }
+    checkAfterClockOut();
+    interval = setInterval(checkAfterClockOut, 10000); // update tiap 10 detik
+    return () => interval && clearInterval(interval);
+  }, [attendanceType, user.typeId]);
 
   checkclocks = attendances.map((attendance) => {
     if (isSameDate(new Date(attendance.created_at), new Date())) {
@@ -544,9 +586,13 @@ export default function CheckClockClient({
                   <Dialog open={openAddDialog} onOpenChange={setOpenAddDialog}>
                     <DialogTrigger asChild>
                       <Button
-                        disabled={dailyLimit === 0}
+                        disabled={dailyLimit === 0 || isAfterClockOut}
                         variant="outline"
-                        className={dailyLimit === 0 ? 'opacity-50 cursor-not-allowed' : ''}
+                        className={
+                          dailyLimit === 0 || isAfterClockOut
+                            ? 'opacity-50 cursor-not-allowed'
+                            : ''
+                        }
                       >
                         <LogIn /> Clock In
                       </Button>

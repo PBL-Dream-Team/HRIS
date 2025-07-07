@@ -68,7 +68,24 @@ export class CompanyService {
 
   async deleteCompany(companyId: string) {
     try {
-      await this.prisma.company.delete({ where: { id: companyId } });
+
+      const company = await this.prisma.company.findFirst({
+        where: { id: companyId, is_deleted: false },
+      });
+
+      if (!company) {
+        return {
+          statusCode: 404,
+          message: 'Company not found or already deleted',
+        };
+      }
+
+      await this.prisma.company.update({
+        where: { id: companyId },
+        data: { is_deleted: true,
+          deleted_at: new Date().toISOString()
+         },
+      });
       return {
         statusCode: 200,
         message: 'Company deleted successfully',

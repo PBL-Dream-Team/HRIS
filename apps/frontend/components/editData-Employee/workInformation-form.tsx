@@ -86,16 +86,16 @@ export function EmployeeEditWorkDataForm({
       toast.error('Account number is required');
       return;
     }
-    if (account_number.length < 10 || account_number.length > 16) {
-      toast.error('Account number must be between 10 and 16 digits');
-      return;
-    }
-    if (!/^\d+$/.test(account_number)) {
-      toast.error('Account number must contain only digits');
-      return;
-    }
     if (account_name.length < 3) {
       toast.error('Account holder name must be at least 3 characters long');
+      return;
+    }
+    if (account_name.length > 50) {
+      toast.error('Account name must be less than 50 characters long');
+      return;
+    }
+    if (account_number.length < 10 || account_number.length > 20) {
+      toast.error('Account number must be between 10 and 20 digits');
       return;
     }
     
@@ -192,9 +192,11 @@ export function EmployeeEditWorkDataForm({
         <Input
           id="account_name"
           value={account_name}
-          onChange={(e) => setAccountName(e.target.value)}
-          placeholder="Enter account holder name"
-          // required
+          onChange={(e) => {
+            const value = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+            setAccountName(value);
+          }}
+          placeholder="Enter account holder name (letters only)"
         />
       </div>
 
@@ -207,9 +209,11 @@ export function EmployeeEditWorkDataForm({
         <Input
           id="account_number"
           value={account_number}
-          onChange={(e) => setAccountNumber(e.target.value)}
-          placeholder="Enter account number"
-          required
+          onChange={(e) => {
+            const value = e.target.value.replace(/\D/g, '');
+            setAccountNumber(value);
+          }}
+          placeholder="Enter account number (numbers only)"
         />
       </div>
 

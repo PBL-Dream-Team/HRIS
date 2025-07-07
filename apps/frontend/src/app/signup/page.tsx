@@ -19,6 +19,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog';
+import { Phone, Eye, EyeOff } from 'lucide-react';
 
 export default function HrSignUpPage() {
   const router = useRouter();
@@ -33,16 +34,91 @@ export default function HrSignUpPage() {
     password: '',
     confirmPassword: '',
   });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
     setFormData((prev) => ({ ...prev, [id]: value }));
   };
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
 
+    // Validate company name length
+    if (formData.name.length < 3 || formData.name.length > 50) {
+      toast.error('Company name must be between 3 and 50 characters long');
+      setIsLoading(false);
+      return;
+    }
+
+    // Validate first name length
+    if (formData.first_name.length < 2 || formData.first_name.length > 30) {
+      toast.error('First name must be between 2 and 30 characters long');
+      setIsLoading(false);
+      return;
+    }
+
+    // Validate last name length
+    if (formData.last_name.length < 2 || formData.last_name.length > 30) {
+      toast.error('Last name must be between 2 and 30 characters long');
+      setIsLoading(false);
+      return;
+    }
+
+    // Validate phone length
+    if (formData.phone.length < 10 || formData.phone.length > 15) {
+      toast.error('Phone number must be between 10 and 15 digits');
+      setIsLoading(false);
+      return;
+    }
+    
+    // Validate email format
+    if (!/^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/.test(formData.email)) {
+      toast.error('Please enter a valid email address');
+      setIsLoading(false);
+      return;
+    }
+
+    // Validate password and confirm password
     if (formData.password !== formData.confirmPassword) {
       toast.error('Passwords do not match');
+      setIsLoading(false);
       return;
+    }
+    // Validate password length
+    if (formData.password && (formData.password.length < 6 || formData.password.length > 20)) {
+      toast.error('Password must be between 6 and 20 characters long');
+      setIsLoading(false);
+      return;
+    }
+    // Password validation: must contain uppercase, lowercase, number, and symbol
+    if (formData.password) {
+      if (!/^[a-zA-Z0-9!@#$%^&*()_+={}[\]:;"'<>,.?/\\|-]+$/.test(formData.password)) {
+        toast.error('Password can only contain alphanumeric characters and special symbols !@#$%^&*()_+={}[\\]:;"\'<>,.?/\\|-');
+        setIsLoading(false);
+        return;
+      }
+      if (!/[A-Z]/.test(formData.password)) {
+        toast.error('Password must contain at least one uppercase letter');
+        setIsLoading(false);
+        return;
+      }
+      if (!/[a-z]/.test(formData.password)) {
+        toast.error('Password must contain at least one lowercase letter');
+        setIsLoading(false);
+        return;
+      }
+      if (!/[0-9]/.test(formData.password)) {
+        toast.error('Password must contain at least one number');
+        setIsLoading(false);
+        return;
+      }
+      if (!/[!@#$%^&*()_+={}[\]:;"'<>,.?/\\|-]/.test(formData.password)) {
+        toast.error('Password must contain at least one special symbol');
+        setIsLoading(false);
+        return;
+      }
     }
 
     setIsLoading(true);
@@ -154,7 +230,11 @@ export default function HrSignUpPage() {
                 <Input
                   id="first_name"
                   value={formData.first_name}
-                  onChange={handleChange}
+                  onChange={(e) => {
+                    // Only allow letters (including spaces)
+                    const value = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+                    setFormData((prev) => ({ ...prev, first_name: value }));
+                  }}
                   placeholder="Enter your first name"
                   className="text-gray-700 border-zinc-600"
                 />
@@ -167,7 +247,11 @@ export default function HrSignUpPage() {
                 <Input
                   id="last_name"
                   value={formData.last_name}
-                  onChange={handleChange}
+                  onChange={(e) => {
+                    // Only allow letters (including spaces)
+                    const value = e.target.value.replace(/[^a-zA-Z\s]/g, '');
+                    setFormData((prev) => ({ ...prev, last_name: value }));
+                  }}
                   placeholder="Enter your last name"
                   className="text-gray-700 border-zinc-600"
                 />
@@ -197,8 +281,14 @@ export default function HrSignUpPage() {
               <Input
                 id="phone"
                 value={formData.phone}
-                onChange={handleChange}
+                onChange={(e) => {
+                  // Only allow numbers
+                  const value = e.target.value.replace(/\D/g, '');
+                  setFormData((prev) => ({ ...prev, phone: value }));
+                }}
                 type="tel"
+                inputMode="numeric"
+                pattern="[0-9]*"
                 placeholder="Enter your phone number"
                 className="text-gray-700 border-zinc-600"
               />
@@ -209,14 +299,28 @@ export default function HrSignUpPage() {
               <Label htmlFor="password" className="text-[#1E3A5F] mb-2">
                 Password
               </Label>
-              <Input
-                id="password"
-                value={formData.password}
-                onChange={handleChange}
-                type="password"
-                placeholder="Enter your password"
-                className="text-gray-700 border-zinc-600"
-              />
+              <div className="relative">
+                <Input
+                  id="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Enter your password"
+                  className="text-gray-700 border-zinc-600 pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                  tabIndex={-1}
+                >
+                  {showPassword ? (
+                    <Eye className="h-4 w-4" />
+                  ) : (
+                    <EyeOff className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
             </div>
 
             {/* Confirm Password */}
@@ -224,14 +328,28 @@ export default function HrSignUpPage() {
               <Label htmlFor="confirmPassword" className="text-[#1E3A5F] mb-2">
                 Confirm Password
               </Label>
-              <Input
-                id="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                type="password"
-                placeholder="Re-enter your password"
-                className="text-gray-700 border-zinc-600"
-              />
+              <div className="relative">
+                <Input
+                  id="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  placeholder="Re-enter your password"
+                  className="text-gray-700 border-zinc-600 pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword((prev) => !prev)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                  tabIndex={-1}
+                >
+                  {showConfirmPassword ? (
+                    <Eye className="h-4 w-4" />
+                  ) : (
+                    <EyeOff className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
             </div>
 
             {/* Terms Checkbox */}

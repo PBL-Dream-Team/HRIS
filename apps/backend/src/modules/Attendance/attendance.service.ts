@@ -26,6 +26,23 @@ export class AttendanceService {
       where: { id: AttendanceData.type_id },
     });
 
+    let check_out = new Date(AttendanceData.check_out);
+    // Change typ.check_out date to midnight of the next day if hour less than typ.check_in
+    if (typ.check_out.getHours() < typ.check_in.getHours()) {
+      const checkOutDate = new Date(typ.check_out);
+      checkOutDate.setDate(checkOutDate.getDate() + 1);
+      check_out = checkOutDate;
+    }
+    if (
+      AttendanceData.check_in &&
+      isTimeAfter(new Date(AttendanceData.check_in), new Date(check_out))
+    ) {
+      return {
+        statusCode: 400,
+        message: 'Check-in time cannot be after check-out time',
+      };
+    }
+
     if (AttendanceData.check_in)
       AttendanceData.check_in_status = isTimeAfter(
         new Date(AttendanceData.check_in),
@@ -110,7 +127,11 @@ export class AttendanceService {
   }
 
   async getAttendances() {
-    return await this.prisma.attendance.findMany();
+    return await this.prisma.attendance.findMany({
+      orderBy:{
+        is_deleted: 'desc'
+      }
+    });
   }
 
   async updateAttendance(attendanceId: string, dto: editAttendanceDto) {
@@ -194,7 +215,21 @@ export class AttendanceService {
       const data = await this.prisma.attendance.findFirst({
         where: { id: attendanceId },
       });
-      await this.prisma.attendance.delete({ where: { id: attendanceId } });
+
+      if (!data) {
+        return {
+          statusCode: 404,
+          message: 'Attendance not found or already deleted',
+        };
+      }
+      // await this.prisma.attendance.delete({ where: { id: attendanceId } });
+
+      await this.prisma.attendance.update({
+        where: { id: attendanceId },
+        data: { is_deleted: true,
+          deleted_at: new Date().toISOString()
+         },
+      });
       return {
         statusCode: 200,
         message: 'Attendance deleted successfully',
@@ -213,7 +248,51 @@ export class AttendanceService {
       where[key] = { equals: value };
     }
 
-    return await this.prisma.attendance.findMany({ where });
+    return await this.prisma.attendance.findMany({ where, orderBy: { is_deleted: 'desc' } });
+  }
+
+  async autoCheckout() {
+    const workschemes = await this.prisma.attendanceType.findMany();
+
+    const workschemeMap = workschemes.reduce((acc, ws) => {
+      acc[ws.id] = ws;
+      return acc;
+    }, {} as Record<string, typeof workschemes[number]>);
+    
+
+    const overdueCheckouts = await this.prisma.attendance.findMany({
+      where: {
+        check_out: null,
+        is_deleted: false,
+      }
+    });
+
+    for (const attendance of overdueCheckouts) {
+      const workscheme = workschemeMap[attendance.type_id];
+      if (!workscheme) continue;
+
+      const currentTime = new Date();
+      const checkOutTime = new Date(
+        currentTime.getFullYear(),
+        currentTime.getMonth(),
+        currentTime.getDate(),
+        workscheme.check_out.getHours(),
+        workscheme.check_out.getMinutes(),
+        workscheme.check_out.getSeconds(),
+      );
+
+      if (currentTime > checkOutTime) {
+        await this.prisma.attendance.update({
+          where: { id: attendance.id },
+          data: {
+            check_out: workscheme.check_out,
+            check_out_status: 'ON_TIME'
+          },
+        });
+      }
+    }
+
+    
   }
 
   

@@ -49,14 +49,6 @@ export default function GuideBookClient({
     compName: '',
   });
   const [loading, setLoading] = useState(true);
-  const isMobile = useIsMobile();
-  // State untuk hamburger menu dan tab aktif pada Checkclock Management
-  const [checkclockTab, setCheckclockTab] = useState('checkclock_overview');
-  const [showCheckclockMenu, setShowCheckclockMenu] = useState(false);
-  // State untuk hamburger menu dan tab aktif pada Absence Management
-  const [absenceTab, setAbsenceTab] = useState('absence_overview');
-  const [showAbsenceMenu, setShowAbsenceMenu] = useState(false);
-
   useEffect(() => {
     async function fetchUser() {
       try {
@@ -312,453 +304,352 @@ export default function GuideBookClient({
             {/* Attendance Management Menu */}
             <TabsContent value="attendance">
               <Card className="w-full p-4 sm:p-6">
-                <CardTitle className="mb-4 sm:mb-6 text-lg sm:text-xl">Attendance Management Guide</CardTitle>
                 <Tabs defaultValue="checkclock_management" className="w-full">
-                  <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
-                    {/* Sidebar Navigation */}
-                    <div className="w-full sm:w-64 flex-shrink-0 mb-2 sm:mb-0">
-                      <div className="flex flex-col space-y-1 bg-gray-50 p-2 rounded-lg">
-                        <TabsList className="flex flex-row sm:flex-col h-auto w-full bg-transparent p-0 space-y-0 sm:space-y-1 space-x-1 sm:space-x-0">
-                          <TabsTrigger
-                            value="checkclock_management"
-                            className="w-full justify-start text-left p-2 sm:p-3 rounded-md bg-white hover:bg-gray-100 data-[state=active]:bg-[#1E3A5F] data-[state=active]:text-white border-0 shadow-none font-medium text-xs sm:text-base"
+                  <div className="hidden sm:block">
+                    <TabsList className="grid w-full grid-cols-2">
+                      <TabsTrigger value="checkclock_management">
+                        Checkclock Management
+                      </TabsTrigger>
+                      <TabsTrigger value="leave_management">
+                        Leave Management
+                      </TabsTrigger>
+                    </TabsList>
+                  </div>
+                  <div className="flex-1 min-h-fit">
+                    {/* Checkclock Management */}
+                    <TabsContent value="checkclock_management" className="mt-0 h-full">
+                      {/* Content */}
+                      <Card className="w-full p-2 sm:p-6">
+                        <CardTitle className="mb-4 sm:mb-6 text-lg sm:text-xl">Checkclock Management Guide</CardTitle>
+                        {/* Tabs untuk Checkclock Management, handle mobile hamburger */}
+                        <div className="w-full">
+                          <Tabs
+                            defaultValue="checkclock_overview"
+                            className="w-full"
                           >
-                            Checkclock Management
-                          </TabsTrigger>
-                          <TabsTrigger
-                            value="absence_management"
-                            className="w-full justify-start text-left p-2 sm:p-3 rounded-md bg-white hover:bg-gray-100 data-[state=active]:bg-[#1E3A5F] data-[state=active]:text-white border-0 shadow-none font-medium text-xs sm:text-base"
-                          >
-                            Absence Management
-                          </TabsTrigger>
-                        </TabsList>
-                      </div>
-                    </div>
-
-                    {/* Content Area */}
-                    <div className="flex-1 min-h-fit">
-
-                      {/* Checkclock Management */}
-                      <TabsContent value="checkclock_management" className="mt-0 h-full">
-                        {/* Content */}
-                        <Card className="w-full p-2 sm:p-6">
-                          <CardTitle className="mb-4 sm:mb-6 text-lg sm:text-xl">Checkclock Management Guide</CardTitle>
-                          {/* Tabs untuk Checkclock Management, handle mobile hamburger */}
-                          <div className="w-full">
-                            <div className="sm:hidden mb-2 relative">
-                              <button
-                                className="flex items-center gap-2 px-3 py-2 bg-white rounded-md border shadow-sm w-full justify-between"
-                                onClick={() => setShowCheckclockMenu((v) => !v)}
-                                aria-label="Open checkclock menu"
-                              >
-                                <span className="font-medium text-xs">{(() => {
-                                  switch (checkclockTab) {
-                                    case 'checkclock_overview': return 'Checkclock Overview';
-                                    case 'clock_in': return 'Clock In';
-                                    case 'clock_out': return 'Clock Out';
-                                    case 'checkclock_details': return 'Checkclock Details';
-                                    default: return 'Checkclock Overview';
-                                  }
-                                })()}</span>
-                                <Menu size={18} />
-                              </button>
-                              {showCheckclockMenu && (
-                                <div className="absolute z-20 mt-2 w-full bg-white rounded-md shadow-lg border divide-y divide-gray-100">
-                                  <button
-                                    className={`w-full text-left px-4 py-2 text-xs ${checkclockTab === 'checkclock_overview' ? 'bg-blue-100 font-semibold' : ''}`}
-                                    onClick={() => { setCheckclockTab('checkclock_overview'); setShowCheckclockMenu(false); }}
-                                  >Checkclock Overview</button>
-                                  <button
-                                    className={`w-full text-left px-4 py-2 text-xs ${checkclockTab === 'clock_in' ? 'bg-blue-100 font-semibold' : ''}`}
-                                    onClick={() => { setCheckclockTab('clock_in'); setShowCheckclockMenu(false); }}
-                                  >Clock In</button>
-                                  <button
-                                    className={`w-full text-left px-4 py-2 text-xs ${checkclockTab === 'clock_out' ? 'bg-blue-100 font-semibold' : ''}`}
-                                    onClick={() => { setCheckclockTab('clock_out'); setShowCheckclockMenu(false); }}
-                                  >Clock Out</button>
-                                  <button
-                                    className={`w-full text-left px-4 py-2 text-xs ${checkclockTab === 'checkclock_details' ? 'bg-blue-100 font-semibold' : ''}`}
-                                    onClick={() => { setCheckclockTab('checkclock_details'); setShowCheckclockMenu(false); }}
-                                  >Checkclock Details</button>
+                            <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
+                              {/* Sidebar Navigation */}
+                              <div className="w-full sm:w-64 flex-shrink-0 mb-2 sm:mb-0">
+                                <div className="flex flex-col space-y-1 bg-gray-50 p-2 rounded-lg">
+                                  {/* TabsList hanya tampil di desktop */}
+                                  <TabsList className="hidden sm:flex flex-col h-auto w-full bg-transparent p-0 space-y-1">
+                                    <TabsTrigger
+                                      value="checkclock_overview"
+                                      className="w-full justify-start text-left p-2 sm:p-3 rounded-md bg-white hover:bg-gray-100 data-[state=active]:bg-[#1E3A5F] data-[state=active]:text-white border-0 shadow-none font-medium text-xs sm:text-base"
+                                    >
+                                      Checkclock Overview
+                                    </TabsTrigger>
+                                    <TabsTrigger
+                                      value="clock_in"
+                                      className="w-full justify-start text-left p-2 sm:p-3 rounded-md bg-white hover:bg-gray-100 data-[state=active]:bg-[#1E3A5F] data-[state=active]:text-white border-0 shadow-none font-medium text-xs sm:text-base"
+                                    >
+                                      Clock In
+                                    </TabsTrigger>
+                                    <TabsTrigger
+                                      value="clock_out"
+                                      className="w-full justify-start text-left p-2 sm:p-3 rounded-md bg-white hover:bg-gray-100 data-[state=active]:bg-[#1E3A5F] data-[state=active]:text-white border-0 shadow-none font-medium text-xs sm:text-base"
+                                    >
+                                      Clock Out
+                                    </TabsTrigger>
+                                    <TabsTrigger
+                                      value="checkclock_details"
+                                      className="w-full justify-start text-left p-2 sm:p-3 rounded-md bg-white hover:bg-gray-100 data-[state=active]:bg-[#1E3A5F] data-[state=active]:text-white border-0 shadow-none font-medium text-xs sm:text-base"
+                                    >
+                                      Checkclock Details
+                                    </TabsTrigger>
+                                  </TabsList>
                                 </div>
-                              )}
-                            </div>
-                            <Tabs
-                              value={isMobile ? checkclockTab : undefined}
-                              defaultValue="checkclock_overview"
-                              className="w-full"
-                              onValueChange={v => isMobile ? setCheckclockTab(v) : undefined}
-                            >
-                              <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
-                                {/* Sidebar Navigation */}
-                                <div className="w-full sm:w-64 flex-shrink-0 mb-2 sm:mb-0">
-                                  <div className="flex flex-col space-y-1 bg-gray-50 p-2 rounded-lg">
-                                    {/* TabsList hanya tampil di desktop */}
-                                    <TabsList className="hidden sm:flex flex-col h-auto w-full bg-transparent p-0 space-y-1">
-                                      <TabsTrigger
-                                        value="checkclock_overview"
-                                        className="w-full justify-start text-left p-2 sm:p-3 rounded-md bg-white hover:bg-gray-100 data-[state=active]:bg-[#1E3A5F] data-[state=active]:text-white border-0 shadow-none font-medium text-xs sm:text-base"
-                                      >
-                                        Checkclock Overview
-                                      </TabsTrigger>
-                                      <TabsTrigger
-                                        value="clock_in"
-                                        className="w-full justify-start text-left p-2 sm:p-3 rounded-md bg-white hover:bg-gray-100 data-[state=active]:bg-[#1E3A5F] data-[state=active]:text-white border-0 shadow-none font-medium text-xs sm:text-base"
-                                      >
-                                        Clock In
-                                      </TabsTrigger>
-                                      <TabsTrigger
-                                        value="clock_out"
-                                        className="w-full justify-start text-left p-2 sm:p-3 rounded-md bg-white hover:bg-gray-100 data-[state=active]:bg-[#1E3A5F] data-[state=active]:text-white border-0 shadow-none font-medium text-xs sm:text-base"
-                                      >
-                                        Clock Out
-                                      </TabsTrigger>
-                                      <TabsTrigger
-                                        value="checkclock_details"
-                                        className="w-full justify-start text-left p-2 sm:p-3 rounded-md bg-white hover:bg-gray-100 data-[state=active]:bg-[#1E3A5F] data-[state=active]:text-white border-0 shadow-none font-medium text-xs sm:text-base"
-                                      >
-                                        Checkclock Details
-                                      </TabsTrigger>
-                                    </TabsList>
-                                  </div>
-                                </div>
-                                {/* Content Area */}
-                                <div className="flex-1 min-h-fit">
-                                  <TabsContent value="checkclock_overview" className="mt-0 h-full">
-                                    <Card className="w-full h-fit">
-                                      <CardHeader>
-                                        <CardTitle className="text-base sm:text-lg">Checkclock Overview Guide</CardTitle>
-                                      </CardHeader>
-                                      <CardContent>
-                                        <div className="space-y-4">
-                                          <p>Checkclock data previously submitted by users will be recorded by the system and displayed on the "Checkclock" page in table form.</p>
-                                          <p className='bg-blue-50 p-2 rounded-lg'>The "Checkclock" page can be accessed from the navigation menu on the left.</p>
-                                          <p>The checkclock data displayed in the table includes:</p>
-                                          <div className="bg-purple-50 p-2 sm:p-4 rounded-lg grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                            <ul className="list-disc list-inside space-y-1 text-xs sm:text-sm">
-                                              <li>Date</li>
-                                              <li>Clock In</li>
-                                              <li>Clock Out</li>
-                                            </ul>
-                                            <ul className="list-disc list-inside space-y-1 text-xs sm:text-sm">
-                                              <li>Work Hours</li>
-                                              <li>Status (On Time/Late)</li>
-                                            </ul>
-                                          </div>
+                              </div>
+                              {/* Content Area */}
+                              <div className="flex-1 min-h-fit">
+                                <TabsContent value="checkclock_overview" className="mt-0 h-full">
+                                  <Card className="w-full h-fit">
+                                    <CardHeader>
+                                      <CardTitle className="text-base sm:text-lg">Checkclock Overview Guide</CardTitle>
+                                    </CardHeader>
+                                    <CardContent>
+                                      <div className="space-y-4">
+                                        <p>Checkclock data previously submitted by users will be recorded by the system and displayed on the "Checkclock" page in table form.</p>
+                                        <p className='bg-blue-50 p-2 rounded-lg'>The "Checkclock" page can be accessed from the navigation menu on the left.</p>
+                                        <p>The checkclock data displayed in the table includes:</p>
+                                        <div className="bg-purple-50 p-2 sm:p-4 rounded-lg grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                          <ul className="list-disc list-inside space-y-1 text-xs sm:text-sm">
+                                            <li>Date</li>
+                                            <li>Clock In</li>
+                                            <li>Clock Out</li>
+                                          </ul>
+                                          <ul className="list-disc list-inside space-y-1 text-xs sm:text-sm">
+                                            <li>Work Hours</li>
+                                            <li>Status (On Time/Late)</li>
+                                          </ul>
                                         </div>
-                                      </CardContent>
-                                    </Card>
-                                  </TabsContent>
-                                  {/* Clock In */}
-                                  <TabsContent value="clock_in" className="mt-0 h-full">
-                                    <Card className="w-full h-fit">
-                                      <CardHeader>
-                                        <CardTitle className="text-base sm:text-lg">Clock In Guide</CardTitle>
-                                      </CardHeader>
-                                      <CardContent>
-                                        <div className="space-y-4">
-                                          <p>Users can record attendance using the clock in feature. This feature is available on the "Checkclock" menu.</p>
-                                          <div className="bg-green-50 p-2 sm:p-4 rounded-lg">
-                                            <h4 className="font-semibold mb-2">Clock In Steps:</h4>
-                                            <ol className="list-decimal list-inside space-y-1 text-xs sm:text-sm">
-                                              <li>Go to the "Checkclock" page.</li>
-                                              <li>Above the table, there is a "Clock In" button.</li>
-                                              <li>Click this button to save attendance data.</li>
-                                              <li>The system will record the clock in time and display the data in the table.</li>
-                                            </ol>
-                                          </div>
+                                      </div>
+                                    </CardContent>
+                                  </Card>
+                                </TabsContent>
+                                {/* Clock In */}
+                                <TabsContent value="clock_in" className="mt-0 h-full">
+                                  <Card className="w-full h-fit">
+                                    <CardHeader>
+                                      <CardTitle className="text-base sm:text-lg">Clock In Guide</CardTitle>
+                                    </CardHeader>
+                                    <CardContent>
+                                      <div className="space-y-4">
+                                        <p>Users can record attendance using the clock in feature. This feature is available on the "Checkclock" menu.</p>
+                                        <div className="bg-green-50 p-2 sm:p-4 rounded-lg">
+                                          <h4 className="font-semibold mb-2">Clock In Steps:</h4>
+                                          <ol className="list-decimal list-inside space-y-1 text-xs sm:text-sm">
+                                            <li>Go to the "Checkclock" page.</li>
+                                            <li>Above the table, there is a "Clock In" button.</li>
+                                            <li>Click this button to save attendance data.</li>
+                                            <li>The system will record the clock in time and display the data in the table.</li>
+                                          </ol>
                                         </div>
-                                      </CardContent>
-                                    </Card>
-                                  </TabsContent>
-                                  {/* Clock Out */}
-                                  <TabsContent value="clock_out" className="mt-0 h-full">
-                                    <Card className="w-full h-fit">
-                                      <CardHeader>
-                                        <CardTitle className="text-base sm:text-lg">Clock Out Guide</CardTitle>
-                                      </CardHeader>
-                                      <CardContent>
-                                        <div className="space-y-4">
-                                          <p>Users who have finished working can use the clock out feature to complete attendance for that day. This feature is available on the "Checkclock" menu.</p>
-                                          <div className="bg-green-50 p-2 sm:p-4 rounded-lg">
-                                            <h4 className="font-semibold mb-2">Clock Out Steps:</h4>
-                                            <ol className="list-decimal list-inside space-y-1 text-xs sm:text-sm">
-                                              <li>Go to the "Checkclock" page.</li>
-                                              <li>In the table, there is a "Clock Out" button next to the "detail attendance" button.</li>
-                                              <li>Click this button to save attendance data.</li>
-                                              <li>The system will record the clock out time and display the data in the table.</li>
-                                              <li>The system automatically calculates working hours based on clock in and clock out times.</li>
-                                            </ol>
-                                          </div>
+                                      </div>
+                                    </CardContent>
+                                  </Card>
+                                </TabsContent>
+                                {/* Clock Out */}
+                                <TabsContent value="clock_out" className="mt-0 h-full">
+                                  <Card className="w-full h-fit">
+                                    <CardHeader>
+                                      <CardTitle className="text-base sm:text-lg">Clock Out Guide</CardTitle>
+                                    </CardHeader>
+                                    <CardContent>
+                                      <div className="space-y-4">
+                                        <p>Users who have finished working can use the clock out feature to complete attendance for that day. This feature is available on the "Checkclock" menu.</p>
+                                        <div className="bg-green-50 p-2 sm:p-4 rounded-lg">
+                                          <h4 className="font-semibold mb-2">Clock Out Steps:</h4>
+                                          <ol className="list-decimal list-inside space-y-1 text-xs sm:text-sm">
+                                            <li>Go to the "Checkclock" page.</li>
+                                            <li>In the table, there is a "Clock Out" button next to the "detail attendance" button.</li>
+                                            <li>Click this button to save attendance data.</li>
+                                            <li>The system will record the clock out time and display the data in the table.</li>
+                                            <li>The system automatically calculates working hours based on clock in and clock out times.</li>
+                                          </ol>
                                         </div>
-                                      </CardContent>
-                                    </Card>
-                                  </TabsContent>
-                                  {/* Checkclock Details */}
-                                  <TabsContent value="checkclock_details" className="mt-0 h-full">
-                                    <Card className="w-full h-fit">
-                                      <CardHeader>
-                                        <CardTitle className="text-base sm:text-lg">Checkclock Details Guide</CardTitle>
-                                      </CardHeader>
-                                      <CardContent>
-                                        <div className="space-y-4">
-                                          <p>Users can view checkclock details for specific days.</p>
-                                          <p className='bg-blue-50 p-2 rounded-lg'>This feature can be accessed by clicking the "detail checkclock" button in the table on the "Checkclock" page.</p>
-                                          <p>The checkclock details displayed include:</p>
-                                          <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
-                                            <div className="bg-purple-50 p-2 sm:p-4 rounded-lg">
-                                              <h4 className="font-semibold mb-2">Checkclock Information:</h4>
-                                              <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
-                                                <ul className="list-disc list-inside space-y-1 text-xs sm:text-sm">
-                                                  <li>Date</li>
-                                                  <li>Clock In</li>
-                                                  <li>Work Hours</li>
-                                                </ul>
-                                                <ul className="list-disc list-inside space-y-1 text-xs sm:text-sm">
-                                                  <li>Status</li>
-                                                  <li>Clock Out</li>
-                                                </ul>
-                                              </div>
-                                            </div>
-                                            <div className="bg-purple-50 p-2 sm:p-4 rounded-lg">
-                                              <h4 className="font-semibold mb-2">Location Information:</h4>
+                                      </div>
+                                    </CardContent>
+                                  </Card>
+                                </TabsContent>
+                                {/* Checkclock Details */}
+                                <TabsContent value="checkclock_details" className="mt-0 h-full">
+                                  <Card className="w-full h-fit">
+                                    <CardHeader>
+                                      <CardTitle className="text-base sm:text-lg">Checkclock Details Guide</CardTitle>
+                                    </CardHeader>
+                                    <CardContent>
+                                      <div className="space-y-4">
+                                        <p>Users can view checkclock details for specific days.</p>
+                                        <p className='bg-blue-50 p-2 rounded-lg'>This feature can be accessed by clicking the "detail checkclock" button in the table on the "Checkclock" page.</p>
+                                        <p>The checkclock details displayed include:</p>
+                                        <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
+                                          <div className="bg-purple-50 p-2 sm:p-4 rounded-lg">
+                                            <h4 className="font-semibold mb-2">Checkclock Information:</h4>
+                                            <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
                                               <ul className="list-disc list-inside space-y-1 text-xs sm:text-sm">
-                                                <li>Location</li>
-                                                <li>Detail Address</li>
-                                                <li>Latitude</li>
-                                                <li>Longitude</li>
+                                                <li>Date</li>
+                                                <li>Clock In</li>
+                                                <li>Work Hours</li>
+                                              </ul>
+                                              <ul className="list-disc list-inside space-y-1 text-xs sm:text-sm">
+                                                <li>Status</li>
+                                                <li>Clock Out</li>
                                               </ul>
                                             </div>
                                           </div>
+                                          <div className="bg-purple-50 p-2 sm:p-4 rounded-lg">
+                                            <h4 className="font-semibold mb-2">Location Information:</h4>
+                                            <ul className="list-disc list-inside space-y-1 text-xs sm:text-sm">
+                                              <li>Location</li>
+                                              <li>Detail Address</li>
+                                              <li>Latitude</li>
+                                              <li>Longitude</li>
+                                            </ul>
+                                          </div>
                                         </div>
-                                      </CardContent>
-                                    </Card>
-                                  </TabsContent>
-                                </div>
+                                      </div>
+                                    </CardContent>
+                                  </Card>
+                                </TabsContent>
                               </div>
-                            </Tabs>
-                          </div>
-                        </Card>
-                      </TabsContent>
-
-                      {/* Absence Management */}
-                      <TabsContent value="absence_management" className="mt-0 h-full">
-                        {/* Content */}
-                        <Card className="w-full p-6">
-                          <CardTitle className="mb-6 text-xl">Absence Management Guide</CardTitle>
-                          {/* Hamburger menu untuk mobile */}
-                          <div className="w-full">
-                            <div className="sm:hidden mb-2 relative">
-                              <button
-                                className="flex items-center gap-2 px-3 py-2 bg-white rounded-md border shadow-sm w-full justify-between"
-                                onClick={() => setShowAbsenceMenu((v) => !v)}
-                                aria-label="Open absence menu"
-                              >
-                                <span className="font-medium text-xs">{(() => {
-                                  switch (absenceTab) {
-                                    case 'absence_overview': return 'Absence Overview';
-                                    case 'add_absence': return 'Add Absence';
-                                    case 'edit_absence': return 'Edit Absence';
-                                    case 'delete_absence': return 'Delete Absence';
-                                    case 'absence_details': return 'Absence Details';
-                                    default: return 'Absence Overview';
-                                  }
-                                })()}</span>
-                                <Menu size={18} />
-                              </button>
-                              {showAbsenceMenu && (
-                                <div className="absolute z-20 mt-2 w-full bg-white rounded-md shadow-lg border divide-y divide-gray-100">
-                                  <button
-                                    className={`w-full text-left px-4 py-2 text-xs ${absenceTab === 'absence_overview' ? 'bg-blue-100 font-semibold' : ''}`}
-                                    onClick={() => { setAbsenceTab('absence_overview'); setShowAbsenceMenu(false); }}
-                                  >Absence Overview</button>
-                                  <button
-                                    className={`w-full text-left px-4 py-2 text-xs ${absenceTab === 'add_absence' ? 'bg-blue-100 font-semibold' : ''}`}
-                                    onClick={() => { setAbsenceTab('add_absence'); setShowAbsenceMenu(false); }}
-                                  >Add Absence</button>
-                                  <button
-                                    className={`w-full text-left px-4 py-2 text-xs ${absenceTab === 'edit_absence' ? 'bg-blue-100 font-semibold' : ''}`}
-                                    onClick={() => { setAbsenceTab('edit_absence'); setShowAbsenceMenu(false); }}
-                                  >Edit Absence</button>
-                                  <button
-                                    className={`w-full text-left px-4 py-2 text-xs ${absenceTab === 'delete_absence' ? 'bg-blue-100 font-semibold' : ''}`}
-                                    onClick={() => { setAbsenceTab('delete_absence'); setShowAbsenceMenu(false); }}
-                                  >Delete Absence</button>
-                                  <button
-                                    className={`w-full text-left px-4 py-2 text-xs ${absenceTab === 'absence_details' ? 'bg-blue-100 font-semibold' : ''}`}
-                                    onClick={() => { setAbsenceTab('absence_details'); setShowAbsenceMenu(false); }}
-                                  >Absence Details</button>
-                                </div>
-                              )}
                             </div>
-                            <Tabs
-                              value={isMobile ? absenceTab : undefined}
-                              defaultValue="absence_overview"
-                              className="w-full"
-                              onValueChange={v => isMobile ? setAbsenceTab(v) : undefined}
-                            >
-                              <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
-                                {/* Sidebar Navigation */}
-                                <div className="w-full sm:w-64 flex-shrink-0 mb-2 sm:mb-0">
-                                  <div className="flex flex-col space-y-1 bg-gray-50 p-2 rounded-lg">
-                                    {/* TabsList hanya tampil di desktop */}
-                                    <TabsList className="hidden sm:flex flex-col h-auto w-full bg-transparent p-0 space-y-1">
-                                      <TabsTrigger
-                                        value="absence_overview"
-                                        className="w-full justify-start text-left p-3 rounded-md bg-white hover:bg-gray-100 data-[state=active]:bg-[#1E3A5F] data-[state=active]:text-white border-0 shadow-none font-medium"
-                                      >
-                                        Absence Overview
-                                      </TabsTrigger>
-                                      <TabsTrigger
-                                        value="add_absence"
-                                        className="w-full justify-start text-left p-3 rounded-md bg-white hover:bg-gray-100 data-[state=active]:bg-[#1E3A5F] data-[state=active]:text-white border-0 shadow-none font-medium"
-                                      >
-                                        Add Absence
-                                      </TabsTrigger>
-                                      <TabsTrigger
-                                        value="edit_absence"
-                                        className="w-full justify-start text-left p-3 rounded-md bg-white hover:bg-gray-100 data-[state=active]:bg-[#1E3A5F] data-[state=active]:text-white border-0 shadow-none font-medium"
-                                      >
-                                        Edit Absence
-                                      </TabsTrigger>
-                                      <TabsTrigger
-                                        value="delete_absence"
-                                        className="w-full justify-start text-left p-3 rounded-md bg-white hover:bg-gray-100 data-[state=active]:bg-[#1E3A5F] data-[state=active]:text-white border-0 shadow-none font-medium"
-                                      >
-                                        Delete Absence
-                                      </TabsTrigger>
-                                      <TabsTrigger
-                                        value="absence_details"
-                                        className="w-full justify-start text-left p-3 rounded-md bg-white hover:bg-gray-100 data-[state=active]:bg-[#1E3A5F] data-[state=active]:text-white border-0 shadow-none font-medium"
-                                      >
-                                        Absence Details
-                                      </TabsTrigger>
-                                    </TabsList>
-                                  </div>
-                                </div>
-                                {/* Content Area */}
-                                <div className="flex-1 min-h-fit">
-                                  <TabsContent value="absence_overview" className="mt-0 h-full">
-                                    <Card className="w-full h-fit">
-                                      <CardHeader>
-                                        <CardTitle>Absence Overview Guide</CardTitle>
-                                      </CardHeader>
-                                      <CardContent>
-                                        <div className="space-y-4">
-                                          <p>Leave request data previously submitted by users will be recorded by the system and displayed on the "Absence" page.</p>
-                                          <p className='bg-blue-50 p-2 rounded-lg'>The "Absence" page can be accessed from the navigation menu on the left.</p>
-                                          <p>The leave request data displayed in the table includes:</p>
-                                          <div className="bg-purple-50 p-2 sm:p-4 rounded-lg grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                            <ul className="list-disc list-inside space-y-1 text-sm">
-                                              <li>Created At (time)</li>
-                                              <li>Date (Sick/Permission/Leave)</li>
-                                              <li>Type</li>
-                                            </ul>
-                                            <ul className="list-disc list-inside space-y-1 text-sm">
-                                              <li>Reason</li>
-                                              <li>Status (Approved/Rejected/Pending)</li>
-                                            </ul>
-                                          </div>
-                                        </div>
-                                      </CardContent>
-                                    </Card>
-                                  </TabsContent>
-                                  <TabsContent value="add_absence" className="mt-0 h-full">
-                                    <Card className="w-full h-fit">
-                                      <CardHeader>
-                                        <CardTitle>Add Absence Guide</CardTitle>
-                                      </CardHeader>
-                                      <CardContent>
-                                        <div className="space-y-4">
-                                          <p>Users can submit leave requests to the admin using the "Add Absence" feature. This feature is available on the "Absence" menu.</p>
-                                          <div className="bg-green-50 p-4 rounded-lg">
-                                            <h4 className="font-semibold mb-2">Add Absence Steps:</h4>
-                                            <ol className="list-decimal list-inside space-y-1 text-sm">
-                                              <li>Go to the "Absence" page.</li>
-                                              <li>Above the table, there is an "Add Absence" button.</li>
-                                              <li>Click this button to display the leave request form.</li>
-                                              <li>Fill in the required data.</li>
-                                              <li>Click the "Submit" button to submit the request.</li>
-                                              <li>The system will record the request data and display it in the table.</li>
-                                            </ol>
-                                          </div>
-                                        </div>
-                                      </CardContent>
-                                    </Card>
-                                  </TabsContent>
-                                  <TabsContent value="edit_absence" className="mt-0 h-full">
-                                    <Card className="w-full h-fit">
-                                      <CardHeader>
-                                        <CardTitle>Edit Absence Guide</CardTitle>
-                                      </CardHeader>
-                                      <CardContent>
-                                        <div className="space-y-4">
-                                          <p>The system allows users to modify leave request data if there are errors when filling out the form. As long as the request status is "Pending", users can still edit their leave request data.</p>
-                                          <div className="bg-green-50 p-4 rounded-lg">
-                                            <h4 className="font-semibold mb-2">Edit Absence Steps:</h4>
-                                            <ol className="list-decimal list-inside space-y-1 text-sm">
-                                              <li>Go to the "Absence" page.</li>
-                                              <li>In the table, there is an edit button (pencil icon) for each request.</li>
-                                              <li>Click this button to display the edit absence form.</li>
-                                              <li>In this form, users can modify the request data as desired.</li>
-                                              <li>Click the "Save" button to save changes.</li>
-                                              <li>The system will record the new request data and display it in the table.</li>
-                                            </ol>
-                                          </div>
-                                        </div>
-                                      </CardContent>
-                                    </Card>
-                                  </TabsContent>
-                                  <TabsContent value="delete_absence" className="mt-0 h-full">
-                                    <Card className="w-full h-fit">
-                                      <CardHeader>
-                                        <CardTitle>Delete Absence Guide</CardTitle>
-                                      </CardHeader>
-                                      <CardContent>
-                                        <div className="space-y-4">
-                                          <p>Users can cancel leave requests by deleting the request data. There is a trash can icon button to delete request data.</p>
-                                          <div className="bg-red-50 p-4 rounded-lg">
-                                            <h4 className="font-semibold mb-2">Important Notes:</h4>
-                                            <ul className="list-disc list-inside space-y-1 text-sm">
-                                              <li>Users can only delete data when the request status is "Pending".</li>
-                                              <li>Once data is deleted, users cannot recover it.</li>
-                                              <li>Before deleting, make sure to check the details first.</li>
-                                            </ul>
-                                          </div>
-                                        </div>
-                                      </CardContent>
-                                    </Card>
-                                  </TabsContent>
-                                  <TabsContent value="absence_details" className="mt-0 h-full">
-                                    <Card className="w-full h-fit">
-                                      <CardHeader>
-                                        <CardTitle>Absence Details Guide</CardTitle>
-                                      </CardHeader>
-                                      <CardContent>
-                                        <div className="space-y-4">
-                                          <p>Users can view leave request details by clicking the eye icon button in the table.</p>
-                                          <div className="bg-purple-50 p-4 rounded-lg">
-                                            <h4 className="font-semibold mb-2">Absence Details:</h4>
-                                            <ul className="list-disc list-inside space-y-1 text-sm">
-                                              <li>Status (Pending/Approved/Rejected)</li>
-                                              <li>Created At (Time)</li>
-                                              <li>Date</li>
-                                              <li>Type (Sick/Permit/Leave)</li>
-                                              <li>Reason</li>
-                                              <li>Evidence Picture</li>
-                                            </ul>
-                                          </div>
-                                        </div>
-                                      </CardContent>
-                                    </Card>
-                                  </TabsContent>
+                          </Tabs>
+                        </div>
+                      </Card>
+                    </TabsContent>
+
+                    {/* Leave Management */}
+                    <TabsContent value="leave_management" className="mt-0 h-full">
+                      {/* Content */}
+                      <Card className="w-full p-6">
+                        <CardTitle className="mb-6 text-xl">Leave Management Guide</CardTitle>
+                        <div className="w-full">
+                          <Tabs
+                            defaultValue="leave_overview"
+                            className="w-full"
+                          >
+                            <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
+                              {/* Sidebar Navigation */}
+                              <div className="w-full sm:w-64 flex-shrink-0 mb-2 sm:mb-0">
+                                <div className="flex flex-col space-y-1 bg-gray-50 p-2 rounded-lg">
+                                  {/* TabsList hanya tampil di desktop */}
+                                  <TabsList className="hidden sm:flex flex-col h-auto w-full bg-transparent p-0 space-y-1">
+                                    <TabsTrigger
+                                      value="leave_overview"
+                                      className="w-full justify-start text-left p-3 rounded-md bg-white hover:bg-gray-100 data-[state=active]:bg-[#1E3A5F] data-[state=active]:text-white border-0 shadow-none font-medium"
+                                    >
+                                      Leave Overview
+                                    </TabsTrigger>
+                                    <TabsTrigger
+                                      value="add_leave"
+                                      className="w-full justify-start text-left p-3 rounded-md bg-white hover:bg-gray-100 data-[state=active]:bg-[#1E3A5F] data-[state=active]:text-white border-0 shadow-none font-medium"
+                                    >
+                                      Add Leave
+                                    </TabsTrigger>
+                                    <TabsTrigger
+                                      value="edit_leave"
+                                      className="w-full justify-start text-left p-3 rounded-md bg-white hover:bg-gray-100 data-[state=active]:bg-[#1E3A5F] data-[state=active]:text-white border-0 shadow-none font-medium"
+                                    >
+                                      Edit Leave
+                                    </TabsTrigger>
+                                    <TabsTrigger
+                                      value="delete_leave"
+                                      className="w-full justify-start text-left p-3 rounded-md bg-white hover:bg-gray-100 data-[state=active]:bg-[#1E3A5F] data-[state=active]:text-white border-0 shadow-none font-medium"
+                                    >
+                                      Delete Leave
+                                    </TabsTrigger>
+                                    <TabsTrigger
+                                      value="leave_details"
+                                      className="w-full justify-start text-left p-3 rounded-md bg-white hover:bg-gray-100 data-[state=active]:bg-[#1E3A5F] data-[state=active]:text-white border-0 shadow-none font-medium"
+                                    >
+                                      Leave Details
+                                    </TabsTrigger>
+                                  </TabsList>
                                 </div>
                               </div>
-                            </Tabs>
-                          </div>
-                        </Card>
-                      </TabsContent>
-                    </div>
+                              {/* Content Area */}
+                              <div className="flex-1 min-h-fit">
+                                <TabsContent value="leave_overview" className="mt-0 h-full">
+                                  <Card className="w-full h-fit">
+                                    <CardHeader>
+                                      <CardTitle>Leave Overview Guide</CardTitle>
+                                    </CardHeader>
+                                    <CardContent>
+                                      <div className="space-y-4">
+                                        <p>Leave request data previously submitted by users will be recorded by the system and displayed on the "Leave" page.</p>
+                                        <p className='bg-blue-50 p-2 rounded-lg'>The "Leave" page can be accessed from the navigation menu on the left.</p>
+                                        <p>The leave request data displayed in the table includes:</p>
+                                        <div className="bg-purple-50 p-2 sm:p-4 rounded-lg grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                          <ul className="list-disc list-inside space-y-1 text-sm">
+                                            <li>Created At (time)</li>
+                                            <li>Date (Sick/Permission/Leave)</li>
+                                            <li>Type</li>
+                                          </ul>
+                                          <ul className="list-disc list-inside space-y-1 text-sm">
+                                            <li>Reason</li>
+                                            <li>Status (Approved/Rejected/Pending)</li>
+                                          </ul>
+                                        </div>
+                                      </div>
+                                    </CardContent>
+                                  </Card>
+                                </TabsContent>
+                                <TabsContent value="add_leave" className="mt-0 h-full">
+                                  <Card className="w-full h-fit">
+                                    <CardHeader>
+                                      <CardTitle>Add Leave Guide</CardTitle>
+                                    </CardHeader>
+                                    <CardContent>
+                                      <div className="space-y-4">
+                                        <p>Users can submit leave requests to the admin using the "Add Leave" feature. This feature is available on the "Leave" menu.</p>
+                                        <div className="bg-green-50 p-4 rounded-lg">
+                                          <h4 className="font-semibold mb-2">Add Leave Steps:</h4>
+                                          <ol className="list-decimal list-inside space-y-1 text-sm">
+                                            <li>Go to the "Leave" page.</li>
+                                            <li>Above the table, there is an "Add Leave" button.</li>
+                                            <li>Click this button to display the leave request form.</li>
+                                            <li>Fill in the required data.</li>
+                                            <li>Click the "Submit" button to submit the request.</li>
+                                            <li>The system will record the request data and display it in the table.</li>
+                                          </ol>
+                                        </div>
+                                      </div>
+                                    </CardContent>
+                                  </Card>
+                                </TabsContent>
+                                <TabsContent value="edit_leave" className="mt-0 h-full">
+                                  <Card className="w-full h-fit">
+                                    <CardHeader>
+                                      <CardTitle>Edit Leave Guide</CardTitle>
+                                    </CardHeader>
+                                    <CardContent>
+                                      <div className="space-y-4">
+                                        <p>The system allows users to modify leave request data if there are errors when filling out the form. As long as the request status is "Pending", users can still edit their leave request data.</p>
+                                        <div className="bg-green-50 p-4 rounded-lg">
+                                          <h4 className="font-semibold mb-2">Edit Leave Steps:</h4>
+                                          <ol className="list-decimal list-inside space-y-1 text-sm">
+                                            <li>Go to the "Leave" page.</li>
+                                            <li>In the table, there is an edit button (pencil icon) for each request.</li>
+                                            <li>Click this button to display the edit Leave form.</li>
+                                            <li>In this form, users can modify the request data as desired.</li>
+                                            <li>Click the "Save" button to save changes.</li>
+                                            <li>The system will record the new request data and display it in the table.</li>
+                                          </ol>
+                                        </div>
+                                      </div>
+                                    </CardContent>
+                                  </Card>
+                                </TabsContent>
+                                <TabsContent value="delete_leave" className="mt-0 h-full">
+                                  <Card className="w-full h-fit">
+                                    <CardHeader>
+                                      <CardTitle>Delete Leave Guide</CardTitle>
+                                    </CardHeader>
+                                    <CardContent>
+                                      <div className="space-y-4">
+                                        <p>Users can cancel leave requests by deleting the request data. There is a trash can icon button to delete request data.</p>
+                                        <div className="bg-red-50 p-4 rounded-lg">
+                                          <h4 className="font-semibold mb-2">Important Notes:</h4>
+                                          <ul className="list-disc list-inside space-y-1 text-sm">
+                                            <li>Users can only delete data when the request status is "Pending".</li>
+                                            <li>Once data is deleted, users cannot recover it.</li>
+                                            <li>Before deleting, make sure to check the details first.</li>
+                                          </ul>
+                                        </div>
+                                      </div>
+                                    </CardContent>
+                                  </Card>
+                                </TabsContent>
+                                <TabsContent value="leave_details" className="mt-0 h-full">
+                                  <Card className="w-full h-fit">
+                                    <CardHeader>
+                                      <CardTitle>Leave Details Guide</CardTitle>
+                                    </CardHeader>
+                                    <CardContent>
+                                      <div className="space-y-4">
+                                        <p>Users can view leave request details by clicking the eye icon button in the table.</p>
+                                        <div className="bg-purple-50 p-4 rounded-lg">
+                                          <h4 className="font-semibold mb-2">Leave Details:</h4>
+                                          <ul className="list-disc list-inside space-y-1 text-sm">
+                                            <li>Status (Pending/Approved/Rejected)</li>
+                                            <li>Created At (Time)</li>
+                                            <li>Date</li>
+                                            <li>Type (Sick/Permit/Leave)</li>
+                                            <li>Reason</li>
+                                            <li>Evidence Picture</li>
+                                          </ul>
+                                        </div>
+                                      </div>
+                                    </CardContent>
+                                  </Card>
+                                </TabsContent>
+                              </div>
+                            </div>
+                          </Tabs>
+                        </div>
+                      </Card>
+                    </TabsContent>
                   </div>
                 </Tabs>
               </Card>

@@ -46,7 +46,7 @@ export function AbsenceEditForm({
   const [existingFileUrl, setExistingFileUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   const typeOptions = [
     { value: 'SICK', label: 'Sick' },
     { value: 'PERMIT', label: 'Permission' },
@@ -57,14 +57,18 @@ export function AbsenceEditForm({
     console.log('Initial data:', initialData);
     if (initialData) {
       setAbsentType(initialData.type || '');
-      setDate(initialData.date ? new Date(initialData.date).toISOString().split('T')[0] : '');
+      setDate(
+        initialData.date
+          ? new Date(initialData.date).toISOString().split('T')[0]
+          : '',
+      );
       setReason(initialData.reason || '');
-      
+
       // Set existing file URL if filedir exists
       if (initialData.filedir) {
         setExistingFileUrl(`/storage/absence/${initialData.filedir}`);
       }
-      
+
       // Reset file input dan preview URL untuk file baru
       setFile(null);
       setPreviewUrl(null);
@@ -83,7 +87,7 @@ export function AbsenceEditForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!absentType) {
       toast.error('Please select an absent type.');
       return;
@@ -93,14 +97,14 @@ export function AbsenceEditForm({
       return;
     }
     if (!reason) {
-      toast.error('Please provide a reason for the absence.');
+      toast.error('Please provide a reason for the leave.');
       return;
     }
     if (!file && !existingFileUrl) {
       toast.error('Please upload an evidence picture.');
       return;
     }
-    
+
     setLoading(true);
     setError(null);
 
@@ -114,14 +118,15 @@ export function AbsenceEditForm({
       await api.patch(`/api/absence/${initialData?.id}`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-      
-      toast.success('Absence updated successfully!');
+
+      toast.success('Leave updated successfully!');
 
       onSuccess?.();
       onClose?.();
     } catch (err: any) {
       console.error('Submit error:', err);
-      const errorMessage = err.response?.data?.message || 'Something went wrong.';
+      const errorMessage =
+        err.response?.data?.message || 'Something went wrong.';
       toast.error(errorMessage);
       setError(errorMessage);
     } finally {
@@ -137,23 +142,19 @@ export function AbsenceEditForm({
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="w-full max-w-4xl mx-auto p-4"
-    >
+    <form onSubmit={handleSubmit} className="w-full max-w-4xl mx-auto p-4">
       <div className="flex flex-col md:flex-row gap-6">
         {/* Left Column */}
         <div className="flex-1 space-y-4">
           <div>
             <Label htmlFor="absentType">
               Absent Type
-              <span className='text-red-600'> *</span>
+              <span className="text-red-600"> *</span>
             </Label>
-            <Select 
+            <Select
               value={absentType}
               onValueChange={setAbsentType}
               key={`absentType-${absentType}`}
-            
             >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="-Choose Absent Type-" />
@@ -169,9 +170,9 @@ export function AbsenceEditForm({
           <div>
             <Label htmlFor="date">
               Date
-              <span className='text-red-600'> *</span>
+              <span className="text-red-600"> *</span>
             </Label>
-            <div className='relative'>
+            <div className="relative">
               <Input
                 id="date"
                 type="date"
@@ -188,7 +189,7 @@ export function AbsenceEditForm({
           <div>
             <Label htmlFor="reason">
               Reason
-              <span className='text-red-600'> *</span>
+              <span className="text-red-600"> *</span>
             </Label>
             <Input
               id="reason"
@@ -196,7 +197,6 @@ export function AbsenceEditForm({
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               placeholder="Optional reason"
-            
             />
           </div>
         </div>
@@ -204,16 +204,16 @@ export function AbsenceEditForm({
         {/* Right Column */}
         <div className="flex-1 space-y-4">
           <Label>
-            Evidence Picture 
-            <span className='text-red-600'> *</span>
+            Evidence Picture
+            <span className="text-red-600"> *</span>
           </Label>
-          
+
           {/* Image Preview Area */}
           <div className="relative w-full aspect-[8/5] border rounded-lg shadow-sm overflow-hidden bg-gray-50">
             {getImageSource() ? (
               <Image
                 src={getImageSource()!}
-                alt={previewUrl ? "New Preview" : "Existing Evidence"}
+                alt={previewUrl ? 'New Preview' : 'Existing Evidence'}
                 fill
                 unoptimized
                 className="object-cover rounded-lg"
@@ -237,7 +237,7 @@ export function AbsenceEditForm({
               <MdImage className="text-lg" />
               {getImageSource() ? 'Change Image' : 'Upload Image'}
             </Button>
-            
+
             {getImageSource() && (
               <Button
                 type="button"
@@ -247,7 +247,9 @@ export function AbsenceEditForm({
                   setPreviewUrl(null);
                   setExistingFileUrl(null);
                   // Reset file input
-                  const fileInput = document.getElementById('letterPicture') as HTMLInputElement;
+                  const fileInput = document.getElementById(
+                    'letterPicture',
+                  ) as HTMLInputElement;
                   if (fileInput) fileInput.value = '';
                 }}
                 className="px-4 text-red-600 hover:text-red-700 hover:bg-red-50"
@@ -264,18 +266,16 @@ export function AbsenceEditForm({
             accept="image/*"
             onChange={handleFileChange}
             className="hidden"
-          
           />
-          
         </div>
       </div>
 
       {error && <p className="text-red-600 mt-2">{error}</p>}
 
       <DialogFooter className="mt-6 flex flex-row gap-2 justify-end">
-        <Button 
-          type="button" 
-          variant="outline" 
+        <Button
+          type="button"
+          variant="outline"
           onClick={onClose}
           className="w-fit"
         >

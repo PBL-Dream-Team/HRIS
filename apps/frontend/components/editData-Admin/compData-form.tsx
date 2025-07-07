@@ -33,6 +33,7 @@ export function EditCompany({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isMapLoading, setIsMapLoading] = useState(true);
   const [isGeocoding, setIsGeocoding] = useState(false);
+  const [isManualAddressChange, setIsManualAddressChange] = useState(false);
 
   const [name, setName] = useState<string>('');
   const [address, setAddress] = useState<string>('');
@@ -55,10 +56,11 @@ export function EditCompany({
   };
 
   const handleLocationSelect = (lat: number, lng: number, address: string) => {
-    console.log('Location selected:', { lat, lng, address });
     setLocLat(lat.toFixed(6));
     setLocLong(lng.toFixed(6));
     setAddress(address);
+    setIsManualAddressChange(false); // Perubahan address dari map, bukan manual
+    // Tidak perlu setMapKey di sini, biarkan marker update otomatis
   };
 
   // Fungsi untuk geocoding alamat ke koordinat
@@ -87,9 +89,9 @@ export function EditCompany({
 
         setLocLat(lat.toFixed(6));
         setLocLong(lng.toFixed(6));
-
-        // Force re-render map dengan posisi baru
-        setMapKey((prev) => prev + 1);
+        setAddress(result.display_name || addressText);
+        setIsManualAddressChange(false); // Setelah geocoding, reset flag
+        setMapKey((prev) => prev + 1); // Force re-render map hanya saat search/manual
 
         toast.success('Location found and updated on map');
       } else {
@@ -117,14 +119,14 @@ export function EditCompany({
     if (!address.trim()) return;
 
     const timeoutId = setTimeout(() => {
-      // Hanya lakukan auto-geocoding jika alamat berubah dari initial data
-      if (initialData?.address !== address) {
+      // Hanya lakukan auto-geocoding jika alamat berubah dari input manual
+      if (isManualAddressChange && initialData?.address !== address) {
         geocodeAddress(address);
       }
     }, 2000); // Delay 2 detik setelah user berhenti mengetik
 
     return () => clearTimeout(timeoutId);
-  }, [address, geocodeAddress, initialData?.address]);
+  }, [address, geocodeAddress, initialData?.address, isManualAddressChange]);
 
   const validateCoordinates = (): boolean => {
     // Validasi bahwa latitude dan longitude tidak kosong
@@ -170,8 +172,8 @@ export function EditCompany({
       toast.error('Please select a location on the map or search for an address');
       return;
     }
-    if (name.length < 3) {
-      toast.error('Company name must be at least 3 characters long');
+    if (name.length < 3 || name.length > 50) {
+      toast.error('Company name must be between 3 and 50 characters long');
       return;
     }
 
@@ -213,7 +215,7 @@ export function EditCompany({
             </div>
           )}
           <MapPicker
-            key={mapKey} // Force re-render when coordinates change
+            key={mapKey} // Force re-render only when search address
             onLocationSelect={handleLocationSelect}
             onLoad={handleMapLoad}
             initialPosition={
@@ -254,7 +256,10 @@ export function EditCompany({
             <div className="flex gap-2">
               <Input
                 value={address}
-                onChange={(e) => setAddress(e.target.value)}
+                onChange={(e) => {
+                  setAddress(e.target.value);
+                  setIsManualAddressChange(true); // Perubahan address dari input manual
+                }}
                 placeholder="Address detail of your company"
                 className="flex-1"
               />

@@ -10,13 +10,13 @@ import { ApiPropertyOptional } from '@nestjs/swagger';
 
 export class editSubscriptionDto {
   @ApiPropertyOptional()
-  @IsString()
+  @IsString( { message: 'Name must be a string' })
   @IsOptional()
   name: string;
 
   @ApiPropertyOptional()
-  @IsString()
   @IsOptional()
+  @IsString( { message: 'Description must be a string' })
   desc: string;
 
   @ApiPropertyOptional()

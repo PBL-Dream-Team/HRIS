@@ -9,7 +9,6 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { AuthEmailDto } from './dtos/authEmail.dto';
 import { hash, verify } from 'argon2';
 import { RegDto } from './dtos/reg.dto';
-import { AuthIdDto } from './dtos';
 import { randomBytes } from 'crypto';
 import { CustomMailService } from '../../common/mail/mail.service';
 import { OAuth2Client } from 'google-auth-library';
@@ -132,8 +131,21 @@ export class AuthService {
       });
 
       if (
-        employee == null ||
-        (await verify(employee.password, dto.password)) == false
+        employee == null) {
+          return {
+            statusCode: 404,
+            message: 'Employee not found',
+          };
+        }
+
+      if (employee.is_deleted === true) {
+        return {
+          statusCode: 403,
+          message: 'This account is inactive',
+        };
+      }
+
+      if(await verify(employee.password, dto.password) == false
       ) {
         return {
           statusCode: 401,
@@ -150,39 +162,6 @@ export class AuthService {
           company.subscription_id,
         );
 
-        return token;
-      }
-    } catch (error) {
-      console.log('Error: ', error);
-      return {
-        statusCode: error.code,
-        message: error.message,
-      };
-    }
-  }
-  async IdSignIn(dto: AuthIdDto) {
-    try {
-      const employee = await this.prisma.employee.findFirst({
-        where: {
-          OR: [{ id: dto.id }],
-        },
-      });
-
-      if (
-        employee == null ||
-        (await verify(employee.password, dto.password)) == false
-      ) {
-        throw new ForbiddenException('Credentials Incorrect');
-      } else {
-        const company = await this.prisma.company.findFirst({
-          where: { id: employee.company_id },
-        });
-        const token = await this.signToken(
-          employee.id,
-          employee.company_id,
-          employee.is_admin,
-          company.subscription_id,
-        );
         return token;
       }
     } catch (error) {
@@ -328,7 +307,9 @@ export class AuthService {
         secret: this.config.get('JWT_SECRET')
       });
       const storedTokens = await this.prisma.refreshToken.findMany({
-        where: { employeeId: payload.sub },
+        where: { employeeId: payload.sub,
+          expiresAt: { gt: new Date() },
+        },
       });
 
       const isValid = await Promise.any(
@@ -355,8 +336,10 @@ export class AuthService {
   }
 
   async removeRefreshToken(tokenString: string){
-    await this.prisma.refreshToken.delete({
-      where:{token:tokenString}
+    await this.prisma.refreshToken.deleteMany({
+      where:{
+        token:tokenString
+      }
     });
   }
 }

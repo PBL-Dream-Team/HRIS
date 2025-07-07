@@ -528,7 +528,7 @@ export default function AccountClient({
                       <Pencil className="h-4 w-4 mr-1" /> Edit Profile
                     </Button>
                   </DialogTrigger>
-                  <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+                  <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
                       <DialogTitle>Edit Profile</DialogTitle>
                     </DialogHeader>
@@ -661,7 +661,7 @@ export default function AccountClient({
                     </Button>
                   </DialogTrigger>
 
-                  <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+                  <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
                       <DialogTitle>Edit Data</DialogTitle>
                     </DialogHeader>

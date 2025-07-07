@@ -95,14 +95,14 @@ export default function AbsenceClient({
   // Add loading and error states
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
-  const [user, setUser] = useState({ 
-    name: 'Loading...', 
-    first_name: '', 
-    last_name: '', 
-    position: '', 
-    avatar: '/avatars/default.jpg', 
-    compName: '' 
+
+  const [user, setUser] = useState({
+    name: 'Loading...',
+    first_name: '',
+    last_name: '',
+    position: '',
+    avatar: '/avatars/default.jpg',
+    compName: '',
   });
   const [absences, setAbsences] = useState<Absence[]>([]);
   const [employees, setEmployees] = useState<Record<string, any>>({});
@@ -112,7 +112,7 @@ export default function AbsenceClient({
   const [filterDate, setFilterDate] = useState<string>('');
 
   const [pictdir, setPictDir] = useState({
-    pictdir: ''
+    pictdir: '',
   });
 
   const [searchValue, setSearchValue] = useState('');
@@ -139,8 +139,7 @@ export default function AbsenceClient({
 
       setPictDir({
         pictdir: pict.pict_dir || '',
-      })
-
+      });
     } catch (err: any) {
       console.error(
         'Error fetching absences:',
@@ -200,8 +199,8 @@ export default function AbsenceClient({
         if (mounted) {
           // Process employee data with null safety
           const employeeMap: Record<string, any> = {};
-          const employeeData = Array.isArray(employeeRes.data) 
-            ? employeeRes.data 
+          const employeeData = Array.isArray(employeeRes.data)
+            ? employeeRes.data
             : [];
 
           for (const emp of employeeData) {
@@ -219,12 +218,15 @@ export default function AbsenceClient({
           setEmployees(employeeMap);
 
           // Process absence data with null safety
-          const absenceData = Array.isArray(absenceRes.data) 
-            ? absenceRes.data 
+          const absenceData = Array.isArray(absenceRes.data)
+            ? absenceRes.data
             : [];
           const validAbsences = absenceData
-            .filter(abs => abs && typeof abs === 'object' && abs.id && abs.employee_id)
-            .map(abs => ({
+            .filter(
+              (abs) =>
+                abs && typeof abs === 'object' && abs.id && abs.employee_id,
+            )
+            .map((abs) => ({
               ...abs,
               reason: String(abs.reason || ''),
               status: String(abs.status || 'PENDING'),
@@ -249,7 +251,7 @@ export default function AbsenceClient({
             last_name: '',
             position: '',
             avatar: '/avatars/default.jpg',
-            compName: ''
+            compName: '',
           });
           setAbsences([]);
           setEmployees({});
@@ -281,13 +283,16 @@ export default function AbsenceClient({
         date: absence.date || '', // ISO string
         status: String(absence.status || 'PENDING'),
         name: employee
-          ? `${String(employee.first_name || '')} ${String(employee.last_name || '')}`.trim() || 'Unknown Employee'
+          ? `${String(employee.first_name || '')} ${String(employee.last_name || '')}`.trim() ||
+            'Unknown Employee'
           : 'Unknown Employee',
         position: String(employee?.position || 'N/A'),
         type: absence.type,
         address: String(employee?.address || '-'),
         filedir: String(absence.filedir || ''),
-        created_at: absence.created_at ? formatTimeOnly(absence.created_at) : 'No date',
+        created_at: absence.created_at
+          ? formatTimeOnly(absence.created_at)
+          : 'No date',
       };
     });
   }, [absences, employees]);
@@ -352,7 +357,7 @@ export default function AbsenceClient({
     if (!absenceToDelete) return;
 
     if (absenceToDelete.status !== 'PENDING') {
-      toast.error('Only pending absences can be deleted.');
+      toast.error('Only pending leave requests can be deleted.');
       setIsDeleteDialogOpen(false);
       setAbsenceToDelete(null);
       return;
@@ -360,17 +365,14 @@ export default function AbsenceClient({
 
     try {
       await api.delete(`/api/absence/${absenceToDelete.id}`);
-      toast.success('Absence deleted successfully.');
+      toast.success('Leave deleted successfully.');
 
       setAbsences((prev) =>
         prev.filter((abs) => abs.id !== absenceToDelete.id),
       );
     } catch (err: any) {
-      console.error(
-        'Error deleting absence:',
-        err.response?.data || err.message,
-      );
-      toast.error('Failed to delete absence. Please try again.');
+      console.error('Error deleting leave:', err.response?.data || err.message);
+      toast.error('Failed to delete leave. Please try again.');
     } finally {
       setIsDeleteDialogOpen(false);
       setAbsenceToDelete(null);
@@ -509,7 +511,7 @@ export default function AbsenceClient({
           <div className="flex items-center justify-center h-screen">
             <div className="flex flex-col items-center gap-4">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-              <div className="text-lg">Loading absence data...</div>
+              <div className="text-lg">Loading leave data...</div>
             </div>
           </div>
         </SidebarInset>
@@ -526,7 +528,9 @@ export default function AbsenceClient({
           <div className="flex items-center justify-center h-screen">
             <div className="text-center">
               <div className="text-lg text-red-500 mb-4">{error}</div>
-              <Button onClick={() => window.location.reload()}>Try Again</Button>
+              <Button onClick={() => window.location.reload()}>
+                Try Again
+              </Button>
             </div>
           </div>
         </SidebarInset>
@@ -548,7 +552,7 @@ export default function AbsenceClient({
             <Breadcrumb>
               <BreadcrumbList>
                 <BreadcrumbItem>
-                  <BreadcrumbPage>Absence</BreadcrumbPage>
+                  <BreadcrumbPage>Leave</BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
@@ -565,7 +569,7 @@ export default function AbsenceClient({
               columns={absenceColumns}
               data={filteredAbsences}
               searchableColumn="type"
-              title="Absence Overview"
+              title="Leave Overview"
               actions={
                 <div className="flex items-center gap-2 flex-wrap">
                   <div className="flex items-center gap-2">
@@ -597,12 +601,12 @@ export default function AbsenceClient({
                   <Dialog open={openAddDialog} onOpenChange={setOpenAddDialog}>
                     <DialogTrigger asChild>
                       <Button>
-                        <IoMdAdd /> Add Absence
+                        <IoMdAdd /> Add Leave
                       </Button>
                     </DialogTrigger>
                     <DialogContent className="max-w-4xl">
                       <DialogHeader>
-                        <DialogTitle>Add Absence</DialogTitle>
+                        <DialogTitle>Add Leave</DialogTitle>
                       </DialogHeader>
                       <AbsenceAddForm
                         employeeId={userId}
@@ -637,10 +641,11 @@ export default function AbsenceClient({
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete Absence</DialogTitle>
+            <DialogTitle>Delete Leave</DialogTitle>
           </DialogHeader>
           <div>
-            Are you sure you want to delete this absence record? This action cannot be undone.
+            Are you sure you want to delete this leave record? This action
+            cannot be undone.
           </div>
           <DialogFooter className="gap-2 pt-4">
             <Button
@@ -659,7 +664,7 @@ export default function AbsenceClient({
       <Dialog open={openEditDialog} onOpenChange={setOpenEditDialog}>
         <DialogContent className="max-w-4xl">
           <DialogHeader>
-            <DialogTitle>Edit Absence</DialogTitle>
+            <DialogTitle>Edit Leave</DialogTitle>
           </DialogHeader>
           <AbsenceEditForm
             employeeId={userId}

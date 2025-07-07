@@ -64,11 +64,10 @@ export default function LeafletMap({
       },
     });
 
-    // Hanya auto-center jika user belum berinteraksi dan ini adalah inisialisasi pertama
+    // Auto-center ke posisi marker setiap kali position berubah
     useEffect(() => {
-      if (position && !hasUserInteracted.current && !isInitialized.current) {
-        map.setView([position.lat, position.lng], 15);
-        isInitialized.current = true;
+      if (position) {
+        map.setView([position.lat, position.lng], map.getZoom());
       }
     }, [position, map]);
 
